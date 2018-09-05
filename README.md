@@ -1,2 +1,2 @@
 # otm-sim
-Open Transportation Models - Simulation engine
+Open Traffic Models - Simulation engine
