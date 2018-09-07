@@ -1,6 +1,11 @@
+/**
+ * Copyright (c) 2018, Gabriel Gomes
+ * All rights reserved.
+ * This source code is licensed under the standard 3-clause BSD license found
+ * in the LICENSE file in the root directory of this source tree.
+ */
 package output;
 
-import api.events.AbstractEvent;
 import api.events.EventVehicleFromToQueue;
 import commodity.Commodity;
 import dispatch.Dispatcher;
@@ -9,11 +14,6 @@ import models.pq.Queue;
 import models.pq.Vehicle;
 import runner.RunParameters;
 import runner.Scenario;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 
 public class OutputEventsVehicle extends AbstractOutputEvent implements InterfaceVehicleListener {
 

@@ -1,10 +1,14 @@
+/**
+ * Copyright (c) 2018, Gabriel Gomes
+ * All rights reserved.
+ * This source code is licensed under the standard 3-clause BSD license found
+ * in the LICENSE file in the root directory of this source tree.
+ */
 package api.info;
 
-import jaxb.Demand;
 import keys.DemandType;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;
-import profiles.Profile1D;
 
 public class DemandInfo {
 
