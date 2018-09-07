@@ -77,6 +77,17 @@ public class Profile1D {
         return dt;
     }
 
+    public List<Float> get_times(){
+        List<Float> times = new ArrayList<>();
+        float currtime = start_time;
+        times.add(currtime);
+        for(int i=0;i<values.size()-1;i++){
+            currtime += dt;
+            times.add(currtime);
+        }
+        return times;
+    }
+
     public List<Double> get_values(){
         return values;
     }
