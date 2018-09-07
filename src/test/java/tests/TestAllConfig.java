@@ -3,6 +3,7 @@ package tests;
 import api.API;
 import api.info.CommodityInfo;
 import error.OTMException;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -44,6 +45,7 @@ public class TestAllConfig extends AbstractTest {
         run("ctm");
     }
 
+    @Ignore
     @Test
     public void test_run_mn() {
         run("mn");
@@ -60,14 +62,9 @@ public class TestAllConfig extends AbstractTest {
             List<Long> link_ids = api.get_link_ids();
             Float outDt = sim_dt;
 
-            // prefix
-            File f = new File(testname);
-            String filename = f.getName();
-            filename = filename.substring(0, filename.lastIndexOf('.'));
-            String prefix = model + "_" + filename;
-
             // request outputs
             for(CommodityInfo comm : api.get_commodities()) {
+                String prefix = model + "_" + testname;
                 api.request_links_flow(prefix,output_folder, comm.getId(), link_ids, outDt);
                 api.request_links_veh(prefix, output_folder, comm.getId(), link_ids, outDt);
             }
@@ -75,13 +72,9 @@ public class TestAllConfig extends AbstractTest {
             // run the simulation
             api.run(start_time,duration);
 
-            // TODO reinsert this
-//            // check the output against expects
-//            for(String output_path : api.get_outputs()){
-//                File f1 = new File(output_path);
-//                File f2 = new File(expected_output_folder,f1.getName());
-//                compare_files(f1,f2);
-//            }
+            // check the output against expects
+            for(String output_path : api.get_outputs())
+                compare_files(output_path);
 
         }
 
@@ -92,9 +85,16 @@ public class TestAllConfig extends AbstractTest {
 
     }
 
-    private void compare_files(File file1,File file2){
-        ArrayList<ArrayList<Double>> f1 = read_matrix_csv_file(file1);
-        ArrayList<ArrayList<Double>> f2 = read_matrix_csv_file(file2);
+    private void compare_files(String output_path){
+
+        File outfile = new File(output_path);
+        String outname = outfile.getName();
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        File known_outfile = new File(classLoader.getResource("test_output/" + outname).getFile());
+
+        ArrayList<ArrayList<Double>> f1 = read_matrix_csv_file(outfile);
+        ArrayList<ArrayList<Double>> f2 = read_matrix_csv_file(known_outfile);
         assertEquals(f1.size(),f2.size());
         for(int i=0;i<f1.size();i++){
             ArrayList<Double> x1 = f1.get(i);

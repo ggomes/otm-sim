@@ -8,7 +8,6 @@ import java.util.*;
 public abstract class AbstractTest {
 
     protected static String output_folder = "temp";
-    protected static String expected_output_folder = "src\\test\\known_output";
 
     private static List<String> all_runparams;
     static {

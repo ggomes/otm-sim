@@ -2,6 +2,7 @@ package tests;
 
 import api.API;
 import error.OTMException;
+import org.junit.Ignore;
 import org.junit.Test;
 import runner.OTM;
 
@@ -9,6 +10,7 @@ import static org.junit.Assert.fail;
 
 public class TestSignal  extends AbstractTest {
 
+    @Ignore
     @Test
     public void test_run_from_properties() {
         try {

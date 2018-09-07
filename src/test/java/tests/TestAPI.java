@@ -129,10 +129,8 @@ public class TestAPI extends AbstractTest {
     public void test_get_link_ids(){
     }
 
-
     @Test
     public void test_get_node_ids(){
-        System.out.println(api.get_node_ids());
     }
 
     @Test
@@ -420,8 +418,6 @@ public class TestAPI extends AbstractTest {
 
             Scenario scenario = apiopen.scenario();
             Link link = scenario.network.links.get(0L);
-            System.out.println(link.get_max_vehicles());
-
 
             final int steps = (int) (duration / sim_dt);
             for (int i=1; i<=steps; i++) {
@@ -429,7 +425,6 @@ public class TestAPI extends AbstractTest {
                 api.advance(sim_dt);
                 AnimationInfo info = api.get_animation_info();
                 Map<Long,Double> x = info.get_total_vehicles_per_link();
-                System.out.println(x.get(3L));
 //                System.out.println(((output.animation.macro.LinkInfo)info.link_info.get(0L)).lanegroup_info.get(0L).cell_info.get(0).comm_vehicles.get(1L));
             }
         } catch (OTMException e) {

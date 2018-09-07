@@ -233,7 +233,7 @@ public class OTM {
     }
 
     public static String getGitHash(){
-        InputStream inputStream = OTM.class.getResourceAsStream("/sim.properties");
+        InputStream inputStream = OTM.class.getResourceAsStream("/otm-sim.properties");
         Properties properties = new Properties();
         try {
             properties.load(inputStream);

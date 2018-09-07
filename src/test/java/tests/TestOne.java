@@ -63,7 +63,6 @@ public class TestOne extends AbstractTest {
             while(time<end_time){
                 api.advance(sim_dt);
                 time += sim_dt;
-                System.out.println(time);
             }
 
         } catch (OTMException e) {
