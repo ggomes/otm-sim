@@ -194,7 +194,7 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     ///////////////////////////////////////////
 
     @Override
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

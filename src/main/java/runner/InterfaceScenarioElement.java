@@ -8,7 +8,7 @@ package runner;
 
 public interface InterfaceScenarioElement {
 
-    long getId();
+    Long getId();
     ScenarioElementType getScenarioElementType();
 
 }

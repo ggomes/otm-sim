@@ -189,7 +189,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
     ///////////////////////////////////////////
 
     @Override
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

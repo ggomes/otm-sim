@@ -480,7 +480,7 @@ public class Link implements InterfaceScenarioElement {
     ///////////////////////////////////////////
 
     @Override
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

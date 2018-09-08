@@ -24,7 +24,7 @@ public class TestOne extends AbstractTest {
 
     @Ignore
     @Test
-    public void test_load_for_static_traffic_assignemnt() {
+    public void test_load_for_static_traffic_assignment() {
         try {
 
             // TODO Add large network to test configurations
@@ -78,7 +78,7 @@ public class TestOne extends AbstractTest {
     }
 
     @Test
-    public void run_one() {
+    public void run_one_test() {
         try {
 
             float duration = 250;
@@ -90,6 +90,64 @@ public class TestOne extends AbstractTest {
             API api = null;
             try {
                 api = OTM.load_test("line",sim_dt,true,"pq");
+            } catch (OTMException e) {
+                e.printStackTrace();
+            }
+
+            api.set_stochastic_process("deterministic");
+
+            // Output requests .....................
+//            api.request_links_flow(null, api.get_link_ids(), outdt);
+//            api.request_links_veh(null, api.get_link_ids(), outdt);
+//
+//            api.request_controller(1L);
+//            api.request_actuator(1L);
+
+            // Run .................................
+            api.run(0,duration);
+
+            // Print output .........................
+            String outfolder = "temp";
+            for(AbstractOutput output :  api.get_output_data()){
+
+                if (output instanceof OutputEventsActuator){
+                    ((OutputEventsActuator) output).plot(String.format("%sactuator%d.png",outfolder,((OutputEventsActuator) output).actuator_id));
+                }
+
+                if (output instanceof OutputEventsController){
+                    ((OutputEventsController) output).plot(String.format("%scontroller%d.png",outfolder,((OutputEventsController) output).controller_id));
+                }
+
+                if (output instanceof LinkFlow){
+                    ((LinkFlow) output).plot_for_links(null,outfolder+"flow.png");
+                }
+
+                if (output instanceof LinkVehicles){
+                    ((LinkVehicles) output).plot_for_links(null,outfolder+"vehicles.png");
+                }
+
+            }
+
+        } catch (OTMException e) {
+            System.out.print(e);
+            fail();
+        }
+    }
+
+
+    @Test
+    public void run_one() {
+        try {
+
+            float duration = 250;
+            float outdt = 1f;
+            float sim_dt = 1f;
+
+            // Load ..............................
+
+            API api = null;
+            try {
+                api = OTM.load("C:\\Users\\gomes\\Dropbox\\gabriel\\work\\PCARI\\Manila trip\\talks\\otm\\intersection.xml",sim_dt,true,"pq");
             } catch (OTMException e) {
                 e.printStackTrace();
             }

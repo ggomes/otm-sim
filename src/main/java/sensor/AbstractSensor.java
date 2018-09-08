@@ -32,12 +32,6 @@ public abstract class AbstractSensor implements InterfacePokable, InterfaceScena
 
     public OutputEventsSensor event_listener;
 
-//    // TODO: Move to loop sensor
-//    public float position;
-//    public int start_lane;
-//    public int end_lane;
-//    public Link link;
-
     /////////////////////////////////////////////////////////////////////
     // construction
     /////////////////////////////////////////////////////////////////////
@@ -82,7 +76,7 @@ public abstract class AbstractSensor implements InterfacePokable, InterfaceScena
     ///////////////////////////////////////////
 
     @Override
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

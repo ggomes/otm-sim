@@ -101,7 +101,7 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
     ///////////////////////////////////////////
 
     @Override
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

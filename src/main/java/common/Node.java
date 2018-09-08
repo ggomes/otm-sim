@@ -181,7 +181,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     ///////////////////////////////////////////
 
     @Override
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
