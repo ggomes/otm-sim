@@ -1,47 +1,43 @@
-/**
- * Copyright (c) 2018, Gabriel Gomes
- * All rights reserved.
- * This source code is licensed under the standard 3-clause BSD license found
- * in the LICENSE file in the root directory of this source tree.
- */
 package output;
 
+import common.AbstractLaneGroup;
+import common.Link;
 import error.OTMException;
-import common.*;
 import org.jfree.data.xy.XYSeries;
 import profiles.Profile1D;
 import runner.Scenario;
+import sensor.FlowAccumulatorGlobal;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class LinkFlow extends AbstractOutputTimedLink {
+public class LinkFlowGlobal extends AbstractOutputTimedLink {
 
-    private Map<Long,FlowAccumulatorSet> flow_accumulator_sets;
+    private Map<Long, Set<FlowAccumulatorGlobal>> flw_acc_sets; // link_id -> flow accumulator set
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
-    public LinkFlow(Scenario scenario,String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt) throws OTMException {
-        super(scenario,prefix,output_folder,commodity_id,link_ids,outDt);
+    public LinkFlowGlobal(Scenario scenario, String prefix, String output_folder, List<Long> link_ids, Float outDt) throws OTMException {
+        super(scenario,prefix,output_folder,null,link_ids,outDt);
         this.type = Type.link_flw;
     }
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
-        flow_accumulator_sets = new HashMap<>();
-        for(Link link : links.values())
-            flow_accumulator_sets.put(link.getId(),link.request_flow_accumulator_set(commodity==null ? null : commodity.getId()));
+        flw_acc_sets = new HashMap<>();
+        for(Link link : links.values()) {
+            Set<FlowAccumulatorGlobal> flw_acc_set = new HashSet<>();
+            flw_acc_sets.put(link.getId(),flw_acc_set);
+            for(AbstractLaneGroup lg : link.lanegroups.values())
+                flw_acc_set.add(lg.request_flow_accumulator());
+        }
     }
 
     @Override
     public String get_output_file() {
-        return super.get_output_file() + "_link_flw.txt";
+        return super.get_output_file() + "_link_flw_global.txt";
     }
 
     @Override
@@ -84,28 +80,28 @@ public class LinkFlow extends AbstractOutputTimedLink {
     @Override
     public void write(float timestamp,Object obj) throws OTMException {
 
-        if(write_to_file){
-            super.write(timestamp,null);
-            try {
-                boolean isfirst=true;
-                for(FlowAccumulatorSet fas : flow_accumulator_sets.values()){
-                    if(!isfirst)
-                        writer.write(AbstractOutputTimed.delim);
-                    isfirst = false;
-                    writer.write(String.format("%f",fas.get_vehicle_count()));
-                    fas.reset();
-                }
-                writer.write("\n");
-            } catch (IOException e) {
-                throw new OTMException(e);
-            }
-        } else {
-            for(Long link_id : links.keySet()){
-                FlowAccumulatorSet fas = flow_accumulator_sets.get(link_id);
-                values.get(link_id).add(fas.get_vehicle_count());
-                fas.reset();
-            }
-        }
+//        if(write_to_file){
+//            super.write(timestamp,null);
+//            try {
+//                boolean isfirst=true;
+//                for(Set<FlowAccumulatorGlobal> fas : flw_acc_sets.values()){
+//                    if(!isfirst)
+//                        writer.write(AbstractOutputTimed.delim);
+//                    isfirst = false;
+//                    writer.write(String.format("%f",fas.get_vehicle_count()));
+//                    fas.reset();
+//                }
+//                writer.write("\n");
+//            } catch (IOException e) {
+//                throw new OTMException(e);
+//            }
+//        } else {
+//            for(Long link_id : links.keySet()){
+//                Set<FlowAccumulatorGlobal> fas = flw_acc_sets.get(link_id);
+//                values.get(link_id).add(fas.get_vehicle_count());
+//                fas.reset();
+//            }
+//        }
 
     }
 

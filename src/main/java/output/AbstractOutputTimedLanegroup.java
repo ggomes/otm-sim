@@ -6,11 +6,9 @@
  */
 package output;
 
-import commodity.Subnetwork;
 import error.OTMErrorLog;
 import error.OTMException;
 import common.AbstractLaneGroup;
-import common.Link;
 import runner.Scenario;
 
 import java.io.*;
@@ -20,7 +18,6 @@ import java.util.List;
 
 public class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
 
-//    public List<Link> links;
     public List<AbstractLaneGroup> lanegroups;
 
     //////////////////////////////////////////////////////

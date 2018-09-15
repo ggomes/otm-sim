@@ -89,7 +89,7 @@ public class TestOne extends AbstractTest {
 
             API api = null;
             try {
-                api = OTM.load_test("line",sim_dt,true,"pq");
+                api = OTM.load_test("onramp_offramp_1",sim_dt,true,"pq");
             } catch (OTMException e) {
                 e.printStackTrace();
             }
@@ -118,8 +118,8 @@ public class TestOne extends AbstractTest {
                     ((OutputEventsController) output).plot(String.format("%scontroller%d.png",outfolder,((OutputEventsController) output).controller_id));
                 }
 
-                if (output instanceof LinkFlow){
-                    ((LinkFlow) output).plot_for_links(null,outfolder+"flow.png");
+                if (output instanceof LinkFlowGlobal){
+                    ((LinkFlowGlobal) output).plot_for_links(null,outfolder+"flow.png");
                 }
 
                 if (output instanceof LinkVehicles){
@@ -176,8 +176,8 @@ public class TestOne extends AbstractTest {
                     ((OutputEventsController) output).plot(String.format("%scontroller%d.png",outfolder,((OutputEventsController) output).controller_id));
                 }
 
-                if (output instanceof LinkFlow){
-                    ((LinkFlow) output).plot_for_links(null,outfolder+"flow.png");
+                if (output instanceof LinkFlowGlobal){
+                    ((LinkFlowGlobal) output).plot_for_links(null,outfolder+"flow.png");
                 }
 
                 if (output instanceof LinkVehicles){

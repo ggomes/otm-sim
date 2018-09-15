@@ -27,7 +27,7 @@ import packet.PacketSplitter;
 import plugin.PluginLoader;
 import profiles.*;
 import sensor.AbstractSensor;
-import sensor.SensorLoopDetector;
+import sensor.FixedSensor;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -269,8 +269,8 @@ public class ScenarioFactory {
         for(jaxb.Sensor jaxb_sensor : jaxb_sensors.getSensor()){
             AbstractSensor sensor;
             switch(jaxb_sensor.getType()){
-                case "loop":
-                    sensor = new SensorLoopDetector(scenario,jaxb_sensor);
+                case "fixed":
+                    sensor = new FixedSensor(scenario,jaxb_sensor);
                     break;
                 default:
                     sensor = null;

@@ -75,7 +75,7 @@ public class Link implements InterfaceScenarioElement {
     public AbstractLinkModel model;
 
     // flow accumulation
-    public Map<Long, FlowAccumulatorSet> commodity_flowaccumulators;
+//    public Map<Long, FlowAccumulatorSet> commodity_flowaccumulators;
 
     // for path travel time output
     public Set<PathTravelTime> travel_timers;
@@ -104,7 +104,7 @@ public class Link implements InterfaceScenarioElement {
         this.full_lanes = full_lanes;
         this.start_node = start_node;
         this.end_node = end_node;
-        this.commodity_flowaccumulators = new HashMap<>();
+//        this.commodity_flowaccumulators = new HashMap<>();
         this.road_geom = rg;
 
         // source and sink. this is set later by the network
@@ -152,7 +152,7 @@ public class Link implements InterfaceScenarioElement {
         this.full_lanes = full_lanes;
         this.start_node = start_node;
         this.end_node = end_node;
-        this.commodity_flowaccumulators = new HashMap<>();
+//        this.commodity_flowaccumulators = new HashMap<>();
 
         // node io
         this.start_node.add_output_link(this);
@@ -184,7 +184,7 @@ public class Link implements InterfaceScenarioElement {
         road_geom = null;
         model_type = null;
         model = null;
-        commodity_flowaccumulators = null;
+//        commodity_flowaccumulators = null;
         travel_timers = null;
         shape = null;
     }
@@ -224,12 +224,12 @@ public class Link implements InterfaceScenarioElement {
         sources.add(source);
     }
 
-    public FlowAccumulatorSet request_flow_accumulator_set(Long commodity_id){
-        FlowAccumulatorSet fas = new FlowAccumulatorSet();
-        for(AbstractLaneGroup lg : lanegroups.values())
-            fas.add_flow_accumulator(lg.request_flow_accumulator(commodity_id));
-        return fas;
-    }
+//    public FlowAccumulatorSet request_flow_accumulator_set(Long commodity_id){
+//        FlowAccumulatorSet fas = new FlowAccumulatorSet();
+//        for(AbstractLaneGroup lg : lanegroups.values())
+//            fas.add_flow_accumulator(lg.request_flow_accumulator(commodity_id));
+//        return fas;
+//    }
 
     public void validate(OTMErrorLog errorLog){
         if( length<=0 )

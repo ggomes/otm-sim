@@ -295,14 +295,16 @@ public class OTM {
                     output = new LaneGroups(scenario,prefix,output_folder);
                     break;
                 case "link_flw":
-                    output = new LinkFlow(scenario,prefix,output_folder,commodity_id,null,outDt);
-                    break;
+  //                  output = new LinkFlow(scenario,prefix,output_folder,commodity_id,null,outDt);
+                    throw new OTMException("lanegroup_flw output IS NOT YET IMPLEMENTED!");
+//                    break;
                 case "link_veh":
                     output = new LinkVehicles(scenario,prefix,output_folder,commodity_id,null,outDt);
                     break;
                 case "lanegroup_flw":
-                    output = new LaneGroupFlow(scenario,prefix,output_folder,commodity_id,null,outDt);
-                    break;
+//                    output = new LaneGroupFlow(scenario,prefix,output_folder,commodity_id,null,outDt);
+                    throw new OTMException("lanegroup_flw output IS NOT YET IMPLEMENTED!");
+                    //break;
                 case "lanegroup_veh":
                     output = new LaneGroupVehicles(scenario,prefix,output_folder,commodity_id,null,outDt);
                     break;

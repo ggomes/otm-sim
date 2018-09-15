@@ -10,9 +10,13 @@ import actuator.AbstractActuator;
 import commodity.Commodity;
 import error.OTMErrorLog;
 import error.OTMException;
+import keys.KeyCommPathOrLink;
 import packet.AbstractPacketLaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
+import sensor.FlowAccumulatorCommPathOrLink;
+import sensor.FlowAccumulatorCommodity;
+import sensor.FlowAccumulatorGlobal;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -33,16 +37,16 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // parameters
     public float max_vehicles;      // largest number of vehicles that fit in this lane group
 
-    public AbstractActuator actuator; // NOTE: WHY IS THERE ONLY ONE?
+    public AbstractActuator actuator;
 
     // flow accumulators
-    public FlowAccumulator global_flow_accumulator;
-    public Map<Long,FlowAccumulator> commodity_flow_accumulators;     // commodity_id -> FlowAccumulator
+    public FlowAccumulatorGlobal global_flw_acc;
+    public FlowAccumulatorCommodity comm_flw_acc;
+    public FlowAccumulatorCommPathOrLink key_flw_acc;
 
     ///////////////////////////////////////////////////
     // abstract methods
     ///////////////////////////////////////////////////
-
 
     abstract public void add_commodity(Commodity commodity);
 
@@ -90,8 +94,9 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         outlink2roadconnection = null;
         lanes = null;
         actuator = null;
-        global_flow_accumulator = null;
-        commodity_flow_accumulators = null;
+        global_flw_acc = null;
+        comm_flw_acc = null;
+        key_flw_acc = null;
     }
 
     public void validate(OTMErrorLog errorLog) {
@@ -126,10 +131,12 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     }
 
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
-        if(global_flow_accumulator!=null)
-            global_flow_accumulator.reset();
-        if(commodity_flow_accumulators!=null)
-            commodity_flow_accumulators.values().forEach(x->x.reset());
+        if(global_flw_acc!=null)
+            global_flw_acc.reset();
+        if(comm_flw_acc!=null)
+            comm_flw_acc.reset();
+        if(key_flw_acc!=null)
+            key_flw_acc.reset();
     }
 
     public void set_road_params(jaxb.Roadparam r){
@@ -138,19 +145,24 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         max_vehicles = r.getJamDensity()*length*lanes.size()/1000;
     }
 
-    public FlowAccumulator request_flow_accumulator(Long commodity_id){
-        if(commodity_id==null){
-            if(global_flow_accumulator==null)
-                global_flow_accumulator = new FlowAccumulator(this);
-            return global_flow_accumulator;
-        }
-        if(commodity_flow_accumulators==null)
-            commodity_flow_accumulators = new HashMap<>();
-        if(commodity_flow_accumulators.containsKey(commodity_id))
-            return commodity_flow_accumulators.get(commodity_id);
-        FlowAccumulator r = new FlowAccumulator(this,commodity_id);
-        commodity_flow_accumulators.put(commodity_id,r);
-        return r;
+    public FlowAccumulatorGlobal request_flow_accumulator(){
+        if(global_flw_acc==null)
+            global_flw_acc = new FlowAccumulatorGlobal();
+        return global_flw_acc;
+    }
+
+    public FlowAccumulatorCommodity request_flow_accumulator(Long commid){
+        if(comm_flw_acc==null)
+            comm_flw_acc = new FlowAccumulatorCommodity();
+        comm_flw_acc.add_commodity(commid);
+        return comm_flw_acc;
+    }
+
+    public FlowAccumulatorCommPathOrLink request_flow_accumulator(KeyCommPathOrLink key){
+        if(key_flw_acc==null)
+            key_flw_acc = new FlowAccumulatorCommPathOrLink();
+        key_flw_acc.add_key(key);
+        return key_flw_acc;
     }
 
     ///////////////////////////////////////////////////
@@ -246,14 +258,15 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // update
     ///////////////////////////////////////////////////
 
-    protected void update_flow_accummulators(Long commodity_id,double num_vehicles){
-        // tell the flow accumulators
-        if(commodity_flow_accumulators!=null && commodity_flow_accumulators.containsKey(commodity_id))
-            commodity_flow_accumulators.get(commodity_id).increment(num_vehicles);
-        if(global_flow_accumulator!=null)
-            global_flow_accumulator.increment(num_vehicles);
-
+    protected void update_flow_accummulators(KeyCommPathOrLink key,double num_vehicles){
+        if(global_flw_acc!=null)
+            global_flw_acc.increment(num_vehicles);
+        if(comm_flw_acc!=null)
+            comm_flw_acc.increment(key.commodity_id,num_vehicles);
+        if(key_flw_acc!=null)
+            key_flw_acc.increment(key,num_vehicles);
     }
+
 
     ///////////////////////////////////////////////////////////////
     // static

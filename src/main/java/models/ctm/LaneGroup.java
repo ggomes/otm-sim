@@ -283,7 +283,7 @@ public class LaneGroup extends AbstractLaneGroup {
         // TODO : Check this
         for(Map.Entry<KeyCommPathOrLink,Double> e : flow_in_target.get(cells.size()).entrySet())
             if(e.getValue()>0)
-                update_flow_accummulators(e.getKey().commodity_id,e.getValue());
+                update_flow_accummulators(e.getKey(),e.getValue());
     }
 
     protected void update_state(){

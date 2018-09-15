@@ -1,36 +1,27 @@
-/**
- * Copyright (c) 2018, Gabriel Gomes
- * All rights reserved.
- * This source code is licensed under the standard 3-clause BSD license found
- * in the LICENSE file in the root directory of this source tree.
- */
 package output;
 
-import error.OTMException;
 import common.AbstractLaneGroup;
-import common.FlowAccumulator;
+import error.OTMException;
 import profiles.Profile1D;
 import runner.Scenario;
+import sensor.FlowAccumulatorGlobal;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class LaneGroupFlow extends AbstractOutputTimedLanegroup {
+public class LaneGroupFlowGlobal extends AbstractOutputTimedLanegroup  {
 
     // map from lanegroup id to time profile of flow
-    Map<Long, Profile1D> flow;
+    private Map<Long, Profile1D> flow;
 
-    public List<FlowAccumulator> flowAccumulators;
+    public List<FlowAccumulatorGlobal> flw_accs;
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
-    public LaneGroupFlow(Scenario scenario,String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt) throws OTMException {
-        super(scenario,prefix,output_folder,commodity_id,link_ids,outDt);
+    public LaneGroupFlowGlobal(Scenario scenario, String prefix, String output_folder, List<Long> link_ids, Float outDt) throws OTMException {
+        super(scenario, prefix, output_folder, null, link_ids, outDt);
         this.type = Type.lanegroup_flw;
 
         if(!write_to_file) {
@@ -38,20 +29,19 @@ public class LaneGroupFlow extends AbstractOutputTimedLanegroup {
             for(AbstractLaneGroup lg : lanegroups)
                 flow.put(lg.id,new Profile1D(null,outDt));
         }
-
     }
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
-        flowAccumulators = new ArrayList<>();
+        flw_accs = new ArrayList<>();
         for(AbstractLaneGroup lanegroup : lanegroups)
-            flowAccumulators.add(lanegroup.request_flow_accumulator(commodity==null ? null : commodity.getId()));
+            flw_accs.add(lanegroup.request_flow_accumulator());
     }
 
     @Override
     public String get_output_file() {
-        return super.get_output_file() + "_lanegroup_flw.txt";
+        return super.get_output_file() + "_lanegroup_flw_total.txt";
     }
 
     public Map<Long,Profile1D> get_profiles_for_linkid(Long link_id){
@@ -79,11 +69,11 @@ public class LaneGroupFlow extends AbstractOutputTimedLanegroup {
             try {
                 boolean isfirst=true;
                 for(int i=0;i<lanegroups.size();i++){
-                    FlowAccumulator fa = flowAccumulators.get(i);
+                    FlowAccumulatorGlobal fa = flw_accs.get(i);
                     if(!isfirst)
                         writer.write(AbstractOutputTimed.delim);
                     isfirst = false;
-                    writer.write(String.format("%f",fa.vehicle_count));
+                    writer.write(String.format("%f",fa.count));
                 }
                 writer.write("\n");
             } catch (IOException e) {
@@ -91,8 +81,8 @@ public class LaneGroupFlow extends AbstractOutputTimedLanegroup {
             }
         } else {
             for(int i=0;i<lanegroups.size();i++) {
-                FlowAccumulator fa = flowAccumulators.get(i);
-                flow.get(lanegroups.get(i).id).add(fa.vehicle_count);
+                FlowAccumulatorGlobal fa = flw_accs.get(i);
+                flow.get(lanegroups.get(i).id).add(fa.count);
             }
         }
 

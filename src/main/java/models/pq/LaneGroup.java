@@ -236,7 +236,7 @@ public class LaneGroup extends AbstractLaneGroup {
         }
 
         // tell the flow accumulators
-        update_flow_accummulators(vehicle.get_commodity_id(),1f);
+        update_flow_accummulators(vehicle.get_key(),1f);
 
         /** NOTE RESOLVE THIS. NEED TO CHECK
          * a) WHETHER THE NEXT LANE GROUP IS MACRO OR MESO.

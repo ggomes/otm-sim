@@ -20,7 +20,7 @@ import runner.ScenarioElementType;
 public abstract class AbstractSensor implements InterfacePokable, InterfaceScenarioElement {
 
     public enum Type {
-        loop,
+        fixed,
         plugin
     }
 
