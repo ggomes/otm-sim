@@ -1,7 +1,6 @@
 target/
 doc/
 .idea/
-*.txt
 *.class
 *.iml
 *.exe
