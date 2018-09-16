@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<output_requests>
+
+  <output_request quantity = "lanegroups"  />
+  
+  <output_request quantity = "vehicle_events" />
+<!--   <output_request quantity = "controller" controller = "1"  />
+  <output_request quantity = "actuator" actuator = "1"  /> -->
+
+<!--  
+  <output_request quantity = "link_veh" dt = "30" commodity_id = "1" />
+  <output_request quantity = "link_veh" dt = "30" />
+
+  <output_request quantity = "link_flw" dt = "30" commodity_id = "1" />
+  <output_request quantity = "link_flw" dt = "30" />
+
+  <output_request quantity = "link_vht" dt = "30" commodity_id = "1" />
+  <output_request quantity = "link_vht" dt = "30" />
+
+  <output_request quantity = "lanegroup_veh" dt = "30" commodity_id = "1" />
+  <output_request quantity = "lanegroup_veh" dt = "30" />
+
+  <output_request quantity = "lanegroup_flw" dt = "30" commodity_id = "1" />
+  <output_request quantity = "lanegroup_flw" dt = "30" /> -->
+
+</output_requests>
+

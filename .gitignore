@@ -7,7 +7,6 @@ doc/
 *.exe
 *.jar
 *.pdf
-*.xml
 *.ppt
 *.xlsx
 *.log

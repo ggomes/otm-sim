@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>otm</groupId>
+    <artifactId>otm-sim</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>otm-sim</name>
+    <url>http://maven.apache.org</url>
+
+    <scm>
+        <connection>scm:git:git@github.com:ggomes/otm-sim.git</connection>
+        <developerConnection>scm:git:git@github.com:ggomes/otm-sim.git</developerConnection>
+        <url>git@github.com:ggomes/otm-sim.git</url>
+    </scm>
+    
+    <repositories>
+        <repository>
+            <id>myMavenRepoOTM</id>
+            <url>${myMavenRepoOTMReadUrl}</url>
+        </repository>
+    </repositories>
+    
+    <distributionManagement>
+        <repository>
+            <id>myMavenRepoOTM</id>
+            <url>${myMavenRepoOTMWriteUrl}</url>
+        </repository>
+        <snapshotRepository>
+            <id>myMavenRepoOTM</id>
+            <url>${myMavenRepoOTMWriteUrl}</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <build>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <plugins>
+
+            <!-- version number -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <revisionOnScmFailure>true</revisionOnScmFailure>
+                </configuration>
+            </plugin>
+
+            <!-- JAXB -->
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+                <version>0.8.2</version>
+                <executions>
+                    <execution>
+                        <id>Request</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <generatePackage>jaxb</generatePackage>
+                            <bindingDirectory>src/main/resources</bindingDirectory>
+                            <bindingIncludes>
+                                <bindingInclude>jaxb-bindings.xjb</bindingInclude>
+                            </bindingIncludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- MAVEN COMPILER  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <excludes>
+                        <exclude>od/*.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- MAVEN ASSEMBLY -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>runner.OTM</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <git-SHA-1>${buildNumber}</git-SHA-1>
+                        </manifestEntries>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- JAVADOC -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.4</version>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <dependencies>
+
+        <!-- OTM BASE -->
+        <dependency>
+            <groupId>otm</groupId>
+            <artifactId>otm-base</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- JUNIT -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- JSON -->
+        <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.2</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/jfree/jfreechart -->
+        <dependency>
+            <groupId>jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.0.13</version>
+        </dependency>
+
+        <!-- pf4j : plugin framework
+        <dependency>
+            <groupId>ro.fortsoft.pf4j</groupId>
+            <artifactId>pf4j</artifactId>
+            <version>0.13.1</version>
+        </dependency> -->
+
+        <!--
+        <dependency>
+            <groupId>org.etourdot</groupId>
+            <artifactId>xinclude</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+             -->
+    </dependencies>
+
+</project>
