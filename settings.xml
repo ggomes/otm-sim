@@ -1,0 +1,17 @@
+<settings>
+    <profiles>
+
+        <profile>
+            <id>myMavenRepoOTM</id>
+            <activation>
+                <property>
+                    <name>!doNotUseMyMavenRepo</name>
+                </property>
+            </activation>
+            <properties>
+                <myMavenRepoOTMReadUrl>https://mymavenrepo.com/repo/XtcMAROnIu3PyiMCmbdY/</myMavenRepoOTMReadUrl>
+            </properties>
+        </profile>
+
+    </profiles>
+</settings>
