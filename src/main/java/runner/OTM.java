@@ -65,43 +65,34 @@ public class OTM {
 
         // run
         //    0 configfile
-        //    1 global_model
-        //    2 duration
-        //    3 sim_dt
+        //    1 prefix
+        //    2 output_request
+        //    3 output folder
         //    4 start_time
-        //    5 output_request
-        //    6 prefix
-        //    7 outputfolder
+        //    5 sim_dt
+        //    6 duration
+        //    7 global_model
         if (cmd.equals("-run")){
             try {
 
-                if(arguments.length<4) {
+                if(arguments.length<7) {
                     System.err.println("Not enough input arguments.");
                     return;
                 }
 
                 String configfile = arguments[0];
-                String global_model = arguments[1];
-                int duration = Integer.parseInt(arguments[2]);
-                float sim_dt = Float.parseFloat(arguments[3]);
-                int start_time = arguments.length<5 ? 0 : Integer.parseInt(arguments[4]);
+                String prefix = arguments[1];
+                String output_requests_file = arguments[2];
+                String output_folder = arguments[3];
+                int start_time = Integer.parseInt(arguments[4]);
+                float sim_dt = Float.parseFloat(arguments[5]);
+                int duration = Integer.parseInt(arguments[6]);
 
-                API api = OTM.load(configfile,sim_dt,true,global_model);
+                API api = arguments.length>7 ?
+                            OTM.load(configfile,sim_dt,true,arguments[7]) :
+                            OTM.load(configfile,sim_dt,true);
 
-                if(arguments.length<=5){
-                    api.run(start_time,duration);
-                    return;
-                }
-
-                if(6<=arguments.length && arguments.length<=8){
-                    String output_requests_file = arguments[5];
-                    String prefix = arguments[6];
-                    String output_folder = arguments[7];
-                    api.run(prefix,output_requests_file,output_folder,start_time,duration) ;
-                    return;
-                }
-
-                System.err.println("Incorrect number of arguments.");
+                api.run(prefix,output_requests_file,output_folder,start_time,duration);
 
             } catch (OTMException e) {
                 e.printStackTrace();
@@ -228,13 +219,14 @@ public class OTM {
                         "\t-help\t\tDisplay usage message.\n" +
                         "\t-version\tDisplay version information.\n" +
                         "\t-load\t\tLoad and validate a config file. arguments: <configfile>\n" +
-                        "\t-run\t\tRun a config file with default paramters. arguments: <configfile> <prefix> <output request file> <output folder> <start_time> <sim_dt> <duration>\n" +
+                        "\t-run\t\tRun a config file with default paramters. arguments: <configfile> <prefix> <output request file> <output folder> <start_time> <sim_dt> <duration> <global model>\n" +
                         "\t\tconfigfile: absolute location and name of the configuration file.\n" +
                         "\t\tprefix: string to be pre-pended to all output files.\n" +
                         "\t\toutput request file: absolute location and name of the output request file.\n" +
                         "\t\toutput folder: folder where the output files should go.\n" +
                         "\t\tstart_time: [integer] start time for the simultion in seconds after midnight.\n" +
-                        "\t\tduration: [integer] simulation duration in seconds.\n";
+                        "\t\tduration: [integer] simulation duration in seconds.\n" +
+                        "\t\tglobal model: [empty|'ctm'|'pq'] Use this model for all links.\n";
         return str;
     }
 
