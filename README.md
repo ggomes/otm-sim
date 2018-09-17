@@ -8,8 +8,8 @@ If you are interested in running OTM and not in development, you can download th
 
 Otherwise:
 1. move “settings.xml” to your .m2 folder
-2. In IntelliJ: 
+2. mvn install -DskipTests
+3. IntelliJ: 
   + Import Project
   + Import from external model > Maven
   + “Next” through everything
-3. mvn test
