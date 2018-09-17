@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
 
     public Map<Long,Link> links;
-    Map<Long, Profile1D> values;
+    public Map<Long, Profile1D> values;
 
     abstract String get_yaxis_label();
     abstract XYSeries get_series_for_linkid(Long link_id);

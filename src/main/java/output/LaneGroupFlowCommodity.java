@@ -14,7 +14,7 @@ import java.util.Map;
 public class LaneGroupFlowCommodity  extends AbstractOutputTimedLanegroup  {
 
     // map from lanegroup id to time profile of flow
-    Map<Long, Profile1D> flow;
+    private Map<Long, Profile1D> flow;
 
     public List<FlowAccumulatorCommodity> flw_accs;
 

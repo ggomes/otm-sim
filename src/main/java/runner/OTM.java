@@ -298,8 +298,9 @@ public class OTM {
                     throw new OTMException("lanegroup_flw output IS NOT YET IMPLEMENTED!");
                     //break;
                 case "lanegroup_veh":
-                    output = new LaneGroupVehicles(scenario,prefix,output_folder,commodity_id,null,outDt);
-                    break;
+//                    output = new LaneGroupVehicles(scenario,prefix,output_folder,commodity_id,null,outDt);
+                    throw new OTMException("lanegroup_veh output IS NOT YET IMPLEMENTED!");
+//                    break;
                 case "link_vht":
                     output = new LinkVHT(scenario,prefix,output_folder,commodity_id,null,outDt);
                     break;

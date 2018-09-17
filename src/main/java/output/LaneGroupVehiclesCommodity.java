@@ -1,13 +1,7 @@
-/**
- * Copyright (c) 2018, Gabriel Gomes
- * All rights reserved.
- * This source code is licensed under the standard 3-clause BSD license found
- * in the LICENSE file in the root directory of this source tree.
- */
 package output;
 
-import error.OTMException;
 import common.AbstractLaneGroup;
+import error.OTMException;
 import profiles.Profile1D;
 import runner.Scenario;
 
@@ -16,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LaneGroupVehicles extends AbstractOutputTimedLanegroup {
+public class LaneGroupVehiclesCommodity extends AbstractOutputTimedLanegroup {
 
     // map from lanegroup id to time profile of vehicles
     public Map<Long, Profile1D> vehicles;
@@ -25,7 +19,7 @@ public class LaneGroupVehicles extends AbstractOutputTimedLanegroup {
     // construction
     //////////////////////////////////////////////////////
 
-    public LaneGroupVehicles(Scenario scenario, String prefix, String output_folder, Long commodity_id, List<Long> link_ids, Float outDt) throws OTMException {
+    public LaneGroupVehiclesCommodity(Scenario scenario, String prefix, String output_folder, Long commodity_id, List<Long> link_ids, Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,link_ids,outDt);
         this.type = Type.lanegroup_veh;
 
@@ -39,7 +33,7 @@ public class LaneGroupVehicles extends AbstractOutputTimedLanegroup {
 
     @Override
     public String get_output_file() {
-        return super.get_output_file() + "_lanegroup_veh.txt";
+        return String.format("%s_lanegroup_comm%d_veh.txt",super.get_output_file(),commodity.getId());
     }
 
     public Map<Long,Profile1D> get_profiles_for_linkid(Long link_id){

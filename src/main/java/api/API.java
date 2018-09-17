@@ -690,7 +690,7 @@ public class API {
         return scenario.outputs.stream().map(x->x.get_output_file()).collect(toList());
     }
 
-    // network ................
+    // network ==============================================
 
     public void request_lanegroups(String prefix,String output_folder){
         try {
@@ -700,7 +700,9 @@ public class API {
         }
     }
 
-    // links ....................
+    // links ==============================================
+
+    // flow ----------------
 
     // global ...
 
@@ -742,9 +744,31 @@ public class API {
 
     // TODO: FILL THIS
 
+    // veh ----------------
+
+    // global ...
+
+    public void request_links_veh(String prefix,String output_folder,List<Long> link_ids,Float outDt){
+        try {
+            this.scenario.outputs.add(new LinkVehiclesGlobal(scenario,prefix,output_folder,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void request_links_veh(List<Long> link_ids,Float outDt){
+        try {
+            this.scenario.outputs.add(new LinkVehiclesGlobal(scenario,null,null,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // commodity ...
+
     public void request_links_veh(String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LinkVehicles(scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.scenario.outputs.add(new LinkVehiclesCommodity(scenario,prefix,output_folder,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -752,13 +776,18 @@ public class API {
 
     public void request_links_veh(Long commodity_id,List<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LinkVehicles(scenario,null,null,commodity_id,link_ids,outDt));
+            this.scenario.outputs.add(new LinkVehiclesCommodity(scenario,null,null,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
     }
 
-    // lanegroups ................................
+    // commodity / path ...
+    // TODO: FILL THIS
+
+    // lanegroups ==============================================
+
+    // flow ----------------
 
     // global ...
 
@@ -800,9 +829,31 @@ public class API {
 
     // TODO COMPLETE THIS....
 
+    // veh ----------------
+
+    // global ...
+
+    public void request_lanegroup_veh(String prefix,String output_folder,List<Long> link_ids,Float outDt){
+        try {
+            this.scenario.outputs.add(new LaneGroupVehiclesGlobal(scenario,prefix,output_folder,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void request_lanegroup_veh(List<Long> link_ids,Float outDt){
+        try {
+            this.scenario.outputs.add(new LaneGroupVehiclesGlobal(scenario,null,null,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // commodity ...
+
     public void request_lanegroup_veh(String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LaneGroupVehicles(scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.scenario.outputs.add(new LaneGroupVehiclesCommodity(scenario,prefix,output_folder,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -810,13 +861,16 @@ public class API {
 
     public void request_lanegroup_veh(Long commodity_id,List<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LaneGroupVehicles(scenario,null,null,commodity_id,link_ids,outDt));
+            this.scenario.outputs.add(new LaneGroupVehiclesCommodity(scenario,null,null,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
     }
 
-    // subnetwroks ..............
+    // commodity / path ...
+    // TODO COMPLETE THIS....
+
+    // subnetworks ==============================================
 
     /**
      * Request the travel times on a given path be recorded
