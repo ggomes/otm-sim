@@ -104,7 +104,7 @@ public class LaneGroup extends AbstractLaneGroup {
         current_max_flow_rate_vps = saturation_flow_rate_vps;
 
         // register first vehicle exit
-        schedule_release_vehicle(runParams.start_time);
+        schedule_release_vehicle(runParams.start_time,current_max_flow_rate_vps);
     }
 
     /**
@@ -143,7 +143,7 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public void exiting_roadconnection_capacity_has_been_modified() {
+    public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
 
         // set the capacity of this lanegroup to the minimum of the
         // exiting road connections
@@ -151,6 +151,20 @@ public class LaneGroup extends AbstractLaneGroup {
                 .map(x->x.external_max_flow_vps)
                 .min(Float::compareTo)
                 .get();
+
+        current_max_flow_rate_vps = current_max_flow_rate_vps>saturation_flow_rate_vps ?
+                saturation_flow_rate_vps :
+                current_max_flow_rate_vps;
+
+        // TODO: REMOVE FUTURE RELEASES?
+
+        System.out.println(current_max_flow_rate_vps);
+
+
+
+        // schedule a release for now+ half wait time
+        schedule_release_vehicle(timestamp,current_max_flow_rate_vps*2);
+
     }
 
     /**
@@ -166,7 +180,7 @@ public class LaneGroup extends AbstractLaneGroup {
     public void release_vehicle_packets(float timestamp) throws OTMException {
 
         // schedule the next vehicle release dispatch
-        schedule_release_vehicle(timestamp);
+        schedule_release_vehicle(timestamp,current_max_flow_rate_vps);
 
         // ignore if waiting queue is empty
         if(waiting_queue.num_vehicles()==0)
@@ -268,9 +282,10 @@ public class LaneGroup extends AbstractLaneGroup {
     // private
     ///////////////////////////////////////////////////
 
-    private void schedule_release_vehicle(float nowtime){
+    private void schedule_release_vehicle(float nowtime,float rate){
         Scenario scenario = link.network.scenario;
-        Float wait_time = scenario.get_waiting_time(current_max_flow_rate_vps);
+        Float wait_time = scenario.get_waiting_time(rate);
+
         if(wait_time!=null){
             float timestamp = nowtime + wait_time;
             scenario.dispatcher.register_event(

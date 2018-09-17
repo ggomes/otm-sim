@@ -150,12 +150,12 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
 //            errorLog.addError("splits don't add to 1");
     }
 
-    public void set_external_max_flow_vps(float rate_vps){
+    public void set_external_max_flow_vps(float timestamp,float rate_vps){
         this.external_max_flow_vps = rate_vps;
 
         // tell the incoming lanegroups
         for(AbstractLaneGroup in_lanegroup : in_lanegroups)
-            in_lanegroup.exiting_roadconnection_capacity_has_been_modified();
+            in_lanegroup.exiting_roadconnection_capacity_has_been_modified(timestamp);
     }
 
     @Override

@@ -212,7 +212,7 @@ public class SignalPhase {
 
         // send to lane groups
         for(RoadConnection rc : road_connections)
-            rc.set_external_max_flow_vps(rate_vps);
+            rc.set_external_max_flow_vps(timestamp,rate_vps);
 
         // inform the output listener
         if(my_signal.event_listener!=null)

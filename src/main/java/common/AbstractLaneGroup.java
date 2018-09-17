@@ -52,7 +52,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     abstract public void add_native_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp) throws OTMException;
 
-    abstract public void exiting_roadconnection_capacity_has_been_modified();
+    abstract public void exiting_roadconnection_capacity_has_been_modified(float timestamp);
 
     /**
      * An event signals an opportunity to release a vehicle packet. The lanegroup must,

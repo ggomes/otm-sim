@@ -30,7 +30,7 @@ public class LaneGroup  extends AbstractLaneGroup {
     }
 
     @Override
-    public void exiting_roadconnection_capacity_has_been_modified() {
+    public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
 
     }
 
