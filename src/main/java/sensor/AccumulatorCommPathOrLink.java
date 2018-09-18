@@ -5,7 +5,7 @@ import keys.KeyCommPathOrLink;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FlowAccumulatorCommPathOrLink {
+public class AccumulatorCommPathOrLink {
 
     public Map<KeyCommPathOrLink,Double> count = new HashMap<>();
 

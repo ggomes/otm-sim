@@ -4,23 +4,23 @@ import common.AbstractLaneGroup;
 import error.OTMException;
 import profiles.Profile1D;
 import runner.Scenario;
-import sensor.FlowAccumulatorGlobal;
+import sensor.AccumulatorGlobal;
 
 import java.io.IOException;
 import java.util.*;
 
-public class LaneGroupFlowGlobal extends AbstractOutputTimedLanegroup  {
+public class LaneGroupCountGlobal extends AbstractOutputTimedLanegroup  {
 
     // map from lanegroup id to time profile of flow
     private Map<Long, Profile1D> flow;
 
-    public List<FlowAccumulatorGlobal> flw_accs;
+    public List<AccumulatorGlobal> flw_accs;
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
-    public LaneGroupFlowGlobal(Scenario scenario, String prefix, String output_folder, List<Long> link_ids, Float outDt) throws OTMException {
+    public LaneGroupCountGlobal(Scenario scenario, String prefix, String output_folder, List<Long> link_ids, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, null, link_ids, outDt);
         this.type = Type.lanegroup_flw;
 
@@ -69,7 +69,7 @@ public class LaneGroupFlowGlobal extends AbstractOutputTimedLanegroup  {
             try {
                 boolean isfirst=true;
                 for(int i=0;i<lanegroups.size();i++){
-                    FlowAccumulatorGlobal fa = flw_accs.get(i);
+                    AccumulatorGlobal fa = flw_accs.get(i);
                     if(!isfirst)
                         writer.write(AbstractOutputTimed.delim);
                     isfirst = false;
@@ -81,7 +81,7 @@ public class LaneGroupFlowGlobal extends AbstractOutputTimedLanegroup  {
             }
         } else {
             for(int i=0;i<lanegroups.size();i++) {
-                FlowAccumulatorGlobal fa = flw_accs.get(i);
+                AccumulatorGlobal fa = flw_accs.get(i);
                 flow.get(lanegroups.get(i).id).add(fa.count);
             }
         }

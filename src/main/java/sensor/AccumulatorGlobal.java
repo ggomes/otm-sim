@@ -1,6 +1,6 @@
 package sensor;
 
-public class FlowAccumulatorGlobal {
+public class AccumulatorGlobal {
 
     public double count;
 

@@ -6,7 +6,7 @@ import java.util.Set;
 public class SubSensor {
 
     public Set<Integer> lanes = new HashSet<>();
-    public FlowAccumulatorGlobal flow_accumulator;
+    public AccumulatorGlobal flow_accumulator;
 
 
 }

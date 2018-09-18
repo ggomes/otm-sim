@@ -14,9 +14,9 @@ import keys.KeyCommPathOrLink;
 import packet.AbstractPacketLaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
-import sensor.FlowAccumulatorCommPathOrLink;
-import sensor.FlowAccumulatorCommodity;
-import sensor.FlowAccumulatorGlobal;
+import sensor.AccumulatorCommodity;
+import sensor.AccumulatorCommPathOrLink;
+import sensor.AccumulatorGlobal;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -40,9 +40,9 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public AbstractActuator actuator;
 
     // flow accumulators
-    public FlowAccumulatorGlobal global_flw_acc;
-    public FlowAccumulatorCommodity comm_flw_acc;
-    public FlowAccumulatorCommPathOrLink key_flw_acc;
+    public AccumulatorGlobal global_flw_acc;
+    public AccumulatorCommodity comm_flw_acc;
+    public AccumulatorCommPathOrLink key_flw_acc;
 
     ///////////////////////////////////////////////////
     // abstract methods
@@ -145,22 +145,22 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         max_vehicles = r.getJamDensity()*length*lanes.size()/1000;
     }
 
-    public FlowAccumulatorGlobal request_flow_accumulator(){
+    public AccumulatorGlobal request_flow_accumulator(){
         if(global_flw_acc==null)
-            global_flw_acc = new FlowAccumulatorGlobal();
+            global_flw_acc = new AccumulatorGlobal();
         return global_flw_acc;
     }
 
-    public FlowAccumulatorCommodity request_flow_accumulator(Long commid){
+    public AccumulatorCommodity request_flow_accumulator(Long commid){
         if(comm_flw_acc==null)
-            comm_flw_acc = new FlowAccumulatorCommodity();
+            comm_flw_acc = new AccumulatorCommodity();
         comm_flw_acc.add_commodity(commid);
         return comm_flw_acc;
     }
 
-    public FlowAccumulatorCommPathOrLink request_flow_accumulator(KeyCommPathOrLink key){
+    public AccumulatorCommPathOrLink request_flow_accumulator(KeyCommPathOrLink key){
         if(key_flw_acc==null)
-            key_flw_acc = new FlowAccumulatorCommPathOrLink();
+            key_flw_acc = new AccumulatorCommPathOrLink();
         key_flw_acc.add_key(key);
         return key_flw_acc;
     }

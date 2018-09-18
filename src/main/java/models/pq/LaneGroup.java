@@ -158,10 +158,6 @@ public class LaneGroup extends AbstractLaneGroup {
 
         // TODO: REMOVE FUTURE RELEASES?
 
-        System.out.println(current_max_flow_rate_vps);
-
-
-
         // schedule a release for now+ half wait time
         schedule_release_vehicle(timestamp,current_max_flow_rate_vps*2);
 

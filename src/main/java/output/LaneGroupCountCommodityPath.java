@@ -4,25 +4,25 @@ import common.AbstractLaneGroup;
 import error.OTMException;
 import profiles.Profile1D;
 import runner.Scenario;
-import sensor.FlowAccumulatorCommodity;
+import sensor.AccumulatorCommodity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LaneGroupFlowCommodityPath extends AbstractOutputTimedLanegroup  {
+public class LaneGroupCountCommodityPath extends AbstractOutputTimedLanegroup  {
 
     // map from lanegroup id to time profile of flow
     Map<Long, Profile1D> flow;
 
-    public List<FlowAccumulatorCommodity> flw_accs;
+    public List<AccumulatorCommodity> flw_accs;
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
-    public LaneGroupFlowCommodityPath(Scenario scenario, String prefix, String output_folder, Long commodity_id, Long path_id, Float outDt) throws OTMException {
+    public LaneGroupCountCommodityPath(Scenario scenario, String prefix, String output_folder, Long commodity_id, Long path_id, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, commodity_id, null, outDt); // TOD FIX THIS
 //        this.type = Type.lanegroup_flw;
 //
@@ -66,14 +66,14 @@ public class LaneGroupFlowCommodityPath extends AbstractOutputTimedLanegroup  {
     @Override
     public void write(float timestamp,Object obj) throws OTMException {
 
-        throw new OTMException("LaneGroupFlowCommodityPath implementation is incomplete.");
+        throw new OTMException("LaneGroupCountCommodityPath implementation is incomplete.");
 
 //        if(write_to_file){
 //            super.write(timestamp,null);
 //            try {
 //                boolean isfirst=true;
 //                for(int i=0;i<lanegroups.size();i++){
-//                    FlowAccumulatorCommodity fa = flw_accs.get(i);
+//                    AccumulatorCommodity fa = flw_accs.get(i);
 //                    if(!isfirst)
 //                        writer.write(AbstractOutputTimed.delim);
 //                    isfirst = false;
@@ -85,7 +85,7 @@ public class LaneGroupFlowCommodityPath extends AbstractOutputTimedLanegroup  {
 //            }
 //        } else {
 //            for(int i=0;i<lanegroups.size();i++) {
-//                FlowAccumulatorCommodity fa = flw_accs.get(i);
+//                AccumulatorCommodity fa = flw_accs.get(i);
 //                flow.get(lanegroups.get(i).id).add(fa.count);     // TODO FIX THIS
 //            }
 //        }

@@ -3,7 +3,7 @@ package sensor;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FlowAccumulatorCommodity {
+public class AccumulatorCommodity {
 
     public Map<Long,Double> count = new HashMap<>();     // commodity -> count
 

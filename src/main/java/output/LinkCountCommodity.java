@@ -6,18 +6,17 @@ import runner.Scenario;
 
 import java.util.List;
 
-public class LinkFlowCommodityPath extends AbstractOutputTimedLink  {
-
+public class LinkCountCommodity extends AbstractOutputTimedLink  {
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
-    public LinkFlowCommodityPath(Scenario scenario, String prefix, String output_folder, Long commodity_id, List<Long> link_ids, Float outDt) throws OTMException {
+    public LinkCountCommodity(Scenario scenario, String prefix, String output_folder, Long commodity_id, List<Long> link_ids, Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,link_ids,outDt);
         this.type = Type.link_flw;
 
-        throw new OTMException("LinkFlowCommodityPath not implemented.");
+        throw new OTMException("LinkCountCommodityPath not implemented.");
     }
 
     @Override

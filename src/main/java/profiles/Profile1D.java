@@ -98,7 +98,7 @@ public class Profile1D {
         return values;
     }
 
-    public List<Double> get_diff_values(){
+    public List<Double> diff(){
         if(values.size()<2)
             return null;
         List<Double> x = new ArrayList<>();

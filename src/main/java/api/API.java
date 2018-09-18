@@ -708,7 +708,7 @@ public class API {
 
     public void request_links_flow(String prefix,String output_folder,List<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LinkFlowGlobal(scenario,prefix,output_folder,link_ids,outDt));
+            this.scenario.outputs.add(new LinkCountGlobal(scenario,prefix,output_folder,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -716,7 +716,7 @@ public class API {
 
     public void request_links_flow(List<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LinkFlowGlobal(scenario,null,null,link_ids,outDt));
+            this.scenario.outputs.add(new LinkCountGlobal(scenario,null,null,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -726,7 +726,7 @@ public class API {
 
     public void request_links_flow(String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LinkFlowCommodity(scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.scenario.outputs.add(new LinkCountCommodity(scenario,prefix,output_folder,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -734,7 +734,7 @@ public class API {
 
     public void request_links_flow(Long commodity_id,List<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LinkFlowCommodity(scenario,null,null,commodity_id,link_ids,outDt));
+            this.scenario.outputs.add(new LinkCountCommodity(scenario,null,null,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -793,7 +793,7 @@ public class API {
 
     public void request_lanegroup_flw(String prefix,String output_folder,List<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LaneGroupFlowGlobal(scenario,prefix,output_folder,link_ids,outDt));
+            this.scenario.outputs.add(new LaneGroupCountGlobal(scenario,prefix,output_folder,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -801,7 +801,7 @@ public class API {
 
     public void request_lanegroup_flw(List<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LaneGroupFlowGlobal(scenario,null,null,link_ids,outDt));
+            this.scenario.outputs.add(new LaneGroupCountGlobal(scenario,null,null,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -811,7 +811,7 @@ public class API {
 
     public void request_lanegroup_flw(String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LaneGroupFlowCommodity(scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.scenario.outputs.add(new LaneGroupCountCommodity(scenario,prefix,output_folder,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -819,7 +819,7 @@ public class API {
 
     public void request_lanegroup_flw(Long commodity_id,List<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LaneGroupFlowCommodity(scenario,null,null,commodity_id,link_ids,outDt));
+            this.scenario.outputs.add(new LaneGroupCountCommodity(scenario,null,null,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
