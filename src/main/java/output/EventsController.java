@@ -16,11 +16,11 @@ import org.jfree.data.xy.XYSeriesCollection;
 import runner.RunParameters;
 import runner.Scenario;
 
-public class OutputEventsController extends AbstractOutputEvent {
+public class EventsController extends AbstractOutputEvent {
 
     public long controller_id;
 
-    public OutputEventsController(Scenario scenario, String prefix, String output_folder, Long controller_id) throws OTMException {
+    public EventsController(Scenario scenario, String prefix, String output_folder, Long controller_id) throws OTMException {
         super(scenario, prefix, output_folder);
         this.type = Type.controller;
         if (controller_id != null)

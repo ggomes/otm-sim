@@ -287,30 +287,22 @@ public class OTM {
                     output = new LaneGroups(scenario,prefix,output_folder);
                     break;
                 case "link_flw":
-                    // TODO FIX THIS
-  //                  output = new LinkFlow(scenario,prefix,output_folder,commodity_id,null,outDt);
-                    throw new OTMException("lanegroup_flw output IS NOT YET IMPLEMENTED!");
-//                    break;
+                    output = new LinkFlow(scenario,prefix,output_folder,commodity_id,null,outDt);
+                    break;
                 case "link_veh":
-                    // TODO FIX THIS
-//                    output = new LinkVehicles(scenario,prefix,output_folder,commodity_id,null,outDt);
-                    throw new OTMException("link_veh output IS NOT YET IMPLEMENTED!");
-//                    break;
+                    output = new LinkVehicles(scenario,prefix,output_folder,commodity_id,null,outDt);
+                    break;
                 case "lanegroup_flw":
-                    // TODO FIX THIS
-//                    output = new LaneGroupFlow(scenario,prefix,output_folder,commodity_id,null,outDt);
-                    throw new OTMException("lanegroup_flw output IS NOT YET IMPLEMENTED!");
-                    //break;
+                    output = new LaneGroupFlow(scenario,prefix,output_folder,commodity_id,null,outDt);
+                    break;
                 case "lanegroup_veh":
-                    // TODO FIX THIS
-//                    output = new LaneGroupVehicles(scenario,prefix,output_folder,commodity_id,null,outDt);
-                    throw new OTMException("lanegroup_veh output IS NOT YET IMPLEMENTED!");
-//                    break;
+                    output = new LaneGroupVehicles(scenario,prefix,output_folder,commodity_id,null,outDt);
+                    break;
                 case "link_vht":
                     output = new LinkVHT(scenario,prefix,output_folder,commodity_id,null,outDt);
                     break;
                 case "vehicle_events":
-                    output = new OutputEventsVehicle(scenario,prefix,output_folder,commodity_id);
+                    output = new EventsVehicle(scenario,prefix,output_folder,commodity_id);
                     break;
                 case "vehicle_class":
                     output = new VehicleClass(scenario,prefix,output_folder);
@@ -319,10 +311,10 @@ public class OTM {
                     output = new VehicleTravelTime(scenario,prefix,output_folder);
                     break;
                 case "controller":
-                    output = new OutputEventsController(scenario,prefix,output_folder,jaxb_or.getController());
+                    output = new EventsController(scenario,prefix,output_folder,jaxb_or.getController());
                     break;
                 case "actuator":
-                    output = new OutputEventsActuator(scenario,prefix,output_folder,jaxb_or.getActuator());
+                    output = new EventsActuator(scenario,prefix,output_folder,jaxb_or.getActuator());
                     break;
                 case "path_travel_time":
                     output = new PathTravelTime(scenario,prefix,output_folder,null,outDt);

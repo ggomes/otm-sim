@@ -96,8 +96,8 @@ public class TestOne extends AbstractTest {
             api.set_stochastic_process("deterministic");
 
             // Output requests .....................
-            api.request_links_flow( api.get_link_ids(), outdt);
-            api.request_links_veh( api.get_link_ids(), outdt);
+            api.request_links_flow(null, api.get_link_ids(), outdt);
+            api.request_links_veh(null, api.get_link_ids(), outdt);
 
 //            api.request_controller(1L);
 //            api.request_actuator(1L);
@@ -109,17 +109,17 @@ public class TestOne extends AbstractTest {
             String outfolder = "temp/";
             for(AbstractOutput output :  api.get_output_data()){
 
-                if (output instanceof OutputEventsActuator)
-                    ((OutputEventsActuator) output).plot(String.format("%sactuator%d.png",outfolder,((OutputEventsActuator) output).actuator_id));
+                if (output instanceof EventsActuator)
+                    ((EventsActuator) output).plot(String.format("%sactuator%d.png",outfolder,((EventsActuator) output).actuator_id));
 
-                if (output instanceof OutputEventsController)
-                    ((OutputEventsController) output).plot(String.format("%scontroller%d.png",outfolder,((OutputEventsController) output).controller_id));
+                if (output instanceof EventsController)
+                    ((EventsController) output).plot(String.format("%scontroller%d.png",outfolder,((EventsController) output).controller_id));
 
-                if (output instanceof LinkCountGlobal)
-                    ((LinkCountGlobal) output).plot_for_links(null,String.format("%sflow.png",outfolder));
+                if (output instanceof LinkFlow)
+                    ((LinkFlow) output).plot_for_links(null,String.format("%sflow.png",outfolder));
 
-                if (output instanceof LinkVehiclesGlobal)
-                    ((LinkVehiclesGlobal) output).plot_for_links(null,String.format("%sveh.png",outfolder));
+                if (output instanceof LinkVehicles)
+                    ((LinkVehicles) output).plot_for_links(null,String.format("%sveh.png",outfolder));
 
             }
 

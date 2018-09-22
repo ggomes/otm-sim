@@ -18,11 +18,11 @@ import org.jfree.data.xy.XYSeriesCollection;
 import runner.RunParameters;
 import runner.Scenario;
 
-public class OutputEventsActuator extends AbstractOutputEvent {
+public class EventsActuator extends AbstractOutputEvent {
 
     public Long actuator_id;
 
-    public OutputEventsActuator(Scenario scenario, String prefix, String output_folder, Long actuator_id) throws OTMException {
+    public EventsActuator(Scenario scenario, String prefix, String output_folder, Long actuator_id) throws OTMException {
         super(scenario, prefix, output_folder);
         this.type = Type.actuator;
 

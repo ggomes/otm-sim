@@ -11,7 +11,7 @@ import dispatch.EventPoke;
 import dispatch.InterfacePokable;
 import error.OTMErrorLog;
 import error.OTMException;
-import output.OutputEventsSensor;
+import output.EventsSensor;
 import runner.InterfaceScenarioElement;
 import runner.RunParameters;
 import runner.Scenario;
@@ -30,7 +30,7 @@ public abstract class AbstractSensor implements InterfacePokable, InterfaceScena
 
     public Object target;
 
-    public OutputEventsSensor event_listener;
+    public EventsSensor event_listener;
 
     /////////////////////////////////////////////////////////////////////
     // construction
@@ -65,7 +65,7 @@ public abstract class AbstractSensor implements InterfacePokable, InterfaceScena
     // listeners
     /////////////////////////////////////////////////////////////////////
 
-    public void set_event_listener(OutputEventsSensor e) throws OTMException {
+    public void set_event_listener(EventsSensor e) throws OTMException {
         if(event_listener!=null)
             throw new OTMException("multiple listeners for commodity");
         event_listener = e;

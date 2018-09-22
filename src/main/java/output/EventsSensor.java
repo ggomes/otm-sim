@@ -13,11 +13,11 @@ import runner.RunParameters;
 import runner.Scenario;
 import sensor.AbstractSensor;
 
-public class OutputEventsSensor extends AbstractOutputEvent  {
+public class EventsSensor extends AbstractOutputEvent  {
 
     public Long sensor_id;
 
-    public OutputEventsSensor(Scenario scenario, String prefix, String output_folder, Long sensor_id) throws OTMException {
+    public EventsSensor(Scenario scenario, String prefix, String output_folder, Long sensor_id) throws OTMException {
         super(scenario, prefix, output_folder);
         this.type = Type.sensor;
 

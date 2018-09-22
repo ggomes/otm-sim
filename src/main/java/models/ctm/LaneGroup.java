@@ -24,15 +24,6 @@ public class LaneGroup extends AbstractLaneGroup {
 
     public double cell_length_meters;
 
-    // set of keys for states in this lanegroup
-    public Set<KeyCommPathOrLink> states;
-
-    // exiting road connection to the states that use it (should be avoided in the one-to-one case)
-    public Map<Long,Set<KeyCommPathOrLink>> roadconnection2states;
-
-    // state to the road connection it must use (should be avoided in the one-to-one case)
-    public Map<KeyCommPathOrLink,Long> state2roadconnection;
-
     public List<Cell> cells;     // sequence of cells
 
     // transversal flow of vehicles already in their target lanegroup
@@ -47,9 +38,6 @@ public class LaneGroup extends AbstractLaneGroup {
 
     public LaneGroup(Link link, Set<Integer> lanes, Set<RoadConnection> out_rcs){
         super(link, lanes, out_rcs);
-
-        states = new HashSet<>();
-        state2roadconnection = new HashMap<>();
     }
 
     protected void create_cells(int num_cells,double cell_length_meters){
@@ -72,62 +60,10 @@ public class LaneGroup extends AbstractLaneGroup {
 
     }
 
-    public void add_key(KeyCommPathOrLink state) throws OTMException {
-
-        states.add(state);
-
-        // state2roadconnection: for this state, what is the road connection exiting
-        // this lanegroup that it will follow. There need not be one: this may not be
-        // a target lane group for this state.
-
-        // sink case -- no road connection
-        if(link.is_sink){
-            state2roadconnection.put(state,null);
-            return;
-        }
-
-        // get next link according to the case
-        Long next_link;
-        if(link.end_node.is_many2one){
-            next_link = link.end_node.out_links.values().iterator().next().getId();
-        }
-        else {
-            if (state.isPath) {
-                Path path = (Path) link.network.scenario.subnetworks.get(state.pathOrlink_id);
-                next_link = path.get_link_following(link).getId();
-            } else {
-                next_link = state.pathOrlink_id;
-            }
-        }
-
-        // store in map
-        RoadConnection rc = get_roadconnection_for_outlink(next_link);
-        if(rc!=null)
-            state2roadconnection.put(state,rc.getId());
-
-    }
-
-    public void allocate_state(){
-
-        // allocate for each cell
+    @Override
+    public void allocate_state() {
+        super.allocate_state();
         cells.forEach(c -> c.allocate_state());
-
-        // initialize roadconnection2states
-        roadconnection2states = new HashMap<>();
-        for(common.RoadConnection rc : outlink2roadconnection.values())
-            roadconnection2states.put(rc.getId(),new HashSet<>());
-
-        // add all states
-        for (KeyCommPathOrLink key : states) {
-            Long outlink_id = key.isPath ? link.path2outlink.get(key.pathOrlink_id) :
-                                           key.pathOrlink_id;
-
-            common.RoadConnection rc = get_roadconnection_for_outlink(outlink_id);
-            if (rc!=null && roadconnection2states.containsKey(rc.getId()))
-                roadconnection2states.get(rc.getId()).add(key);
-        }
-
-
     }
 
     ////////////////////////////////////////////
@@ -310,10 +246,6 @@ public class LaneGroup extends AbstractLaneGroup {
     // public
     ////////////////////////////////////////////
 
-    public int get_num_exiting_road_connections(){
-        return link.end_node.is_many2one ? 0 : roadconnection2states.size();
-    }
-
     public double get_total_in_flow(){
         Map<KeyCommPathOrLink,Double> bf = flow_in_target.get(0);
         return bf==null ? 0d : bf.values().stream().mapToDouble(x->x).sum();
@@ -326,7 +258,6 @@ public class LaneGroup extends AbstractLaneGroup {
 
     public Cell get_upstream_cell(){
         return cells.get(0);
-
     }
 
     public Cell get_dnstream_cell(){

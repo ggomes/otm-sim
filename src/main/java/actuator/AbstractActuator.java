@@ -13,7 +13,7 @@ import dispatch.EventPoke;
 import dispatch.InterfacePokable;
 import error.OTMErrorLog;
 import error.OTMException;
-import output.OutputEventsActuator;
+import output.EventsActuator;
 import runner.InterfaceScenarioElement;
 import runner.Scenario;
 import runner.ScenarioElementType;
@@ -32,7 +32,7 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
     public AbstractController myController;
     public InterfaceActuatorTarget target;
 
-    public OutputEventsActuator event_listener;
+    public EventsActuator event_listener;
 
     /////////////////////////////////////////////////////////////////////
     // construction and update
@@ -77,7 +77,7 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
     // listeners
     /////////////////////////////////////////////////////////////////////
 
-    public void set_event_listener(OutputEventsActuator e) throws OTMException {
+    public void set_event_listener(EventsActuator e) throws OTMException {
         if(event_listener!=null)
             throw new OTMException("multiple listeners for commodity");
         event_listener = e;

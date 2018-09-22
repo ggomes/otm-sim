@@ -12,7 +12,7 @@ import dispatch.EventPoke;
 import dispatch.InterfacePokable;
 import error.OTMErrorLog;
 import error.OTMException;
-import output.OutputEventsController;
+import output.EventsController;
 import runner.InterfaceScenarioElement;
 import runner.Scenario;
 import runner.ScenarioElementType;
@@ -43,7 +43,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
     public Set<AbstractSensor> sensors;
     public Map<Long,String> sensor_usage;
 
-    public OutputEventsController event_listener;
+    public EventsController event_listener;
 
     ///////////////////////////////////////////////////
     // construction
@@ -149,7 +149,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
     // listeners
     ///////////////////////////////////////////////////
 
-    public void set_event_listener(OutputEventsController e) throws OTMException {
+    public void set_event_listener(EventsController e) throws OTMException {
         if(event_listener !=null)
             throw new OTMException("multiple listeners for commodity");
         event_listener = e;

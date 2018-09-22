@@ -55,7 +55,6 @@ public class Commodity implements InterfaceScenarioElement {
             }
         this.vehicle_event_listeners = new HashSet<>();
         this.pathfull = false;
-//        this.path = null;
     }
 
     public Commodity(jaxb.Commodity jaxb_comm, List<Long> subnet_ids, Scenario scenario) throws OTMException {

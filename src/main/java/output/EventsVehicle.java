@@ -15,12 +15,12 @@ import models.pq.Vehicle;
 import runner.RunParameters;
 import runner.Scenario;
 
-public class OutputEventsVehicle extends AbstractOutputEvent implements InterfaceVehicleListener {
+public class EventsVehicle extends AbstractOutputEvent implements InterfaceVehicleListener {
 
     private final String suffix;
     public Long commodity_id;
 
-    public OutputEventsVehicle(Scenario scenario, String prefix, String output_folder, Long commodity_id) throws OTMException {
+    public EventsVehicle(Scenario scenario, String prefix, String output_folder, Long commodity_id) throws OTMException {
         super(scenario,prefix,output_folder);
         this.type = Type.vehicle_events;
 

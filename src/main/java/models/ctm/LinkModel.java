@@ -6,19 +6,9 @@
  */
 package models.ctm;
 
-import commodity.Commodity;
-import commodity.Subnetwork;
 import common.*;
 import error.OTMErrorLog;
-import error.OTMException;
-import keys.KeyCommPathOrLink;
-import models.pq.Queue;
-import packet.AbstractPacketLaneGroup;
-import packet.PacketLink;
-import runner.Scenario;
 import utils.OTMUtils;
-
-import java.util.*;
 
 public class LinkModel extends AbstractLinkModel {
 
@@ -59,41 +49,6 @@ public class LinkModel extends AbstractLinkModel {
         // create cells
         for(AbstractLaneGroup lg : link.lanegroups.values())
             ((models.ctm.LaneGroup)lg).create_cells(cells_per_lanegroup,cell_length_meters);
-    }
-
-    public void register_commodity(Commodity comm,Subnetwork subnet) throws OTMException {
-
-        if(comm.pathfull) {
-            KeyCommPathOrLink state = new KeyCommPathOrLink(comm.getId(), subnet.getId(), true);
-            for (AbstractLaneGroup lg : link.lanegroups.values()) {
-                models.ctm.LaneGroup ctm_lg = (models.ctm.LaneGroup) lg;
-                ctm_lg.add_key(state);
-            }
-        }
-
-        else {
-
-            // for pathless/sink, next link id is same as this id
-            if (link.is_sink) {
-                KeyCommPathOrLink state = new KeyCommPathOrLink(comm.getId(), link.getId(), false);
-                for (AbstractLaneGroup lg : link.lanegroups.values()) {
-                    models.ctm.LaneGroup ctm_lg = (models.ctm.LaneGroup) lg;
-                    ctm_lg.add_key(state);
-                }
-
-            } else {
-
-                // for pathless non-sink, add a state for each next link in the subnetwork
-                for (AbstractLaneGroup lg : link.lanegroups.values()) {
-                    models.ctm.LaneGroup ctm_lg = (models.ctm.LaneGroup) lg;
-                    for (Long next_link_id : lg.get_dwn_links())
-                        if (subnet.has_link_id(next_link_id))
-                            ctm_lg.add_key(new KeyCommPathOrLink(comm.getId(), next_link_id, false));
-                }
-
-            }
-        }
-
     }
 
     ////////////////////////////////////////////
@@ -137,14 +92,6 @@ public class LinkModel extends AbstractLinkModel {
             errorLog.addError("capacity_vps<=0");
         if(cells_per_lanegroup<=0)
             errorLog.addError("cells_per_lanegroup<=0");
-    }
-
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        // allocate state for each lanegroup in this link
-        for(AbstractLaneGroup lg : link.lanegroups.values() ){
-            ((models.ctm.LaneGroup) lg).allocate_state();
-        }
     }
 
     @Override

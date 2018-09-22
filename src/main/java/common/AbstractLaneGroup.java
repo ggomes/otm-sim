@@ -8,15 +8,14 @@ package common;
 
 import actuator.AbstractActuator;
 import commodity.Commodity;
+import commodity.Path;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.KeyCommPathOrLink;
 import packet.AbstractPacketLaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
-import sensor.AccumulatorCommodity;
-import sensor.AccumulatorCommPathOrLink;
-import sensor.AccumulatorGlobal;
+import sensor.FlowAccumulator;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -31,6 +30,15 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // this returns a null.
     protected Map<Long,RoadConnection> outlink2roadconnection;
 
+    // set of keys for states in this lanegroup
+    public Set<KeyCommPathOrLink> states;
+
+    // exiting road connection to the states that use it (should be avoided in the one-to-one case)
+    public Map<Long,Set<KeyCommPathOrLink>> roadconnection2states;
+
+    // state to the road connection it must use (should be avoided in the one-to-one case)
+    public Map<KeyCommPathOrLink,Long> state2roadconnection;
+
     public float length;
     public Set<Integer> lanes;
 
@@ -39,10 +47,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public AbstractActuator actuator;
 
-    // flow accumulators
-    public AccumulatorGlobal global_flw_acc;
-    public AccumulatorCommodity comm_flw_acc;
-    public AccumulatorCommPathOrLink key_flw_acc;
+    // flow accumulator
+    public FlowAccumulator flw_acc;
 
     ///////////////////////////////////////////////////
     // abstract methods
@@ -84,7 +90,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         this.id = OTMUtils.get_lanegroup_id();
         this.lanes = lanes;
         this.outlink2roadconnection = new HashMap<>();
-
+        this.states = new HashSet<>();
+        this.state2roadconnection = new HashMap<>();
         for(RoadConnection rc : out_rcs)
             outlink2roadconnection.put(rc.end_link.id,rc);
     }
@@ -94,9 +101,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         outlink2roadconnection = null;
         lanes = null;
         actuator = null;
-        global_flw_acc = null;
-        comm_flw_acc = null;
-        key_flw_acc = null;
+        flw_acc = null;
     }
 
     public void validate(OTMErrorLog errorLog) {
@@ -131,12 +136,27 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     }
 
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
-        if(global_flw_acc!=null)
-            global_flw_acc.reset();
-        if(comm_flw_acc!=null)
-            comm_flw_acc.reset();
-        if(key_flw_acc!=null)
-            key_flw_acc.reset();
+        if(flw_acc!=null)
+            flw_acc.reset();
+    }
+
+    public void allocate_state(){
+
+        // initialize roadconnection2states
+        roadconnection2states = new HashMap<>();
+        for(common.RoadConnection rc : outlink2roadconnection.values())
+            roadconnection2states.put(rc.getId(),new HashSet<>());
+
+        // add all states
+        for (KeyCommPathOrLink key : states) {
+            Long outlink_id = key.isPath ? link.path2outlink.get(key.pathOrlink_id) :
+                    key.pathOrlink_id;
+
+            common.RoadConnection rc = get_roadconnection_for_outlink(outlink_id);
+            if (rc!=null && roadconnection2states.containsKey(rc.getId()))
+                roadconnection2states.get(rc.getId()).add(key);
+        }
+
     }
 
     public void set_road_params(jaxb.Roadparam r){
@@ -145,24 +165,63 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         max_vehicles = r.getJamDensity()*length*lanes.size()/1000;
     }
 
-    public AccumulatorGlobal request_flow_accumulator(){
-        if(global_flw_acc==null)
-            global_flw_acc = new AccumulatorGlobal();
-        return global_flw_acc;
+    public void add_key(KeyCommPathOrLink state) {
+
+        states.add(state);
+
+        // state2roadconnection: for this state, what is the road connection exiting
+        // this lanegroup that it will follow. There need not be one: this may not be
+        // a target lane group for this state.
+
+        // sink case -- no road connection
+        if(link.is_sink){
+            state2roadconnection.put(state,null);
+            return;
+        }
+
+        // get next link according to the case
+        Long next_link;
+        if(link.end_node.is_many2one){
+            next_link = link.end_node.out_links.values().iterator().next().getId();
+        }
+        else {
+            if (state.isPath) {
+                Path path = (Path) link.network.scenario.subnetworks.get(state.pathOrlink_id);
+                next_link = path.get_link_following(link).getId();
+            } else {
+                next_link = state.pathOrlink_id;
+            }
+        }
+
+        // store in map
+        RoadConnection rc = get_roadconnection_for_outlink(next_link);
+        if(rc!=null)
+            state2roadconnection.put(state,rc.getId());
+
     }
 
-    public AccumulatorCommodity request_flow_accumulator(Long commid){
-        if(comm_flw_acc==null)
-            comm_flw_acc = new AccumulatorCommodity();
-        comm_flw_acc.add_commodity(commid);
-        return comm_flw_acc;
+    public FlowAccumulator request_flow_accumulator(KeyCommPathOrLink key){
+        if(flw_acc==null)
+            flw_acc = new FlowAccumulator();
+        flw_acc.add_key(key);
+        return flw_acc;
     }
 
-    public AccumulatorCommPathOrLink request_flow_accumulator(KeyCommPathOrLink key){
-        if(key_flw_acc==null)
-            key_flw_acc = new AccumulatorCommPathOrLink();
-        key_flw_acc.add_key(key);
-        return key_flw_acc;
+    public FlowAccumulator request_flow_accumulator(Long comm_id){
+        if(flw_acc==null)
+            flw_acc = new FlowAccumulator();
+        for(KeyCommPathOrLink key : states)
+            if(key.commodity_id==comm_id)
+                flw_acc.add_key(key);
+        return flw_acc;
+    }
+
+    public FlowAccumulator request_flow_accumulator(){
+        if(flw_acc==null)
+            flw_acc = new FlowAccumulator();
+        for(KeyCommPathOrLink key : states)
+            flw_acc.add_key(key);
+        return flw_acc;
     }
 
     ///////////////////////////////////////////////////
@@ -259,25 +318,23 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     ///////////////////////////////////////////////////
 
     protected void update_flow_accummulators(KeyCommPathOrLink key,double num_vehicles){
-        if(global_flw_acc!=null)
-            global_flw_acc.increment(num_vehicles);
-        if(comm_flw_acc!=null)
-            comm_flw_acc.increment(key.commodity_id,num_vehicles);
-        if(key_flw_acc!=null)
-            key_flw_acc.increment(key,num_vehicles);
+        if(flw_acc!=null)
+            flw_acc.increment(key,num_vehicles);
     }
-
 
     ///////////////////////////////////////////////////////////////
     // static
     ///////////////////////////////////////////////////////////////
-
 
     public int distance_to_lanes( int min_lane,int max_lane){
         int lg_min_lane = lanes.stream().mapToInt(x->x).min().getAsInt();
         int lg_max_lane = lanes.stream().mapToInt(x->x).max().getAsInt();
         int distance = Math.max(lg_min_lane-max_lane,min_lane-lg_max_lane);
         return Math.max(distance,0);
+    }
+
+    public int get_num_exiting_road_connections(){
+        return link.end_node.is_many2one ? 0 : roadconnection2states.size();
     }
 
     @Override

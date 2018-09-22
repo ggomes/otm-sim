@@ -22,40 +22,31 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
 
-    public Map<Long,Link> links;
-    public Map<Long, Profile1D> values;
-
-    abstract String get_yaxis_label();
-    abstract XYSeries get_series_for_linkid(Long link_id);
+    public List<Long> ordered_ids;
+    public Map<Long,LinkProfile> linkprofiles;
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
-    public AbstractOutputTimedLink(Scenario scenario,Float outDt) throws OTMException
-    {
-        super(scenario,null,null,null,outDt);
-
-        links = scenario.network.links;
-    }
-
-    public AbstractOutputTimedLink(Scenario scenario,String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt) throws OTMException
-    {
+    public AbstractOutputTimedLink(Scenario scenario,String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,outDt);
 
         if(link_ids==null)
             link_ids = scenario.network.links.values().stream().map(link->link.getId()).collect(Collectors.toList());
 
-        links = new HashMap<>();
+        ordered_ids = new ArrayList<>();
+        linkprofiles = new HashMap<>();
         for(Long link_id : link_ids){
             Link link = scenario.network.links.get(link_id);
-            if(link!=null)
-                links.put(link_id,link);
+            if(link!=null) {
+                ordered_ids.add(link.getId());
+                linkprofiles.put(link.getId(), new LinkProfile(link));
+            }
         }
     }
 
-    public AbstractOutputTimedLink(Scenario scenario,String prefix,String output_folder,Long commodity_id,Long subnetwork_id,Float outDt) throws OTMException
-    {
+    public AbstractOutputTimedLink(Scenario scenario,String prefix,String output_folder,Long commodity_id,Long subnetwork_id,Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,outDt);
 
         // get subnetwork
@@ -69,12 +60,11 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
         }
 
         // subnetwork==null, all links in common, otherwise, all links in subnetwork
-        if(subnetwork==null)
-            links = scenario.network.links;
-        else {
-            links = new HashMap<>();
-            for(Link link : subnetwork.links)
-                links.put(link.getId(),link);
+        ordered_ids = new ArrayList<>();
+        linkprofiles = new HashMap<>();
+        for(Link link : subnetwork==null?scenario.network.links.values():subnetwork.links) {
+            ordered_ids.add(link.getId());
+            linkprofiles.put(link.getId(), new LinkProfile(link));
         }
 
     }
@@ -83,41 +73,9 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
     public void validate(OTMErrorLog errorLog) {
         super.validate(errorLog);
 
-        if(links.isEmpty())
+        if(linkprofiles.isEmpty())
             errorLog.addError("no links in output request");
     }
-
-    //////////////////////////////////////////////////////
-    // get / plot
-    //////////////////////////////////////////////////////
-
-    public Collection<Long> get_link_ids(){
-        return links.keySet();
-    }
-
-    public Profile1D get_profile_for_linkid(Long link_id){
-        return values.get(link_id);
-    }
-
-    public void plot_for_links(Collection<Long> link_ids,String filename) throws OTMException {
-
-        if(link_ids==null)
-            link_ids = links.keySet();
-
-        XYSeriesCollection dataset = new XYSeriesCollection();
-
-        for(Long link_id : link_ids) {
-            if(!values.containsKey(link_id))
-                throw new OTMException("Bad link id " + link_id);
-            dataset.addSeries(get_series_for_linkid(link_id));
-        }
-
-        make_time_chart(dataset,get_yaxis_label(),filename);
-    }
-
-    //////////////////////////////////////////////////////
-    // write links
-    //////////////////////////////////////////////////////
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
@@ -129,8 +87,8 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
                 if (filename != null) {
                     String subfilename = filename.substring(0, filename.length() - 4);
                     Writer links_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_links.txt"));
-                    for (Link link : links.values())
-                        links_writer.write(link.getId() + "\t");
+                    for (Long link_id : ordered_ids)
+                        links_writer.write(link_id + "\t");
                     links_writer.close();
                 }
             } catch (FileNotFoundException exc) {
@@ -138,11 +96,92 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
             } catch (IOException e) {
                 throw new OTMException(e);
             }
+        } else {
+            for(LinkProfile linkProfile : linkprofiles.values())
+                linkProfile.initialize(outDt);
         }
-        else {
-            values = new HashMap<>();
-            for(Link link : links.values())
-                values.put(link.getId(), new Profile1D(null, outDt));
+    }
+
+    //////////////////////////////////////////////////////
+    // get / plot
+    //////////////////////////////////////////////////////
+
+    abstract public String get_yaxis_label();
+    abstract public double get_value_for_link(Long link_id);
+
+    public List<Long> get_link_ids(){
+        return ordered_ids;
+    }
+
+    public Profile1D get_profile_for_linkid(Long link_id){
+        return linkprofiles.get(link_id).profile;
+    }
+
+    public void plot_for_links(Collection<Long> link_ids,String filename) throws OTMException {
+
+        if(link_ids==null)
+            link_ids = linkprofiles.keySet();
+
+        XYSeriesCollection dataset = new XYSeriesCollection();
+
+        for(Long link_id : link_ids) {
+            if(!linkprofiles.containsKey(link_id))
+                throw new OTMException("Bad link id " + link_id);
+            dataset.addSeries(get_series_for_linkid(link_id));
+        }
+
+        make_time_chart(dataset,get_yaxis_label(),filename);
+    }
+
+    public XYSeries get_series_for_linkid(Long link_id) {
+        if(!linkprofiles.containsKey(link_id))
+            return null;
+        return linkprofiles.get(link_id).profile.get_series(String.format("%d",link_id));
+    }
+
+    //////////////////////////////////////////////////////
+    // write
+    //////////////////////////////////////////////////////
+
+    @Override
+    public void write(float timestamp,Object obj) throws OTMException {
+        if(write_to_file){
+            super.write(timestamp,null);
+            try {
+                boolean isfirst=true;
+                for(Long link_id : ordered_ids){
+                    if(!isfirst)
+                        writer.write(AbstractOutputTimed.delim);
+                    isfirst = false;
+                    writer.write(String.format("%f",get_value_for_link(link_id)));
+                }
+                writer.write("\n");
+            } catch (IOException e) {
+                throw new OTMException(e);
+            }
+        } else {
+            for(Long link_id : ordered_ids) {
+                LinkProfile linkProfile = linkprofiles.get(link_id);
+                linkProfile.add_value(get_value_for_link(link_id));
+            }
+        }
+    }
+
+    //////////////////////////////////////////////////////
+    // class
+    //////////////////////////////////////////////////////
+
+    public class LinkProfile {
+        public Link link;
+        public Profile1D profile;
+        public LinkProfile(Link link){
+            this.link = link;
+        }
+        public void initialize(float outDt){
+            this.profile = new Profile1D(null, outDt);
+        }
+        public void add_value(double value){
+            profile.add(value);
         }
     }
 

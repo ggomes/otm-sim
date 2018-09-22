@@ -140,7 +140,7 @@ public class ScenarioFactory {
 //        // register vehicle events requests with commodities
 //        for(AbstractOutput or : scenario.outputs){
 //            if(or.type== AbstractOutput.Type.vehicle){
-//                OutputEventsVehicle ev = (OutputEventsVehicle)or;
+//                EventsVehicle ev = (EventsVehicle)or;
 //                if(ev.commodity_id!=null) {
 //                    Commodity commodity = scenario.commodities.get(ev.commodity_id);
 //                    if(commodity==null)

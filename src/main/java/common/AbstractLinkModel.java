@@ -6,8 +6,11 @@
  */
 package common;
 
+import commodity.Commodity;
+import commodity.Subnetwork;
 import error.OTMErrorLog;
 import error.OTMException;
+import keys.KeyCommPathOrLink;
 import packet.AbstractPacketLaneGroup;
 import packet.PacketLink;
 import packet.PacketSplitter;
@@ -32,7 +35,6 @@ public abstract class AbstractLinkModel {
     abstract public void set_road_param(jaxb.Roadparam r, float sim_dt_sec);
 //    abstract public void add_native_vehicle_packet(float timestamp, PacketLink vp) throws OTMException;
     abstract public void validate(OTMErrorLog errorLog);
-    abstract public void initialize(Scenario scenario) throws OTMException;
     abstract public void reset();
     abstract public float get_ff_travel_time(); // seconds
     abstract public float get_capacity_vps();   // vps
@@ -43,6 +45,43 @@ public abstract class AbstractLinkModel {
 
     public AbstractLinkModel(common.Link link){
         this.link = link;
+    }
+
+    public void register_commodity(Commodity comm, Subnetwork subnet) throws OTMException {
+
+        if(comm.pathfull) {
+            KeyCommPathOrLink state = new KeyCommPathOrLink(comm.getId(), subnet.getId(), true);
+            for (AbstractLaneGroup lg : link.lanegroups.values())
+                lg.add_key(state);
+        }
+
+        else {
+
+            // for pathless/sink, next link id is same as this id
+            if (link.is_sink) {
+                KeyCommPathOrLink state = new KeyCommPathOrLink(comm.getId(), link.getId(), false);
+                for (AbstractLaneGroup lg : link.lanegroups.values())
+                    lg.add_key(state);
+
+            } else {
+
+                // for pathless non-sink, add a state for each next link in the subnetwork
+                for (AbstractLaneGroup lg : link.lanegroups.values()) {
+                    for (Long next_link_id : lg.get_dwn_links())
+                        if (subnet.has_link_id(next_link_id))
+                            lg.add_key(new KeyCommPathOrLink(comm.getId(), next_link_id, false));
+                }
+
+            }
+        }
+
+    }
+
+    public void initialize(Scenario scenario) throws OTMException {
+        // allocate state for each lanegroup in this link
+        for(AbstractLaneGroup lg : link.lanegroups.values() ){
+            lg.allocate_state();
+        }
     }
 
     //////////////////////////////////////////////////////////////
