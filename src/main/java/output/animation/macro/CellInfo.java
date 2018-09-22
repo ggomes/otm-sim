@@ -34,9 +34,14 @@ public class CellInfo {
 
     @Override
     public String toString() {
-        String str = "\t\t\tcell " + index + "\n";
-        for(Map.Entry<Long,Double> e : comm_vehicles.entrySet())
-            str += "\t\t\t\t" + "comm " + e.getKey()  +"\t" + e.getValue() + "\n";
-        return str;
+
+        if(this.comm_vehicles.keySet().size()>1) {
+            String str = "\t\t\tcell " + index + "\n";
+            for(Map.Entry<Long,Double> e : comm_vehicles.entrySet())
+                str += "\t\t\t\t" + "comm " + e.getKey()  +"\t" + e.getValue() + "\n";
+            return str;
+        } else {
+            return String.format("%.1f, ",get_total_vehicles());
+        }
     }
 }

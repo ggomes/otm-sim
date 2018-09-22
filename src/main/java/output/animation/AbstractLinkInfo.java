@@ -26,8 +26,8 @@ public abstract class AbstractLinkInfo implements InterfaceLinkInfo {
 
     public Double get_total_vehicles() {
         return lanegroup_info.values().stream()
-                .map(x->x.get_total_vehicles())
-                .reduce(0.0, (i,j) -> i+j);
+                .mapToDouble(x->x.get_total_vehicles())
+                .sum();
     }
 
     @Override

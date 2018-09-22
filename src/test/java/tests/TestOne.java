@@ -82,14 +82,13 @@ public class TestOne extends AbstractTest {
         try {
 
             float duration = 1000;
-            float outdt = 2f;
+            float outdt = 20f;
             float sim_dt = 2f;
 
             // Load ..............................
-
             API api = null;
             try {
-                api = OTM.load_test("onramp_offramp_1",sim_dt,true,"ctm");
+                api = OTM.load_test("onramp_offramp_1",sim_dt,true,"mn");
             } catch (OTMException e) {
                 e.printStackTrace();
             }

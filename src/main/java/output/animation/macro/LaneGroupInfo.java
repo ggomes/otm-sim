@@ -29,16 +29,20 @@ public class LaneGroupInfo extends AbstractLaneGroupInfo {
     @Override
     public String toString() {
         String str = "\t\tlanegroup " + lg_id + "\n";
-        for(CellInfo c : cell_info)
-            str += c + "\n";
+        for(CellInfo c : cell_info) {
+            if(c.comm_vehicles.keySet().size()>1)
+                str += c + "\n";
+            else
+                str += c.get_total_vehicles() + ", ";
+        }
         return str;
     }
 
     @Override
     public Double get_total_vehicles() {
         return cell_info.stream()
-                .map(x->x.get_total_vehicles())
-                .reduce(0d,(i,j)->i+j);
+                .mapToDouble(x->x.get_total_vehicles())
+                .sum();
     }
 
 }
