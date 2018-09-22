@@ -1,8 +1,12 @@
 # otm-sim
 Open Traffic Models - Simulation engine
 
+## Requirements ##
 
-## Installation
++ Java 8
++ Apache Maven
+
+## Installation ##
 
 If you are interested in running OTM and not in development, you can download the jar file [here](https://mymavenrepo.com/repo/XtcMAROnIu3PyiMCmbdY/otm/otm-sim/1.0-SNAPSHOT/)
 
