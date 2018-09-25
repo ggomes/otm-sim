@@ -13,6 +13,10 @@ import jaxb.Roadparam;
 import packet.PacketLink;
 import runner.Scenario;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 public class LinkModel extends AbstractLinkModel {
 
     public LinkModel(Link link) {
@@ -53,4 +57,10 @@ public class LinkModel extends AbstractLinkModel {
     public float get_capacity_vps() {
         return 0;
     }
+
+    @Override
+    public Map<AbstractLaneGroup, Double> lanegroup_proportions(Collection<AbstractLaneGroup> candidate_lanegroups) {
+        return null;
+    }
+
 }

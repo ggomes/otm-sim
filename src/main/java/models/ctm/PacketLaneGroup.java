@@ -68,6 +68,14 @@ public class PacketLaneGroup extends AbstractPacketLaneGroup {
     }
 
     @Override
+    public AbstractPacketLaneGroup times(double x) {
+        PacketLaneGroup z = new models.ctm.PacketLaneGroup(this.target_lanegroups);
+        for(Map.Entry<KeyCommPathOrLink,Double> e : state2vehicles.entrySet())
+            z.state2vehicles.put(e.getKey(),e.getValue()*x);
+        return z;
+    }
+
+    @Override
     public boolean isEmpty(){
         return state2vehicles==null || state2vehicles.values().stream().mapToDouble(x->x).sum()==0d;
     }

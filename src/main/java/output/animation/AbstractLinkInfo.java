@@ -17,11 +17,23 @@ public abstract class AbstractLinkInfo implements InterfaceLinkInfo {
     public Long link_id;
     public Map<Long,AbstractLaneGroupInfo> lanegroup_info;
 
+    //////////////////////////////////////////////////
+    // construction
+    //////////////////////////////////////////////////
+
     public AbstractLinkInfo(Link link){
         this.link_id = link.getId();
         lanegroup_info = new HashMap<>();
         for(AbstractLaneGroup lg : link.lanegroups.values())
             lanegroup_info.put(lg.id, newLaneGroupInfo(lg) );
+    }
+
+    //////////////////////////////////////////////////
+    // get
+    //////////////////////////////////////////////////
+
+    public AbstractLaneGroupInfo get_lanegroup_info(long lg_id){
+        return lanegroup_info.containsKey(lg_id) ? lanegroup_info.get(lg_id) : null;
     }
 
     public Double get_total_vehicles() {

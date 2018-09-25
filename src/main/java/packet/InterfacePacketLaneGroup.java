@@ -14,4 +14,5 @@ public interface InterfacePacketLaneGroup {
     void add_link_packet(PacketLink vp);
     void add_macro(KeyCommPathOrLink key, Double vehicles);
     void add_micro(KeyCommPathOrLink key, AbstractVehicle vehicle);
+    AbstractPacketLaneGroup times(double x);
 }

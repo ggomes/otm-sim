@@ -6,6 +6,7 @@
  */
 package models.none;
 
+import common.AbstractLaneGroup;
 import common.AbstractLinkModel;
 import common.Link;
 import packet.PacketLink;
@@ -13,6 +14,10 @@ import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Roadparam;
 import runner.Scenario;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public class LinkModel extends AbstractLinkModel {
 
@@ -61,4 +66,10 @@ public class LinkModel extends AbstractLinkModel {
     public float get_capacity_vps() {
         return capacity_vps;
     }
+
+    @Override
+    public Map<AbstractLaneGroup, Double> lanegroup_proportions(Collection<AbstractLaneGroup> candidate_lanegroups) {
+        return null;
+    }
+
 }

@@ -18,6 +18,10 @@ public class AnimationInfo {
     public float timestamp;
     public Map<Long,AbstractLinkInfo> link_info;
 
+    //////////////////////////////////////////////////
+    // construction
+    //////////////////////////////////////////////////
+
     public AnimationInfo(Scenario scenario) throws OTMException {
         this.timestamp = scenario.get_current_time();
         this.link_info = populate_link_info(scenario.network.links.values());
@@ -28,6 +32,25 @@ public class AnimationInfo {
         this.link_info = populate_link_info(link_ids.stream().map(
                 x->scenario.network.links.get(x)).collect(Collectors.toList()));
     }
+
+    //////////////////////////////////////////////////
+    // get
+    //////////////////////////////////////////////////
+
+    public AbstractLinkInfo get_link_info(long link_id){
+        return link_info.containsKey(link_id) ? link_info.get(link_id) : null;
+    }
+
+    public Map<Long,Double> get_total_vehicles_per_link(){
+        Map<Long,Double> x = new HashMap<>();
+        for(Map.Entry<Long,AbstractLinkInfo> e : link_info.entrySet())
+            x.put(e.getKey(),e.getValue().get_total_vehicles());
+        return x;
+    }
+
+    //////////////////////////////////////////////////
+    // private
+    //////////////////////////////////////////////////
 
     private Map<Long,AbstractLinkInfo> populate_link_info(Collection<Link> links) throws OTMException {
         Map<Long,AbstractLinkInfo> x = new HashMap<>();
@@ -49,13 +72,6 @@ public class AnimationInfo {
                     throw new OTMException("Unknown model_type");
             }
         }
-        return x;
-    }
-
-    public Map<Long,Double> get_total_vehicles_per_link(){
-        Map<Long,Double> x = new HashMap<>();
-        for(Map.Entry<Long,AbstractLinkInfo> e : link_info.entrySet())
-            x.put(e.getKey(),e.getValue().get_total_vehicles());
         return x;
     }
 

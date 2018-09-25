@@ -14,4 +14,5 @@ public abstract class AbstractLaneGroupInfo implements InterfaceLaneGroupInfo {
     public AbstractLaneGroupInfo(AbstractLaneGroup lg) {
         this.lg_id = lg.id;
     }
+
 }

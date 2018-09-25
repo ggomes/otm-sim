@@ -34,6 +34,7 @@ import utils.StochasticProcess;
 import xml.JaxbLoader;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 import static java.util.stream.Collectors.toList;
@@ -356,6 +357,14 @@ public class API {
         for(AbstractLaneGroup lg : rc.out_lanegroups)
             lgids.add(lg.id);
         return lgids;
+    }
+
+    public Map<Long,Set<Long>> get_link2lgs(){
+        Map<Long,Set<Long>> lk2lgs = new HashMap<>();
+        for(Link link : scenario.network.links.values())
+            lk2lgs.put(link.getId(),link.lanegroups.values().stream()
+                    .map(x->x.id).collect(Collectors.toSet()));
+        return lk2lgs;
     }
 
     ////////////////////////////////////////////////////////

@@ -58,10 +58,15 @@ public class PacketLaneGroup extends AbstractPacketLaneGroup {
         pvm.set_value(key,add_value - veh);
     }
 
-
     @Override
     public void add_micro(KeyCommPathOrLink key, AbstractVehicle vehicle) {
         vehicles.add(vehicle);
+    }
+
+    @Override
+    public AbstractPacketLaneGroup times(double x) {
+        // this should nevere be called!
+        return null;
     }
 
 }
