@@ -60,7 +60,7 @@ public class TestOne extends AbstractTest {
             float duration = 3600f;
             float sim_dt = 2f;
 
-            API api = OTM.load_test("line", sim_dt,true,"ctm");
+            API api = OTM.load_test("onramp_offramp_1", sim_dt,true,"ctm");
 
             api.initialize(start_time);
 
@@ -82,22 +82,22 @@ public class TestOne extends AbstractTest {
         try {
 
             float duration = 1000;
-            float outdt = 20f;
+            float outdt = 2f;
             float sim_dt = 2f;
 
             // Load ..............................
             API api = null;
             try {
-                api = OTM.load_test("onramp_offramp_1",sim_dt,true,"mn");
+                api = OTM.load_test("onramp_offramp_1",sim_dt,true,"ctm");
             } catch (OTMException e) {
                 e.printStackTrace();
             }
 
             api.set_stochastic_process("deterministic");
 
-            // Output requests .....................
-            api.request_links_flow(null, api.get_link_ids(), outdt);
-            api.request_links_veh(null, api.get_link_ids(), outdt);
+//            // Output requests .....................
+//            api.request_links_flow(null, api.get_link_ids(), outdt);
+//            api.request_links_veh(null, api.get_link_ids(), outdt);
 
 //            api.request_controller(1L);
 //            api.request_actuator(1L);

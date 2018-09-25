@@ -6,7 +6,6 @@
  */
 package models.ctm;
 
-import common.AbstractLaneGroup;
 import keys.KeyCommPathOrLink;
 
 import java.util.HashMap;
@@ -18,47 +17,65 @@ public class RoadConnection {
 
     public long id;
     public common.RoadConnection rc;
-    public Set<UpLaneGroup> ulgs;
-    public DnLink dn_link;
-    public Set<AbstractLaneGroup> arrive_lanegroups;
-
-    public double fbar; // vps, imposed by external controller;
-
     public boolean is_blocked;
     public Double d_r;
     public Double gamma_r;
+    public double fbar; // vps, imposed by external controller;
 
-    // state:
-    // pathfull, commid, pathid
-    // pathless, commid, node.outlink id
-    public Map<KeyCommPathOrLink,Double> f_rcp;    // state -> flow
+    public Set<UpLaneGroup> ulgs;
+    public Map<Long,DnLgInfo> dnlg_infos;
+//    public Map<KeyCommPathOrLink,StateInfo> state_infos;
+    public Map<KeyCommPathOrLink,Double> f_rs;
 
-    public Map<KeyCommPathOrLink,Double> delta_rcp; // state -> flow bit
-
-    public RoadConnection(Long id, Set<AbstractLaneGroup> arrive_lanegroups, common.RoadConnection rc){
+    public RoadConnection(Long id, common.RoadConnection rc){
         this.id = id;
-        this.arrive_lanegroups = arrive_lanegroups;
         this.rc = rc;
+        this.d_r = Double.NaN;
+        this.gamma_r = Double.NaN;
         this.ulgs = new HashSet<>();
-        this.d_r = 0d;
-        this.delta_rcp = new HashMap<>();
-        this.f_rcp = new HashMap<>();
-        this.dn_link = null;
+        this.dnlg_infos = new HashMap<>();
+        this.f_rs = new HashMap<>();
     }
 
     public void add_up_lanegroup(UpLaneGroup x){
-        ulgs.add(x);
+        this.ulgs.add(x);
     }
 
-    public void add_state(KeyCommPathOrLink state){
-        delta_rcp.put(state,0d);
-        f_rcp.put(state,0d);
+    public void add_dn_lanegroup(DnLaneGroup x){
+
+        // compute lambda_rj
+        int lg_from_lane = x.lg.lanes.stream().min(Integer::compareTo).get();
+        int lg_to_lane = x.lg.lanes.stream().max(Integer::compareTo).get();
+
+        int overlap_from_lane = Math.max(lg_from_lane,rc.end_link_from_lane);
+        int overlap_to_lane = Math.min(lg_to_lane,rc.end_link_to_lane);
+
+        double lg_total_lanes = (double) x.lg.lanes.size();
+        double rc_covered_lanes = (double) (overlap_to_lane-overlap_from_lane+1);
+        double lambda_rj = rc_covered_lanes / lg_total_lanes;
+
+        dnlg_infos.put(x.lg.id,new DnLgInfo(x,lambda_rj));
     }
+
+//    public void add_up_lanegroup(UpLaneGroup x){
+//        ulgs.add(x);
+//    }
+
+//    public void add_state(KeyCommPathOrLink state){
+//        delta_rcp.put(state,0d);
+//        f_rcp.put(state,0d);
+//    }
 
     public void reset(float sim_dt){
         is_blocked = false;
-        f_rcp.keySet().forEach(key->f_rcp.put(key,0d));
+        d_r = Double.NaN;
+        gamma_r = Double.NaN;
 
+        dnlg_infos.values().forEach(x->x.reset());
+
+        f_rs.keySet().forEach(x->f_rs.put(x,0d));
+
+        // fbar
         if(Double.isInfinite(rc.external_max_flow_vps))
             fbar = Double.POSITIVE_INFINITY;
         else if(rc.external_max_flow_vps<NodeModel.eps)
@@ -67,21 +84,40 @@ public class RoadConnection {
             fbar = rc.external_max_flow_vps * sim_dt;
     }
 
+    public void add_state(KeyCommPathOrLink state){
+        f_rs.put(state,0d);
+
+        for(DnLgInfo dnLgInfo : dnlg_infos.values()){
+            dnLgInfo.dlg.add_state(state);
+        }
+    }
+
     public void update_is_blocked(){
         if(!is_blocked)
-            is_blocked = dn_link.is_blocked || rc.external_max_flow_vps <NodeModel.eps;
+            is_blocked = dnlg_infos.values().stream().allMatch(x->x.dlg.is_blocked) ||
+                         rc.external_max_flow_vps <NodeModel.eps;
     }
 
-    @Override
-    public String toString() {
-        String str = "";
-        str += String.format("rc: link %d, ",id);
+    public class DnLgInfo {
+        public final DnLaneGroup dlg;
+        public final double lambda_rj;
+        public double alpha_rj;
 
-        str += "ulgs=[";
-        for(UpLaneGroup ulg : ulgs)
-            str += ulg.lg.id + ",";
-        str += "] ";
+        public DnLgInfo(DnLaneGroup dlg,double lambda_rj){
+            this.dlg = dlg;
+            this.lambda_rj = lambda_rj;
+        }
 
-        return str;
+        public void reset(){
+            alpha_rj = Double.NaN;
+        }
     }
+
+    public class StateInfo {
+        public double f_rs;
+        public void reset(){
+            f_rs = 0d;
+        }
+    }
+
 }

@@ -449,7 +449,7 @@ public class Network {
         macro_link_models.forEach(l -> l.update_supply_demand());
 
         // compute node inflow and outflow (all nodes except sources)
-        macro_internal_nodes.forEach(node->node.node_model.update_flow(timestamp,node.is_sink));
+        macro_internal_nodes.forEach(node->node.node_model.update_flow());
 
         // exchange packets
         for(Node node : macro_internal_nodes) {
@@ -457,11 +457,11 @@ public class Network {
             // flows on road connections arrive to links on give lanes
             // convert to packets and send
             for(models.ctm.RoadConnection rc : node.node_model.rcs.values())
-                rc.dn_link.link.model.add_vehicle_packet(timestamp,new PacketLink( rc.f_rcp ,rc.arrive_lanegroups ));
+                rc.rc.end_link.model.add_vehicle_packet(timestamp,new PacketLink(rc.f_rs,rc.rc.out_lanegroups));
 
             // set exit flows on non-sink lanegroups
             for(UpLaneGroup ulg : node.node_model.ulgs.values())
-                ulg.lg.release_vehicles(ulg.f_icp);
+                ulg.lg.release_vehicles(ulg.f_is);
         }
 
         // update cell boundary flows

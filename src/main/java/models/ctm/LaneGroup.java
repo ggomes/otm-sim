@@ -287,8 +287,8 @@ public class LaneGroup extends AbstractLaneGroup {
         return cells.get(cells.size()-1);
     }
 
-    public Double get_demand_in_target_for_comm_pathORlink(KeyCommPathOrLink comm_pathOrLink){
-        return get_dnstream_cell().demand_in_target.get(comm_pathOrLink);
+    public Double get_demand_in_target_for_state(KeyCommPathOrLink state){
+        return get_dnstream_cell().demand_in_target.get(state);
     }
 
     public String print_cell_veh(){

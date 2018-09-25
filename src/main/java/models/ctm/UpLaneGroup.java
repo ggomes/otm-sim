@@ -9,7 +9,9 @@ package models.ctm;
 import keys.KeyCommPathOrLink;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class UpLaneGroup {
 
@@ -17,83 +19,92 @@ public class UpLaneGroup {
 
     public boolean is_empty_or_blocked;
     public double gamma_i;
-
-    public Map<Long,RoadConnection> rcs;
-    public Map<Long,Double> d_ir;                       // rc -> d_r
-
-    public Map<KeyCommPathOrLink,Double> delta_icp;     // state -> flow bit  [PROBABLY REMOVE]
-    public Map<KeyCommPathOrLink,Double> f_icp;         // state -> flow
-    public Map<KeyCommPathOrLink,Double> eta_icp;       // state -> proportion of d_r
-    public Map<KeyCommPathOrLink,Double> d_icp;         // state -> d_r
+    public Map<KeyCommPathOrLink,StateInfo> state_infos;
+    public Map<KeyCommPathOrLink,Double> f_is;
+    public Map<Long,RcInfo> rc_infos;
 
     public UpLaneGroup(models.ctm.LaneGroup lg){
         this.lg = lg;
-        this.rcs = new HashMap<>();
         this.is_empty_or_blocked = false;
-        this.d_ir = new HashMap<>();
         this.gamma_i = Double.NaN;
-        this.eta_icp = new HashMap<>();
-        this.delta_icp = new HashMap<>();
-        this.f_icp = new HashMap<>();
-        this.d_icp = new HashMap<>();
+        this.state_infos = new HashMap<>();
+        this.f_is = new HashMap<>();
+        this.rc_infos = new HashMap<>();
     }
 
     public void reset(){
         is_empty_or_blocked = false;
-        f_icp.keySet().forEach(key->f_icp.put(key,0d));
-        d_ir.keySet().forEach(key->d_ir.put(key,0d));
+        gamma_i = Double.NaN;
+
+        // d_is
+        state_infos.values().forEach(x->x.reset());
+        f_is.keySet().forEach(x->f_is.put(x,0d));
+
+        // d_ir
+        rc_infos.values().forEach(x->x.reset());
+
     }
 
     public void add_road_connection(RoadConnection rc){
-        rcs.put(rc.id,rc);
-        d_ir.put(rc.id,0d);
+        rc_infos.put(rc.id,new RcInfo(rc));
     }
 
     public void add_state(KeyCommPathOrLink state){
-        d_icp.put(state,0d);
-        eta_icp.put(state,0d);
-        delta_icp.put(state,0d);
-        f_icp.put(state,0d);
+        state_infos.put(state,new StateInfo(state));
+        f_is.put(state,0d);
 
+        // S_ir
         Long rc_id = lg.state2roadconnection.get(state);
         if(rc_id!=null)
-            rcs.get(rc_id).add_state(state);
+            rc_infos.get(rc_id).add_state(state);
     }
 
     public double total_demand(){
-        return d_ir.values().stream().reduce(0.0, Double::sum);
+        return rc_infos.values().stream().mapToDouble(x->x.d_ir).sum();
     }
 
     public void update_is_empty_or_blocked(){
         if(!is_empty_or_blocked) {
             is_empty_or_blocked =
                     total_demand() < NodeModel.eps ||
-                    rcs.values().stream().anyMatch(rc->rc.is_blocked);
+                    rc_infos.values().stream().anyMatch(x->x.rc.is_blocked);
             if(is_empty_or_blocked)
                 gamma_i = Double.POSITIVE_INFINITY;
         }
     }
 
-    public double get_total_demand(){
-        return d_ir.values().stream().mapToDouble(x->x).sum();
+    public class RcInfo {
+        public final RoadConnection rc;
+        public Set<KeyCommPathOrLink> S_ir = new HashSet<>();
+        public double d_ir;
+
+        public RcInfo(RoadConnection rc) {
+            this.rc = rc;
+        }
+
+        public void reset(){
+            d_ir = S_ir.stream().mapToDouble(state->state_infos.get(state).d_is).sum();
+        }
+
+        public void add_state(KeyCommPathOrLink state){
+            S_ir.add(state);
+            rc.add_state(state);
+        }
+
     }
 
-    public double get_flow_for_commodity(Long comm_id){
-        return f_icp.keySet().stream()
-                .filter(key->key.commodity_id==comm_id)
-                .mapToDouble(key->f_icp.get(key))
-                .sum();
-    }
+    public class StateInfo {
+        public final KeyCommPathOrLink state;
+        public double d_is;
+        public double delta_is;
 
-    @Override
-    public String toString() {
-        String str = "";
-        str += String.format("ulg: link %d, ",lg.link.getId());
-        str += "rcs=[";
-        for(Long rcid : rcs.keySet())
-            str += rcid + ",";
-        str += "]";
-        return str;
+        public StateInfo(KeyCommPathOrLink state){
+            this.state = state;
+        }
+        public void reset(){
+            d_is = lg.get_demand_in_target_for_state(state);
+            delta_is = Double.NaN;
+        }
     }
 
 }

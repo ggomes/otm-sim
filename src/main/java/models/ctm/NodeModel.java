@@ -10,7 +10,6 @@ import common.AbstractLaneGroup;
 import common.Link;
 import common.Node;
 import error.OTMErrorLog;
-import error.OTMException;
 import keys.KeyCommPathOrLink;
 import runner.Scenario;
 
@@ -25,9 +24,9 @@ public class NodeModel {
 
     public Map<Long,UpLaneGroup> ulgs;  // upstrm lane groups.
     public Map<Long,RoadConnection> rcs;  // road connections.
-    public Set<DnLink> dlks;  // dnstrm links.
+    public Map<Long,DnLaneGroup> dlgs; /// dnstrm lane groups.
 
-    public NodeModel(Node node) throws OTMException {
+    public NodeModel(Node node) {
 
         this.node = node;
         rcs = new HashMap<>();
@@ -39,33 +38,43 @@ public class NodeModel {
 
             assert(!node.is_sink && !node.is_source);
             assert(node.is_many2one);
-            assert(node.in_links.size()==1);
 
+            // currently works only for one-to-one
             // TODO: GENERALIZE THIS FOR MANY-TO-ONE
 
+            // there is only one upstream link
+            assert(node.in_links.size()==1);
             Link up_link = node.in_links.values().iterator().next();
+
+            // there is only one dnstream link
+            assert(node.out_links.size()==1);
             Link dn_link = node.out_links.values().iterator().next();
 
+            // there is only one upstream lanegroup
+            assert(up_link.lanegroups.size()==1);
+            models.ctm.LaneGroup up_lanegroup = (models.ctm.LaneGroup) up_link.lanegroups.values().iterator().next();
+
+            // there is only one dnstream lanegroup
+            assert(dn_link.lanegroups.size()==1);
+            models.ctm.LaneGroup dn_lanegroup = (models.ctm.LaneGroup) dn_link.lanegroups.values().iterator().next();
+
             // add a fictitious road connection with id 0
-            RoadConnection rc = new RoadConnection(0L,new HashSet(dn_link.lanegroups.values()),null);
+            RoadConnection rc = new RoadConnection(0L,null);
             rcs.put(0L,rc);
 
-            // there is only one upstream link and one upstream lanegroup
-            assert(up_link.lanegroups.size()==1);
-            AbstractLaneGroup up_lanegroup = up_link.lanegroups.values().iterator().next();
+            // ulgs
             ulgs = new HashMap<>();
-            UpLaneGroup ulg = new UpLaneGroup((models.ctm.LaneGroup) up_lanegroup);
-            ulgs.put(ulg.lg.id,ulg);
-
-            rc.add_up_lanegroup(ulg);
+            UpLaneGroup ulg = new UpLaneGroup(up_lanegroup);
+            ulgs.put(up_lanegroup.id,ulg);
             ulg.add_road_connection(rc);
+            rc.add_up_lanegroup(ulg);
 
-            // there is only one downstream link but it may have multiple lanegroups
-            dlks = new HashSet<>();
-            DnLink dlink = new DnLink(dn_link);
-            dlks.add(dlink);
-            rc.dn_link = dlink;
-            dlink.add_road_connection(rc);
+            // dlgs
+            dlgs = new HashMap<>();
+            DnLaneGroup dlg = new DnLaneGroup(dn_lanegroup);
+            dlgs.put(dn_lanegroup.id,dlg);
+            rc.add_dn_lanegroup(dlg);
+            dlg.add_road_connection(rc);
 
             return;
         }
@@ -73,7 +82,7 @@ public class NodeModel {
         // case: complete road connections (could be many-to-one) ............................................
 
         Map<Long,UpLaneGroup> up_lgs_map = new HashMap<>();
-        Map<Long,DnLink> dn_links_map = new HashMap<>();
+        Map<Long,DnLaneGroup> dn_lgs_map = new HashMap<>();
 
         // iterate through the road connections
         for (common.RoadConnection xrc : node.road_connections) {
@@ -82,35 +91,40 @@ public class NodeModel {
             if( xrc.start_link.model_type!=Link.ModelType.mn && xrc.start_link.model_type!=Link.ModelType.ctm )
                 continue;
 
-            RoadConnection rc = new RoadConnection(xrc.getId(),xrc.out_lanegroups,xrc);
+            // skip if it is disconnected
+            if( xrc.in_lanegroups.isEmpty() || xrc.out_lanegroups.isEmpty())
+                continue;
+
+            RoadConnection rc = new RoadConnection(xrc.getId(),xrc);
             rcs.put(xrc.getId(),rc);
 
             // go through its upstream lanegroups
             for (AbstractLaneGroup xup_lg : xrc.in_lanegroups) {
-
                 UpLaneGroup ulg;
                 if (!up_lgs_map.containsKey(xup_lg.id)) {
                     ulg = new UpLaneGroup((models.ctm.LaneGroup) xup_lg);
                     up_lgs_map.put(xup_lg.id, ulg);
                 } else
                     ulg = up_lgs_map.get(xup_lg.id);
-                rc.add_up_lanegroup(ulg);
                 ulg.add_road_connection(rc);
+                rc.add_up_lanegroup(ulg);
             }
 
-            // add its end link
-            DnLink dn_link;
-            if (!dn_links_map.containsKey(xrc.end_link.getId())) {
-                dn_link = new DnLink(xrc.end_link);
-                dn_links_map.put(xrc.end_link.getId(), dn_link);
-            } else
-                dn_link = dn_links_map.get(xrc.end_link.getId());
-            rc.dn_link = dn_link;
-            dn_link.add_road_connection(rc);
-        }
+            // go through its downstream lanegroups
+            for (AbstractLaneGroup xdn_lg : xrc.in_lanegroups) {
+                DnLaneGroup dlg;
+                if (!dn_lgs_map.containsKey(xdn_lg.id)) {
+                    dlg = new DnLaneGroup((models.ctm.LaneGroup) xdn_lg);
+                    dn_lgs_map.put(xdn_lg.id, dlg);
+                } else
+                    dlg = dn_lgs_map.get(xdn_lg.id);
+                rc.add_dn_lanegroup(dlg);
+                dlg.add_road_connection(rc);
+            }
 
+        }
         ulgs = up_lgs_map;
-        dlks = new HashSet<>(dn_links_map.values());
+        dlgs = dn_lgs_map;
     }
 
     public void validate(OTMErrorLog errorLog) {
@@ -118,56 +132,16 @@ public class NodeModel {
     }
 
     public void initialize(Scenario scenario) {
-
         // allocate states in ulgs
         ulgs.values().forEach( ulg -> ulg.lg.states.forEach( state -> ulg.add_state(state)));
     }
 
-    public void update_flow(float timestamp,boolean is_sink) {
+    public void update_flow() {
 
-        // TODO HOW TO SKIP LANEGROUPS WITH NO STATE
-
-        // iterate uplgs
-        for (UpLaneGroup ulg : ulgs.values()) {
-
-            ulg.reset();
-
-            // demands per state and road connection
-            for (KeyCommPathOrLink state : ulg.lg.states) {
-
-                // get the d_icp from the lane group
-                Double d_icp = ulg.lg.get_demand_in_target_for_comm_pathORlink(state);
-
-                // copy demands to the ulg
-                ulg.d_icp.put(state, d_icp);
-
-                // aggregate to demands per road connection
-                Long rc_id = ulg.lg.state2roadconnection.get(state);
-                if(rc_id!=null)
-                    ulg.d_ir.put(rc_id, ulg.d_ir.get(rc_id) + d_icp);
-            }
-
-            // compute state proportions
-            for (KeyCommPathOrLink state : ulg.lg.states) {
-                Long rc_id = ulg.lg.state2roadconnection.get(state);
-                if(rc_id!=null) {
-                    Double d_ir = ulg.d_ir.get(rc_id);
-                    ulg.eta_icp.put(state, d_ir > 0d ? ulg.d_icp.get(state) / d_ir : 0d);
-                }
-            }
-
-        }
-
-        // reset road connections
-        rcs.values().forEach(rc->rc.reset(node.network.scenario.sim_dt));
-
-        // iterate dlgs
-        for (DnLink dlk : dlks) {
-            dlk.reset();
-
-            // copy supply to dlgs
-            dlk.s_j = dlk.link.model.get_supply();
-        }
+        // reset
+        ulgs.values().forEach(x->x.reset());
+        rcs.values().forEach(x->x.reset(node.network.scenario.sim_dt));
+        dlgs.values().forEach(x->x.reset());
 
         // iteration
         int it = 0;
@@ -181,7 +155,6 @@ public class NodeModel {
             step4();
             step5();
             step6();
-            step7();
         }
 
         // update flow accumulators
@@ -196,13 +169,13 @@ public class NodeModel {
 
     private void step0(){
         /**
-         * dlks.is_blocked
+         * dlgs.is_blocked
          * rcs.is_blocked
          * uplgs.is_empty_or_blocked
          */
 
         // block downstream lanegroups with zero supply
-        dlks.forEach(dlk -> dlk.update_is_blocked());
+        dlgs.values().forEach(dlg -> dlg.update_is_blocked());
 
         // block road connections connecting to blocked links or with control rate = 0
         rcs.values().forEach(rc->rc.update_is_blocked());
@@ -213,136 +186,106 @@ public class NodeModel {
     }
 
     private void step1(){
-        /**
-         * rcs.d_r
-         * rcs.alpha_rj
+        /** d_r, alpha_rj
          */
 
-        for(RoadConnection rc : rcs.values()){
+        for(RoadConnection rc : rcs.values()) {
+            rc.d_r = rc.is_blocked ? 0d : rc.ulgs.stream().mapToDouble(ulg -> ulg.rc_infos.get(rc.id).d_ir).sum();
 
-            // Question. Can this be moved to the beginning? Included in the
-            // definition of rc.is_blocked? Would this lead to an iteration?
-            if(rc.ulgs.isEmpty() || rc.dn_link==null) {
-                rc.d_r = 0d;
-                continue;
-            }
+            // s_r: downstream supply seen by this road connection
+            double s_r = rc.dnlg_infos.values().stream().mapToDouble(x->x.lambda_rj*x.dlg.s_j).sum();
 
-            // total d_r on this lanegroup
-            rc.d_r = rc.ulgs.stream().mapToDouble(ulg->ulg.d_ir.get(rc.id)).sum();
+            // alpha_rj: distribution amongst downstream lanegroups
+            rc.dnlg_infos.values().forEach( x -> x.alpha_rj = s_r==0d ? 0d : x.lambda_rj * x.dlg.s_j / s_r);
         }
+
     }
 
     private void step2(){
-        /**
-         * dlgs.gamma_j
-         */
+        /**  gamma_j */
 
-        for(DnLink dlk : dlks ) {
+        for(DnLaneGroup dlg : dlgs.values() ) {
 
-            if(dlk.rcs.isEmpty()) {
-                dlk.gamma_j = 1d;
+            if(Double.isInfinite(dlg.s_j)) {
+                dlg.gamma_j = 1d;
                 continue;
             }
 
-            if(Double.isInfinite(dlk.s_j)) {
-                dlk.gamma_j = 1d;
-                continue;
-            }
-
-            if(dlk.is_blocked){
-                dlk.gamma_j = Double.POSITIVE_INFINITY;
+            if(dlg.is_blocked){
+                dlg.gamma_j = Double.POSITIVE_INFINITY;
                 continue;
             }
 
             // total_demand = sum of demands in upstream road connections, times the proportion
             // directed at this lanegroup
-            Double d_j = dlk.rcs.stream().mapToDouble(rc-> Math.min(rc.d_r,rc.fbar)).sum();
+            Double d_j = dlg.rcs.values().stream().mapToDouble(rc-> rc.dnlg_infos.get(dlg.lg.id).alpha_rj * Math.min(rc.d_r,rc.fbar)).sum();
 
             // gamma is the d_r-supply ratio
-            dlk.gamma_j = Math.max( 1d , d_j / dlk.s_j );
+            dlg.gamma_j = Math.max( 1d , d_j / dlg.s_j );
         }
     }
 
     private void step3(){
+        /** gamma_r */
         for(RoadConnection rc : rcs.values() )
-            rc.gamma_r = rc.is_blocked ? Double.POSITIVE_INFINITY : Math.max( rc.dn_link.gamma_j , rc.d_r / rc.fbar );
+            rc.gamma_r = rc.is_blocked ?
+                    Double.POSITIVE_INFINITY :
+                    Math.max( rc.dnlg_infos.values().stream().mapToDouble(x->x.dlg.gamma_j).max().getAsDouble() , rc.d_r / rc.fbar );
     }
 
     private void step4(){
-        /**
-         * ulgs.gamma_i
-         */
-
+        /** gamma_i */
         for(UpLaneGroup ulg : ulgs.values() )
-            ulg.gamma_i = ulg.rcs.values().stream()
-                    .mapToDouble(rc -> rc.gamma_r)
-                    .max().getAsDouble();
+            ulg.gamma_i = ulg.is_empty_or_blocked ? Double.POSITIVE_INFINITY :
+                    ulg.rc_infos.values().stream().mapToDouble(rc -> rc.rc.gamma_r).max().getAsDouble();
     }
 
     private void step5(){
-        /**
-         * ulgs.delta_ir
-         * ulgs.d_ir
-         * ulgs.delta_icp
-         * ulgs.f_icp
-         */
+        /** delta_is, f_is */
 
         for(UpLaneGroup ulg : ulgs.values()){
-            for(RoadConnection rc : ulg.rcs.values()) {
 
-                // compute delta_ir
-                Double delta_ir = ulg.d_ir.get(rc.id) / ulg.gamma_i;
+            if(!ulg.is_empty_or_blocked){
 
-                // discount from demand
-                ulg.d_ir.put(rc.id, ulg.d_ir.get(rc.id) - delta_ir );
+                double inv_gamma_i = 1d/ulg.gamma_i;
 
-                Set<KeyCommPathOrLink> states = ulg.lg.roadconnection2states.get(rc.id);
+                for( Map.Entry<KeyCommPathOrLink,UpLaneGroup.StateInfo> e : ulg.state_infos.entrySet()){
+                    KeyCommPathOrLink state = e.getKey();
+                    UpLaneGroup.StateInfo stateInfo = e.getValue();
 
-                if(states!=null)
-                    for(KeyCommPathOrLink state : states ) {
+                    stateInfo.delta_is = stateInfo.d_is * inv_gamma_i;
+                    stateInfo.d_is -= stateInfo.delta_is;
+                    ulg.f_is.put(state,ulg.f_is.get(state)+stateInfo.delta_is);
 
-                        // compute delta_icp for all states using this road connection
-                        Double delta_icp = delta_ir * ulg.eta_icp.get(state);
-                        ulg.delta_icp.put( state, delta_icp );
-
-                        // accumulate f_icp
-                        ulg.f_icp.put(state, ulg.f_icp.get(state) + delta_icp);
+                    // reduce d_ir
+                    if(ulg.lg.state2roadconnection.containsKey(state)){
+                        Long rc_id = ulg.lg.state2roadconnection.get(state);
+                        ulg.rc_infos.get(rc_id).d_ir -= stateInfo.delta_is;
                     }
 
+                }
             }
         }
+
     }
 
     private void step6(){
-        /**
-         * rcs.delta_rcp
-         * rcs.f_rcp
-         */
+        /** delta_rs, f_rs */
 
         for(RoadConnection rc : rcs.values()){
-            // iterate through states that use this road connection
-            for(KeyCommPathOrLink state : rc.delta_rcp.keySet() ){
-                Double delta_rcp = 0d;
-                for( UpLaneGroup ulg : rc.ulgs)
-                    if(ulg.delta_icp.containsKey(state))
-                        delta_rcp += ulg.delta_icp.get(state);
 
-                // accumulate state flow
-                rc.delta_rcp.put(state,delta_rcp);
+            for(KeyCommPathOrLink state : rc.f_rs.keySet()){
 
-                if(delta_rcp>0)
-                    rc.f_rcp.put(state, rc.f_rcp.get(state) + delta_rcp);
+                // delta_rs, f_rs
+                double delta_rs = rc.ulgs.stream().mapToDouble(x->x.state_infos.get(state).delta_is).sum();
+                rc.f_rs.put( state , rc.f_rs.get(state) + delta_rs );
+
+                // discount s_j
+                for(RoadConnection.DnLgInfo rc_dnlg : rc.dnlg_infos.values())
+                    rc_dnlg.dlg.s_j -= delta_rs * rc_dnlg.alpha_rj;
             }
-        }
-    }
 
-    private void step7(){
-        /**
-         * dlgs.s_j
-         */
-        for(RoadConnection rc : rcs.values())
-            for( Double delta_rcp : rc.delta_rcp.values() )
-                rc.dn_link.s_j -= delta_rcp;
+        }
     }
 
     private void update_flow_accumulators(){
