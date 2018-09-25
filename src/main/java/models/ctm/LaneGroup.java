@@ -20,6 +20,8 @@ import utils.OTMUtils;
 
 import java.util.*;
 
+import static java.util.stream.Collectors.toSet;
+
 public class LaneGroup extends AbstractLaneGroup {
 
     public double cell_length_meters;
@@ -165,11 +167,15 @@ public class LaneGroup extends AbstractLaneGroup {
 
     @Override
     public double get_supply(){
-        return get_upstream_cell().supply;
+        Cell upcell = get_upstream_cell();
+
+        return upcell.wspeed_norm * (upcell.jam_density_veh - upcell.get_vehicles());
+
+//        return get_upstream_cell().supply;
     }
 
     ////////////////////////////////////////////
-    // ctm update
+    // update
     ////////////////////////////////////////////
 
     // not called for sinks
@@ -191,12 +197,15 @@ public class LaneGroup extends AbstractLaneGroup {
             Map<KeyCommPathOrLink,Double> demand_in_target = cells.get(i).demand_in_target;
             Map<KeyCommPathOrLink,Double> demand_notin_target = cells.get(i).demand_notin_target;
 
+
             double total_demand = OTMUtils.sum(demand_in_target);
+
             total_demand += demand_notin_target==null ? 0d : OTMUtils.sum(demand_notin_target);
 
             if(total_demand>OTMUtils.epsilon) {
                 double total_flow = Math.min( total_demand , cells.get(i+1).supply );
                 double gamma = total_flow / total_demand;
+
                 flow_in_target.set(i+1,OTMUtils.times(demand_in_target,gamma));
 
                 if(flow_notin_target!=null)
@@ -227,6 +236,20 @@ public class LaneGroup extends AbstractLaneGroup {
         if(states.isEmpty())
             return;
 
+
+
+        ////////////////////////////
+        if(link.getId()==3L && lanes.size()==1 && flow_in_target.size()>=3){
+            double f0 = flow_in_target.get(0)==null ? 0f : flow_in_target.get(0).values().stream().mapToDouble(x->x).sum();
+            double f1 = flow_in_target.get(1)==null ? 0f : flow_in_target.get(1).values().stream().mapToDouble(x->x).sum();
+            double f2 = flow_in_target.get(2)==null ? 0f : flow_in_target.get(2).values().stream().mapToDouble(x->x).sum();
+            double rho0 = cells.get(0).veh_in_target.values().stream().mapToDouble(x->x).sum();
+            double rho1 = cells.get(1).veh_in_target.values().stream().mapToDouble(x->x).sum();
+            System.out.println(String.format("(%.3f)\t%.3f\t(%.3f)\t%.3f\t(%.3f)",f0,rho0,f1,rho1,f2));
+        }
+        ////////////////////////////
+
+
         for(int i=0;i<cells.size();i++) {
             cells.get(i).update_in_target_state(flow_in_target.get(i), flow_in_target.get(i + 1));
             if(flow_notin_target!=null)
@@ -243,7 +266,7 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     ////////////////////////////////////////////
-    // public
+    // get
     ////////////////////////////////////////////
 
     public double get_total_in_flow(){

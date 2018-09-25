@@ -248,7 +248,11 @@ public class Cell {
             else {
                 // assume speed control acts equally on all cells in the link
                 double ffspeed = Math.min(ffspeed_norm, external_max_speed);
-                total_demand = Math.min(ffspeed * total_vehicles, capacity_veh);
+                if(am_dnstrm)
+                    total_demand = Math.min(ffspeed * total_vehicles, capacity_veh);
+                else
+                    total_demand = ffspeed * total_vehicles;
+
             }
 
             // downstream cell: flow controller and lane change blocking
@@ -278,7 +282,10 @@ public class Cell {
         else {
             switch (model.link.model_type) {
                 case ctm:
-                    supply = Math.min(wspeed_norm * (jam_density_veh - total_vehicles), capacity_veh);
+                    if(am_dnstrm)
+                        supply = Math.min(wspeed_norm * (jam_density_veh - total_vehicles), capacity_veh);
+                    else
+                        supply = wspeed_norm * (jam_density_veh - total_vehicles);
                     break;
                 case mn:
                     supply = Float.POSITIVE_INFINITY;

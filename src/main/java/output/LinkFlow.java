@@ -1,6 +1,5 @@
 package output;
 
-import com.sun.xml.internal.bind.v2.TODO;
 import common.AbstractLaneGroup;
 import error.OTMException;
 import profiles.Profile1D;

@@ -8,7 +8,13 @@ package models.ctm;
 
 import common.*;
 import error.OTMErrorLog;
+import error.OTMException;
 import utils.OTMUtils;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class LinkModel extends AbstractLinkModel {
 
@@ -112,6 +118,15 @@ public class LinkModel extends AbstractLinkModel {
     @Override
     public float get_capacity_vps() {
         return capacity_vps;
+    }
+
+    @Override
+    public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<AbstractLaneGroup> candidate_lanegroups) {
+        Map<AbstractLaneGroup,Double> A = new HashMap<>();
+        double total_supply = candidate_lanegroups.stream().mapToDouble(x->x.get_supply()).sum();
+        for(AbstractLaneGroup laneGroup : candidate_lanegroups)
+            A.put(laneGroup , laneGroup.get_supply() / total_supply);
+        return A;
     }
 
     ////////////////////////////////////////////
