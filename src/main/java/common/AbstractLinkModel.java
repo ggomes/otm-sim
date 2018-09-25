@@ -33,11 +33,11 @@ public abstract class AbstractLinkModel {
     //////////////////////////////////////////////////////////////
 
     abstract public void set_road_param(jaxb.Roadparam r, float sim_dt_sec);
-//    abstract public void add_native_vehicle_packet(float timestamp, PacketLink vp) throws OTMException;
     abstract public void validate(OTMErrorLog errorLog);
     abstract public void reset();
     abstract public float get_ff_travel_time(); // seconds
     abstract public float get_capacity_vps();   // vps
+    abstract public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<AbstractLaneGroup> candidate_lanegroups);
 
     //////////////////////////////////////////////////////////////
     // construction
@@ -101,7 +101,6 @@ public abstract class AbstractLinkModel {
         // this implies that next-link is trivial
         // and (for now) target_lanegroup is trivial
         if(link.packet_splitter==null){
-
             // if sink, encode by using current link id as nextlink.
             Long outlink_id = link.is_sink ? link.getId() : link.end_node.out_links.values().iterator().next().getId();
             AbstractPacketLaneGroup packet = PacketSplitter.cast_packet_null_splitter(myPacketClass,vp,outlink_id);
@@ -111,20 +110,20 @@ public abstract class AbstractLinkModel {
         }
 
         // tag the packet with next_link and target_lanegroups
-        Map<Long, AbstractPacketLaneGroup> lanegroup_packets = link.packet_splitter.split_packet(myPacketClass,vp);
+        Map<Long, AbstractPacketLaneGroup> split_packets = link.packet_splitter.split_packet(myPacketClass,vp);
 
-        // process each lanegroup packet
-        for(Map.Entry<Long, AbstractPacketLaneGroup> e : lanegroup_packets.entrySet()){
+        // process each split packet
+        for(Map.Entry<Long, AbstractPacketLaneGroup> e : split_packets.entrySet()){
 
             Long outlink_id = e.getKey();
-            AbstractPacketLaneGroup lanegroup_packet = e.getValue();
+            AbstractPacketLaneGroup split_packet = e.getValue();
 
-            if(lanegroup_packet.isEmpty())
+            if(split_packet.isEmpty())
                 continue;
 
-            lanegroup_packet.target_lanegroups = link.outlink2lanegroups.get(outlink_id);
+            split_packet.target_lanegroups = link.outlink2lanegroups.get(outlink_id);
 
-            if(lanegroup_packet.target_lanegroups==null)
+            if(split_packet.target_lanegroups==null)
                 throw new OTMException(String.format("target_lanegroups==null.\nThis may be an error in split ratios. " +
                         "There is no access from link " + link.getId() + " to " +
                         "link " + outlink_id+ ". A possible cause is that there is " +
@@ -133,9 +132,10 @@ public abstract class AbstractLinkModel {
             // candidates lanegroups are those where the packet has arrived
             // intersected with those that can reach the outlink
             // TODO: This can be removed if there is a model for "changing lanes" to another lanegroup
-            Set<AbstractLaneGroup> candidate_lanegroups = OTMUtils.intersect( vp.arrive_to_lanegroups , lanegroup_packet.target_lanegroups );
+//            Set<AbstractLaneGroup> candidate_lanegroups = OTMUtils.intersect( vp.arrive_to_lanegroups , split_packet.target_lanegroups );
+            Set<AbstractLaneGroup> candidate_lanegroups = vp.arrive_to_lanegroups;
 
-            if(candidate_lanegroups.isEmpty()) {
+//            if(candidate_lanegroups.isEmpty()) {
                 // in this case the vehicle has arrived to lanegroups for which there is
                 // no connection to the out link.
                 // With lane changing implemented, this vehicle would then have to
@@ -144,26 +144,40 @@ public abstract class AbstractLinkModel {
 
 //                throw new OTMException("candidate_lanegroups.isEmpty(): in link " + link.getId() + ", vehicle arrived to lanegroups " +
 //                        vpb.arrive_to_lanegroups + " with target lanegroup " + target_lanegroups);
-                candidate_lanegroups = link.outlink2lanegroups.get(outlink_id);
+//                candidate_lanegroups = link.outlink2lanegroups.get(outlink_id);
+//            }
+
+            // split the split_packet amongst the candidate lane groups.
+            // then add them
+            if(candidate_lanegroups.size()==1) {
+                AbstractLaneGroup laneGroup = candidate_lanegroups.iterator().next();
+                laneGroup.add_native_vehicle_packet(timestamp, split_packet);
+            } else {
+                for (Map.Entry<AbstractLaneGroup, Double> ee : lanegroup_proportions(candidate_lanegroups).entrySet()) {
+                    AbstractLaneGroup laneGroup = ee.getKey();
+                    Double prop = ee.getValue();
+                    if (prop <= 0d)
+                        continue;
+                    if (prop==1d)
+                        laneGroup.add_native_vehicle_packet(timestamp, split_packet );
+                    else
+                        laneGroup.add_native_vehicle_packet(timestamp, split_packet.times(prop));
+                }
             }
 
-            // choose the best one
-            AbstractLaneGroup join_lanegroup = choose_best_lanegroup(candidate_lanegroups);
-
-            // TODO: FOR MESO and MICRO MODELS, CHECK THAT THERE IS AT LEAST 1 VEHICLE WORTH OF SUPPLY.
-
-            // if all candidates are full, then choose one that is closest and not full
-            if(join_lanegroup==null) {
-
-                join_lanegroup = choose_closest_that_is_not_full(vp.arrive_to_lanegroups,candidate_lanegroups,lanegroup_packet.target_lanegroups);
-
-                // put lane change requests on the target lane groups
-                // TODO: REDO THIS
-//                add_lane_change_request(timestamp,lanegroup_packet,join_lanegroup,lanegroup_packet.target_lanegroups,Queue.Type.transit);
-            }
+//            // TODO: FOR MESO and MICRO MODELS, CHECK THAT THERE IS AT LEAST 1 VEHICLE WORTH OF SUPPLY.
+//
+//            // if all candidates are full, then choose one that is closest and not full
+//            if(join_lanegroup==null) {
+//
+//                join_lanegroup = choose_closest_that_is_not_full(vp.arrive_to_lanegroups,candidate_lanegroups,split_packet.target_lanegroups);
+//
+//                // put lane change requests on the target lane groups
+//                // TODO: REDO THIS
+////                add_lane_change_request(timestamp,lanegroup_packet,join_lanegroup,lanegroup_packet.target_lanegroups,Queue.Type.transit);
+//            }
 
             // add the packet to it
-            join_lanegroup.add_native_vehicle_packet(timestamp,lanegroup_packet);
 
         }
 
@@ -176,20 +190,6 @@ public abstract class AbstractLinkModel {
     //////////////////////////////////////////////////////////////
     // private
     //////////////////////////////////////////////////////////////
-
-    /**
-     * select the lane group with the most space per lane.
-     */
-    public static AbstractLaneGroup choose_best_lanegroup(Collection<AbstractLaneGroup> candidate_lanegroups){
-
-        if(candidate_lanegroups.size()==1)
-            return candidate_lanegroups.iterator().next();
-
-        Optional<AbstractLaneGroup> best_lanegroup = candidate_lanegroups.stream()
-                .max(Comparator.comparing(AbstractLaneGroup::get_space_per_lane));
-
-        return best_lanegroup.isPresent() ? best_lanegroup.get() : null;
-    }
 
     private AbstractLaneGroup choose_closest_that_is_not_full(Set<AbstractLaneGroup> arrive_to_lanegroups,Set<AbstractLaneGroup> candidate_lanegroups,Set<AbstractLaneGroup> target_lanegroups) throws OTMException {
 
