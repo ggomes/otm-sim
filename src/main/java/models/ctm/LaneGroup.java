@@ -236,20 +236,6 @@ public class LaneGroup extends AbstractLaneGroup {
         if(states.isEmpty())
             return;
 
-
-
-        ////////////////////////////
-        if(link.getId()==3L && lanes.size()==1 && flow_in_target.size()>=3){
-            double f0 = flow_in_target.get(0)==null ? 0f : flow_in_target.get(0).values().stream().mapToDouble(x->x).sum();
-            double f1 = flow_in_target.get(1)==null ? 0f : flow_in_target.get(1).values().stream().mapToDouble(x->x).sum();
-            double f2 = flow_in_target.get(2)==null ? 0f : flow_in_target.get(2).values().stream().mapToDouble(x->x).sum();
-            double rho0 = cells.get(0).veh_in_target.values().stream().mapToDouble(x->x).sum();
-            double rho1 = cells.get(1).veh_in_target.values().stream().mapToDouble(x->x).sum();
-            System.out.println(String.format("(%.3f)\t%.3f\t(%.3f)\t%.3f\t(%.3f)",f0,rho0,f1,rho1,f2));
-        }
-        ////////////////////////////
-
-
         for(int i=0;i<cells.size();i++) {
             cells.get(i).update_in_target_state(flow_in_target.get(i), flow_in_target.get(i + 1));
             if(flow_notin_target!=null)

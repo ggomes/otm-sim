@@ -28,6 +28,8 @@ public class NodeModel {
 
     public NodeModel(Node node) {
 
+        System.out.println("Node "+node.getId());
+
         this.node = node;
         rcs = new HashMap<>();
 
