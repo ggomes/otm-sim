@@ -15,8 +15,22 @@ import java.util.Set;
 
 public class RoadConnection {
 
+    public class DnLgInfo {
+        public final DnLaneGroup dlg;
+        public final double lambda_rj;
+        public double alpha_rj;
+        public DnLgInfo(DnLaneGroup dlg,double lambda_rj){
+            this.dlg = dlg;
+            this.lambda_rj = lambda_rj;
+        }
+        public void reset(){
+            alpha_rj = 0f;
+        }
+    }
+
     public long id;
     public common.RoadConnection rc;
+
     public boolean is_blocked;
     public Double d_r;
     public Double gamma_r;
@@ -24,8 +38,11 @@ public class RoadConnection {
 
     public Set<UpLaneGroup> ulgs;
     public Map<Long,DnLgInfo> dnlg_infos;
-//    public Map<KeyCommPathOrLink,StateInfo> state_infos;
     public Map<KeyCommPathOrLink,Double> f_rs;
+
+    ////////////////////////////////////////////
+    // construction
+    ////////////////////////////////////////////
 
     public RoadConnection(Long id, common.RoadConnection rc){
         this.id = id;
@@ -57,14 +74,17 @@ public class RoadConnection {
         dnlg_infos.put(x.lg.id,new DnLgInfo(x,lambda_rj));
     }
 
-//    public void add_up_lanegroup(UpLaneGroup x){
-//        ulgs.add(x);
-//    }
+    public void add_state(KeyCommPathOrLink state){
+        f_rs.put(state,0d);
 
-//    public void add_state(KeyCommPathOrLink state){
-//        delta_rcp.put(state,0d);
-//        f_rcp.put(state,0d);
-//    }
+        for(DnLgInfo dnLgInfo : dnlg_infos.values()){
+            dnLgInfo.dlg.add_state(state);
+        }
+    }
+
+    ////////////////////////////////////////////
+    // update
+    ////////////////////////////////////////////
 
     public void reset(float sim_dt){
         is_blocked = false;
@@ -84,40 +104,10 @@ public class RoadConnection {
             fbar = rc.external_max_flow_vps * sim_dt;
     }
 
-    public void add_state(KeyCommPathOrLink state){
-        f_rs.put(state,0d);
-
-        for(DnLgInfo dnLgInfo : dnlg_infos.values()){
-            dnLgInfo.dlg.add_state(state);
-        }
-    }
-
     public void update_is_blocked(){
         if(!is_blocked)
             is_blocked = dnlg_infos.values().stream().allMatch(x->x.dlg.is_blocked) ||
-                         rc.external_max_flow_vps <NodeModel.eps;
-    }
-
-    public class DnLgInfo {
-        public final DnLaneGroup dlg;
-        public final double lambda_rj;
-        public double alpha_rj;
-
-        public DnLgInfo(DnLaneGroup dlg,double lambda_rj){
-            this.dlg = dlg;
-            this.lambda_rj = lambda_rj;
-        }
-
-        public void reset(){
-            alpha_rj = Double.NaN;
-        }
-    }
-
-    public class StateInfo {
-        public double f_rs;
-        public void reset(){
-            f_rs = 0d;
-        }
+                         fbar<NodeModel.eps;
     }
 
 }

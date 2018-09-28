@@ -164,9 +164,9 @@ public class LinkModel extends AbstractLinkModel {
             ((LaneGroup) lg).update_cell_boundary_flows();
     }
 
-    public void update_state() {
+    public void update_state(float timestamp) {
         for(AbstractLaneGroup lg : link.lanegroups.values())
-            ((models.ctm.LaneGroup) lg).update_state();
+            ((models.ctm.LaneGroup) lg).update_state(timestamp);
     }
 
 //    ////////////////////////////////////////////

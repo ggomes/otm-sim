@@ -231,7 +231,7 @@ public class LaneGroup extends AbstractLaneGroup {
                 update_flow_accummulators(e.getKey(),e.getValue());
     }
 
-    protected void update_state(){
+    protected void update_state(float timestamp){
 
         if(states.isEmpty())
             return;

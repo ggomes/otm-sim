@@ -449,7 +449,7 @@ public class Network {
         macro_link_models.forEach(l -> l.update_supply_demand());
 
         // compute node inflow and outflow (all nodes except sources)
-        macro_internal_nodes.forEach(node->node.node_model.update_flow());
+        macro_internal_nodes.forEach(node->node.node_model.update_flow(timestamp));
 
         // exchange packets
         for(Node node : macro_internal_nodes) {
@@ -469,9 +469,9 @@ public class Network {
         
     }
 
-    public void update_macro_state(float timestamp) throws OTMException {
+    public void update_macro_state(float timestamp) {
         for(models.ctm.LinkModel linkModel : macro_link_models)
-            linkModel.update_state();
+            linkModel.update_state(timestamp);
     }
 
     ////////////////////////////////////////////
