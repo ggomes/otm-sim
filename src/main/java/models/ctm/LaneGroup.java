@@ -118,7 +118,7 @@ public class LaneGroup extends AbstractLaneGroup {
         if(vp.target_lanegroups==null || vp.target_lanegroups.contains(this))
             copy_to_flow(vp,flow_in_target);
         else    // case the packet is targeted for some other lanegroup
-            copy_to_flow(vp,flow_notin_target);
+            copy_to_flow(vp, flow_notin_target);
     }
 
     @Override

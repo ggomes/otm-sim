@@ -9,9 +9,7 @@ package output.animation.macro;
 import keys.KeyCommPathOrLink;
 import models.ctm.Cell;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CellInfo {
 
@@ -24,7 +22,22 @@ public class CellInfo {
 
     public CellInfo(Cell cell,int index){
         this.index = index;
-        comm_vehicles = cell.veh_in_target;
+
+        Set<KeyCommPathOrLink> keySet = new HashSet<>();
+        if(cell.veh_in_target!=null)
+            keySet.addAll(cell.veh_in_target.keySet());
+        if(cell.veh_notin_target!=null)
+            keySet.addAll(cell.veh_notin_target.keySet());
+
+        comm_vehicles = new HashMap<>();
+        for(KeyCommPathOrLink key : keySet){
+            double val = 0d;
+            if(cell.veh_in_target!=null && cell.veh_in_target.containsKey(key))
+                val += cell.veh_in_target.get(key);
+            if(cell.veh_notin_target!=null && cell.veh_notin_target.containsKey(key))
+                val += cell.veh_notin_target.get(key);
+            comm_vehicles.put(key,val);
+        }
     }
 
     //////////////////////////////////////////////////

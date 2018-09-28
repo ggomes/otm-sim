@@ -95,11 +95,6 @@ public class Cell {
 //            scenario.error_log.addError("capacity must be positive");
     }
 
-//    public void reset(){
-//        veh_in_target = new HashMap<>();
-//        demand_in_target = new HashMap<>();
-//    }
-
     public void reset(){
 
     }
@@ -222,10 +217,11 @@ public class Cell {
     // and supply (total supply)
     public void update_supply_demand() {
 
-        double total_vehicles = get_vehicles();
+        double vehicles_in_target = get_vehicles_in_target();
+        double vehicles_notin_target = get_vehicles_notin_target();
+        double total_vehicles = vehicles_in_target + vehicles_notin_target;
 
         double external_max_speed = Double.POSITIVE_INFINITY;
-//        double external_max_flow = Double.POSITIVE_INFINITY;
         double total_demand;
 
         // update demand ...................................................
@@ -239,8 +235,6 @@ public class Cell {
 
         else {
 
-            double total_vehicles_notin_target = get_vehicles_notin_target();
-
             // compute total flow leaving the cell in the absence of flow control
             if (model.link.is_source)
                 // sources discharge at capacity
@@ -252,16 +246,14 @@ public class Cell {
                     total_demand = Math.min(ffspeed * total_vehicles, capacity_veh);
                 else
                     total_demand = ffspeed * total_vehicles;
-
             }
 
             // downstream cell: flow controller and lane change blocking
             if (am_dnstrm) {
-//                total_demand = Math.min(total_demand, external_max_flow);
 
-                if(total_vehicles_notin_target>OTMUtils.epsilon) {
+                if(vehicles_notin_target>OTMUtils.epsilon) {
                     double gamma = 0.9d;
-                    double mulitplier = Math.max(0d,1d-gamma*total_vehicles_notin_target);
+                    double mulitplier = Math.max(0d,1d-gamma*vehicles_notin_target);
                     total_demand *= mulitplier;
                 }
             }
@@ -325,6 +317,7 @@ public class Cell {
                 KeyCommPathOrLink state = e.getKey();
                 veh_notin_target.put(state, veh_notin_target.get(state) - e.getValue());
             }
+
 
     }
 }

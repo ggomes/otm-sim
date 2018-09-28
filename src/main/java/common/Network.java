@@ -433,15 +433,15 @@ public class Network {
 
         // lane changes
         // (cell.veh_in_target,cell.veh_notin_target -> cell.lane_change_veh)
-        macro_link_models.stream()
-                .filter(l -> l.link.lanegroups.size() >= 2)
-                .forEach(l -> l.update_lane_changes());
+//        macro_link_models.stream()
+//                .filter(l -> l.link.lanegroups.size() >= 2)
+//                .forEach(l -> l.update_lane_changes());
 
         // intermediate state update
         // (cell.lane_change_veh -> cell.veh_in_target,cell.veh_notin_target)
-        macro_link_models.stream()
-                .filter(l -> l.link.lanegroups.size()>=2)
-                .forEach(l -> l.intermediate_state_update());
+//        macro_link_models.stream()
+//                .filter(l -> l.link.lanegroups.size()>=2)
+//                .forEach(l -> l.intermediate_state_update());
 
         // update demand and supply
         // (cell.veh_in_target,cell.veh_notin_target -> cell.demand_in_target , cell.demand_notin_target)

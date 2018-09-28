@@ -8,12 +8,10 @@ package models.ctm;
 
 import common.*;
 import error.OTMErrorLog;
-import error.OTMException;
 import utils.OTMUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class LinkModel extends AbstractLinkModel {
