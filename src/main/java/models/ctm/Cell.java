@@ -174,7 +174,7 @@ public class Cell {
 
         double total_neighbor_veh = neighbor.get_vehicles();
 
-        double xi = 1.0*(1-neighbor.wspeed_norm);   // TODO FIX THIS!!!
+        double xi = 0.5*(1-neighbor.wspeed_norm);   // TODO FIX THIS!!!
 
         // total lane changing flow
         double total_flow = Math.min(total_veh_notin_target, xi * (neighbor.jam_density_veh - total_neighbor_veh));

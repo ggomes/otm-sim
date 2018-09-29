@@ -52,7 +52,7 @@ public class Source extends common.AbstractSource {
 
     private void update_flow_in(float time){
 
-        source_flows = null;
+//        source_flows = null;
 
         // split the demand amongst lanegroups and assign keys
         Map<Long,Map<KeyCommPathOrLink,Double>> new_source_flows = split_demand(get_value_in_veh_per_timestep());

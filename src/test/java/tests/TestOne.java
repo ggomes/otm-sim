@@ -81,7 +81,7 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            float duration = 100;
+            float duration = 3200;
             float outdt = 2f;
             float sim_dt = 1f;
 
