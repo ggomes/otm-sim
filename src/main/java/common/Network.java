@@ -432,13 +432,13 @@ public class Network {
     public void update_macro_flow(float timestamp) throws OTMException {
 
         // lane changes
-        // (cell.veh_in_target,cell.veh_notin_target -> cell.lane_change_veh)
+        // (cell.veh_in_target,cell.veh_notin_target -> cell.lane_change_flow)
         macro_link_models.stream()
                 .filter(l -> l.link.lanegroups.size() >= 2)
                 .forEach(l -> l.update_lane_changes());
 
         // intermediate state update
-        // (cell.lane_change_veh -> cell.veh_in_target,cell.veh_notin_target)
+        // (cell.lane_change_flow -> cell.veh_in_target,cell.veh_notin_target)
         macro_link_models.stream()
                 .filter(l -> l.link.lanegroups.size()>=2)
                 .forEach(l -> l.intermediate_state_update());

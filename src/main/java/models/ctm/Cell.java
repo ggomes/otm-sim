@@ -44,7 +44,7 @@ public class Cell {
     public Map<KeyCommPathOrLink, Double> demand_notin_target;   // comm,path|nlink -> number of vehicles
 
     // lane change flow
-    public Map<KeyCommPathOrLink, Double> lane_change_veh;      // comm,path|nlink -> number of vehicles
+    public Map<KeyCommPathOrLink, Double> lane_change_flow;      // comm,path|nlink -> number of vehicles
 
     public double supply;   // [veh]
 
@@ -120,11 +120,11 @@ public class Cell {
 
             veh_notin_target = new HashMap<>();
             demand_notin_target = new HashMap<>();
-            lane_change_veh = new HashMap<>();
+            lane_change_flow = new HashMap<>();
             for (KeyCommPathOrLink k : my_neighbor.states) {
                 veh_notin_target.put(k, 0d);
                 demand_notin_target.put(k, 0d);
-                lane_change_veh.put(k, 0d);
+                lane_change_flow.put(k, 0d);
             }
         }
 
@@ -169,8 +169,10 @@ public class Cell {
 
         double total_veh_notin_target = get_vehicles_notin_target();
 
-        if(total_veh_notin_target<=OTMUtils.epsilon)
+        if(total_veh_notin_target<=OTMUtils.epsilon) {
+            lane_change_flow.keySet().forEach(x->lane_change_flow.put(x,0d));
             return;
+        }
 
         double total_neighbor_veh = neighbor.get_vehicles();
 
@@ -183,31 +185,23 @@ public class Cell {
         for (Map.Entry<KeyCommPathOrLink, Double> e : veh_notin_target.entrySet()) {
             Double veh = e.getValue();
             if (veh > 0)
-                lane_change_veh.put(e.getKey(), total_flow * veh / total_veh_notin_target);
+                lane_change_flow.put(e.getKey(), total_flow * veh / total_veh_notin_target);
         }
 
     }
 
     public void intermediate_state_update(){
 
-        if(neighbor==null)
+        if(neighbor==null || lane_change_flow==null)
             return;
 
-        // vehicles arriving to the cell
-        for (Map.Entry<KeyCommPathOrLink, Double> e : neighbor.lane_change_veh.entrySet()) {
-            Double veh = e.getValue();
-            if (veh > 0) {
-                KeyCommPathOrLink state = e.getKey();
-                veh_in_target.put(state,veh_in_target.get(state)+veh);
-            }
-        }
-
         // vehicles leaving this cell
-        for (Map.Entry<KeyCommPathOrLink, Double> e : lane_change_veh.entrySet()) {
+        for (Map.Entry<KeyCommPathOrLink, Double> e : lane_change_flow.entrySet()) {
             Double veh = e.getValue();
             if (veh > 0) {
                 KeyCommPathOrLink state = e.getKey();
                 veh_notin_target.put(state,veh_notin_target.get(state)-veh);
+                neighbor.veh_in_target.put(state,neighbor.veh_in_target.get(state) + veh);
             }
         }
 
@@ -317,7 +311,5 @@ public class Cell {
                 KeyCommPathOrLink state = e.getKey();
                 veh_notin_target.put(state, veh_notin_target.get(state) - e.getValue());
             }
-
-
     }
 }
