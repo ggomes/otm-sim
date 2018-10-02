@@ -273,11 +273,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         if(link.lanegroups.size()<2)
             return null;
 
-        int lane_to_left = Collections.min(lanes)-1;
-        int lane_to_right = Collections.max(lanes)+1;
+        int lane_to_inside = Collections.min(lanes)-1;
+        int lane_to_outside = Collections.max(lanes)+1;
 
         return link.lanegroups.values().stream()
-                .filter(lg->lg.lanes.contains(lane_to_left) || lg.lanes.contains(lane_to_right))
+                .filter(lg->lg.lanes.contains(lane_to_inside) || lg.lanes.contains(lane_to_outside))
                 .collect(Collectors.toSet());
     }
 

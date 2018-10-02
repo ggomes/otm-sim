@@ -19,7 +19,7 @@ public class LaneGroupInfo {
     public float max_vehicles;
 
     /** List of lane numbers in this lane goup. Lanes are enumerated from
-     * left to right and include addlanes (turn pockets and lane drops) */
+     * inside to outside and include addlanes (turn pockets and lane drops) */
     public List<Integer> lanes;
 
     /** Map from downstream link id to the list of feasible lane groups. */

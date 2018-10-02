@@ -16,7 +16,7 @@ public class AddLanesInfo {
     /** Number of additional lane */
     public int lanes;
 
-    /** Side of the road: "l" or "r" */
+    /** Side of the road: "in" or "out" */
     public String side;
 
     /** ???? */

@@ -335,8 +335,8 @@ public class Network {
     private Set<AbstractLaneGroup> create_lanegroups_from_roadconnections(Link link) throws OTMException {
 
         // validation TODO: does this belong here? or rather in someone's validation.
-        if( link.road_geom!=null && (link.road_geom.up_left.lanes!=0 || link.road_geom.up_right.lanes!=0) )
-            throw new OTMException(" link.road_geom.up_left.lanes!=0 || link.road_geom.up_right.lanes!=0 ");
+        if( link.road_geom!=null && (link.road_geom.up_in.lanes!=0 || link.road_geom.up_out.lanes!=0) )
+            throw new OTMException(" link.road_geom.up_in.lanes!=0 || link.road_geom.up_out.lanes!=0 ");
 
         // get road connections that exit this link
         Set<RoadConnection> out_rcs = road_connections.values().stream().filter(x->x.start_link.id==link.id).collect(toSet());

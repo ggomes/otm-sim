@@ -230,14 +230,14 @@ public class ScenarioSplitter {
             jgeoms.getRoadgeom().add(jgeom);
             jgeom.setId(geom.id);
             List<AddLanes> jaddlanes = jgeom.getAddLanes();
-            if(geom.up_left.lanes>0)
-                jaddlanes.add(geom.up_left.to_jaxb());
-            if(geom.dn_left.lanes>0)
-                jaddlanes.add(geom.dn_left.to_jaxb());
-            if(geom.up_right.lanes>0)
-                jaddlanes.add(geom.up_right.to_jaxb());
-            if(geom.dn_right.lanes>0)
-                jaddlanes.add(geom.dn_right.to_jaxb());
+            if(geom.up_in.lanes>0)
+                jaddlanes.add(geom.up_in.to_jaxb());
+            if(geom.dn_in.lanes>0)
+                jaddlanes.add(geom.dn_in.to_jaxb());
+            if(geom.up_out.lanes>0)
+                jaddlanes.add(geom.up_out.to_jaxb());
+            if(geom.dn_out.lanes>0)
+                jaddlanes.add(geom.dn_out.to_jaxb());
         }
 
         // network: roadconnections

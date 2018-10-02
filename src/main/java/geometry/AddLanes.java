@@ -7,13 +7,12 @@
 package geometry;
 
 import error.OTMErrorLog;
-import runner.Scenario;
 
 import java.util.TreeSet;
 
 public class AddLanes {
 
-    public enum Side {l,r}
+    public enum Side {in, out}
     public enum Position {up,dn}
 
     public int lanes;
@@ -65,8 +64,8 @@ public class AddLanes {
         return this.position.equals(Position.up);
     }
 
-    public boolean isLeft(){
-        return this.side.equals(Side.l);
+    public boolean inIn(){
+        return this.side.equals(Side.in);
     }
 
     public void validate(OTMErrorLog errorLog){

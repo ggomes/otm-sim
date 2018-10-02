@@ -67,7 +67,7 @@ public class SplitInfo {
         double r = OTMUtils.random_zero_to_one();
 
         Optional<LinkCumSplit> z = link_cumsplit.stream()
-                                    .filter(x->x.cumsplit<r)  // get all cumsplit < r
+                                    .filter(x->x.cumsplit<r)  // get all cumsplit < out
                                     .reduce((a,b)->b);        // get last such vauue
 
         return z.isPresent() ? z.get().link_id : null;

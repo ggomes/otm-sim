@@ -104,7 +104,6 @@ public class Link implements InterfaceScenarioElement {
         this.full_lanes = full_lanes;
         this.start_node = start_node;
         this.end_node = end_node;
-//        this.commodity_flowaccumulators = new HashMap<>();
         this.road_geom = rg;
 
         // source and sink. this is set later by the network
@@ -130,7 +129,7 @@ public class Link implements InterfaceScenarioElement {
         this.commodities = new HashSet<>();
         this.total_lanes = road_geom==null ?
                 this.full_lanes :
-                Math.max(road_geom.dn_left.lanes, road_geom.up_left.lanes) + this.full_lanes + Math.max(road_geom.dn_right.lanes, road_geom.up_right.lanes);
+                Math.max(road_geom.dn_in.lanes, road_geom.up_in.lanes) + this.full_lanes + Math.max(road_geom.dn_out.lanes, road_geom.up_out.lanes);
 
         travel_timers = new HashSet<>();
     }
@@ -162,7 +161,7 @@ public class Link implements InterfaceScenarioElement {
 
         this.total_lanes = road_geom==null ?
                 this.full_lanes :
-                Math.max(road_geom.dn_left.lanes, road_geom.up_left.lanes) + this.full_lanes + Math.max(road_geom.dn_right.lanes, road_geom.up_right.lanes);
+                Math.max(road_geom.dn_in.lanes, road_geom.up_in.lanes) + this.full_lanes + Math.max(road_geom.dn_out.lanes, road_geom.up_out.lanes);
     }
 
     public void delete(){
@@ -251,20 +250,20 @@ public class Link implements InterfaceScenarioElement {
         if(this.road_geom!=null){
 
             // each addlane has length less than the link
-            if(road_geom.up_left.length>this.length )
-                errorLog.addError("link " + id + ", road_geom.up_left.length > this.length");
-            if( road_geom.up_right.length>this.length )
-                errorLog.addError("link " + id + ", road_geom.up_right.length > this.length");
-            if( road_geom.dn_left.length>this.length )
-                errorLog.addError("link " + id + ", road_geom.dn_left.length > this.length");
-            if( road_geom.dn_right.length>this.length )
-                errorLog.addError("link " + id + ", road_geom.dn_right.length > this.length");
+            if(road_geom.up_in.length>this.length )
+                errorLog.addError("link " + id + ", road_geom.up_in.length > this.length");
+            if( road_geom.up_out.length>this.length )
+                errorLog.addError("link " + id + ", road_geom.up_out.length > this.length");
+            if( road_geom.dn_in.length>this.length )
+                errorLog.addError("link " + id + ", road_geom.dn_in.length > this.length");
+            if( road_geom.dn_out.length>this.length )
+                errorLog.addError("link " + id + ", road_geom.dn_out.length > this.length");
 
-            // sum of left (right) addlane lengths is less than link length
-            if( road_geom.up_left.length+road_geom.dn_left.length>this.length)
-                errorLog.addError("link " + id + ", road_geom.up_left.length+road_geom.dn_left.length>this.length");
-            if( road_geom.up_right.length+road_geom.dn_right.length>this.length)
-                errorLog.addError("link " + id + ", road_geom.up_right.length+road_geom.dn_right.length>this.length");
+            // sum of inside (outside) addlane lengths is less than link length
+            if( road_geom.up_in.length+road_geom.dn_in.length>this.length)
+                errorLog.addError("link " + id + ", road_geom.up_in.length+road_geom.dn_in.length>this.length");
+            if( road_geom.up_out.length+road_geom.dn_out.length>this.length)
+                errorLog.addError("link " + id + ", road_geom.up_out.length+road_geom.dn_out.length>this.length");
         }
 
         // all lanes are covered in lane2lanegroup
@@ -319,8 +318,8 @@ public class Link implements InterfaceScenarioElement {
     // WARNING: possible inefficiency if this is called a lot
     public List<Integer> get_entry_lanes(){
         // find first lane
-        int first_lane = road_geom==null ? 1 : 1 + Math.max(0,road_geom.dn_left.lanes-road_geom.up_left.lanes);
-        int last_lane = road_geom==null ? full_lanes : first_lane + road_geom.up_left.lanes + full_lanes + road_geom.up_right.lanes -1;
+        int first_lane = road_geom==null ? 1 : 1 + Math.max(0,road_geom.dn_in.lanes-road_geom.up_in.lanes);
+        int last_lane = road_geom==null ? full_lanes : first_lane + road_geom.up_in.lanes + full_lanes + road_geom.up_out.lanes -1;
         List<Integer> lanes = new ArrayList<>();
         for(int lane=first_lane;lane<=last_lane;lane++)
             lanes.add(lane);
@@ -330,8 +329,8 @@ public class Link implements InterfaceScenarioElement {
     // WARNING: possible inefficiency if this is called a lot
     public List<Integer> get_exit_lanes(){
         // find first lane
-        int first_lane = road_geom==null? 1 : 1 + Math.max(0,road_geom.up_left.lanes-road_geom.dn_left.lanes);
-        int last_lane = road_geom==null? full_lanes : first_lane + road_geom.dn_left.lanes + full_lanes + road_geom.dn_right.lanes -1;
+        int first_lane = road_geom==null? 1 : 1 + Math.max(0,road_geom.up_in.lanes-road_geom.dn_in.lanes);
+        int last_lane = road_geom==null? full_lanes : first_lane + road_geom.dn_in.lanes + full_lanes + road_geom.dn_out.lanes -1;
         List<Integer> lanes = new ArrayList<>();
         for(int lane=first_lane;lane<=last_lane;lane++)
             lanes.add(lane);
@@ -347,12 +346,12 @@ public class Link implements InterfaceScenarioElement {
         if(road_geom==null)
             return this.length;
 
-        if(lane<=road_geom.dn_left.lanes)
-            return road_geom.dn_left.length;
-        else if(lane<=road_geom.dn_left.lanes+full_lanes)
+        if(lane<=road_geom.dn_in.lanes)
+            return road_geom.dn_in.length;
+        else if(lane<=road_geom.dn_in.lanes+full_lanes)
             return this.length;
-        else if (lane<=road_geom.dn_left.lanes+full_lanes+road_geom.dn_right.lanes)
-            return road_geom.dn_right.length;
+        else if (lane<=road_geom.dn_in.lanes+full_lanes+road_geom.dn_out.lanes)
+            return road_geom.dn_out.length;
         else
             return 0f;
     }
