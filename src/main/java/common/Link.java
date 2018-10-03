@@ -39,10 +39,10 @@ public class Link implements InterfaceScenarioElement {
     public boolean is_source;
     public boolean is_sink;
 
-//    public int total_lanes;
-
     // lanegroups
     public Map<Long,AbstractLaneGroup> lanegroups;
+    AbstractLaneGroup up_out_lg = null;
+    AbstractLaneGroup up_in_lg = null;
 
     // downstream lane count -> lane group
     private Map<Integer, AbstractLaneGroup> dnlane2lanegroup;
@@ -399,8 +399,21 @@ public class Link implements InterfaceScenarioElement {
     }
 
     public AbstractLaneGroup get_lanegroup_for_up_lane(int lane){
-        // TODO IMPLEMENT THIS
-        return null;
+        if(road_geom==null)
+            return get_lanegroup_for_dn_lane(lane);
+        if(road_geom.up_in==null && road_geom.up_out==null)
+            return get_lanegroup_for_dn_lane(lane);
+        if(road_geom.up_in==null){
+            if(lane<=full_lanes)
+                return get_lanegroup_for_dn_lane(lane);
+            else
+                return up_out_lg;
+        }
+        if(lane<=road_geom.up_in.lanes)
+            return up_in_lg;
+        if(lane<=road_geom.up_in.lanes+full_lanes)
+            return get_lanegroup_for_dn_lane(lane-road_geom.up_in.lanes);
+        return up_out_lg;
     }
 
     public float get_max_vehicles(){
