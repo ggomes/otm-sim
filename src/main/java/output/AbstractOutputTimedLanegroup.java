@@ -6,10 +6,10 @@
  */
 package output;
 
+import common.AbstractLaneGroupLongitudinal;
 import common.Link;
 import error.OTMErrorLog;
 import error.OTMException;
-import common.AbstractLaneGroup;
 import profiles.Profile1D;
 import runner.Scenario;
 
@@ -19,7 +19,7 @@ import java.util.*;
 public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
 
     public List<Long> ordered_ids;
-    public Map<Long, LankGroupProfile> lgprofiles;
+    public Map<Long, LaneGroupProfile> lgprofiles;
 
     //////////////////////////////////////////////////////
     // construction
@@ -38,9 +38,9 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
             if(!scenario.network.links.containsKey(link_id))
                 continue;
             Link link = scenario.network.links.get(link_id);
-            for(AbstractLaneGroup lg : link.lanegroups.values()){
+            for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values()){
                 ordered_ids.add(lg.id);
-                lgprofiles.put(lg.id, new LankGroupProfile(lg));
+                lgprofiles.put(lg.id, new LaneGroupProfile(lg));
             }
         }
 
@@ -64,8 +64,8 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
                 if(filename!=null) {
                     String subfilename = filename.substring(0,filename.length()-4);
                     Writer lanegroups_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_lanegroups.txt"));
-                    for(LankGroupProfile lgprof: lgprofiles.values()){
-                        AbstractLaneGroup lg = lgprof.lg;
+                    for(LaneGroupProfile lgprof: lgprofiles.values()){
+                        AbstractLaneGroupLongitudinal lg = lgprof.lg;
                         lanegroups_writer.write(lg.id+" "+lg.link.getId() + " " + Collections.min(lg.lanes) + " " + Collections.max(lg.lanes) +"\n");
                     }
                     lanegroups_writer.close();
@@ -76,7 +76,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
                 throw new OTMException(e);
             }
         } else {
-            for(LankGroupProfile lgProfile : lgprofiles.values())
+            for(LaneGroupProfile lgProfile : lgprofiles.values())
                 lgProfile.initialize(outDt);
         }
 
@@ -96,7 +96,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
             return null;
 
         Map<Long,Profile1D> profiles = new HashMap<>();
-        for(AbstractLaneGroup lg : scenario.network.links.get(link_id).lanegroups.values())
+        for(AbstractLaneGroupLongitudinal lg : scenario.network.links.get(link_id).lanegroups.values())
             if(lgprofiles.containsKey(lg.id))
                 profiles.put(lg.id,lgprofiles.get(lg.id).profile);
 
@@ -125,7 +125,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
             }
         } else {
             for(Long lg_id : ordered_ids){
-                LankGroupProfile lgProfile = lgprofiles.get(lg_id);
+                LaneGroupProfile lgProfile = lgprofiles.get(lg_id);
                 lgProfile.add_value(get_value_for_lanegroup(lg_id));
             }
         }
@@ -135,10 +135,10 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
     // class
     //////////////////////////////////////////////////////
 
-    public class LankGroupProfile {
-        public AbstractLaneGroup lg;
+    public class LaneGroupProfile {
+        public AbstractLaneGroupLongitudinal lg;
         public Profile1D profile;
-        public LankGroupProfile(AbstractLaneGroup lg){
+        public LaneGroupProfile(AbstractLaneGroupLongitudinal lg){
             this.lg = lg;
         }
         public void initialize(float outDt){

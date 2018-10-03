@@ -6,7 +6,7 @@
  */
 package output;
 
-import common.AbstractLaneGroup;
+import common.AbstractLaneGroupLongitudinal;
 import dispatch.Dispatcher;
 import error.OTMException;
 import runner.RunParameters;
@@ -38,7 +38,7 @@ public class LaneGroups extends AbstractOutput {
         if(writer==null)
             return;
         try {
-            for(AbstractLaneGroup lg : scenario.network.get_lanegroups())
+            for(AbstractLaneGroupLongitudinal lg : scenario.network.get_lanegroups())
                 writer.write(lg.id + "\t" + lg.link.getId() + "\t{" + OTMUtils.comma_format(new ArrayList(lg.lanes)) + "}\n");
             writer.close();
             writer = null;

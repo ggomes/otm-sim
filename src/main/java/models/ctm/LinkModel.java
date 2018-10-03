@@ -51,7 +51,7 @@ public class LinkModel extends AbstractLinkModel {
                 link.length/cells_per_lanegroup;
 
         // create cells
-        for(AbstractLaneGroup lg : link.lanegroups.values())
+        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values())
             ((models.ctm.LaneGroup)lg).create_cells(cells_per_lanegroup,cell_length_meters);
     }
 
@@ -78,7 +78,7 @@ public class LinkModel extends AbstractLinkModel {
         float jam_density_vehperlane = r.getJamDensity() * cell_length_meters / 1000f;
         float ffspeed_veh = 1000f * r.getSpeed()*dt_hr / cell_length_meters;
 
-        for(AbstractLaneGroup lg : link.lanegroups.values()) {
+        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values()) {
             lg.set_road_params(r);
             ((models.ctm.LaneGroup) lg).cells.forEach(c -> c.set_road_params(capacity_vehperlane, jam_density_vehperlane, ffspeed_veh));
         }
@@ -100,7 +100,7 @@ public class LinkModel extends AbstractLinkModel {
 
     @Override
     public void reset() {
-        for(AbstractLaneGroup alg : link.lanegroups.values()){
+        for(AbstractLaneGroupLongitudinal alg : link.lanegroups.values()){
             models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
             lg.cells.forEach(x->x.reset());
             lg.flow_notin_target = null;
@@ -133,7 +133,7 @@ public class LinkModel extends AbstractLinkModel {
 
     // call update_supply_demand on each cell
     public void update_lane_changes() {
-        for(AbstractLaneGroup lg : link.lanegroups.values()) {
+        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values()) {
             models.ctm.LaneGroup ctmlg = (models.ctm.LaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_lane_change_flow());
@@ -141,7 +141,7 @@ public class LinkModel extends AbstractLinkModel {
     }
 
     public void intermediate_state_update(){
-        for(AbstractLaneGroup lg : link.lanegroups.values()) {
+        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values()) {
             models.ctm.LaneGroup ctmlg = (models.ctm.LaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.intermediate_state_update());
@@ -150,7 +150,7 @@ public class LinkModel extends AbstractLinkModel {
 
     // call update_supply_demand on each cell
     public void update_supply_demand() {
-        for(AbstractLaneGroup lg : link.lanegroups.values()) {
+        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values()) {
             models.ctm.LaneGroup ctmlg = (models.ctm.LaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_supply_demand());
@@ -158,12 +158,12 @@ public class LinkModel extends AbstractLinkModel {
     }
 
     public void update_cell_boundary_flows() {
-        for(AbstractLaneGroup lg : link.lanegroups.values())
+        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values())
             ((LaneGroup) lg).update_cell_boundary_flows();
     }
 
     public void update_state(float timestamp) {
-        for(AbstractLaneGroup lg : link.lanegroups.values())
+        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values())
             ((models.ctm.LaneGroup) lg).update_state(timestamp);
     }
 

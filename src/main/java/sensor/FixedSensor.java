@@ -1,6 +1,6 @@
 package sensor;
 
-import common.AbstractLaneGroup;
+import common.AbstractLaneGroupLongitudinal;
 import common.Link;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
@@ -15,7 +15,7 @@ import java.util.Map;
 public class FixedSensor extends AbstractSensor {
 
     public float position;
-    public Map<AbstractLaneGroup, SubSensor> subsensors;  // because a fixed sensor may span several lanegroups
+    public Map<AbstractLaneGroupLongitudinal, SubSensor> subsensors;  // because a fixed sensor may span several lanegroups
 
     public FixedSensor(Scenario scenario, Sensor jaxb_sensor) {
         super(scenario, jaxb_sensor);
@@ -47,7 +47,7 @@ public class FixedSensor extends AbstractSensor {
         // create subsensors
         subsensors = new HashMap<>();
         for(int lane=start_lane;lane<=end_lane;lane++){
-            AbstractLaneGroup lg = link.get_lanegroup_for_dn_lane(lane);
+            AbstractLaneGroupLongitudinal lg = link.get_lanegroup_for_dn_lane(lane);
             SubSensor subsensor;
             if(subsensors.containsKey(lg)){
                 subsensor = subsensors.get(lg);
@@ -59,8 +59,8 @@ public class FixedSensor extends AbstractSensor {
         }
 
         // register flow accumulators
-        for(Map.Entry<AbstractLaneGroup, SubSensor> e : subsensors.entrySet() ){
-            AbstractLaneGroup lg = e.getKey();
+        for(Map.Entry<AbstractLaneGroupLongitudinal, SubSensor> e : subsensors.entrySet() ){
+            AbstractLaneGroupLongitudinal lg = e.getKey();
             SubSensor subsensor = e.getValue();
             subsensor.flow_accumulator = lg.request_flow_accumulator();
         }

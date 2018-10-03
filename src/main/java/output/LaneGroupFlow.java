@@ -25,7 +25,7 @@ public class LaneGroupFlow extends AbstractOutputTimedLanegroup  {
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
         flw_accs = new HashMap<>();
-        for(LankGroupProfile lgprofile : lgprofiles.values()){
+        for(LaneGroupProfile lgprofile : lgprofiles.values()){
             flw_accs.put(lgprofile.lg.id,lgprofile.lg.request_flow_accumulator(commodity.getId()));
         }
     }

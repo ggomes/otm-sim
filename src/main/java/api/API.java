@@ -11,7 +11,7 @@ import actuator.sigint.ActuatorSignal;
 import api.info.*;
 import commodity.Commodity;
 import commodity.Subnetwork;
-import common.AbstractLaneGroup;
+import common.AbstractLaneGroupLongitudinal;
 import common.RoadConnection;
 import control.AbstractController;
 import dispatch.EventCreateVehicle;
@@ -346,7 +346,7 @@ public class API {
     public List<Long> get_in_lanegroups_for_road_connection(long rcid){
         RoadConnection rc = scenario.network.get_road_connection(rcid);
         List<Long> lgids = new ArrayList<>();
-        for(AbstractLaneGroup lg : rc.in_lanegroups)
+        for(AbstractLaneGroupLongitudinal lg : rc.in_lanegroups)
             lgids.add(lg.id);
         return lgids;
     }
@@ -354,7 +354,7 @@ public class API {
     public List<Long> get_out_lanegroups_for_road_connection(long rcid){
         RoadConnection rc = scenario.network.get_road_connection(rcid);
         List<Long> lgids = new ArrayList<>();
-        for(AbstractLaneGroup lg : rc.out_lanegroups)
+        for(AbstractLaneGroupLongitudinal lg : rc.out_lanegroups)
             lgids.add(lg.id);
         return lgids;
     }

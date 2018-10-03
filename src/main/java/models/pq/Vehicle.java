@@ -72,7 +72,7 @@ public class Vehicle extends AbstractVehicle {
 //            get_event_listener().move_from_to_queue(timestamp,this,from_queue,queue);
     }
 
-//    public void move_to_lanegroup(float timestamp, AbstractLaneGroup lanegroup) throws OTMException {
+//    public void move_to_lanegroup(float timestamp, AbstractLaneGroupLongitudinal lanegroup) throws OTMException {
 //        if(lanegroup.link.model_type==Link.ModelType.models.ctm.pq)
 //            assign_queue(timestamp,((models.ctm.pq.LaneGroup) lanegroup).transit_queue);
 //    }

@@ -6,7 +6,6 @@
  */
 package models.ctm;
 
-import common.AbstractLaneGroup;
 import common.AbstractLaneGroupLongitudinal;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;

@@ -225,7 +225,7 @@ public class Link implements InterfaceScenarioElement {
 
 //    public FlowAccumulatorSet request_flow_accumulator_set(Long commodity_id){
 //        FlowAccumulatorSet fas = new FlowAccumulatorSet();
-//        for(AbstractLaneGroup lg : lanegroups.values())
+//        for(AbstractLaneGroupLongitudinal lg : lanegroups.values())
 //            fas.add_flow_accumulator(lg.request_flow_accumulator(commodity_id));
 //        return fas;
 //    }
@@ -304,7 +304,7 @@ public class Link implements InterfaceScenarioElement {
     }
 
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
-        for(AbstractLaneGroup lg : lanegroups.values())
+        for(AbstractLaneGroupLongitudinal lg : lanegroups.values())
             lg.initialize(scenario,runParams);
         model.initialize(scenario);
 //        if(is_source && sources!=null)
@@ -371,10 +371,10 @@ public class Link implements InterfaceScenarioElement {
 
 
 
-//    public Set<AbstractLaneGroup> get_lanegroups_for_lanes(Set<Integer> lanes){
+//    public Set<AbstractLaneGroupLongitudinal> get_lanegroups_for_lanes(Set<Integer> lanes){
 //        if(lanes==null)
 //            return new HashSet(lanegroups.values());
-//        Set<AbstractLaneGroup> r = new HashSet<>();
+//        Set<AbstractLaneGroupLongitudinal> r = new HashSet<>();
 //        for(int lane : lanes)
 //            r.add(dnlane2lanegroup.get(lane));
 //        return r;

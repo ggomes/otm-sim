@@ -6,10 +6,10 @@
  */
 package output.animation;
 
-import common.AbstractLaneGroup;
+import common.AbstractLaneGroupLongitudinal;
 
 public interface InterfaceLinkInfo {
 
-    AbstractLaneGroupInfo newLaneGroupInfo(AbstractLaneGroup lg);
+    AbstractLaneGroupInfo newLaneGroupInfo(AbstractLaneGroupLongitudinal lg);
 
 }

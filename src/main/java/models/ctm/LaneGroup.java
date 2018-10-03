@@ -7,7 +7,6 @@
 package models.ctm;
 
 import commodity.Commodity;
-import commodity.Path;
 import common.*;
 import common.RoadConnection;
 import error.OTMErrorLog;
@@ -19,8 +18,6 @@ import runner.Scenario;
 import utils.OTMUtils;
 
 import java.util.*;
-
-import static java.util.stream.Collectors.toSet;
 
 public class LaneGroup extends AbstractLaneGroupLongitudinal {
 
@@ -93,7 +90,7 @@ public class LaneGroup extends AbstractLaneGroupLongitudinal {
             flow_in_target.add(new HashMap<>());
 
         // Additional configuration for lane changing
-        Set<AbstractLaneGroup> my_neighbors = get_my_neighbors();
+        Set<AbstractLaneGroupLongitudinal> my_neighbors = get_my_neighbors();
         if(my_neighbors!=null){
 
             // populate not in target boundary flows

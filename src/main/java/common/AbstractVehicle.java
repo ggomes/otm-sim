@@ -17,7 +17,7 @@ public abstract class AbstractVehicle {
     private long id;
     private KeyCommPathOrLink key;
 
-    protected AbstractLaneGroup my_lanegroup;
+    protected AbstractLaneGroupLongitudinal my_lanegroup;
 
     // dispatch listeners
     private Set<InterfaceVehicleListener> event_listeners;
@@ -70,7 +70,7 @@ public abstract class AbstractVehicle {
     }
 
 
-    public AbstractLaneGroup get_lanegroup(){
+    public AbstractLaneGroupLongitudinal get_lanegroup(){
         return my_lanegroup;
     }
 

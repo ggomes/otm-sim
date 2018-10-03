@@ -6,7 +6,6 @@
  */
 package commodity;
 
-import common.AbstractLaneGroup;
 import common.AbstractLaneGroupLongitudinal;
 import common.Link;
 import error.OTMErrorLog;

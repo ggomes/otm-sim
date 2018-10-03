@@ -35,7 +35,7 @@ public class Source extends common.AbstractSource {
 //        vehicle.set_next_link_id(x.next_link_id);
 //
 //        // choose best one from target lanegroups
-//        LaneGroup lanegroup = (LaneGroup) x.target_lanegroups.stream().max(AbstractLaneGroup::compareTo).get();
+//        LaneGroup lanegroup = (LaneGroup) x.target_lanegroups.stream().max(AbstractLaneGroupLongitudinal::compareTo).get();
 //
 //        // move the vehicle
 //        vehicle.move_to_lanegroup(timestamp);

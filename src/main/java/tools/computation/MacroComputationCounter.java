@@ -6,7 +6,7 @@
  */
 package tools.computation;
 
-import common.AbstractLaneGroup;
+import common.AbstractLaneGroupLongitudinal;
 import common.Link;
 import common.Node;
 import common.RoadConnection;
@@ -326,7 +326,7 @@ public class MacroComputationCounter {
         int num_cells = 0;  // number of cells in the link
 
         public LinkInfoForComputation(Link link){
-            for(AbstractLaneGroup lg : link.lanegroups.values())
+            for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values())
                 if(lg instanceof models.ctm.LaneGroup){
                     models.ctm.LaneGroup ctm_lg = (models.ctm.LaneGroup) lg;
                     nSi += ctm_lg.cells.size() * ctm_lg.states.size();
@@ -351,7 +351,7 @@ public class MacroComputationCounter {
             // ulgs lane groups
             up_lgs = new HashSet<>();
             for(Link link : x.in_links.values())
-                for(AbstractLaneGroup lg : link.lanegroups.values())
+                for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values())
                     up_lgs.add(new UpLaneGroupInfo(lg));
 
             // road connections
@@ -362,7 +362,7 @@ public class MacroComputationCounter {
             // dlgs lane groups
             dn_lgs = new HashSet<>();
             for(Link link : x.out_links.values())
-                for(AbstractLaneGroup lg : link.lanegroups.values())
+                for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values())
                     dn_lgs.add(new DnLaneGroupInfo(lg));
 
             // states for road connections
@@ -390,7 +390,7 @@ public class MacroComputationCounter {
         // number of downstream road connections
         public int nDi;
 
-        public UpLaneGroupInfo(AbstractLaneGroup lg) {
+        public UpLaneGroupInfo(AbstractLaneGroupLongitudinal lg) {
             if(lg instanceof models.ctm.LaneGroup){
                 models.ctm.LaneGroup ctm_lg = (models.ctm.LaneGroup) lg;
                 this.nSi = ctm_lg.states.size();
@@ -437,7 +437,7 @@ public class MacroComputationCounter {
         // number of states
         public int nSj;
 
-        public DnLaneGroupInfo(AbstractLaneGroup lg){
+        public DnLaneGroupInfo(AbstractLaneGroupLongitudinal lg){
             if(lg instanceof models.ctm.LaneGroup){
                 models.ctm.LaneGroup ctm_lg = (models.ctm.LaneGroup) lg;
                 this.nSj = ctm_lg.states.size();

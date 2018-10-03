@@ -18,7 +18,7 @@ public class EventReleaseVehicleFromLaneGroup extends AbstractEvent {
         // add dispatch to vehicle release map if the lanegroup is actuated
         // NOTE: OTHER CONDITIONS FOR CHANGING SATURATION FLOW INCLUDE INCIDENTS
         // WE WILL NEED TO ACCOUNT FOR THIS
-//        AbstractLaneGroup lanegroup = (AbstractLaneGroup)obj;
+//        AbstractLaneGroupLongitudinal lanegroup = (AbstractLaneGroupLongitudinal)obj;
 //        if( lanegroup.actuator!=null ){
 //            Set<EventReleaseVehicleFromLaneGroup> set;
 //            if( dispatcher.vehicle_release_events.containsKey(lanegroup.id) ){

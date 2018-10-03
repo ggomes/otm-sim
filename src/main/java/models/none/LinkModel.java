@@ -6,7 +6,6 @@
  */
 package models.none;
 
-import common.AbstractLaneGroup;
 import common.AbstractLaneGroupLongitudinal;
 import common.AbstractLinkModel;
 import common.Link;
@@ -17,7 +16,6 @@ import jaxb.Roadparam;
 import runner.Scenario;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public class LinkModel extends AbstractLinkModel {

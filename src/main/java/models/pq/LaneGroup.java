@@ -222,7 +222,7 @@ public class LaneGroup extends AbstractLaneGroupLongitudinal {
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
             OptionalDouble max_space = dwn_lanegroups.stream()
-                    .mapToDouble(AbstractLaneGroup::get_space)
+                    .mapToDouble(AbstractLaneGroupLongitudinal::get_space)
                     .max();
 
             if(max_space.isPresent() && max_space.getAsDouble()>1.0){

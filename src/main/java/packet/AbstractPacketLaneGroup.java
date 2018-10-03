@@ -6,13 +6,8 @@
  */
 package packet;
 
-import common.AbstractLaneGroup;
 import common.AbstractLaneGroupLongitudinal;
-import common.AbstractVehicle;
-import keys.KeyCommPathOrLink;
 
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /** Packets of vehicles (micro, meso, and/or macro) passed to a lane group **/
@@ -24,7 +19,7 @@ public abstract class AbstractPacketLaneGroup implements InterfacePacketLaneGrou
 
     public AbstractPacketLaneGroup(){}
 
-    public AbstractPacketLaneGroup(Set<AbstractLaneGroup> target_lanegroups, PacketLink vp, boolean in_sink) {
+    public AbstractPacketLaneGroup(Set<AbstractLaneGroupLongitudinal> target_lanegroups, PacketLink vp, boolean in_sink) {
     }
 
     public AbstractPacketLaneGroup(Set<AbstractLaneGroupLongitudinal> target_lanegroups){

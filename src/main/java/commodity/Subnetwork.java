@@ -6,7 +6,6 @@
  */
 package commodity;
 
-import common.AbstractLaneGroup;
 import common.AbstractLaneGroupLongitudinal;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -15,7 +14,6 @@ import common.Network;
 import utils.OTMUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 

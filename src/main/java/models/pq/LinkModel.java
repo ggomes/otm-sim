@@ -9,16 +9,9 @@ package models.pq;
 import common.*;
 import error.OTMErrorLog;
 import error.OTMException;
-import packet.AbstractPacketLaneGroup;
-import packet.PacketLink;
 import runner.Scenario;
-import utils.OTMUtils;
 
 import java.util.*;
-import java.util.stream.IntStream;
-
-import static java.util.Comparator.comparingInt;
-import static java.util.stream.Collectors.toList;
 
 public class LinkModel extends AbstractLinkModel {
 
@@ -38,7 +31,7 @@ public class LinkModel extends AbstractLinkModel {
     @Override
     public void set_road_param(jaxb.Roadparam r, float sim_dt_sec) {
         // send parameters to lane groups
-        for(AbstractLaneGroup lg : link.lanegroups.values())
+        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values())
             lg.set_road_params(r);
     }
 
@@ -60,7 +53,7 @@ public class LinkModel extends AbstractLinkModel {
 
         // returns the maximum of the transit times of all of the lanegroup
         float s = 0f;
-        for(AbstractLaneGroup lg : link.lanegroups.values() )
+        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values() )
             s = Math.max( s , ((LaneGroup)lg).transit_time_sec );
         return s;
     }
@@ -69,7 +62,7 @@ public class LinkModel extends AbstractLinkModel {
     public float get_capacity_vps(){
         // return s the sum of the capacities of all of the lanegroups
         float s = 0f;
-        for(AbstractLaneGroup lg : link.lanegroups.values() )
+        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values() )
             s += ((LaneGroup)lg).saturation_flow_rate_vps;
         return s;
     }
@@ -79,7 +72,7 @@ public class LinkModel extends AbstractLinkModel {
 
         // put the whole packet i the lanegroup with the most space.
         Optional<AbstractLaneGroupLongitudinal> best_lanegroup = candidate_lanegroups.stream()
-                .max(Comparator.comparing(AbstractLaneGroup::get_space_per_lane));
+                .max(Comparator.comparing(AbstractLaneGroupLongitudinal::get_space_per_lane));
 
         if(best_lanegroup.isPresent()) {
             Map<AbstractLaneGroupLongitudinal,Double> A = new HashMap<>();
@@ -113,7 +106,7 @@ public class LinkModel extends AbstractLinkModel {
 //                AbstractPacketLaneGroup vplg = (AbstractPacketLaneGroup) myPacketClass.newInstance();
 //                vplg.target_lanegroups = null;
 //                vplg.add_link_packet(vp,true);
-//                AbstractLaneGroup join_lanegroup = vp.arrive_to_lanegroups.iterator().next();
+//                AbstractLaneGroupLongitudinal join_lanegroup = vp.arrive_to_lanegroups.iterator().next();
 //                join_lanegroup.add_native_vehicle_packet(timestamp,vplg);
 //            } catch (InstantiationException e) {
 //                e.printStackTrace();
@@ -148,7 +141,7 @@ public class LinkModel extends AbstractLinkModel {
 //            // candidates lanegroups are those where the packet has arrived
 //            // intersected with those that can reach the outlink
 //            // This can be removed if there is a model for "changing lanes" to another lanegroup
-//            Set<AbstractLaneGroup> candidate_lanegroups = OTMUtils.intersect( vp.arrive_to_lanegroups , lanegroup_packet.target_lanegroups );
+//            Set<AbstractLaneGroupLongitudinal> candidate_lanegroups = OTMUtils.intersect( vp.arrive_to_lanegroups , lanegroup_packet.target_lanegroups );
 //
 //            if(candidate_lanegroups.isEmpty()) {
 //                // in this case the vehicle has arrived to lanegroups for which there is
@@ -163,7 +156,7 @@ public class LinkModel extends AbstractLinkModel {
 //            }
 //
 //            // choose the best one
-//            AbstractLaneGroup join_lanegroup = AbstractLaneGroup.choose_best_lanegroup(candidate_lanegroups);
+//            AbstractLaneGroupLongitudinal join_lanegroup = AbstractLaneGroupLongitudinal.choose_best_lanegroup(candidate_lanegroups);
 //
 //            // if all candidates are full, then choose one that is closest and not full
 //            if(join_lanegroup==null) {
@@ -194,7 +187,7 @@ public class LinkModel extends AbstractLinkModel {
         x.requester.move_to_queue(timestamp,x.to_queue);
 
         // remove all of its requests by this vehicle in this link
-        for (AbstractLaneGroup lanegroup : link.lanegroups.values()) {
+        for (AbstractLaneGroupLongitudinal lanegroup : link.lanegroups.values()) {
             LaneGroup lg = (LaneGroup) lanegroup;
             lg.transit_queue.remove_lane_change_requests_for_vehicle(x.requester);
             lg.waiting_queue.remove_lane_change_requests_for_vehicle(x.requester);

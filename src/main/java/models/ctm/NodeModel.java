@@ -6,7 +6,7 @@
  */
 package models.ctm;
 
-import common.AbstractLaneGroup;
+import common.AbstractLaneGroupLongitudinal;
 import common.Link;
 import common.Node;
 import error.OTMErrorLog;
@@ -101,7 +101,7 @@ public class NodeModel {
             rcs.put(xrc.getId(),rc);
 
             // go through its upstream lanegroups
-            for (AbstractLaneGroup xup_lg : xrc.in_lanegroups) {
+            for (AbstractLaneGroupLongitudinal xup_lg : xrc.in_lanegroups) {
                 UpLaneGroup ulg;
                 if (!up_lgs_map.containsKey(xup_lg.id)) {
                     ulg = new UpLaneGroup((models.ctm.LaneGroup) xup_lg);
@@ -113,7 +113,7 @@ public class NodeModel {
             }
 
             // go through its downstream lanegroups
-            for (AbstractLaneGroup xdn_lg : xrc.out_lanegroups) {
+            for (AbstractLaneGroupLongitudinal xdn_lg : xrc.out_lanegroups) {
                 DnLaneGroup dlg;
                 if (!dn_lgs_map.containsKey(xdn_lg.id)) {
                     dlg = new DnLaneGroup((models.ctm.LaneGroup) xdn_lg);

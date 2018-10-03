@@ -58,7 +58,7 @@ public class Source extends common.AbstractSource {
         Map<Long,Map<KeyCommPathOrLink,Double>> new_source_flows = split_demand(get_value_in_veh_per_timestep());
 
         // update the lanegroup's flow_in
-        for(AbstractLaneGroup alg : link.lanegroups.values()){
+        for(AbstractLaneGroupLongitudinal alg : link.lanegroups.values()){
 
             if(!new_source_flows.containsKey(alg.id))
                 continue;
@@ -94,7 +94,7 @@ public class Source extends common.AbstractSource {
         if(key.isPath){
             // assign flows to candidate lanegroups
             double demand_for_each_lg = flow_veh_per_timestep / candidate_lanegroups.size();
-            for(AbstractLaneGroup lg : candidate_lanegroups) {
+            for(AbstractLaneGroupLongitudinal lg : candidate_lanegroups) {
                 Map<KeyCommPathOrLink,Double> x = new HashMap<>();
                 x.put(key,demand_for_each_lg);
                 source_flows.put(lg.id, x);
@@ -113,7 +113,7 @@ public class Source extends common.AbstractSource {
                 Link next_link = link.end_node.out_links.values().iterator().next();
                 KeyCommPathOrLink key = new KeyCommPathOrLink(comm_id,next_link.getId(),false);
 
-                AbstractLaneGroup lg = link.lanegroups.values().iterator().next();
+                AbstractLaneGroupLongitudinal lg = link.lanegroups.values().iterator().next();
                 Map<KeyCommPathOrLink,Double> x = new HashMap<>();
                 x.put(key,flow_veh_per_timestep);
                 source_flows.put(lg.id,x);
@@ -139,7 +139,7 @@ public class Source extends common.AbstractSource {
                 // assign flows to candidate lanegroups
                 double demand_for_each_lg = flow_veh_per_timestep * split / candidate_lanegroups.size();
 
-                for(AbstractLaneGroup lg : candidate_lanegroups){
+                for(AbstractLaneGroupLongitudinal lg : candidate_lanegroups){
                     Map<KeyCommPathOrLink,Double> x;
                     if(source_flows.containsKey(lg.id)) {
                         x = source_flows.get(lg.id);

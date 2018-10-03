@@ -138,7 +138,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return link.get_length_for_lane(1);
     }
 
-    public Set<AbstractLaneGroup> get_my_neighbors(){
+    public Set<AbstractLaneGroupLongitudinal> get_my_neighbors(){
         if(link.lanegroups.size()<2)
             return null;
 

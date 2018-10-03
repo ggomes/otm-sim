@@ -6,12 +6,12 @@
  */
 package output.animation.meso;
 
-import common.AbstractLaneGroup;
+import common.AbstractLaneGroupLongitudinal;
 import output.animation.AbstractLaneGroupInfo;
 
 public class LaneGroupInfo extends AbstractLaneGroupInfo {
 
-    public LaneGroupInfo(AbstractLaneGroup lg) {
+    public LaneGroupInfo(AbstractLaneGroupLongitudinal lg) {
         super(lg);
     }
 

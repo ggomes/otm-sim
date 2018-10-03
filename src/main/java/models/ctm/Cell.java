@@ -6,7 +6,7 @@
  */
 package models.ctm;
 
-import common.AbstractLaneGroup;
+import common.AbstractLaneGroupLongitudinal;
 import error.OTMErrorLog;
 import keys.KeyCommPathOrLink;
 import utils.OTMUtils;
@@ -110,7 +110,7 @@ public class Cell {
         }
 
         // this != target lane group
-        Set<AbstractLaneGroup> my_neighbors = laneGroup.get_my_neighbors();
+        Set<AbstractLaneGroupLongitudinal> my_neighbors = laneGroup.get_my_neighbors();
         if (my_neighbors != null) {
 
             // assume that there are only two lanegroups in the link

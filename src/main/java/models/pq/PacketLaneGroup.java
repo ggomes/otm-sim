@@ -6,7 +6,6 @@
  */
 package models.pq;
 
-import common.AbstractLaneGroup;
 import common.AbstractLaneGroupLongitudinal;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
@@ -15,7 +14,6 @@ import packet.PacketLink;
 import packet.PartialVehicleMemory;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class PacketLaneGroup extends AbstractPacketLaneGroup {
