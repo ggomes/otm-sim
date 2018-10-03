@@ -110,8 +110,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             errorLog.addError("lanes.isEmpty()");
         else{
             // lanes are on the link
-            if(Collections.max(lanes)>link.total_lanes)
-                errorLog.addError("Collections.max(lanes)>link.get_num_lanes()");
+//            if(Collections.max(lanes)>link.total_lanes)
+//                errorLog.addError("Collections.max(lanes)>link.get_num_lanes()");
             if(Collections.min(lanes)<1)
                 errorLog.addError("Collections.min(lanes)<1");
         }
@@ -265,7 +265,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         RoadConnection rc = outlink2roadconnection.get(out_link.getId());
 
         // return lanegroups connected to by this road connection
-        return out_link.get_lanegroups_for_lanes(rc.end_link_from_lane,rc.end_link_to_lane);
+        return out_link.get_lanegroups_for_up_lanes(rc.end_link_from_lane,rc.end_link_to_lane);
 
     }
 

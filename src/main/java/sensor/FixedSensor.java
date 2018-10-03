@@ -47,7 +47,7 @@ public class FixedSensor extends AbstractSensor {
         // create subsensors
         subsensors = new HashMap<>();
         for(int lane=start_lane;lane<=end_lane;lane++){
-            AbstractLaneGroup lg = link.lane2lanegroup.get(lane);
+            AbstractLaneGroup lg = link.get_lanegroup_for_dn_lane(lane);
             SubSensor subsensor;
             if(subsensors.containsKey(lg)){
                 subsensor = subsensors.get(lg);

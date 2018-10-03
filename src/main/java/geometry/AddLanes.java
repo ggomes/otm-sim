@@ -15,12 +15,13 @@ public class AddLanes {
     public enum Side {in, out}
     public enum Position {up,dn}
 
-    public int lanes;
-    public Side side;
+    public TreeSet<Gate> gates = new TreeSet<>();    // sorted set
     public boolean isopen;
+
+    public Side side;
     public Position position;
     public float length;        // meters
-    public TreeSet<Gate> gates = new TreeSet<>();    // sorted set
+    public int lanes;
 
     public AddLanes(AddLanes.Position pos,AddLanes.Side side){
         this.lanes = 0;
@@ -37,23 +38,11 @@ public class AddLanes {
             return;
         }
 
-        this.lanes = jaxb_al.getLanes();
-        this.side = Side.valueOf(jaxb_al.getSide().toLowerCase());
         this.isopen = jaxb_al.isIsopen();
-
-        boolean has_start = jaxb_al.getStartPos()!=null && !jaxb_al.getStartPos().isNaN();
-        boolean has_end = jaxb_al.getEndPos()!=null && !jaxb_al.getEndPos().isNaN();
-        if( has_start & !has_end ){
-            this.position = Position.dn;
-            this.length = Math.abs(jaxb_al.getStartPos());
-        }
-        else if( has_end & !has_start ){
-            this.position = Position.up;
-            this.length = Math.abs(jaxb_al.getEndPos());
-        }
-        else{
-            // this is an error condition
-        }
+        this.side = Side.valueOf(jaxb_al.getSide().toLowerCase());
+        this.position = Position.valueOf(jaxb_al.getPos().toLowerCase());
+        this.length = jaxb_al.getLength();
+        this.lanes = jaxb_al.getLanes();
 
         if(jaxb_al.getGates()!=null)
             for(jaxb.Gate jaxb_gate : jaxb_al.getGates().getGate())
@@ -64,7 +53,7 @@ public class AddLanes {
         return this.position.equals(Position.up);
     }
 
-    public boolean inIn(){
+    public boolean isIn(){
         return this.side.equals(Side.in);
     }
 
@@ -99,11 +88,12 @@ public class AddLanes {
     }
 
     public jaxb.AddLanes to_jaxb(){
+        // TODO FIX THIS
         jaxb.AddLanes j1 = new jaxb.AddLanes();
-        if(position.equals(Position.dn))
-            j1.setStartPos(this.length);
-        else
-            j1.setEndPos(this.length);
+//        if(position.equals(Position.dn))
+//            j1.setStartPos(this.length);
+//        else
+//            j1.setEndPos(this.length);
         j1.setLanes(lanes);
         j1.setIsopen(isopen);
         j1.setSide(side.toString());

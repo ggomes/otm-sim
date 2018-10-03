@@ -334,9 +334,9 @@ public class Network {
     // This assumes that there are no upstream add_lanes.
     private Set<AbstractLaneGroup> create_lanegroups_from_roadconnections(Link link) throws OTMException {
 
-        // validation TODO: does this belong here? or rather in someone's validation.
-        if( link.road_geom!=null && (link.road_geom.up_in.lanes!=0 || link.road_geom.up_out.lanes!=0) )
-            throw new OTMException(" link.road_geom.up_in.lanes!=0 || link.road_geom.up_out.lanes!=0 ");
+//        // validation TODO: does this belong here? or rather in someone's validation.
+//        if( link.road_geom!=null && (link.road_geom.up_in.lanes!=0 || link.road_geom.up_out.lanes!=0) )
+//            throw new OTMException(" link.road_geom.up_in.lanes!=0 || link.road_geom.up_out.lanes!=0 ");
 
         // get road connections that exit this link
         Set<RoadConnection> out_rcs = road_connections.values().stream().filter(x->x.start_link.id==link.id).collect(toSet());
@@ -346,51 +346,62 @@ public class Network {
             throw new OTMException("No road connection leaving link " + link.getId() + ", although it is neither a sink nor a single next link case.");
 
         Set<AbstractLaneGroup> lanegroups = new HashSet<>();
-        try {
-            if(out_rcs.isEmpty()) { // sink or single next link
 
-                // create a road connection if it is not a sink
-                if (!link.is_sink) {
-                    Long rc_id = ++max_rcid;
-                    RoadConnection newrc = new RoadConnection(rc_id, link, link.end_node.out_links.values().iterator().next());
-                    road_connections.put(rc_id, newrc);
-                    out_rcs.add(newrc);
-                }
+        // lane groups corresponding to outgoing road connections ....................
+        if(out_rcs.isEmpty()) { // sink or single next link
 
-                lanegroups.add(create_lane_group(link, null, out_rcs));
+            // create a road connection if it is not a sink
+            if (!link.is_sink) {
+                Long rc_id = ++max_rcid;
+                RoadConnection newrc = new RoadConnection(rc_id, link, link.end_node.out_links.values().iterator().next());
+                road_connections.put(rc_id, newrc);
+                out_rcs.add(newrc);
             }
-            else {
-
-                // create map from lanes to road connection sets
-                Map<Integer,Set<RoadConnection>> lane2rcs = new HashMap<>();
-                for(Integer lane : link.get_exit_lanes()){
-                    Set<RoadConnection> myrcs = new HashSet<>();
-                    for(RoadConnection rc : out_rcs)
-                        if(rc.start_link_from_lane<=lane && rc.start_link_to_lane>=lane)
-                            myrcs.add(rc);
-                    lane2rcs.put(lane,myrcs);
-                }
-
-                // set of road connection sets
-                Set<Set<RoadConnection>> unique_rc_sets = new HashSet<>();
-                unique_rc_sets.addAll(lane2rcs.values());
-
-                // create a lane group for each unique_rc_sets
-                for(Set<RoadConnection> rc_set : unique_rc_sets){
-
-                    // find which lanes are in this lanegroup
-                    Set<Integer> lanes = new HashSet<>();
-                    for(Integer lane : link.get_exit_lanes())
-                        if(lane2rcs.get(lane).equals(rc_set))
-                            lanes.add(lane);
-
-                    // create the lanegroup
-                    lanegroups.add(create_lane_group(link,lanes,rc_set));
-                }
-            }
-        } catch (Exception e) {
-            throw new OTMException(e);
+            lanegroups.add(create_lane_group(link, null, out_rcs));
         }
+        else {
+
+            // create map from lanes to road connection sets
+            Map<Integer,Set<RoadConnection>> lane2rcs = new HashMap<>();
+            for(int lane=1;lane<=link.get_num_dn_lanes();lane++){
+                Set<RoadConnection> myrcs = new HashSet<>();
+                for(RoadConnection rc : out_rcs)
+                    if(rc.start_link_from_lane<=lane && rc.start_link_to_lane>=lane)
+                        myrcs.add(rc);
+                lane2rcs.put(lane,myrcs);
+            }
+
+            // set of road connection sets
+            Set<Set<RoadConnection>> unique_rc_sets = new HashSet<>();
+            unique_rc_sets.addAll(lane2rcs.values());
+
+            // create a lane group for each unique_rc_sets
+            for(Set<RoadConnection> rc_set : unique_rc_sets){
+
+                // find which lanes are in this lanegroup
+                Set<Integer> lanes = new HashSet<>();
+                for(int lane=1;lane<=link.get_num_dn_lanes();lane++)
+                    if(lane2rcs.get(lane).equals(rc_set))
+                        lanes.add(lane);
+
+                // create the lanegroup
+                lanegroups.add(create_lane_group(link,lanes,rc_set));
+            }
+        }
+
+        // TODO lane groups corresponding to upstream addlanes ....................
+//        if(link.road_geom!=null){
+//
+//            if(link.road_geom.up_in!=null){
+//                System.out.println("IMPLEMENT THIS!!");
+//            }
+//
+//            if(link.road_geom.up_out!=null){
+//                System.out.println("IMPLEMENT THIS!!");
+//
+//            }
+//
+//        }
 
         return lanegroups;
     }
@@ -402,7 +413,7 @@ public class Network {
 
         if(lanes==null){ // include all lanes
             lanes = new HashSet<>();
-            for(Integer lane : link.get_exit_lanes())
+            for(int lane=1;lane<=link.get_num_dn_lanes();lane++)
                 lanes.add(lane);
         }
 

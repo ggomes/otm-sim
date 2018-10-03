@@ -15,10 +15,10 @@ import java.util.List;
 public class RoadGeometry implements InterfaceScenarioElement {
 
     final public long id;
-    public AddLanes up_in = new AddLanes(AddLanes.Position.up,AddLanes.Side.in);
-    public AddLanes up_out = new AddLanes(AddLanes.Position.up,AddLanes.Side.out);
-    public AddLanes dn_in = new AddLanes(AddLanes.Position.dn,AddLanes.Side.in);
-    public AddLanes dn_out = new AddLanes(AddLanes.Position.dn,AddLanes.Side.out);
+    public AddLanes up_in; // = new AddLanes(AddLanes.Position.up,AddLanes.Side.in);
+    public AddLanes up_out; // = new AddLanes(AddLanes.Position.up,AddLanes.Side.out);
+    public AddLanes dn_in; // = new AddLanes(AddLanes.Position.dn,AddLanes.Side.in);
+    public AddLanes dn_out; // = new AddLanes(AddLanes.Position.dn,AddLanes.Side.out);
 
     public RoadGeometry(jaxb.Roadgeom jaxb_geom) {
 
@@ -34,12 +34,12 @@ public class RoadGeometry implements InterfaceScenarioElement {
         for(jaxb.AddLanes jaxb_al : jaxb_geom.getAddLanes()){
             AddLanes addlane = new AddLanes(jaxb_al);
             if(addlane.isUp())
-                if(addlane.inIn())
+                if(addlane.isIn())
                     up_in = addlane;
                 else
                     up_out = addlane;
             else
-                if(addlane.inIn())
+                if(addlane.isIn())
                     dn_in = addlane;
                 else
                     dn_out = addlane;

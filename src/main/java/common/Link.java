@@ -19,7 +19,6 @@ import runner.Scenario;
 import runner.ScenarioElementType;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -40,13 +39,13 @@ public class Link implements InterfaceScenarioElement {
     public boolean is_source;
     public boolean is_sink;
 
-    public int total_lanes;
+//    public int total_lanes;
 
     // lanegroups
     public Map<Long,AbstractLaneGroup> lanegroups;
 
-    // lane -> lane groups
-    public Map<Integer, AbstractLaneGroup> lane2lanegroup;
+    // downstream lane count -> lane group
+    private Map<Integer, AbstractLaneGroup> dnlane2lanegroup;
 
     // map from path id (uses this link) to next link id (exits this link)
     public Map<Long,Long> path2outlink;
@@ -127,9 +126,10 @@ public class Link implements InterfaceScenarioElement {
         }
 
         this.commodities = new HashSet<>();
-        this.total_lanes = road_geom==null ?
-                this.full_lanes :
-                Math.max(road_geom.dn_in.lanes, road_geom.up_in.lanes) + this.full_lanes + Math.max(road_geom.dn_out.lanes, road_geom.up_out.lanes);
+
+//        this.total_lanes = road_geom==null ?
+//                this.full_lanes :
+//                Math.max(road_geom.dn_in.lanes, road_geom.up_in.lanes) + this.full_lanes + Math.max(road_geom.dn_out.lanes, road_geom.up_out.lanes);
 
         travel_timers = new HashSet<>();
     }
@@ -159,9 +159,9 @@ public class Link implements InterfaceScenarioElement {
 
         this.path2outlink = new HashMap<>();
 
-        this.total_lanes = road_geom==null ?
-                this.full_lanes :
-                Math.max(road_geom.dn_in.lanes, road_geom.up_in.lanes) + this.full_lanes + Math.max(road_geom.dn_out.lanes, road_geom.up_out.lanes);
+//        this.total_lanes = road_geom==null ?
+//                this.full_lanes :
+//                Math.max(road_geom.dn_in.lanes, road_geom.up_in.lanes) + this.full_lanes + Math.max(road_geom.dn_out.lanes, road_geom.up_out.lanes);
     }
 
     public void delete(){
@@ -171,7 +171,7 @@ public class Link implements InterfaceScenarioElement {
         if(lanegroups!=null)
             lanegroups.values().forEach(lg->lg.delete());
         lanegroups = null;
-        lane2lanegroup = null;
+        dnlane2lanegroup = null;
         path2outlink = null;
         outlink2lanegroups = null;
         packet_splitter = null;
@@ -204,11 +204,11 @@ public class Link implements InterfaceScenarioElement {
         for(AbstractLaneGroup lg : lgs)
             lanegroups.put(lg.id,lg);
 
-        // lane2lanegroup
-        lane2lanegroup = new HashMap<>();
+        // dnlane2lanegroup
+        dnlane2lanegroup = new HashMap<>();
         for (AbstractLaneGroup lg : lgs)
             for (int lane : lg.lanes)
-                lane2lanegroup.put(lane, lg);
+                dnlane2lanegroup.put(lane, lg);
     }
 
     public void set_model(AbstractLinkModel model) throws OTMException {
@@ -241,8 +241,8 @@ public class Link implements InterfaceScenarioElement {
             errorLog.addError("link " + id + ": model==null");
 //        if( road_geom ==null )
 //            errorLog.addError("link " + id + ": road_geom==null");
-        if( lane2lanegroup ==null )
-            errorLog.addError("link " + id + ": lane2lanegroup==null");
+        if( dnlane2lanegroup ==null )
+            errorLog.addError("link " + id + ": dnlane2lanegroup==null");
         if( lanegroups ==null )
             errorLog.addError("link " + id + ": lanegroups==null");
 
@@ -266,20 +266,20 @@ public class Link implements InterfaceScenarioElement {
                 errorLog.addError("link " + id + ", road_geom.up_out.length+road_geom.dn_out.length>this.length");
         }
 
-        // all lanes are covered in lane2lanegroup
-        if( lane2lanegroup !=null) {
-            Set<Integer> range = IntStream.rangeClosed(1,total_lanes).boxed().collect(toSet());
-            Set<Integer> lanes = lane2lanegroup.keySet();
-            if (!range.equals(lanes))
-                errorLog.addError("link " + id + ": !range.equals(lanes)");
-        }
+        // all lanes are covered in dnlane2lanegroup
+//        if( dnlane2lanegroup !=null) {
+//            Set<Integer> range = IntStream.rangeClosed(1,total_lanes).boxed().collect(toSet());
+//            Set<Integer> lanes = dnlane2lanegroup.keySet();
+//            if (!range.equals(lanes))
+//                errorLog.addError("link " + id + ": !range.equals(lanes)");
+//        }
 
-        // all lanegroups are represented in lane2lanegroup
-        if(lanegroups!=null && lane2lanegroup !=null) {
-            Set<Long> A = lane2lanegroup.values().stream().map(x->x.id).collect(toSet());
+        // all lanegroups are represented in dnlane2lanegroup
+        if(lanegroups!=null && dnlane2lanegroup !=null) {
+            Set<Long> A = dnlane2lanegroup.values().stream().map(x->x.id).collect(toSet());
             Set<Long> B = lanegroups.values().stream().map(x->x.id).collect(toSet());
             if (!A.equals(B))
-                errorLog.addError("link " + id + ": not all lanegroups are represented in lane2lanegroup");
+                errorLog.addError("link " + id + ": not all lanegroups are represented in dnlane2lanegroup");
         }
 
         // lanegroups
@@ -288,10 +288,10 @@ public class Link implements InterfaceScenarioElement {
 
         // check that all lanes have a lanegroup
         // WARNING: Assumes no upstream addlanes
-        if(road_geom!=null && lane2lanegroup !=null)
-            for(int lane : this.get_exit_lanes() )
-                if(!lane2lanegroup.containsKey(lane))
-                    errorLog.addError("link " + id + ": !lane2lanegroup.containsKey(lane)");
+//        if(road_geom!=null && dnlane2lanegroup !=null)
+//            for(int lane : this.get_exit_lanes() )
+//                if(!dnlane2lanegroup.containsKey(lane))
+//                    errorLog.addError("link " + id + ": !dnlane2lanegroup.containsKey(lane)");
 
         // model
         if(model!=null)
@@ -326,16 +326,28 @@ public class Link implements InterfaceScenarioElement {
         return lanes;
     }
 
-    // WARNING: possible inefficiency if this is called a lot
-    public List<Integer> get_exit_lanes(){
-        // find first lane
-        int first_lane = road_geom==null? 1 : 1 + Math.max(0,road_geom.up_in.lanes-road_geom.dn_in.lanes);
-        int last_lane = road_geom==null? full_lanes : first_lane + road_geom.dn_in.lanes + full_lanes + road_geom.dn_out.lanes -1;
-        List<Integer> lanes = new ArrayList<>();
-        for(int lane=first_lane;lane<=last_lane;lane++)
-            lanes.add(lane);
-        return lanes;
+    public int get_num_dn_lanes(){
+        return full_lanes +
+                (road_geom.dn_in==null ? 0 : road_geom.dn_in.lanes) +
+                (road_geom.dn_out==null ? 0 : road_geom.dn_out.lanes);
     }
+
+    public int get_num_up_lanes(){
+        return full_lanes +
+                (road_geom.up_in==null ? 0 : road_geom.up_in.lanes) +
+                (road_geom.up_out==null ? 0 : road_geom.up_out.lanes);
+    }
+
+//    // WARNING: possible inefficiency if this is called a lot
+//    public List<Integer> get_exit_lanes(){
+//        // find first lane
+//        int first_lane = road_geom==null? 1 : 1 + Math.max(0,road_geom.up_in.lanes-road_geom.dn_in.lanes);
+//        int last_lane = road_geom==null? full_lanes : first_lane + road_geom.dn_in.lanes + full_lanes + road_geom.dn_out.lanes -1;
+//        List<Integer> lanes = new ArrayList<>();
+//        for(int lane=first_lane;lane<=last_lane;lane++)
+//            lanes.add(lane);
+//        return lanes;
+//    }
 
     // WARNING: Assumes no upstream add_lanes
     // returns length in meters
@@ -356,24 +368,39 @@ public class Link implements InterfaceScenarioElement {
             return 0f;
     }
 
-    public Set<AbstractLaneGroup> get_lanegroups_for_lanes(Set<Integer> lanes){
-        if(lanes==null)
-            return new HashSet(lanegroups.values());
-        Set<AbstractLaneGroup> r = new HashSet<>();
-        for(int lane : lanes)
-            r.add(lane2lanegroup.get(lane));
-        return r;
+
+
+
+//    public Set<AbstractLaneGroup> get_lanegroups_for_lanes(Set<Integer> lanes){
+//        if(lanes==null)
+//            return new HashSet(lanegroups.values());
+//        Set<AbstractLaneGroup> r = new HashSet<>();
+//        for(int lane : lanes)
+//            r.add(dnlane2lanegroup.get(lane));
+//        return r;
+//    }
+
+    public Set<AbstractLaneGroup> get_lanegroups_for_dn_lanes(int from_lane,int to_lane) {
+        Set<AbstractLaneGroup> x = new HashSet<>();
+        for (int lane = from_lane; lane <= to_lane; lane++)
+            x.add(get_lanegroup_for_dn_lane(lane));
+        return x;
     }
 
-    public Set<AbstractLaneGroup> get_lanegroups_for_lanes(int from_lane,int to_lane){
-        return get_lanegroups_for_lanes(
-                IntStream.rangeClosed(from_lane,to_lane)
-                .boxed()
-                .collect(toSet()));
+    public Set<AbstractLaneGroup> get_lanegroups_for_up_lanes(int from_lane,int to_lane) {
+        Set<AbstractLaneGroup> x = new HashSet<>();
+        for (int lane = from_lane; lane <= to_lane; lane++)
+            x.add(get_lanegroup_for_up_lane(lane));
+        return x;
     }
 
-    public AbstractLaneGroup  get_lanegroup_for_lane(int lane){
-        return lane2lanegroup.get(lane);
+    public AbstractLaneGroup get_lanegroup_for_dn_lane(int lane){
+        return dnlane2lanegroup.get(lane);
+    }
+
+    public AbstractLaneGroup get_lanegroup_for_up_lane(int lane){
+        // TODO IMPLEMENT THIS
+        return null;
     }
 
     public float get_max_vehicles(){
@@ -431,25 +458,7 @@ public class Link implements InterfaceScenarioElement {
 
     @Override
     public String toString() {
-        String str = "";
-        str += "\tid=" + id + "\n";
-//        str += "\tlength = " + length + "\n";
-//        str += "\tlanes = " + road_geom + "\n";
-//        str += "\tstart_node = " + start_node.id + "\n";
-//        str += "\tend_node = " + end_node.id + "\n";
-//        str += "\tis_source = " + is_source + "\n";
-//        str += "\tis_sink = " + is_sink + "\n";
-//        str += "\tlanegroups (lanes):\n";
-//        for(AbstractLaneGroup lg : this.lanegroups){
-//            str += "\t\t" + lg.id + ": " + lg.lanes + "\n";
-//            for(Map.Entry<Long,RoadConnection> x : lg.outlink2roadconnection.entrySet() ){
-//                Long outlinkid = x.getKey();
-//                RoadConnection rc = x.getValue();
-//                Set xxx = rc.out_lanegroups.stream().map(z->z.id).collect(Collectors.toSet());
-//                str += "\t\t\toutlinkid " + outlinkid + ": dwn_langroups " + xxx + "\n";
-//            }
-//        }
-        return str;
+        return String.format("link %d",id);
     }
 
     public jaxb.Link to_jaxb(){

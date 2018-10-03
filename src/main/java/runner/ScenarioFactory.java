@@ -391,8 +391,10 @@ public class ScenarioFactory {
 
                 // lane covered by road connections from here to outputs
                 Set<Integer> output_lanes = new HashSet<>();
-                if(link.is_sink)
-                    output_lanes.addAll(link.get_exit_lanes());
+                if(link.is_sink) {
+                    for(int lane=1;lane<=link.get_num_dn_lanes();lane++)
+                        output_lanes.add(lane);
+                }
                 else {
                     Set<Link> outputs = OTMUtils.intersect(link.end_node.out_links.values(), subnetwork.links);
                     for (Link output : outputs)
@@ -407,7 +409,7 @@ public class ScenarioFactory {
                 // add the lanegroups that cover the intersection of the two
                 Set<Integer> subnetlanes = OTMUtils.intersect(input_lanes,output_lanes);
                 for(Integer lane : subnetlanes)
-                    subnetwork.add_lanegroup( link.lane2lanegroup.get(lane) );
+                    subnetwork.add_lanegroup( link.get_lanegroup_for_dn_lane(lane) ); // TODO FIX THIS!!!
             }
 
         }

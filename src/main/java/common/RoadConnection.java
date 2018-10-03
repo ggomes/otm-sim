@@ -77,41 +77,14 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         this.external_max_flow_vps = Float.POSITIVE_INFINITY;
 
         this.start_link_from_lane = 1;
-        this.start_link_to_lane = start_link.total_lanes;
+        this.start_link_to_lane = start_link.get_num_dn_lanes();
         this.end_link_from_lane = 1;
-        this.end_link_to_lane = end_link.total_lanes;
+        this.end_link_to_lane = end_link.get_num_up_lanes();
     }
 
     public void set_in_out_lanegroups(){
-
-        // IN ......................
-        in_lanegroups = new HashSet<>();
-        for(int lane=start_link_from_lane;lane<=start_link_to_lane;lane++)
-            in_lanegroups.add(start_link.get_lanegroup_for_lane(lane));
-
-        // OUT .....................
-
-        // lanegroup2lanes: this road connections connects to lanegroups in
-        // the downstream link covering these lanes
-        Map<Long,Integer> lanegroup2lanes = new HashMap<>();
-        for(int lane=end_link_from_lane;lane<=end_link_to_lane;lane++){
-            AbstractLaneGroup lg = end_link.get_lanegroup_for_lane(lane);
-            if(lanegroup2lanes.containsKey(lg.id))
-                lanegroup2lanes.put(lg.id,lanegroup2lanes.get(lg.id)+1);
-            else
-                lanegroup2lanes.put(lg.id,1);
-        }
-
-        out_lanegroups = new HashSet<>();
-//        out_lanegroup_probability = new ArrayList<>();
-        float total_lanes = (float) (end_link_to_lane-end_link_from_lane+1);
-        for(Map.Entry<Long,Integer> e : lanegroup2lanes.entrySet()){
-            AbstractLaneGroup lg = end_link.lanegroups.get(e.getKey());
-            Integer lanes = e.getValue();
-            out_lanegroups.add(lg);
-//            out_lanegroup_probability.add(((float)lanes)/total_lanes);
-        }
-
+        in_lanegroups = start_link.get_lanegroups_for_dn_lanes(start_link_from_lane,start_link_to_lane);
+        out_lanegroups = end_link.get_lanegroups_for_up_lanes(end_link_from_lane,end_link_to_lane);
     }
 
     public void validate(OTMErrorLog errorLog){
