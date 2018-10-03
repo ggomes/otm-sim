@@ -7,6 +7,7 @@
 package commodity;
 
 import common.AbstractLaneGroup;
+import common.AbstractLaneGroupLongitudinal;
 import common.Link;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -29,7 +30,7 @@ public class Commodity implements InterfaceScenarioElement {
     public final String name;
     public final Set<Subnetwork> subnetworks;
     public  Set<Link> all_links;
-    public  Set<AbstractLaneGroup> all_lanegroups;
+    public  Set<AbstractLaneGroupLongitudinal> all_lanegroups;
     public boolean pathfull;
 
     // this is a dispatch output writer for vehicles of this commodity
@@ -134,7 +135,7 @@ public class Commodity implements InterfaceScenarioElement {
         return x;
     }
 
-    public Set<Subnetwork> get_subnetworks_for_lanegroup(AbstractLaneGroup lg){
+    public Set<Subnetwork> get_subnetworks_for_lanegroup(AbstractLaneGroupLongitudinal lg){
         Link link = lg.link;
         Set<Long> next_link_ids = lg.get_dwn_links();
         Set<Subnetwork> x = new HashSet<>();

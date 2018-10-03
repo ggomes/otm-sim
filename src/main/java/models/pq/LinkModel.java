@@ -75,14 +75,14 @@ public class LinkModel extends AbstractLinkModel {
     }
 
     @Override
-    public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<AbstractLaneGroup> candidate_lanegroups) {
+    public Map<AbstractLaneGroupLongitudinal,Double> lanegroup_proportions(Collection<AbstractLaneGroupLongitudinal> candidate_lanegroups) {
 
         // put the whole packet i the lanegroup with the most space.
-        Optional<AbstractLaneGroup> best_lanegroup = candidate_lanegroups.stream()
+        Optional<AbstractLaneGroupLongitudinal> best_lanegroup = candidate_lanegroups.stream()
                 .max(Comparator.comparing(AbstractLaneGroup::get_space_per_lane));
 
         if(best_lanegroup.isPresent()) {
-            Map<AbstractLaneGroup,Double> A = new HashMap<>();
+            Map<AbstractLaneGroupLongitudinal,Double> A = new HashMap<>();
             A.put(best_lanegroup.get(),1d);
             return A;
         } else

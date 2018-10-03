@@ -26,7 +26,7 @@ import utils.OTMUtils;
 
 import java.util.*;
 
-public class LaneGroup extends AbstractLaneGroup {
+public class LaneGroup extends AbstractLaneGroupLongitudinal {
 
     public models.pq.Queue transit_queue;
     public models.pq.Queue waiting_queue;
@@ -40,7 +40,7 @@ public class LaneGroup extends AbstractLaneGroup {
     // a) lanegroups not reached by the road connection between the two
     // b) lanegroups that connect only to links not within the commoditie's subnetwork
     // c) any explicitly prohibitted lanegroups (not implemented)
-    public Map<KeyCommodityLink,Set<AbstractLaneGroup>> downstream_candidate_lanegroups;
+    public Map<KeyCommodityLink,Set<AbstractLaneGroupLongitudinal>> downstream_candidate_lanegroups;
 
     public PartialVehicleMemory pvm;
 
@@ -81,7 +81,7 @@ public class LaneGroup extends AbstractLaneGroup {
         for(Long outlink_id : get_dwn_links()){
             RoadConnection rc = get_roadconnection_for_outlink(outlink_id);
             if(rc!=null){
-                Set<AbstractLaneGroup> out_lanegroups = OTMUtils.intersect(rc.out_lanegroups,commodity.all_lanegroups);
+                Set<AbstractLaneGroupLongitudinal> out_lanegroups = OTMUtils.intersect(rc.out_lanegroups,commodity.all_lanegroups);
                 if(!out_lanegroups.isEmpty())
                     downstream_candidate_lanegroups.put(new KeyCommodityLink(commodity.getId(),outlink_id),out_lanegroups);
             }
@@ -217,7 +217,7 @@ public class LaneGroup extends AbstractLaneGroup {
                 next_link = link.network.links.get(state.pathOrlink_id);
             }
 
-            Set<AbstractLaneGroup> dwn_lanegroups = get_accessible_lgs_in_outlink(next_link);
+            Set<AbstractLaneGroupLongitudinal> dwn_lanegroups = get_accessible_lgs_in_outlink(next_link);
 
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.

@@ -379,7 +379,7 @@ public class ScenarioFactory {
                     Set<Link> inputs = OTMUtils.intersect(link.start_node.in_links.values(), subnetwork.links);
                     for (Link input : inputs) {
                         if (input.outlink2lanegroups.containsKey(link.getId())) {
-                            for (AbstractLaneGroup lg : input.outlink2lanegroups.get(link.getId())) {
+                            for (AbstractLaneGroupLongitudinal lg : input.outlink2lanegroups.get(link.getId())) {
                                 RoadConnection rc = lg.get_roadconnection_for_outlink(link.getId());
                                 if (rc != null)
                                     input_lanes.addAll(IntStream.rangeClosed(rc.end_link_from_lane, rc.end_link_to_lane)
@@ -398,7 +398,7 @@ public class ScenarioFactory {
                 else {
                     Set<Link> outputs = OTMUtils.intersect(link.end_node.out_links.values(), subnetwork.links);
                     for (Link output : outputs)
-                        for (AbstractLaneGroup lg : link.lanegroups.values()) {
+                        for (AbstractLaneGroupLongitudinal lg : link.lanegroups.values()) {
                             RoadConnection rc = lg.get_roadconnection_for_outlink(output.getId());
                             if (rc != null)
                                 output_lanes.addAll(IntStream.rangeClosed(rc.start_link_from_lane, rc.start_link_to_lane)

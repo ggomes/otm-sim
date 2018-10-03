@@ -56,7 +56,7 @@ public class Source extends common.AbstractSource {
         Vehicle vehicle= new Vehicle(key,commodity.vehicle_event_listeners);
 
         // sample its next link according to commodity
-        Collection<AbstractLaneGroup> target_lanegroups;
+        Collection<AbstractLaneGroupLongitudinal> target_lanegroups;
         Long next_link_id;
         if(link.packet_splitter==null){
             next_link_id = link.end_node.out_links.values().iterator().next().getId();

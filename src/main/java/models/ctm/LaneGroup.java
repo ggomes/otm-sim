@@ -22,7 +22,7 @@ import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 
-public class LaneGroup extends AbstractLaneGroup {
+public class LaneGroup extends AbstractLaneGroupLongitudinal {
 
     public double cell_length_meters;
 

@@ -166,7 +166,7 @@ public class Network {
             link.is_source = link.start_node.in_links.isEmpty();
             link.is_sink = link.end_node.out_links.isEmpty();
 
-            Set<AbstractLaneGroup> lgs = create_lanegroups_from_roadconnections(link);
+            Set<AbstractLaneGroupLongitudinal> lgs = create_lanegroups_from_roadconnections(link);
 
             // send them to the link
             link.set_lanegroups(lgs);
@@ -202,7 +202,7 @@ public class Network {
             // for each outlink, add all lanegroups from which outlink is reachable
             link.outlink2lanegroups = new HashMap<>();
             for(Long outlink_id : link.end_node.out_links.keySet()) {
-                Set<AbstractLaneGroup> connected_lg = link.lanegroups.values().stream().filter(lg -> lg.is_link_reachable(outlink_id)).collect(toSet());
+                Set<AbstractLaneGroupLongitudinal> connected_lg = link.lanegroups.values().stream().filter(lg -> lg.is_link_reachable(outlink_id)).collect(toSet());
                 if(!connected_lg.isEmpty())
                     link.outlink2lanegroups.put(outlink_id,connected_lg );
             }
@@ -332,7 +332,7 @@ public class Network {
     }
 
     // This assumes that there are no upstream add_lanes.
-    private Set<AbstractLaneGroup> create_lanegroups_from_roadconnections(Link link) throws OTMException {
+    private Set<AbstractLaneGroupLongitudinal> create_lanegroups_from_roadconnections(Link link) throws OTMException {
 
 //        // validation TODO: does this belong here? or rather in someone's validation.
 //        if( link.road_geom!=null && (link.road_geom.up_in.lanes!=0 || link.road_geom.up_out.lanes!=0) )
@@ -345,7 +345,7 @@ public class Network {
         if(out_rcs.isEmpty() && link.end_node.out_links.size()>1)
             throw new OTMException("No road connection leaving link " + link.getId() + ", although it is neither a sink nor a single next link case.");
 
-        Set<AbstractLaneGroup> lanegroups = new HashSet<>();
+        Set<AbstractLaneGroupLongitudinal> lanegroups = new HashSet<>();
 
         // lane groups corresponding to outgoing road connections ....................
         if(out_rcs.isEmpty()) { // sink or single next link
@@ -407,7 +407,7 @@ public class Network {
     }
 
     // WARNING: this assumes no upstream addlanes.
-    private AbstractLaneGroup create_lane_group(Link link,Set<Integer> lanes,Set<RoadConnection> out_rcs){
+    private AbstractLaneGroupLongitudinal create_lane_group(Link link,Set<Integer> lanes,Set<RoadConnection> out_rcs){
 
         assert(out_rcs!=null);
 
@@ -417,7 +417,7 @@ public class Network {
                 lanes.add(lane);
         }
 
-        AbstractLaneGroup lg = null;
+        AbstractLaneGroupLongitudinal lg = null;
         switch(link.model_type){
             case ctm:
             case mn:
@@ -494,7 +494,7 @@ public class Network {
         this.road_connections = rcs;
     }
 
-    public Set<AbstractLaneGroup> get_lanegroups(){
+    public Set<AbstractLaneGroupLongitudinal> get_lanegroups(){
         return links.values().stream().flatMap(link->link.lanegroups.values().stream()).collect(toSet());
     }
 

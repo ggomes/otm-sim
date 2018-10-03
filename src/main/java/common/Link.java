@@ -40,18 +40,18 @@ public class Link implements InterfaceScenarioElement {
     public boolean is_sink;
 
     // lanegroups
-    public Map<Long,AbstractLaneGroup> lanegroups;
-    AbstractLaneGroup up_out_lg = null;
-    AbstractLaneGroup up_in_lg = null;
+    public Map<Long,AbstractLaneGroupLongitudinal> lanegroups;
+    AbstractLaneGroupLongitudinal up_out_lg = null;
+    AbstractLaneGroupLongitudinal up_in_lg = null;
 
     // downstream lane count -> lane group
-    private Map<Integer, AbstractLaneGroup> dnlane2lanegroup;
+    private Map<Integer, AbstractLaneGroupLongitudinal> dnlane2lanegroup;
 
     // map from path id (uses this link) to next link id (exits this link)
     public Map<Long,Long> path2outlink;
 
     // map from downstream link to candidate lanegroups
-    public Map<Long, Set<AbstractLaneGroup>> outlink2lanegroups;
+    public Map<Long, Set<AbstractLaneGroupLongitudinal>> outlink2lanegroups;
 
     public PacketSplitter packet_splitter;
 
@@ -197,16 +197,16 @@ public class Link implements InterfaceScenarioElement {
         travel_timers.add(x);
     }
 
-    public void set_lanegroups(Set<AbstractLaneGroup> lgs) {
+    public void set_lanegroups(Set<AbstractLaneGroupLongitudinal> lgs) {
 
         // lanegroups
         lanegroups = new HashMap<>();
-        for(AbstractLaneGroup lg : lgs)
+        for(AbstractLaneGroupLongitudinal lg : lgs)
             lanegroups.put(lg.id,lg);
 
         // dnlane2lanegroup
         dnlane2lanegroup = new HashMap<>();
-        for (AbstractLaneGroup lg : lgs)
+        for (AbstractLaneGroupLongitudinal lg : lgs)
             for (int lane : lg.lanes)
                 dnlane2lanegroup.put(lane, lg);
     }
@@ -380,25 +380,25 @@ public class Link implements InterfaceScenarioElement {
 //        return r;
 //    }
 
-    public Set<AbstractLaneGroup> get_lanegroups_for_dn_lanes(int from_lane,int to_lane) {
-        Set<AbstractLaneGroup> x = new HashSet<>();
+    public Set<AbstractLaneGroupLongitudinal> get_lanegroups_for_dn_lanes(int from_lane,int to_lane) {
+        Set<AbstractLaneGroupLongitudinal> x = new HashSet<>();
         for (int lane = from_lane; lane <= to_lane; lane++)
             x.add(get_lanegroup_for_dn_lane(lane));
         return x;
     }
 
-    public Set<AbstractLaneGroup> get_lanegroups_for_up_lanes(int from_lane,int to_lane) {
-        Set<AbstractLaneGroup> x = new HashSet<>();
+    public Set<AbstractLaneGroupLongitudinal> get_lanegroups_for_up_lanes(int from_lane,int to_lane) {
+        Set<AbstractLaneGroupLongitudinal> x = new HashSet<>();
         for (int lane = from_lane; lane <= to_lane; lane++)
             x.add(get_lanegroup_for_up_lane(lane));
         return x;
     }
 
-    public AbstractLaneGroup get_lanegroup_for_dn_lane(int lane){
+    public AbstractLaneGroupLongitudinal get_lanegroup_for_dn_lane(int lane){
         return dnlane2lanegroup.get(lane);
     }
 
-    public AbstractLaneGroup get_lanegroup_for_up_lane(int lane){
+    public AbstractLaneGroupLongitudinal get_lanegroup_for_up_lane(int lane){
         if(road_geom==null)
             return get_lanegroup_for_dn_lane(lane);
         if(road_geom.up_in==null && road_geom.up_out==null)
@@ -447,7 +447,7 @@ public class Link implements InterfaceScenarioElement {
 
     public Set<RoadConnection> get_roadconnections_leaving(){
         Set<RoadConnection> rcs = new HashSet<>();
-        for(AbstractLaneGroup lg : lanegroups.values())
+        for(AbstractLaneGroupLongitudinal lg : lanegroups.values())
             rcs.addAll(lg.outlink2roadconnection.values());
         return rcs;
     }
@@ -456,7 +456,7 @@ public class Link implements InterfaceScenarioElement {
         Set<RoadConnection> rcs = new HashSet<>();
         for(Link uplink : start_node.in_links.values())
             if(uplink.outlink2lanegroups.containsKey(getId()))
-                for(AbstractLaneGroup lg : uplink.outlink2lanegroups.get(id) )
+                for(AbstractLaneGroupLongitudinal lg : uplink.outlink2lanegroups.get(id) )
                     if(lg.outlink2roadconnection.containsKey(getId()))
                         rcs.add(lg.outlink2roadconnection.get(getId()));
         return rcs;

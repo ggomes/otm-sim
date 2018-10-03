@@ -7,6 +7,7 @@
 package models.none;
 
 import common.AbstractLaneGroup;
+import common.AbstractLaneGroupLongitudinal;
 import common.AbstractLinkModel;
 import common.Link;
 import packet.PacketLink;
@@ -68,7 +69,7 @@ public class LinkModel extends AbstractLinkModel {
     }
 
     @Override
-    public Map<AbstractLaneGroup, Double> lanegroup_proportions(Collection<AbstractLaneGroup> candidate_lanegroups) {
+    public Map<AbstractLaneGroupLongitudinal, Double> lanegroup_proportions(Collection<AbstractLaneGroupLongitudinal> candidate_lanegroups) {
         return null;
     }
 

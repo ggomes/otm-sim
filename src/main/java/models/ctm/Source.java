@@ -25,7 +25,7 @@ public class Source extends common.AbstractSource {
     public Map<Long,Map<KeyCommPathOrLink,Double>> source_flows;   // lgid->(commid,path|link-->value)
 
     // for pathfull
-    Set<AbstractLaneGroup> candidate_lanegroups;
+    Set<AbstractLaneGroupLongitudinal> candidate_lanegroups;
 
     public Source(Link link, DemandProfile profile, Commodity commodity, Path path) {
         super(link, profile, commodity, path);
@@ -134,7 +134,7 @@ public class Source extends common.AbstractSource {
                     continue;
 
                 // get candidate lanegroups
-                Set<AbstractLaneGroup> candidate_lanegroups = link.outlink2lanegroups.get(nextlink_id);
+                Set<AbstractLaneGroupLongitudinal> candidate_lanegroups = link.outlink2lanegroups.get(nextlink_id);
 
                 // assign flows to candidate lanegroups
                 double demand_for_each_lg = flow_veh_per_timestep * split / candidate_lanegroups.size();

@@ -13,7 +13,7 @@ import packet.AbstractPacketLaneGroup;
 
 import java.util.Set;
 
-public class LaneGroup  extends AbstractLaneGroup {
+public class LaneGroup  extends AbstractLaneGroupLongitudinal {
 
     public LaneGroup(Link link, Set<Integer> lanes, Set<RoadConnection> out_rcs) {
         super(link, lanes, out_rcs);

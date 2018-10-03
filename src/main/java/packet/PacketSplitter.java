@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class PacketSplitter {
 
     public Link link;
-    public Map<Long,Set<AbstractLaneGroup>> outputlink_targetlanegroups;
+    public Map<Long,Set<AbstractLaneGroupLongitudinal>> outputlink_targetlanegroups;
     public Map<Long, SplitInfo> commodity2split;
 
     //////////////////////////////////////////////////////////////

@@ -59,7 +59,7 @@ public class LinkModel extends AbstractLinkModel {
     }
 
     @Override
-    public Map<AbstractLaneGroup, Double> lanegroup_proportions(Collection<AbstractLaneGroup> candidate_lanegroups) {
+    public Map<AbstractLaneGroupLongitudinal, Double> lanegroup_proportions(Collection<AbstractLaneGroupLongitudinal> candidate_lanegroups) {
         return null;
     }
 

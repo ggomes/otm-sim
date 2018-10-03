@@ -119,10 +119,10 @@ public class LinkModel extends AbstractLinkModel {
     }
 
     @Override
-    public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<AbstractLaneGroup> candidate_lanegroups) {
-        Map<AbstractLaneGroup,Double> A = new HashMap<>();
+    public Map<AbstractLaneGroupLongitudinal,Double> lanegroup_proportions(Collection<AbstractLaneGroupLongitudinal> candidate_lanegroups) {
+        Map<AbstractLaneGroupLongitudinal,Double> A = new HashMap<>();
         double total_supply = candidate_lanegroups.stream().mapToDouble(x->x.get_supply()).sum();
-        for(AbstractLaneGroup laneGroup : candidate_lanegroups)
+        for(AbstractLaneGroupLongitudinal laneGroup : candidate_lanegroups)
             A.put(laneGroup , laneGroup.get_supply() / total_supply);
         return A;
     }

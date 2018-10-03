@@ -37,7 +37,7 @@ public abstract class AbstractLinkModel {
     abstract public void reset();
     abstract public float get_ff_travel_time(); // seconds
     abstract public float get_capacity_vps();   // vps
-    abstract public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<AbstractLaneGroup> candidate_lanegroups);
+    abstract public Map<AbstractLaneGroupLongitudinal,Double> lanegroup_proportions(Collection<AbstractLaneGroupLongitudinal> candidate_lanegroups);
 
     //////////////////////////////////////////////////////////////
     // construction
@@ -66,7 +66,7 @@ public abstract class AbstractLinkModel {
             } else {
 
                 // for pathless non-sink, add a state for each next link in the subnetwork
-                for (AbstractLaneGroup lg : link.lanegroups.values()) {
+                for (AbstractLaneGroupLongitudinal lg : link.lanegroups.values()) {
                     for (Long next_link_id : lg.get_dwn_links())
                         if (subnet.has_link_id(next_link_id))
                             lg.add_key(new KeyCommPathOrLink(comm.getId(), next_link_id, false));
@@ -133,7 +133,7 @@ public abstract class AbstractLinkModel {
             // intersected with those that can reach the outlink
             // TODO: This can be removed if there is a model for "changing lanes" to another lanegroup
 //            Set<AbstractLaneGroup> candidate_lanegroups = OTMUtils.intersect( vp.arrive_to_lanegroups , split_packet.target_lanegroups );
-            Set<AbstractLaneGroup> candidate_lanegroups = vp.arrive_to_lanegroups;
+            Set<AbstractLaneGroupLongitudinal> candidate_lanegroups = vp.arrive_to_lanegroups;
 
 //            if(candidate_lanegroups.isEmpty()) {
                 // in this case the vehicle has arrived to lanegroups for which there is
@@ -150,11 +150,11 @@ public abstract class AbstractLinkModel {
             // split the split_packet amongst the candidate lane groups.
             // then add them
             if(candidate_lanegroups.size()==1) {
-                AbstractLaneGroup laneGroup = candidate_lanegroups.iterator().next();
+                AbstractLaneGroupLongitudinal laneGroup = candidate_lanegroups.iterator().next();
                 laneGroup.add_native_vehicle_packet(timestamp, split_packet);
             } else {
-                for (Map.Entry<AbstractLaneGroup, Double> ee : lanegroup_proportions(candidate_lanegroups).entrySet()) {
-                    AbstractLaneGroup laneGroup = ee.getKey();
+                for (Map.Entry<AbstractLaneGroupLongitudinal, Double> ee : lanegroup_proportions(candidate_lanegroups).entrySet()) {
+                    AbstractLaneGroupLongitudinal laneGroup = ee.getKey();
                     Double prop = ee.getValue();
                     if (prop <= 0d)
                         continue;
