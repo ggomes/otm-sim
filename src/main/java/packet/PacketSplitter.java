@@ -28,10 +28,10 @@ public class PacketSplitter {
 
     public PacketSplitter(Link link){
         this.link = link;
-        Collection<Link> next_links = link.get_next_links();
+        Set<Link> next_links = link.get_next_links();
         commodity2split = new HashMap<>();
         for(Commodity c : link.commodities) {
-            Collection<Link> comm_next_links = OTMUtils.intersect(c.all_links,next_links);
+            Set<Link> comm_next_links = OTMUtils.intersect(c.all_links,next_links);
             Long trivial_next_link = comm_next_links.size()==1 ? comm_next_links.iterator().next().getId() : null;
             commodity2split.put(c.getId(), new SplitInfo(trivial_next_link));
         }
@@ -39,8 +39,8 @@ public class PacketSplitter {
         // populate outputlink_targetlanegroups
         outputlink_targetlanegroups = new HashMap<>();
         for(Link outlink : link.end_node.out_links.values())
-            outputlink_targetlanegroups.put(outlink.getId(),link.lanegroups.values().stream()
-                                                            .filter(z->z.is_link_reachable(outlink.getId()))
+            outputlink_targetlanegroups.put(outlink.getId(),link.long_lanegroups.values().stream()
+                                                            .filter(z->z.link_is_link_reachable(outlink.getId()))
                                                             .collect(Collectors.toSet()) );
 
     }

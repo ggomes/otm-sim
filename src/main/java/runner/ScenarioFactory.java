@@ -366,8 +366,8 @@ public class ScenarioFactory {
 
                 // case single lane group, then add it and continue
                 // this takes care of the one2one case
-                if(link.lanegroups.size()==1){
-                    subnetwork.add_lanegroup( link.lanegroups.values().iterator().next());
+                if(link.long_lanegroups.size()==1){
+                    subnetwork.add_lanegroup( link.long_lanegroups.values().iterator().next());
                     continue;
                 }
 
@@ -398,7 +398,7 @@ public class ScenarioFactory {
                 else {
                     Set<Link> outputs = OTMUtils.intersect(link.end_node.out_links.values(), subnetwork.links);
                     for (Link output : outputs)
-                        for (AbstractLaneGroupLongitudinal lg : link.lanegroups.values()) {
+                        for (AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values()) {
                             RoadConnection rc = lg.get_roadconnection_for_outlink(output.getId());
                             if (rc != null)
                                 output_lanes.addAll(IntStream.rangeClosed(rc.start_link_from_lane, rc.start_link_to_lane)

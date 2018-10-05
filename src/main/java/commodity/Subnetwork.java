@@ -131,8 +131,8 @@ public class Subnetwork {
         Link current = sources.get(0);
         int num_checked = 1;
         while(true){
-            Collection<Link> next_links = current.get_next_links();
-            Collection<Link> next_link = OTMUtils.intersect(next_links,this.links);
+            Set<Link> next_links = current.get_next_links();
+            Set<Link> next_link = OTMUtils.intersect(next_links,this.links);
             if(next_link.size()!=1)
                 return false;
             num_checked++;

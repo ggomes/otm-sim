@@ -11,6 +11,7 @@ import actuator.sigint.ActuatorSignal;
 import api.info.*;
 import commodity.Commodity;
 import commodity.Subnetwork;
+import common.AbstractLaneGroup;
 import common.AbstractLaneGroupLongitudinal;
 import common.RoadConnection;
 import control.AbstractController;
@@ -354,7 +355,7 @@ public class API {
     public List<Long> get_out_lanegroups_for_road_connection(long rcid){
         RoadConnection rc = scenario.network.get_road_connection(rcid);
         List<Long> lgids = new ArrayList<>();
-        for(AbstractLaneGroupLongitudinal lg : rc.out_lanegroups)
+        for(AbstractLaneGroup lg : rc.out_lanegroups)
             lgids.add(lg.id);
         return lgids;
     }
@@ -362,7 +363,7 @@ public class API {
     public Map<Long,Set<Long>> get_link2lgs(){
         Map<Long,Set<Long>> lk2lgs = new HashMap<>();
         for(Link link : scenario.network.links.values())
-            lk2lgs.put(link.getId(),link.lanegroups.values().stream()
+            lk2lgs.put(link.getId(),link.long_lanegroups.values().stream()
                     .map(x->x.id).collect(Collectors.toSet()));
         return lk2lgs;
     }

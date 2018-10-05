@@ -21,7 +21,7 @@ public class Queue {
 
     public final String id;
     public final Queue.Type type;
-    public final LaneGroup lanegroup;
+    public final LaneGroupLong lanegroup;
     private List<Vehicle> vehicles;
     private PriorityQueue<LaneChangeRequest> lane_change_requests;
 
@@ -29,7 +29,7 @@ public class Queue {
     // construction
     ///////////////////////////////////////////////////
 
-    public Queue(LaneGroup lanegroup, Queue.Type type) {
+    public Queue(LaneGroupLong lanegroup, Queue.Type type) {
         this.type = type;
         this.lanegroup = lanegroup;
         this.vehicles = new ArrayList<>();

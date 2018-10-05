@@ -11,6 +11,8 @@ import common.*;
 import common.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
+import geometry.Position;
+import geometry.Side;
 import keys.KeyCommPathOrLink;
 import packet.AbstractPacketLaneGroup;
 import runner.RunParameters;
@@ -19,7 +21,7 @@ import utils.OTMUtils;
 
 import java.util.*;
 
-public class LaneGroup extends AbstractLaneGroupLongitudinal {
+public class LaneGroupLong extends AbstractLaneGroupLongitudinal {
 
     public double cell_length_meters;
 
@@ -35,8 +37,8 @@ public class LaneGroup extends AbstractLaneGroupLongitudinal {
     // construction
     ///////////////////////////////////////////
 
-    public LaneGroup(Link link, Set<Integer> lanes, Set<RoadConnection> out_rcs){
-        super(link, lanes, out_rcs);
+    public LaneGroupLong(Link link, Side side,float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        super(link, side,length, num_lanes, start_lane, out_rcs);
     }
 
     protected void create_cells(int num_cells,double cell_length_meters){
@@ -90,8 +92,7 @@ public class LaneGroup extends AbstractLaneGroupLongitudinal {
             flow_in_target.add(new HashMap<>());
 
         // Additional configuration for lane changing
-        Set<AbstractLaneGroupLongitudinal> my_neighbors = get_my_neighbors();
-        if(my_neighbors!=null){
+        if(neighbor_in!=null || neighbor_out!=null){
 
             // populate not in target boundary flows
             flow_notin_target = new ArrayList<>();
@@ -99,9 +100,10 @@ public class LaneGroup extends AbstractLaneGroupLongitudinal {
                 flow_notin_target.add(new HashMap<>());
 
             // tell cells who are their neighbors
-            models.ctm.LaneGroup neighbor_lg = (models.ctm.LaneGroup) my_neighbors.iterator().next();
-            for(int i=0;i<cells.size();i++)
-                cells.get(i).neighbor = neighbor_lg.cells.get(i);
+            // TODO DO THIS AGAIN.
+//            LaneGroupLong neighbor_lg = (LaneGroupLong) neighbors.iterator().next();
+//            for(int i=0;i<cells.size();i++)
+//                cells.get(i).neighbor = neighbor_lg.cells.get(i);
         }
 
     }

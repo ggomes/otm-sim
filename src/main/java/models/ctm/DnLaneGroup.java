@@ -1,5 +1,6 @@
 package models.ctm;
 
+import common.AbstractLaneGroup;
 import keys.KeyCommPathOrLink;
 
 import java.util.HashMap;
@@ -16,7 +17,7 @@ public class DnLaneGroup {
         }
     }
 
-    public models.ctm.LaneGroup lg;
+    public AbstractLaneGroup lg;
     public Map<Long,RoadConnection> rcs;                  // incoming road connections
 
     public double s_j;                                    // supply
@@ -28,7 +29,7 @@ public class DnLaneGroup {
     // construction
     ////////////////////////////////////////////
 
-    public DnLaneGroup(models.ctm.LaneGroup lg){
+    public DnLaneGroup(AbstractLaneGroup lg){
         this.lg = lg;
         this.state_infos = new HashMap<>();
         this.rcs = new HashMap<>();

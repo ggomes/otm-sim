@@ -15,6 +15,7 @@ import utils.OTMUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
@@ -36,8 +37,8 @@ public class Path extends Subnetwork {
         ordered_links.add(current);
 
         while(true){
-            Collection<Link> next_links = current.get_next_links();
-            Collection<Link> next_link = OTMUtils.intersect(next_links,links);
+            Set<Link> next_links = current.get_next_links();
+            Set<Link> next_link = OTMUtils.intersect(next_links,links);
 
             if(next_link.size()>1) {
                 System.err.println("Not able to construct this path");

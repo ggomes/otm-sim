@@ -17,8 +17,7 @@ import profiles.DemandProfile;
 import runner.Scenario;
 
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.Map;
+import java.util.Set;
 
 public class Source extends common.AbstractSource {
 
@@ -60,10 +59,10 @@ public class Source extends common.AbstractSource {
         Long next_link_id;
         if(link.packet_splitter==null){
             next_link_id = link.end_node.out_links.values().iterator().next().getId();
-            target_lanegroups = link.lanegroups.values();
+            target_lanegroups = link.long_lanegroups.values();
         } else {
             next_link_id = link.packet_splitter.get_nextlink_for_key(vehicle.get_key());
-            target_lanegroups = next_link_id==null ? link.lanegroups.values() :
+            target_lanegroups = next_link_id==null ? link.long_lanegroups.values() :
                     link.packet_splitter.outputlink_targetlanegroups.get(next_link_id);
         }
 
@@ -79,7 +78,7 @@ public class Source extends common.AbstractSource {
         models.pq.LinkModel linkModel = (models.pq.LinkModel) target_lanegroups.iterator().next().link.model;
 
         // this map will have a single entry
-        LaneGroup joinlanegroup = (LaneGroup) linkModel.lanegroup_proportions(target_lanegroups).keySet().iterator().next();
+        LaneGroupLong joinlanegroup = (LaneGroupLong) linkModel.lanegroup_proportions(target_lanegroups).keySet().iterator().next();
 
         // move the vehicle
         vehicle.move_to_queue(timestamp,joinlanegroup.transit_queue);

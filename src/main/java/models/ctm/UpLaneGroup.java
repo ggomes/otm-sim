@@ -44,7 +44,7 @@ public class UpLaneGroup {
         }
     }
 
-    public models.ctm.LaneGroup lg;
+    public LaneGroupLong lg;
 
     public boolean is_empty_or_blocked;
     public double gamma_i;
@@ -56,7 +56,7 @@ public class UpLaneGroup {
     // construction
     ////////////////////////////////////////////
 
-    public UpLaneGroup(models.ctm.LaneGroup lg){
+    public UpLaneGroup(LaneGroupLong lg){
         this.lg = lg;
         this.is_empty_or_blocked = false;
         this.gamma_i = Double.NaN;

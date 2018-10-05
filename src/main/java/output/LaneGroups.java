@@ -29,7 +29,7 @@ public class LaneGroups extends AbstractOutput {
 
 
     @Override
-    public void write(float timestamp, Object obj) throws OTMException {
+    public void write(float timestamp, Object obj) {
         System.out.println("this should not happen");
     }
 
@@ -39,7 +39,7 @@ public class LaneGroups extends AbstractOutput {
             return;
         try {
             for(AbstractLaneGroupLongitudinal lg : scenario.network.get_lanegroups())
-                writer.write(lg.id + "\t" + lg.link.getId() + "\t{" + OTMUtils.comma_format(new ArrayList(lg.lanes)) + "}\n");
+                writer.write(lg.id + "\t" + lg.link.getId() + "\t{" + OTMUtils.comma_format(lg.get_dn_lanes()) + "}\n");
             writer.close();
             writer = null;
         } catch (IOException e) {

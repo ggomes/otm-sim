@@ -6,6 +6,7 @@
  */
 package models.ctm;
 
+import common.AbstractLaneGroup;
 import common.AbstractLaneGroupLongitudinal;
 import common.Link;
 import common.Node;
@@ -53,12 +54,12 @@ public class NodeModel {
             Link dn_link = node.out_links.values().iterator().next();
 
             // there is only one upstream lanegroup
-            assert(up_link.lanegroups.size()==1);
-            models.ctm.LaneGroup up_lanegroup = (models.ctm.LaneGroup) up_link.lanegroups.values().iterator().next();
+            assert(up_link.long_lanegroups.size()==1);
+            LaneGroupLong up_lanegroup = (LaneGroupLong) up_link.long_lanegroups.values().iterator().next();
 
             // there is only one dnstream lanegroup
-            assert(dn_link.lanegroups.size()==1);
-            models.ctm.LaneGroup dn_lanegroup = (models.ctm.LaneGroup) dn_link.lanegroups.values().iterator().next();
+            assert(dn_link.long_lanegroups.size()==1);
+            LaneGroupLong dn_lanegroup = (LaneGroupLong) dn_link.long_lanegroups.values().iterator().next();
 
             // add a fictitious road connection with id 0
             RoadConnection rc = new RoadConnection(0L,null);
@@ -104,7 +105,7 @@ public class NodeModel {
             for (AbstractLaneGroupLongitudinal xup_lg : xrc.in_lanegroups) {
                 UpLaneGroup ulg;
                 if (!up_lgs_map.containsKey(xup_lg.id)) {
-                    ulg = new UpLaneGroup((models.ctm.LaneGroup) xup_lg);
+                    ulg = new UpLaneGroup((LaneGroupLong) xup_lg);
                     up_lgs_map.put(xup_lg.id, ulg);
                 } else
                     ulg = up_lgs_map.get(xup_lg.id);
@@ -113,10 +114,10 @@ public class NodeModel {
             }
 
             // go through its downstream lanegroups
-            for (AbstractLaneGroupLongitudinal xdn_lg : xrc.out_lanegroups) {
+            for (AbstractLaneGroup xdn_lg : xrc.out_lanegroups) {
                 DnLaneGroup dlg;
                 if (!dn_lgs_map.containsKey(xdn_lg.id)) {
-                    dlg = new DnLaneGroup((models.ctm.LaneGroup) xdn_lg);
+                    dlg = new DnLaneGroup(xdn_lg);
                     dn_lgs_map.put(xdn_lg.id, dlg);
                 } else
                     dlg = dn_lgs_map.get(xdn_lg.id);
@@ -227,7 +228,7 @@ public class NodeModel {
             /////////////////////////////////
             if(doprint && node.getId()==3L){
                 System.out.println("1 d_r rc from link " + rc.rc.start_link.getId() + " = " + rc.d_r);
-                rc.dnlg_infos.values().forEach( x -> System.out.println("\t" + x.dlg.lg.lanes.size() + " alphar_rj " + x.alpha_rj) );
+                rc.dnlg_infos.values().forEach( x -> System.out.println("\t" + x.dlg.lg.num_lanes + " alphar_rj " + x.alpha_rj) );
             }
             /////////////////////////////////
 
@@ -259,7 +260,7 @@ public class NodeModel {
 
             /////////////////////////////////
             if(doprint && node.getId()==3L){
-                System.out.println("2 gamma_j lg with lanes " + dlg.lg.lanes.size() + " = " + dlg.gamma_j);
+                System.out.println("2 gamma_j lg with lanes " + dlg.lg.num_lanes + " = " + dlg.gamma_j);
             }
             /////////////////////////////////
 

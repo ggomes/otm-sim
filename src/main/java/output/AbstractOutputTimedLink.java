@@ -117,7 +117,7 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
         return linkprofiles.get(link_id).profile;
     }
 
-    public void plot_for_links(Collection<Long> link_ids,String filename) throws OTMException {
+    public void plot_for_links(Set<Long> link_ids,String filename) throws OTMException {
 
         if(link_ids==null)
             link_ids = linkprofiles.keySet();

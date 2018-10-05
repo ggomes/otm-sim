@@ -13,6 +13,7 @@ import utils.OTMUtils;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class LinkModel extends AbstractLinkModel {
 
@@ -51,8 +52,8 @@ public class LinkModel extends AbstractLinkModel {
                 link.length/cells_per_lanegroup;
 
         // create cells
-        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values())
-            ((models.ctm.LaneGroup)lg).create_cells(cells_per_lanegroup,cell_length_meters);
+        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
+            ((LaneGroupLong)lg).create_cells(cells_per_lanegroup,cell_length_meters);
     }
 
     ////////////////////////////////////////////
@@ -78,9 +79,9 @@ public class LinkModel extends AbstractLinkModel {
         float jam_density_vehperlane = r.getJamDensity() * cell_length_meters / 1000f;
         float ffspeed_veh = 1000f * r.getSpeed()*dt_hr / cell_length_meters;
 
-        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values()) {
+        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values()) {
             lg.set_road_params(r);
-            ((models.ctm.LaneGroup) lg).cells.forEach(c -> c.set_road_params(capacity_vehperlane, jam_density_vehperlane, ffspeed_veh));
+            ((LaneGroupLong) lg).cells.forEach(c -> c.set_road_params(capacity_vehperlane, jam_density_vehperlane, ffspeed_veh));
         }
 
         ff_travel_time_sec = 3.6f * link.length / r.getSpeed();
@@ -100,8 +101,8 @@ public class LinkModel extends AbstractLinkModel {
 
     @Override
     public void reset() {
-        for(AbstractLaneGroupLongitudinal alg : link.lanegroups.values()){
-            models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
+        for(AbstractLaneGroupLongitudinal alg : link.long_lanegroups.values()){
+            LaneGroupLong lg = (LaneGroupLong) alg;
             lg.cells.forEach(x->x.reset());
             lg.flow_notin_target = null;
             lg.flow_notin_target = null;
@@ -119,10 +120,10 @@ public class LinkModel extends AbstractLinkModel {
     }
 
     @Override
-    public Map<AbstractLaneGroupLongitudinal,Double> lanegroup_proportions(Collection<AbstractLaneGroupLongitudinal> candidate_lanegroups) {
-        Map<AbstractLaneGroupLongitudinal,Double> A = new HashMap<>();
+    public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
+        Map<AbstractLaneGroup,Double> A = new HashMap<>();
         double total_supply = candidate_lanegroups.stream().mapToDouble(x->x.get_supply()).sum();
-        for(AbstractLaneGroupLongitudinal laneGroup : candidate_lanegroups)
+        for(AbstractLaneGroup laneGroup : candidate_lanegroups)
             A.put(laneGroup , laneGroup.get_supply() / total_supply);
         return A;
     }
@@ -133,16 +134,16 @@ public class LinkModel extends AbstractLinkModel {
 
     // call update_supply_demand on each cell
     public void update_lane_changes() {
-        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values()) {
-            models.ctm.LaneGroup ctmlg = (models.ctm.LaneGroup) lg;
+        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values()) {
+            LaneGroupLong ctmlg = (LaneGroupLong) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_lane_change_flow());
         }
     }
 
     public void intermediate_state_update(){
-        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values()) {
-            models.ctm.LaneGroup ctmlg = (models.ctm.LaneGroup) lg;
+        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values()) {
+            LaneGroupLong ctmlg = (LaneGroupLong) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.intermediate_state_update());
         }
@@ -150,21 +151,21 @@ public class LinkModel extends AbstractLinkModel {
 
     // call update_supply_demand on each cell
     public void update_supply_demand() {
-        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values()) {
-            models.ctm.LaneGroup ctmlg = (models.ctm.LaneGroup) lg;
+        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values()) {
+            LaneGroupLong ctmlg = (LaneGroupLong) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_supply_demand());
         }
     }
 
     public void update_cell_boundary_flows() {
-        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values())
-            ((LaneGroup) lg).update_cell_boundary_flows();
+        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
+            ((LaneGroupLong) lg).update_cell_boundary_flows();
     }
 
     public void update_state(float timestamp) {
-        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values())
-            ((models.ctm.LaneGroup) lg).update_state(timestamp);
+        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
+            ((LaneGroupLong) lg).update_state(timestamp);
     }
 
 //    ////////////////////////////////////////////

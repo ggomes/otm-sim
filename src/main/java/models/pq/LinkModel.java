@@ -31,7 +31,7 @@ public class LinkModel extends AbstractLinkModel {
     @Override
     public void set_road_param(jaxb.Roadparam r, float sim_dt_sec) {
         // send parameters to lane groups
-        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values())
+        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
             lg.set_road_params(r);
     }
 
@@ -53,8 +53,8 @@ public class LinkModel extends AbstractLinkModel {
 
         // returns the maximum of the transit times of all of the lanegroup
         float s = 0f;
-        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values() )
-            s = Math.max( s , ((LaneGroup)lg).transit_time_sec );
+        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values() )
+            s = Math.max( s , ((LaneGroupLong)lg).transit_time_sec );
         return s;
     }
 
@@ -62,20 +62,20 @@ public class LinkModel extends AbstractLinkModel {
     public float get_capacity_vps(){
         // return s the sum of the capacities of all of the lanegroups
         float s = 0f;
-        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values() )
-            s += ((LaneGroup)lg).saturation_flow_rate_vps;
+        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values() )
+            s += ((LaneGroupLong)lg).saturation_flow_rate_vps;
         return s;
     }
 
     @Override
-    public Map<AbstractLaneGroupLongitudinal,Double> lanegroup_proportions(Collection<AbstractLaneGroupLongitudinal> candidate_lanegroups) {
+    public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
 
         // put the whole packet i the lanegroup with the most space.
-        Optional<AbstractLaneGroupLongitudinal> best_lanegroup = candidate_lanegroups.stream()
-                .max(Comparator.comparing(AbstractLaneGroupLongitudinal::get_space_per_lane));
+        Optional<? extends AbstractLaneGroup> best_lanegroup = candidate_lanegroups.stream()
+                .max(Comparator.comparing(AbstractLaneGroup::get_space_per_lane));
 
         if(best_lanegroup.isPresent()) {
-            Map<AbstractLaneGroupLongitudinal,Double> A = new HashMap<>();
+            Map<AbstractLaneGroup,Double> A = new HashMap<>();
             A.put(best_lanegroup.get(),1d);
             return A;
         } else
@@ -187,8 +187,8 @@ public class LinkModel extends AbstractLinkModel {
         x.requester.move_to_queue(timestamp,x.to_queue);
 
         // remove all of its requests by this vehicle in this link
-        for (AbstractLaneGroupLongitudinal lanegroup : link.lanegroups.values()) {
-            LaneGroup lg = (LaneGroup) lanegroup;
+        for (AbstractLaneGroupLongitudinal lanegroup : link.long_lanegroups.values()) {
+            LaneGroupLong lg = (LaneGroupLong) lanegroup;
             lg.transit_queue.remove_lane_change_requests_for_vehicle(x.requester);
             lg.waiting_queue.remove_lane_change_requests_for_vehicle(x.requester);
         }

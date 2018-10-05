@@ -14,6 +14,8 @@ import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
 import dispatch.EventReleaseVehicleFromLaneGroup;
+import geometry.Position;
+import geometry.Side;
 import keys.KeyCommPathOrLink;
 import keys.KeyCommodityLink;
 import output.InterfaceVehicleListener;
@@ -26,7 +28,7 @@ import utils.OTMUtils;
 
 import java.util.*;
 
-public class LaneGroup extends AbstractLaneGroupLongitudinal {
+public class LaneGroupLong extends AbstractLaneGroupLongitudinal {
 
     public models.pq.Queue transit_queue;
     public models.pq.Queue waiting_queue;
@@ -40,7 +42,7 @@ public class LaneGroup extends AbstractLaneGroupLongitudinal {
     // a) lanegroups not reached by the road connection between the two
     // b) lanegroups that connect only to links not within the commoditie's subnetwork
     // c) any explicitly prohibitted lanegroups (not implemented)
-    public Map<KeyCommodityLink,Set<AbstractLaneGroupLongitudinal>> downstream_candidate_lanegroups;
+    public Map<KeyCommodityLink,Set<AbstractLaneGroup>> downstream_candidate_lanegroups;
 
     public PartialVehicleMemory pvm;
 
@@ -48,8 +50,8 @@ public class LaneGroup extends AbstractLaneGroupLongitudinal {
     // construction
     ///////////////////////////////////////////
 
-    public LaneGroup(Link link,Set<Integer> lanes,Set<RoadConnection> rcs){
-        super(link,lanes,rcs);
+    public LaneGroupLong(Link link, Side side,float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
+        super(link, side,length, num_lanes, start_lane, out_rcs);
         this.transit_queue = new models.pq.Queue(this, models.pq.Queue.Type.transit);
         this.waiting_queue = new models.pq.Queue(this, models.pq.Queue.Type.waiting);
         this.downstream_candidate_lanegroups = new HashMap<>();
@@ -62,8 +64,8 @@ public class LaneGroup extends AbstractLaneGroupLongitudinal {
     @Override
     public void set_road_params(jaxb.Roadparam r){
         super.set_road_params(r);
-        transit_time_sec = (length()/r.getSpeed())* 3.6f; // [m]/[kph] -> [sec]
-        saturation_flow_rate_vps = r.getCapacity()*num_lanes()/3600f;
+        transit_time_sec = (length/r.getSpeed())* 3.6f; // [m]/[kph] -> [sec]
+        saturation_flow_rate_vps = r.getCapacity()*num_lanes/3600f;
     }
 
     // construct downstream_candidate_lanegroups
@@ -74,14 +76,14 @@ public class LaneGroup extends AbstractLaneGroupLongitudinal {
             Link outlink = link.end_node.out_links.values().iterator().next();
             downstream_candidate_lanegroups.put(
                     new KeyCommodityLink(commodity.getId(),outlink.getId()),
-                    new HashSet<>(outlink.lanegroups.values()));
+                    new HashSet<>(outlink.long_lanegroups.values()));
             return;
         }
 
         for(Long outlink_id : get_dwn_links()){
             RoadConnection rc = get_roadconnection_for_outlink(outlink_id);
             if(rc!=null){
-                Set<AbstractLaneGroupLongitudinal> out_lanegroups = OTMUtils.intersect(rc.out_lanegroups,commodity.all_lanegroups);
+                Set<AbstractLaneGroup> out_lanegroups = OTMUtils.intersect(rc.out_lanegroups,commodity.all_lanegroups);
                 if(!out_lanegroups.isEmpty())
                     downstream_candidate_lanegroups.put(new KeyCommodityLink(commodity.getId(),outlink_id),out_lanegroups);
             }
@@ -217,12 +219,12 @@ public class LaneGroup extends AbstractLaneGroupLongitudinal {
                 next_link = link.network.links.get(state.pathOrlink_id);
             }
 
-            Set<AbstractLaneGroupLongitudinal> dwn_lanegroups = get_accessible_lgs_in_outlink(next_link);
+            Set<AbstractLaneGroup> dwn_lanegroups = get_accessible_lgs_in_outlink(next_link);
 
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
             OptionalDouble max_space = dwn_lanegroups.stream()
-                    .mapToDouble(AbstractLaneGroupLongitudinal::get_space)
+                    .mapToDouble(AbstractLaneGroup::get_space)
                     .max();
 
             if(max_space.isPresent() && max_space.getAsDouble()>1.0){

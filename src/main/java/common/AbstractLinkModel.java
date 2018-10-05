@@ -15,13 +15,8 @@ import packet.AbstractPacketLaneGroup;
 import packet.PacketLink;
 import packet.PacketSplitter;
 import runner.Scenario;
-import utils.OTMUtils;
 
 import java.util.*;
-import java.util.stream.IntStream;
-
-import static java.util.Comparator.comparingInt;
-import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractLinkModel {
 
@@ -37,7 +32,7 @@ public abstract class AbstractLinkModel {
     abstract public void reset();
     abstract public float get_ff_travel_time(); // seconds
     abstract public float get_capacity_vps();   // vps
-    abstract public Map<AbstractLaneGroupLongitudinal,Double> lanegroup_proportions(Collection<AbstractLaneGroupLongitudinal> candidate_lanegroups);
+    abstract public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups);
 
     //////////////////////////////////////////////////////////////
     // construction
@@ -51,7 +46,7 @@ public abstract class AbstractLinkModel {
 
         if(comm.pathfull) {
             KeyCommPathOrLink state = new KeyCommPathOrLink(comm.getId(), subnet.getId(), true);
-            for (AbstractLaneGroupLongitudinal lg : link.lanegroups.values())
+            for (AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
                 lg.add_key(state);
         }
 
@@ -60,13 +55,13 @@ public abstract class AbstractLinkModel {
             // for pathless/sink, next link id is same as this id
             if (link.is_sink) {
                 KeyCommPathOrLink state = new KeyCommPathOrLink(comm.getId(), link.getId(), false);
-                for (AbstractLaneGroupLongitudinal lg : link.lanegroups.values())
+                for (AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
                     lg.add_key(state);
 
             } else {
 
                 // for pathless non-sink, add a state for each next link in the subnetwork
-                for (AbstractLaneGroupLongitudinal lg : link.lanegroups.values()) {
+                for (AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values()) {
                     for (Long next_link_id : lg.get_dwn_links())
                         if (subnet.has_link_id(next_link_id))
                             lg.add_key(new KeyCommPathOrLink(comm.getId(), next_link_id, false));
@@ -79,7 +74,7 @@ public abstract class AbstractLinkModel {
 
     public void initialize(Scenario scenario) throws OTMException {
         // allocate state for each lanegroup in this link
-        for(AbstractLaneGroupLongitudinal lg : link.lanegroups.values() ){
+        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values() ){
             lg.allocate_state();
         }
     }
@@ -89,7 +84,7 @@ public abstract class AbstractLinkModel {
     //////////////////////////////////////////////////////////////
 
     public Double get_supply(){
-        return link.lanegroups.values().stream().mapToDouble(x->x.get_supply()).sum();
+        return link.long_lanegroups.values().stream().mapToDouble(x->x.get_supply()).sum();
     }
 
     public void add_vehicle_packet(float timestamp, PacketLink vp) throws OTMException {
@@ -104,7 +99,7 @@ public abstract class AbstractLinkModel {
             // if sink, encode by using current link id as nextlink.
             Long outlink_id = link.is_sink ? link.getId() : link.end_node.out_links.values().iterator().next().getId();
             AbstractPacketLaneGroup packet = PacketSplitter.cast_packet_null_splitter(myPacketClass,vp,outlink_id);
-            AbstractLaneGroupLongitudinal join_lanegroup = vp.arrive_to_lanegroups.iterator().next();
+            AbstractLaneGroup join_lanegroup = vp.arrive_to_lanegroups.iterator().next();
             join_lanegroup.add_native_vehicle_packet(timestamp,packet);
             return;
         }
@@ -133,7 +128,7 @@ public abstract class AbstractLinkModel {
             // intersected with those that can reach the outlink
             // TODO: This can be removed if there is a model for "changing lanes" to another lanegroup
 //            Set<AbstractLaneGroupLongitudinal> candidate_lanegroups = OTMUtils.intersect( vp.arrive_to_lanegroups , split_packet.target_lanegroups );
-            Set<AbstractLaneGroupLongitudinal> candidate_lanegroups = vp.arrive_to_lanegroups;
+            Set<AbstractLaneGroup> candidate_lanegroups = vp.arrive_to_lanegroups;
 
 //            if(candidate_lanegroups.isEmpty()) {
                 // in this case the vehicle has arrived to lanegroups for which there is
@@ -150,11 +145,11 @@ public abstract class AbstractLinkModel {
             // split the split_packet amongst the candidate lane groups.
             // then add them
             if(candidate_lanegroups.size()==1) {
-                AbstractLaneGroupLongitudinal laneGroup = candidate_lanegroups.iterator().next();
+                AbstractLaneGroup laneGroup = candidate_lanegroups.iterator().next();
                 laneGroup.add_native_vehicle_packet(timestamp, split_packet);
             } else {
-                for (Map.Entry<AbstractLaneGroupLongitudinal, Double> ee : lanegroup_proportions(candidate_lanegroups).entrySet()) {
-                    AbstractLaneGroupLongitudinal laneGroup = ee.getKey();
+                for (Map.Entry<AbstractLaneGroup, Double> ee : lanegroup_proportions(candidate_lanegroups).entrySet()) {
+                    AbstractLaneGroup laneGroup = ee.getKey();
                     Double prop = ee.getValue();
                     if (prop <= 0d)
                         continue;
@@ -184,46 +179,46 @@ public abstract class AbstractLinkModel {
     }
 
     public float get_max_vehicles(){
-        return (float) link.lanegroups.values().stream().map(x->x.max_vehicles).mapToDouble(i->i).sum();
+        return (float) link.long_lanegroups.values().stream().map(x->x.max_vehicles).mapToDouble(i->i).sum();
     }
 
     //////////////////////////////////////////////////////////////
     // private
     //////////////////////////////////////////////////////////////
 
-    private AbstractLaneGroupLongitudinal choose_closest_that_is_not_full(Set<AbstractLaneGroupLongitudinal> arrive_to_lanegroups,Set<AbstractLaneGroupLongitudinal> candidate_lanegroups,Set<AbstractLaneGroupLongitudinal> target_lanegroups) throws OTMException {
-
-        // these will be selected from among the lanegroups that do not directly connect to
-        // the output link.
-        List<AbstractLaneGroupLongitudinal> second_best_candidates = new ArrayList(OTMUtils.setminus(arrive_to_lanegroups,candidate_lanegroups));
-
-        // this should not be empty. Otherwise the assumption that the link was checked for space is vuilated.
-        if(second_best_candidates.isEmpty())
-            throw new OTMException("This should not happen.");
-
-        // from these select the one that is closest to the destination lanegroups (ie minimizes lane changes)
-
-        // find the range of lanes of the target lanegroups
-        List<Integer> target_lanes = target_lanegroups.stream()
-                .map(x->x.lanes)
-                .flatMap(x->x.stream())
-                .collect(toList());
-        Integer min_lane = target_lanes.stream().mapToInt(x->x).min().getAsInt();
-        Integer max_lane = target_lanes.stream().mapToInt(x->x).max().getAsInt();
-
-        // compute the distance of each second best candidate to the targets
-        List<Integer> distance_to_target = second_best_candidates.stream()
-                .map(x->x.distance_to_lanes(min_lane,max_lane))
-                .collect(toList());
-
-        // find the index of the smallest distance
-        int index = IntStream.range(0,distance_to_target.size()).boxed()
-                .min(comparingInt(distance_to_target::get))
-                .get();
-
-        // pick that lanegroup to join
-        return second_best_candidates.get(index);
-    }
+//    private AbstractLaneGroupLongitudinal choose_closest_that_is_not_full(Set<AbstractLaneGroupLongitudinal> arrive_to_lanegroups,Set<AbstractLaneGroupLongitudinal> candidate_lanegroups,Set<AbstractLaneGroupLongitudinal> target_lanegroups) throws OTMException {
+//
+//        // these will be selected from among the lanegroups that do not directly connect to
+//        // the output link.
+//        List<AbstractLaneGroupLongitudinal> second_best_candidates = new ArrayList(OTMUtils.setminus(arrive_to_lanegroups,candidate_lanegroups));
+//
+//        // this should not be empty. Otherwise the assumption that the link was checked for space is vuilated.
+//        if(second_best_candidates.isEmpty())
+//            throw new OTMException("This should not happen.");
+//
+//        // from these select the one that is closest to the destination lanegroups (ie minimizes lane changes)
+//
+//        // find the range of lanes of the target lanegroups
+//        List<Integer> target_lanes = target_lanegroups.stream()
+//                .map(x->x.lanes)
+//                .flatMap(x->x.stream())
+//                .collect(toList());
+//        Integer min_lane = target_lanes.stream().mapToInt(x->x).min().getAsInt();
+//        Integer max_lane = target_lanes.stream().mapToInt(x->x).max().getAsInt();
+//
+//        // compute the distance of each second best candidate to the targets
+//        List<Integer> distance_to_target = second_best_candidates.stream()
+//                .map(x->x.distance_to_lanes(min_lane,max_lane))
+//                .collect(toList());
+//
+//        // find the index of the smallest distance
+//        int index = IntStream.range(0,distance_to_target.size()).boxed()
+//                .min(comparingInt(distance_to_target::get))
+//                .get();
+//
+//        // pick that lanegroup to join
+//        return second_best_candidates.get(index);
+//    }
 
 //    private void add_lane_change_request(float timestamp, AbstractPacketLaneGroup packet, AbstractLaneGroupLongitudinal from_lanegroup, Set<AbstractLaneGroupLongitudinal> to_lanegroups, Queue.Type queue_type) throws OTMException{
 //

@@ -28,7 +28,7 @@ public class LinkFlow extends AbstractOutputTimedLink {
         for(LinkProfile linkProfile : linkprofiles.values()) {
             Set<FlowAccumulator> flw_acc_set = new HashSet<>();
             flw_acc_sets.put(linkProfile.link.getId(),flw_acc_set);
-            for(AbstractLaneGroupLongitudinal lg : linkProfile.link.lanegroups.values())
+            for(AbstractLaneGroupLongitudinal lg : linkProfile.link.long_lanegroups.values())
                 flw_acc_set.add(lg.request_flow_accumulator());
         }
     }

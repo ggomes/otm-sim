@@ -26,7 +26,7 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     public final int end_link_to_lane;
 
     public Set<AbstractLaneGroupLongitudinal> in_lanegroups;
-    public Set<AbstractLaneGroupLongitudinal> out_lanegroups;
+    public Set<AbstractLaneGroup> out_lanegroups;
 
     // control
     public float external_max_flow_vps;
@@ -68,23 +68,26 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     }
 
     // This constructor is used to make fictitious road connections for one-one nodes
-    public RoadConnection(long id,Link start_link,Link end_link) {
-
+    public RoadConnection(long id,Link start_link,int start_link_from_lane,int start_link_to_lane,Link end_link,int end_link_from_lane,int end_link_to_lane) {
         this.id = id;
         this.length = 0f;
         this.start_link = start_link;
         this.end_link = end_link;
         this.external_max_flow_vps = Float.POSITIVE_INFINITY;
+        this.start_link_from_lane = start_link_from_lane;
+        this.start_link_to_lane = start_link_to_lane;
+        this.end_link_from_lane = end_link_from_lane;
+        this.end_link_to_lane = end_link_to_lane;
+    }
 
-        this.start_link_from_lane = 1;
-        this.start_link_to_lane = start_link.get_num_dn_lanes();
-        this.end_link_from_lane = 1;
-        this.end_link_to_lane = end_link.get_num_up_lanes();
+    // This constructor is used to make fictitious road connections for one-one nodes
+    public RoadConnection(long id,Link start_link,Link end_link) {
+        this( id, start_link, 1,start_link.get_num_dn_lanes(),end_link,1,end_link.get_num_up_lanes());
     }
 
     public void set_in_out_lanegroups(){
-        in_lanegroups = start_link.get_lanegroups_for_dn_lanes(start_link_from_lane,start_link_to_lane);
-        out_lanegroups = end_link.get_lanegroups_for_up_lanes(end_link_from_lane,end_link_to_lane);
+        in_lanegroups = start_link.get_unique_lanegroups_for_dn_lanes(start_link_from_lane,start_link_to_lane);
+        out_lanegroups = end_link.get_unique_lanegroups_for_up_lanes(end_link_from_lane,end_link_to_lane);
     }
 
     public void validate(OTMErrorLog errorLog){
@@ -133,13 +136,7 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
 
     @Override
     public String toString() {
-        String str = "";
-        str += "from\t" + start_link.id + ":" + start_link_from_lane +"-"+ start_link_to_lane + "\n";
-        str += "to\t" + end_link.id + ":" + end_link_from_lane +"-"+ end_link_to_lane + "\n";
-        str += "out lanegroups:\n";
-//        for(int i=0;i<out_lanegroups.size();i++)
-//            str+= out_lanegroups.get(i).id + " (" + out_lanegroup_probability.get(i) + ")\n";
-        return str;
+        return String.format("%d [%d %d] -> %d [%d %d]",start_link.getId(),start_link_from_lane,start_link_to_lane,end_link.getId(),end_link_from_lane,end_link_to_lane);
     }
 
     public jaxb.Roadconnection to_jaxb(){

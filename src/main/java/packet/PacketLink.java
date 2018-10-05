@@ -6,22 +6,20 @@
  */
 package packet;
 
+import common.AbstractLaneGroup;
 import common.AbstractLaneGroupLongitudinal;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
 import models.pq.Vehicle;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /** Packets of vehicles (micro, meso, and/or macro) passed to a link **/
 
 public class PacketLink {
 
     // The packet arrives to a set of lanegroups
-    public Set<AbstractLaneGroupLongitudinal> arrive_to_lanegroups;
+    public Set<AbstractLaneGroup> arrive_to_lanegroups;
     public Set<AbstractVehicle> vehicles;
     public Map<KeyCommPathOrLink,Double> state2vehicles;
 
@@ -34,20 +32,20 @@ public class PacketLink {
 //    public Map<Long,Double> arrive_split;       // lgid -> split
 
     // empty constructor
-    public PacketLink(Set<AbstractLaneGroupLongitudinal> arrive_to_lanegroups){
+    public PacketLink(Set<AbstractLaneGroup> arrive_to_lanegroups){
         this.arrive_to_lanegroups = arrive_to_lanegroups;
         this.state2vehicles = new HashMap<>();
         this.vehicles = new HashSet<>();
     }
 
     // macro constructor
-    public PacketLink(Map<KeyCommPathOrLink,Double> state2vehicles, Set<AbstractLaneGroupLongitudinal> arrive_to_lanegroups){
+    public PacketLink(Map<KeyCommPathOrLink,Double> state2vehicles, Set<AbstractLaneGroup> arrive_to_lanegroups){
         this.arrive_to_lanegroups = arrive_to_lanegroups;
         this.state2vehicles = state2vehicles;
     }
 
     // single vehicle constructor
-    public PacketLink(Vehicle vehicle, Set<AbstractLaneGroupLongitudinal> arrive_to_lanegroups){
+    public PacketLink(Vehicle vehicle, Set<AbstractLaneGroup> arrive_to_lanegroups){
         this.arrive_to_lanegroups = arrive_to_lanegroups;
         this.vehicles = new HashSet<>();
         this.vehicles.add(vehicle);

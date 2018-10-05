@@ -6,6 +6,7 @@
  */
 package commodity;
 
+import common.AbstractLaneGroup;
 import common.AbstractLaneGroupLongitudinal;
 import common.Link;
 import error.OTMErrorLog;
@@ -29,7 +30,7 @@ public class Commodity implements InterfaceScenarioElement {
     public final String name;
     public final Set<Subnetwork> subnetworks;
     public  Set<Link> all_links;
-    public  Set<AbstractLaneGroupLongitudinal> all_lanegroups;
+    public  Set<AbstractLaneGroup> all_lanegroups;
     public boolean pathfull;
 
     // this is a dispatch output writer for vehicles of this commodity

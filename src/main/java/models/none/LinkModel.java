@@ -6,6 +6,7 @@
  */
 package models.none;
 
+import common.AbstractLaneGroup;
 import common.AbstractLaneGroupLongitudinal;
 import common.AbstractLinkModel;
 import common.Link;
@@ -17,6 +18,7 @@ import runner.Scenario;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 public class LinkModel extends AbstractLinkModel {
 
@@ -67,7 +69,7 @@ public class LinkModel extends AbstractLinkModel {
     }
 
     @Override
-    public Map<AbstractLaneGroupLongitudinal, Double> lanegroup_proportions(Collection<AbstractLaneGroupLongitudinal> candidate_lanegroups) {
+    public Map<AbstractLaneGroup, Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
         return null;
     }
 

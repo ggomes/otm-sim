@@ -12,9 +12,6 @@ import java.util.TreeSet;
 
 public class AddLanes {
 
-    public enum Side {in, out}
-    public enum Position {up,dn}
-
     public TreeSet<Gate> gates = new TreeSet<>();    // sorted set
     public boolean isopen;
 
@@ -23,7 +20,7 @@ public class AddLanes {
     public float length;        // meters
     public int lanes;
 
-    public AddLanes(AddLanes.Position pos,AddLanes.Side side){
+    public AddLanes(Position pos,Side side){
         this.lanes = 0;
         this.side = side;
         this.position = pos;

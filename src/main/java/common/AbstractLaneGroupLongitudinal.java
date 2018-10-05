@@ -3,6 +3,7 @@ package common;
 import commodity.Path;
 import error.OTMErrorLog;
 import error.OTMException;
+import geometry.Side;
 import keys.KeyCommPathOrLink;
 
 import java.util.*;
@@ -10,34 +11,15 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractLaneGroupLongitudinal extends AbstractLaneGroup {
 
-    @Override
-    public void delete() {
-        super.delete();
-        outlink2roadconnection = null;
-    }
-
-    @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
-
-        // out_road_connections all lead to links that are immediately downstream
-        Collection dwn_links = link.end_node.out_links.values().stream().map(x->x.id).collect(Collectors.toSet());
-        if(!dwn_links.containsAll(outlink2roadconnection.keySet()))
-            errorLog.addError("some outlinks are not immediately downstream");
-
-    }
-
     // map from outlink to road-connection. For one-to-one links with no road connection defined,
     // this returns a null.
     protected Map<Long,RoadConnection> outlink2roadconnection;
-
 
     // exiting road connection to the states that use it (should be avoided in the one-to-one case)
     public Map<Long, Set<KeyCommPathOrLink>> roadconnection2states;
 
     // state to the road connection it must use (should be avoided in the one-to-one case)
     public Map<KeyCommPathOrLink,Long> state2roadconnection;
-
 
     abstract public void exiting_roadconnection_capacity_has_been_modified(float timestamp);
 
@@ -52,14 +34,31 @@ public abstract class AbstractLaneGroupLongitudinal extends AbstractLaneGroup {
      */
     abstract public void release_vehicle_packets(float timestamp) throws OTMException;
 
-
-
-    public AbstractLaneGroupLongitudinal(Link link, Set<Integer> lanes, Set<RoadConnection> out_rcs) {
-        super(link, lanes, out_rcs);
+    public AbstractLaneGroupLongitudinal(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        super(link,side,length,num_lanes);
+        this.start_lane_dn = start_lane;
         this.outlink2roadconnection = new HashMap<>();
         this.state2roadconnection = new HashMap<>();
-        for(RoadConnection rc : out_rcs)
-            outlink2roadconnection.put(rc.end_link.id,rc);
+        if(out_rcs!=null)
+            for(RoadConnection rc : out_rcs)
+                outlink2roadconnection.put(rc.end_link.id,rc);
+    }
+
+    @Override
+    public void delete() {
+        super.delete();
+        outlink2roadconnection = null;
+    }
+
+    @Override
+    public void validate(OTMErrorLog errorLog) {
+        super.validate(errorLog);
+
+        // out_road_connections all lead to links that are immediately downstream
+        Set dwn_links = link.end_node.out_links.values().stream().map(x->x.id).collect(Collectors.toSet());
+        if(!dwn_links.containsAll(outlink2roadconnection.keySet()))
+            errorLog.addError("some outlinks are not immediately downstream");
+
     }
 
     public void allocate_state(){
@@ -120,7 +119,7 @@ public abstract class AbstractLaneGroupLongitudinal extends AbstractLaneGroup {
         return outlink2roadconnection.keySet();
     }
 
-    public boolean is_link_reachable(Long link_id){
+    public boolean link_is_link_reachable(Long link_id){
         return outlink2roadconnection.containsKey(link_id);
     }
 
@@ -129,12 +128,12 @@ public abstract class AbstractLaneGroupLongitudinal extends AbstractLaneGroup {
         return link_id==null? null : outlink2roadconnection.get(link_id);
     }
 
-    public Set<AbstractLaneGroupLongitudinal> get_accessible_lgs_in_outlink(Link out_link){
+    public Set<AbstractLaneGroup> get_accessible_lgs_in_outlink(Link out_link){
 
         // if the end node is one to one, then all lanegroups in the next link are equally accessible
         if(link.end_node.is_many2one) {
             if (link.outlink2lanegroups.containsKey(out_link.getId()))
-                return new HashSet<>(out_link.lanegroups.values());     // all downstream lanegroups are accessible
+                return new HashSet<>(out_link.long_lanegroups.values());     // all downstream lanegroups are accessible
             else
                 return null;
         }
@@ -143,12 +142,14 @@ public abstract class AbstractLaneGroupLongitudinal extends AbstractLaneGroup {
         RoadConnection rc = outlink2roadconnection.get(out_link.getId());
 
         // return lanegroups connected to by this road connection
-        return out_link.get_lanegroups_for_up_lanes(rc.end_link_from_lane,rc.end_link_to_lane);
+        return out_link.get_unique_lanegroups_for_up_lanes(rc.end_link_from_lane,rc.end_link_to_lane);
 
     }
-
 
     public int get_num_exiting_road_connections(){
         return link.end_node.is_many2one ? 0 : roadconnection2states.size();
     }
+
+
+
 }

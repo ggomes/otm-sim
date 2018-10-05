@@ -1,12 +1,11 @@
 package common;
 
-import java.util.Set;
+import geometry.Side;
 
 public abstract class AbstractLaneGroupLateral extends AbstractLaneGroup {
 
-    public AbstractLaneGroupLateral(Link link, Set<Integer> lanes, Set<RoadConnection> out_rcs) {
-        super(link, lanes, out_rcs);
+    public AbstractLaneGroupLateral(Link link, Side side, float length, int num_lanes, int start_lane) {
+        super(link,side,length,num_lanes);
+        this.start_lane_up = start_lane;
     }
-
-
 }

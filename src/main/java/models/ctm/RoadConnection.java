@@ -61,13 +61,13 @@ public class RoadConnection {
     public void add_dn_lanegroup(DnLaneGroup x){
 
         // compute lambda_rj
-        int lg_from_lane = x.lg.lanes.stream().min(Integer::compareTo).get();
-        int lg_to_lane = x.lg.lanes.stream().max(Integer::compareTo).get();
+        int lg_from_lane = x.lg.start_lane_up;
+        int lg_to_lane = x.lg.start_lane_up + x.lg.num_lanes - 1;
 
         int overlap_from_lane = Math.max(lg_from_lane,rc.end_link_from_lane);
         int overlap_to_lane = Math.min(lg_to_lane,rc.end_link_to_lane);
 
-        double lg_total_lanes = (double) x.lg.lanes.size();
+        double lg_total_lanes = (double) x.lg.num_lanes;
         double rc_covered_lanes = (double) (overlap_to_lane-overlap_from_lane+1);
         double lambda_rj = rc_covered_lanes / lg_total_lanes;
 

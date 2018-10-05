@@ -17,12 +17,8 @@ import java.util.Set;
 
 public class Cell {
 
-    /**
-     * NOTE LANES ARE NOT BEING SET
-     **/
-
     public LinkModel model;
-    private LaneGroup laneGroup;
+    private LaneGroupLong laneGroup;
 
     public Cell neighbor;
 
@@ -52,7 +48,7 @@ public class Cell {
     // construction
     ///////////////////////////////////////////////////
 
-    public Cell(LinkModel model, double length_in_meters, LaneGroup laneGroup) {
+    public Cell(LinkModel model, double length_in_meters, LaneGroupLong laneGroup) {
         this.am_upstrm = false;
         this.am_dnstrm = false;
         this.model = model;
@@ -60,7 +56,7 @@ public class Cell {
     }
 
     public void set_road_params(float capacity_vehperlane, float jam_density_vehperlane, float ffspeed_veh) {
-        int lanes = laneGroup.num_lanes();
+        int lanes = laneGroup.num_lanes;
         if (model.link.is_source) {
             this.capacity_veh = capacity_vehperlane * lanes;
             this.ffspeed_norm = Double.NaN;
@@ -110,18 +106,11 @@ public class Cell {
         }
 
         // this != target lane group
-        Set<AbstractLaneGroupLongitudinal> my_neighbors = laneGroup.get_my_neighbors();
-        if (my_neighbors != null) {
-
-            // assume that there are only two lanegroups in the link
-//            assert (my_neighbors.size() == 1);
-
-            models.ctm.LaneGroup my_neighbor = (models.ctm.LaneGroup) my_neighbors.iterator().next();
-
+        if (laneGroup.neighbor_out != null) { // TODO FIX THIS
             veh_notin_target = new HashMap<>();
             demand_notin_target = new HashMap<>();
             lane_change_flow = new HashMap<>();
-            for (KeyCommPathOrLink k : my_neighbor.states) {
+            for (KeyCommPathOrLink k : laneGroup.neighbor_out.states) {
                 veh_notin_target.put(k, 0d);
                 demand_notin_target.put(k, 0d);
                 lane_change_flow.put(k, 0d);
