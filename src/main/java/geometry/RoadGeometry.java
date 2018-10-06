@@ -48,10 +48,6 @@ public class RoadGeometry implements InterfaceScenarioElement {
     }
 
     public void validate(OTMErrorLog errorLog){
-        if( up_in.lanes>0 )
-            errorLog.addError("Dont know how to deal with upstream addlanes");
-        if( up_out.lanes>0 )
-            errorLog.addError("Dont know how to deal with upstream addlanes");
         if( dn_in !=null )
             dn_in.validate(errorLog);
         if( dn_out !=null )
