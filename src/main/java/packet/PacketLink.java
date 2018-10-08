@@ -7,7 +7,6 @@
 package packet;
 
 import common.AbstractLaneGroup;
-import common.AbstractLaneGroupLongitudinal;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
 import models.pq.Vehicle;

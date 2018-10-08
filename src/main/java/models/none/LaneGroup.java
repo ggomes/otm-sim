@@ -4,7 +4,7 @@
  * This source code is licensed under the standard 3-clause BSD license found
  * in the LICENSE file in the root directory of this source tree.
  */
-package models.micro;
+package models.none;
 
 import commodity.Commodity;
 import common.*;
@@ -15,9 +15,9 @@ import packet.AbstractPacketLaneGroup;
 
 import java.util.Set;
 
-public class LaneGroupLong extends AbstractLaneGroupLongitudinal {
+public class LaneGroup extends AbstractLaneGroup {
 
-    public LaneGroupLong(Link link, Side side,float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+    public LaneGroup(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side,length, num_lanes, start_lane, out_rcs);
     }
 
@@ -28,7 +28,7 @@ public class LaneGroupLong extends AbstractLaneGroupLongitudinal {
 
     @Override
     public void add_native_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp) throws OTMException {
-        System.out.format(timestamp + "\tadd_native_vehicle_packet");
+
     }
 
     @Override
@@ -38,7 +38,7 @@ public class LaneGroupLong extends AbstractLaneGroupLongitudinal {
 
     @Override
     public void release_vehicle_packets(float timestamp) throws OTMException {
-        System.out.format(timestamp + "\trelease_vehicle_packets");
+
     }
 
     @Override

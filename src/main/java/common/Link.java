@@ -44,21 +44,21 @@ public class Link implements InterfaceScenarioElement {
 
     // Longitudinal lanegroups: flow exits from the bottom edge.
     // There are full lanegroups and downstream addlanes
-    public Map<Long,AbstractLaneGroupLongitudinal> long_lanegroups;
+    public Map<Long,AbstractLaneGroup> long_lanegroups;
 
     // Lateral lanegroups: all flow exits laterally. These are the upstream addlanes.
 //    public Map<Long,AbstractLaneGroupLateral> lat_lanegroups;
-    public AbstractLaneGroupLateral lat_lanegroup_in;
-    public AbstractLaneGroupLateral lat_lanegroup_out;
+    public AbstractLaneGroup lat_lanegroup_in;
+    public AbstractLaneGroup lat_lanegroup_out;
 
     // downstream lane count -> lane group
-    public Map<Integer, AbstractLaneGroupLongitudinal> dnlane2lanegroup;
+    public Map<Integer, AbstractLaneGroup> dnlane2lanegroup;
 
     // map from path id (uses this link) to next link id (exits this link)
     public Map<Long,Long> path2outlink;
 
     // map from downstream link to candidate lanegroups
-    public Map<Long, Set<AbstractLaneGroupLongitudinal>> outlink2lanegroups;
+    public Map<Long, Set<AbstractLaneGroup>> outlink2lanegroups;
 
     public PacketSplitter packet_splitter;
 
@@ -197,7 +197,7 @@ public class Link implements InterfaceScenarioElement {
         travel_timers.add(x);
     }
 
-    public void set_long_lanegroups(Collection<AbstractLaneGroupLongitudinal> lgs) {
+    public void set_long_lanegroups(Collection<AbstractLaneGroup> lgs) {
 
         long_lanegroups = new HashMap<>();
         dnlane2lanegroup = new HashMap<>();
@@ -206,11 +206,11 @@ public class Link implements InterfaceScenarioElement {
             return;
 
         // lanegroups
-        for(AbstractLaneGroupLongitudinal lg : lgs)
+        for(AbstractLaneGroup lg : lgs)
             long_lanegroups.put(lg.id,lg);
 
         // dnlane2lanegroup
-        for (AbstractLaneGroupLongitudinal lg : lgs)
+        for (AbstractLaneGroup lg : lgs)
             for (int lane=lg.start_lane_dn;lane<lg.start_lane_dn+lg.num_lanes;lane++)                       // iterate through dn lanes
                 dnlane2lanegroup.put(lane, lg);
     }
@@ -237,7 +237,7 @@ public class Link implements InterfaceScenarioElement {
 
 //    public FlowAccumulatorSet request_flow_accumulator_set(Long commodity_id){
 //        FlowAccumulatorSet fas = new FlowAccumulatorSet();
-//        for(AbstractLaneGroupLongitudinal lg : lanegroups.values())
+//        for(AbstractLaneGroup lg : lanegroups.values())
 //            fas.add_flow_accumulator(lg.request_flow_accumulator(commodity_id));
 //        return fas;
 //    }
@@ -316,7 +316,7 @@ public class Link implements InterfaceScenarioElement {
     }
 
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
-        for(AbstractLaneGroupLongitudinal lg : long_lanegroups.values())
+        for(AbstractLaneGroup lg : long_lanegroups.values())
             lg.initialize(scenario,runParams);
         model.initialize(scenario);
 //        if(is_source && sources!=null)
@@ -387,8 +387,8 @@ public class Link implements InterfaceScenarioElement {
         return null;
     }
 
-    public Set<AbstractLaneGroupLongitudinal> get_unique_lanegroups_for_dn_lanes(int from_lane, int to_lane) {
-        Set<AbstractLaneGroupLongitudinal> x = new HashSet<>();
+    public Set<AbstractLaneGroup> get_unique_lanegroups_for_dn_lanes(int from_lane, int to_lane) {
+        Set<AbstractLaneGroup> x = new HashSet<>();
         for (int lane = from_lane; lane <= to_lane; lane++)
             x.add(get_lanegroup_for_dn_lane(lane));
         return x;
@@ -401,7 +401,7 @@ public class Link implements InterfaceScenarioElement {
         return x;
     }
 
-    public AbstractLaneGroupLongitudinal get_lanegroup_for_dn_lane(int lane){
+    public AbstractLaneGroup get_lanegroup_for_dn_lane(int lane){
         return dnlane2lanegroup.get(lane);
     }
 
@@ -417,11 +417,11 @@ public class Link implements InterfaceScenarioElement {
         return null;
     }
 
-    public AbstractLaneGroupLongitudinal get_inner_full_lanegroup(){
+    public AbstractLaneGroup get_inner_full_lanegroup(){
         return dnlane2lanegroup.get( road_geom==null || road_geom.dn_in==null ? 1 : road_geom.dn_in.lanes+1 );
     }
 
-    public AbstractLaneGroupLongitudinal get_outer_full_lanegroup(){
+    public AbstractLaneGroup get_outer_full_lanegroup(){
         return dnlane2lanegroup.get( road_geom==null || road_geom.dn_in==null ? full_lanes : road_geom.dn_in.lanes+full_lanes );
     }
 
@@ -456,7 +456,7 @@ public class Link implements InterfaceScenarioElement {
 
     public Set<RoadConnection> get_roadconnections_leaving(){
         Set<RoadConnection> rcs = new HashSet<>();
-        for(AbstractLaneGroupLongitudinal lg : long_lanegroups.values())
+        for(AbstractLaneGroup lg : long_lanegroups.values())
             rcs.addAll(lg.outlink2roadconnection.values());
         return rcs;
     }
@@ -465,7 +465,7 @@ public class Link implements InterfaceScenarioElement {
         Set<RoadConnection> rcs = new HashSet<>();
         for(Link uplink : start_node.in_links.values())
             if(uplink.outlink2lanegroups.containsKey(getId()))
-                for(AbstractLaneGroupLongitudinal lg : uplink.outlink2lanegroups.get(id) )
+                for(AbstractLaneGroup lg : uplink.outlink2lanegroups.get(id) )
                     if(lg.outlink2roadconnection.containsKey(getId()))
                         rcs.add(lg.outlink2roadconnection.get(getId()));
         return rcs;

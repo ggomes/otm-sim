@@ -1,6 +1,6 @@
 package output;
 
-import common.AbstractLaneGroupLongitudinal;
+import common.AbstractLaneGroup;
 import error.OTMException;
 import runner.Scenario;
 
@@ -30,7 +30,7 @@ public class LaneGroupVehicles extends AbstractOutputTimedLanegroup {
         if(!lgprofiles.containsKey(lg_id))
             return Double.NaN;
         else {
-            AbstractLaneGroupLongitudinal lg = lgprofiles.get(lg_id).lg;
+            AbstractLaneGroup lg = lgprofiles.get(lg_id).lg;
             return lg.vehicles_for_commodity(commodity == null ? null : commodity.getId());
         }
     }

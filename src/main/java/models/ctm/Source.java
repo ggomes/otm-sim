@@ -25,7 +25,7 @@ public class Source extends common.AbstractSource {
     public Map<Long,Map<KeyCommPathOrLink,Double>> source_flows;   // lgid->(commid,path|link-->value)
 
     // for pathfull
-    Set<AbstractLaneGroupLongitudinal> candidate_lanegroups;
+    Set<AbstractLaneGroup> candidate_lanegroups;
 
     public Source(Link link, DemandProfile profile, Commodity commodity, Path path) {
         super(link, profile, commodity, path);
@@ -58,14 +58,14 @@ public class Source extends common.AbstractSource {
         Map<Long,Map<KeyCommPathOrLink,Double>> new_source_flows = split_demand(get_value_in_veh_per_timestep());
 
         // update the lanegroup's flow_in
-        for(AbstractLaneGroupLongitudinal alg : link.long_lanegroups.values()){
+        for(AbstractLaneGroup alg : link.long_lanegroups.values()){
 
             if(!new_source_flows.containsKey(alg.id))
                 continue;
 
             Map<KeyCommPathOrLink,Double> new_values = new_source_flows.get(alg.id);
 
-            LaneGroupLong lg = (LaneGroupLong) alg;
+            LaneGroup lg = (LaneGroup) alg;
             Map<KeyCommPathOrLink,Double> old_values = source_flows==null ? null : source_flows.get(alg.id);
             Map<KeyCommPathOrLink,Double> lg_values = lg.flow_in_target.get(0);
 
@@ -94,7 +94,7 @@ public class Source extends common.AbstractSource {
         if(key.isPath){
             // assign flows to candidate lanegroups
             double demand_for_each_lg = flow_veh_per_timestep / candidate_lanegroups.size();
-            for(AbstractLaneGroupLongitudinal lg : candidate_lanegroups) {
+            for(AbstractLaneGroup lg : candidate_lanegroups) {
                 Map<KeyCommPathOrLink,Double> x = new HashMap<>();
                 x.put(key,demand_for_each_lg);
                 source_flows.put(lg.id, x);
@@ -113,7 +113,7 @@ public class Source extends common.AbstractSource {
                 Link next_link = link.end_node.out_links.values().iterator().next();
                 KeyCommPathOrLink key = new KeyCommPathOrLink(comm_id,next_link.getId(),false);
 
-                AbstractLaneGroupLongitudinal lg = link.long_lanegroups.values().iterator().next();
+                AbstractLaneGroup lg = link.long_lanegroups.values().iterator().next();
                 Map<KeyCommPathOrLink,Double> x = new HashMap<>();
                 x.put(key,flow_veh_per_timestep);
                 source_flows.put(lg.id,x);
@@ -134,12 +134,12 @@ public class Source extends common.AbstractSource {
                     continue;
 
                 // get candidate lanegroups
-                Set<AbstractLaneGroupLongitudinal> candidate_lanegroups = link.outlink2lanegroups.get(nextlink_id);
+                Set<AbstractLaneGroup> candidate_lanegroups = link.outlink2lanegroups.get(nextlink_id);
 
                 // assign flows to candidate lanegroups
                 double demand_for_each_lg = flow_veh_per_timestep * split / candidate_lanegroups.size();
 
-                for(AbstractLaneGroupLongitudinal lg : candidate_lanegroups){
+                for(AbstractLaneGroup lg : candidate_lanegroups){
                     Map<KeyCommPathOrLink,Double> x;
                     if(source_flows.containsKey(lg.id)) {
                         x = source_flows.get(lg.id);

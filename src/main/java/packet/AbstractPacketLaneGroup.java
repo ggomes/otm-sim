@@ -6,7 +6,7 @@
  */
 package packet;
 
-import common.AbstractLaneGroupLongitudinal;
+import common.AbstractLaneGroup;
 
 import java.util.Set;
 
@@ -15,14 +15,14 @@ import java.util.Set;
 public abstract class AbstractPacketLaneGroup implements InterfacePacketLaneGroup {
 
     // Vehicles should change lanes into one of these lanegroups
-    public Set<AbstractLaneGroupLongitudinal> target_lanegroups;
+    public Set<AbstractLaneGroup> target_lanegroups;
 
     public AbstractPacketLaneGroup(){}
 
-    public AbstractPacketLaneGroup(Set<AbstractLaneGroupLongitudinal> target_lanegroups, PacketLink vp, boolean in_sink) {
+    public AbstractPacketLaneGroup(Set<AbstractLaneGroup> target_lanegroups, PacketLink vp, boolean in_sink) {
     }
 
-    public AbstractPacketLaneGroup(Set<AbstractLaneGroupLongitudinal> target_lanegroups){
+    public AbstractPacketLaneGroup(Set<AbstractLaneGroup> target_lanegroups){
         this.target_lanegroups = target_lanegroups;
     }
 

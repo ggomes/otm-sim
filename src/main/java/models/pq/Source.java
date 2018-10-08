@@ -17,7 +17,6 @@ import profiles.DemandProfile;
 import runner.Scenario;
 
 import java.util.Collection;
-import java.util.Set;
 
 public class Source extends common.AbstractSource {
 
@@ -55,7 +54,7 @@ public class Source extends common.AbstractSource {
         Vehicle vehicle= new Vehicle(key,commodity.vehicle_event_listeners);
 
         // sample its next link according to commodity
-        Collection<AbstractLaneGroupLongitudinal> target_lanegroups;
+        Collection<AbstractLaneGroup> target_lanegroups;
         Long next_link_id;
         if(link.packet_splitter==null){
             next_link_id = link.end_node.out_links.values().iterator().next().getId();
@@ -78,7 +77,7 @@ public class Source extends common.AbstractSource {
         models.pq.LinkModel linkModel = (models.pq.LinkModel) target_lanegroups.iterator().next().link.model;
 
         // this map will have a single entry
-        LaneGroupLong joinlanegroup = (LaneGroupLong) linkModel.lanegroup_proportions(target_lanegroups).keySet().iterator().next();
+        LaneGroup joinlanegroup = (LaneGroup) linkModel.lanegroup_proportions(target_lanegroups).keySet().iterator().next();
 
         // move the vehicle
         vehicle.move_to_queue(timestamp,joinlanegroup.transit_queue);

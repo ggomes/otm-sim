@@ -13,7 +13,7 @@ import geometry.RoadGeometry;
 import geometry.Side;
 import models.ctm.NodeModel;
 import models.ctm.UpLaneGroup;
-import models.micro.LaneGroupLong;
+import models.micro.LaneGroup;
 import packet.PacketLink;
 import runner.RunParameters;
 import runner.Scenario;
@@ -193,13 +193,13 @@ public class Network {
             int up_in_lanes = link.road_geom!=null && link.road_geom.up_in!=null ? link.road_geom.up_in.lanes : 0;
             int dn_in_lanes = link.road_geom!=null && link.road_geom.dn_in!=null ? link.road_geom.dn_in.lanes : 0;
             int offset = dn_in_lanes-up_in_lanes;
-            for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
+            for(AbstractLaneGroup lg : link.long_lanegroups.values())
                 if(lg.side==Side.full)
                     lg.start_lane_up = lg.start_lane_dn - offset;
 
             // set neighbors
-            AbstractLaneGroupLongitudinal inner_full = link.get_inner_full_lanegroup();
-            AbstractLaneGroupLongitudinal outer_full = link.get_outer_full_lanegroup();
+            AbstractLaneGroup inner_full = link.get_inner_full_lanegroup();
+            AbstractLaneGroup outer_full = link.get_outer_full_lanegroup();
 
             // .................. lat lanegroups = {up addlane}
             if(link.lat_lanegroup_in!=null){
@@ -215,12 +215,12 @@ public class Network {
             // ................... long lanegroups = {dn addlane, full lgs}
             int num_dn_lanes = link.get_num_dn_lanes();
             if(num_dn_lanes>1) {
-                List<AbstractLaneGroupLongitudinal> long_lgs = IntStream.rangeClosed(1, link.get_num_dn_lanes())
+                List<AbstractLaneGroup> long_lgs = IntStream.rangeClosed(1, link.get_num_dn_lanes())
                         .mapToObj(lane -> link.dnlane2lanegroup.get(lane)).collect(toList());
-                AbstractLaneGroupLongitudinal prev_lg = null;
+                AbstractLaneGroup prev_lg = null;
                 for (int lane = 1; lane <= num_dn_lanes; lane++) {
 
-                    AbstractLaneGroupLongitudinal lg = long_lgs.get(lane - 1);
+                    AbstractLaneGroup lg = long_lgs.get(lane - 1);
                     if (prev_lg == null)
                         prev_lg = lg;
                     if (lg != prev_lg) {
@@ -232,7 +232,7 @@ public class Network {
 
                 prev_lg = null;
                 for(int lane=num_dn_lanes;lane>=1;lane--){
-                    AbstractLaneGroupLongitudinal lg = long_lgs.get(lane-1);
+                    AbstractLaneGroup lg = long_lgs.get(lane-1);
                     if(prev_lg==null)
                         prev_lg = lg;
                     if(lg!=prev_lg) {
@@ -271,7 +271,7 @@ public class Network {
             link.outlink2lanegroups = new HashMap<>();
             for(Long outlink_id : link.end_node.out_links.keySet()) {
                 // lane groups that connect to outlink_id
-                Set<AbstractLaneGroupLongitudinal> connected_lgs = link.long_lanegroups.values().stream()
+                Set<AbstractLaneGroup> connected_lgs = link.long_lanegroups.values().stream()
                                                                         .filter(lg -> lg.link_is_link_reachable(outlink_id)).collect(toSet());
                 if(!connected_lgs.isEmpty())
                     link.outlink2lanegroups.put(outlink_id,connected_lgs);
@@ -440,20 +440,20 @@ public class Network {
 
     }
 
-    private Set<AbstractLaneGroupLongitudinal> create_long_lanegroups(Link link,Set<RoadConnection> out_rcs) throws OTMException {
+    private Set<AbstractLaneGroup> create_long_lanegroups(Link link,Set<RoadConnection> out_rcs) throws OTMException {
 
-        Set<AbstractLaneGroupLongitudinal> lanegroups = new HashSet<>();
+        Set<AbstractLaneGroup> lanegroups = new HashSet<>();
 
-        // empty out_rc -> sink
+        // empty out_rc => sink
         if(out_rcs.isEmpty()){
             assert(link.is_sink);
-            lanegroups.add(create_long_lane_group(link,1, link.full_lanes, null,null));
+            lanegroups.add(create_long_lane_group(link,1, link.full_lanes, null));
             return lanegroups;
         }
 
         // faster code for singleton
         if(out_rcs.size()==1) {
-            lanegroups.add(create_long_lane_group(link, 1, link.full_lanes, out_rcs, null));
+            lanegroups.add(create_long_lane_group(link, 1, link.full_lanes, out_rcs));
             return lanegroups;
         }
 
@@ -477,24 +477,19 @@ public class Network {
 
         // create a lane group for each unique_rc_sets
         for(Set<RoadConnection> my_rcs : unique_rc_sets) {
-
             Set<Integer> lg_lanes = dnlane2rcs.entrySet().stream()
                     .filter(entry -> entry.getValue().equals(my_rcs))
                     .map(entry->entry.getKey())
                     .collect(Collectors.toSet());
-
             int dn_start_lane = lg_lanes.stream().mapToInt(x->x).min().getAsInt();
             int num_lanes = lg_lanes.size();
-
-            lanegroups.add(create_long_lane_group(link, dn_start_lane, num_lanes, my_rcs, dnlane2rcs));
-
+            lanegroups.add(create_long_lane_group(link, dn_start_lane, num_lanes, my_rcs));
         }
-
 
         return lanegroups;
     }
 
-    private AbstractLaneGroupLongitudinal create_long_lane_group(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs, Map<Integer,Set<RoadConnection>> lane2rcs) throws OTMException {
+    private AbstractLaneGroup create_long_lane_group(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
 
         // Determine whether it is an addlane lanegroup or a full lane group.
         Set<Side> sides = new HashSet<>();
@@ -518,20 +513,20 @@ public class Network {
                 break;
         }
 
-        AbstractLaneGroupLongitudinal lg = null;
+        AbstractLaneGroup lg = null;
         switch(link.model_type){
             case ctm:
             case mn:
-                lg = new models.ctm.LaneGroupLong(link,side,length,num_lanes,dn_start_lane,out_rcs);
+                lg = new models.ctm.LaneGroup(link,side,length,num_lanes,dn_start_lane,out_rcs);
                 break;
             case pq:
-                lg = new models.pq.LaneGroupLong(link,side,length,num_lanes,dn_start_lane,out_rcs);
+                lg = new models.pq.LaneGroup(link,side,length,num_lanes,dn_start_lane,out_rcs);
                 break;
             case micro:
-                lg = new LaneGroupLong(link,side,length,num_lanes,dn_start_lane,out_rcs);
+                lg = new LaneGroup(link,side,length,num_lanes,dn_start_lane,out_rcs);
                 break;
             case none:
-                lg = new models.none.LaneGroupLong(link,side,length,num_lanes,dn_start_lane,out_rcs);
+                lg = new models.none.LaneGroup(link,side,length,num_lanes,dn_start_lane,out_rcs);
                 break;
         }
         return lg;
@@ -551,35 +546,31 @@ public class Network {
 
     }
 
-    private AbstractLaneGroupLateral create_lat_lane_group(Link link,AddLanes addlanes) throws OTMException {
-
-
+    private AbstractLaneGroup create_lat_lane_group(Link link,AddLanes addlanes) throws OTMException {
         float length = addlanes.length;
         int num_lanes = addlanes.lanes;
         Side side = addlanes.side;
         int start_lane = side==Side.in ? 1 : link.get_num_up_lanes() - addlanes.lanes + 1;
 
-        AbstractLaneGroupLateral lg = null;
+        AbstractLaneGroup lg = null;
         switch(link.model_type){
             case ctm:
             case mn:
-                lg = new models.ctm.LaneGroupLat(link,side,length,num_lanes,start_lane);
+                lg = new models.ctm.LaneGroup(link,side,length,num_lanes,start_lane,null);
                 break;
             case pq:
-                lg = new models.pq.LaneGroupLat(link,side,length,num_lanes,start_lane);
+                lg = new models.pq.LaneGroup(link,side,length,num_lanes,start_lane,null);
                 break;
             case micro:
-                lg = new models.micro.LaneGroupLat(link,side,length,num_lanes,start_lane);
+                lg = new models.micro.LaneGroup(link,side,length,num_lanes,start_lane,null);
                 break;
             case none:
-                lg = new models.none.LaneGroupLat(link,side,length,num_lanes,start_lane);
+                lg = new models.none.LaneGroup(link,side,length,num_lanes,start_lane,null);
                 break;
         }
         return lg;
-
-
-
     }
+
     // ***********************************************************
 
     ///////////////////////////////////////////
@@ -640,7 +631,7 @@ public class Network {
         this.road_connections = rcs;
     }
 
-    public Set<AbstractLaneGroupLongitudinal> get_lanegroups(){
+    public Set<AbstractLaneGroup> get_lanegroups(){
         return links.values().stream().flatMap(link->link.long_lanegroups.values().stream()).collect(toSet());
     }
 

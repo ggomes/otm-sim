@@ -13,7 +13,6 @@ import utils.OTMUtils;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class LinkModel extends AbstractLinkModel {
 
@@ -52,8 +51,8 @@ public class LinkModel extends AbstractLinkModel {
                 link.length/cells_per_lanegroup;
 
         // create cells
-        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
-            ((LaneGroupLong)lg).create_cells(cells_per_lanegroup,cell_length_meters);
+        for(AbstractLaneGroup lg : link.long_lanegroups.values())
+            ((LaneGroup)lg).create_cells(cells_per_lanegroup,cell_length_meters);
     }
 
     ////////////////////////////////////////////
@@ -79,9 +78,9 @@ public class LinkModel extends AbstractLinkModel {
         float jam_density_vehperlane = r.getJamDensity() * cell_length_meters / 1000f;
         float ffspeed_veh = 1000f * r.getSpeed()*dt_hr / cell_length_meters;
 
-        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values()) {
+        for(AbstractLaneGroup lg : link.long_lanegroups.values()) {
             lg.set_road_params(r);
-            ((LaneGroupLong) lg).cells.forEach(c -> c.set_road_params(capacity_vehperlane, jam_density_vehperlane, ffspeed_veh));
+            ((LaneGroup) lg).cells.forEach(c -> c.set_road_params(capacity_vehperlane, jam_density_vehperlane, ffspeed_veh));
         }
 
         ff_travel_time_sec = 3.6f * link.length / r.getSpeed();
@@ -101,8 +100,8 @@ public class LinkModel extends AbstractLinkModel {
 
     @Override
     public void reset() {
-        for(AbstractLaneGroupLongitudinal alg : link.long_lanegroups.values()){
-            LaneGroupLong lg = (LaneGroupLong) alg;
+        for(AbstractLaneGroup alg : link.long_lanegroups.values()){
+            LaneGroup lg = (LaneGroup) alg;
             lg.cells.forEach(x->x.reset());
             lg.flow_notin_target = null;
             lg.flow_notin_target = null;
@@ -134,16 +133,16 @@ public class LinkModel extends AbstractLinkModel {
 
     // call update_supply_demand on each cell
     public void update_lane_changes() {
-        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values()) {
-            LaneGroupLong ctmlg = (LaneGroupLong) lg;
+        for(AbstractLaneGroup lg : link.long_lanegroups.values()) {
+            LaneGroup ctmlg = (LaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_lane_change_flow());
         }
     }
 
     public void intermediate_state_update(){
-        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values()) {
-            LaneGroupLong ctmlg = (LaneGroupLong) lg;
+        for(AbstractLaneGroup lg : link.long_lanegroups.values()) {
+            LaneGroup ctmlg = (LaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.intermediate_state_update());
         }
@@ -151,21 +150,21 @@ public class LinkModel extends AbstractLinkModel {
 
     // call update_supply_demand on each cell
     public void update_supply_demand() {
-        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values()) {
-            LaneGroupLong ctmlg = (LaneGroupLong) lg;
+        for(AbstractLaneGroup lg : link.long_lanegroups.values()) {
+            LaneGroup ctmlg = (LaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_supply_demand());
         }
     }
 
     public void update_cell_boundary_flows() {
-        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
-            ((LaneGroupLong) lg).update_cell_boundary_flows();
+        for(AbstractLaneGroup lg : link.long_lanegroups.values())
+            ((LaneGroup) lg).update_cell_boundary_flows();
     }
 
     public void update_state(float timestamp) {
-        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
-            ((LaneGroupLong) lg).update_state(timestamp);
+        for(AbstractLaneGroup lg : link.long_lanegroups.values())
+            ((LaneGroup) lg).update_state(timestamp);
     }
 
 //    ////////////////////////////////////////////

@@ -46,7 +46,7 @@ public abstract class AbstractLinkModel {
 
         if(comm.pathfull) {
             KeyCommPathOrLink state = new KeyCommPathOrLink(comm.getId(), subnet.getId(), true);
-            for (AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
+            for (AbstractLaneGroup lg : link.long_lanegroups.values())
                 lg.add_key(state);
         }
 
@@ -55,13 +55,13 @@ public abstract class AbstractLinkModel {
             // for pathless/sink, next link id is same as this id
             if (link.is_sink) {
                 KeyCommPathOrLink state = new KeyCommPathOrLink(comm.getId(), link.getId(), false);
-                for (AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
+                for (AbstractLaneGroup lg : link.long_lanegroups.values())
                     lg.add_key(state);
 
             } else {
 
                 // for pathless non-sink, add a state for each next link in the subnetwork
-                for (AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values()) {
+                for (AbstractLaneGroup lg : link.long_lanegroups.values()) {
                     for (Long next_link_id : lg.get_dwn_links())
                         if (subnet.has_link_id(next_link_id))
                             lg.add_key(new KeyCommPathOrLink(comm.getId(), next_link_id, false));
@@ -74,7 +74,7 @@ public abstract class AbstractLinkModel {
 
     public void initialize(Scenario scenario) throws OTMException {
         // allocate state for each lanegroup in this link
-        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values() ){
+        for(AbstractLaneGroup lg : link.long_lanegroups.values() ){
             lg.allocate_state();
         }
     }
@@ -127,7 +127,7 @@ public abstract class AbstractLinkModel {
             // candidates lanegroups are those where the packet has arrived
             // intersected with those that can reach the outlink
             // TODO: This can be removed if there is a model for "changing lanes" to another lanegroup
-//            Set<AbstractLaneGroupLongitudinal> candidate_lanegroups = OTMUtils.intersect( vp.arrive_to_lanegroups , split_packet.target_lanegroups );
+//            Set<AbstractLaneGroup> candidate_lanegroups = OTMUtils.intersect( vp.arrive_to_lanegroups , split_packet.target_lanegroups );
             Set<AbstractLaneGroup> candidate_lanegroups = vp.arrive_to_lanegroups;
 
 //            if(candidate_lanegroups.isEmpty()) {
@@ -186,11 +186,11 @@ public abstract class AbstractLinkModel {
     // private
     //////////////////////////////////////////////////////////////
 
-//    private AbstractLaneGroupLongitudinal choose_closest_that_is_not_full(Set<AbstractLaneGroupLongitudinal> arrive_to_lanegroups,Set<AbstractLaneGroupLongitudinal> candidate_lanegroups,Set<AbstractLaneGroupLongitudinal> target_lanegroups) throws OTMException {
+//    private AbstractLaneGroup choose_closest_that_is_not_full(Set<AbstractLaneGroup> arrive_to_lanegroups,Set<AbstractLaneGroup> candidate_lanegroups,Set<AbstractLaneGroupLongitudinal> target_lanegroups) throws OTMException {
 //
 //        // these will be selected from among the lanegroups that do not directly connect to
 //        // the output link.
-//        List<AbstractLaneGroupLongitudinal> second_best_candidates = new ArrayList(OTMUtils.setminus(arrive_to_lanegroups,candidate_lanegroups));
+//        List<AbstractLaneGroup> second_best_candidates = new ArrayList(OTMUtils.setminus(arrive_to_lanegroups,candidate_lanegroups));
 //
 //        // this should not be empty. Otherwise the assumption that the link was checked for space is vuilated.
 //        if(second_best_candidates.isEmpty())
@@ -220,7 +220,7 @@ public abstract class AbstractLinkModel {
 //        return second_best_candidates.get(index);
 //    }
 
-//    private void add_lane_change_request(float timestamp, AbstractPacketLaneGroup packet, AbstractLaneGroupLongitudinal from_lanegroup, Set<AbstractLaneGroupLongitudinal> to_lanegroups, Queue.Type queue_type) throws OTMException{
+//    private void add_lane_change_request(float timestamp, AbstractPacketLaneGroup packet, AbstractLaneGroup from_lanegroup, Set<AbstractLaneGroup> to_lanegroups, Queue.Type queue_type) throws OTMException{
 //
 //        // the packet should contain a single models.ctm.pq vehicle
 //        if(packet.vehicles.isEmpty() || packet.vehicles.size()!=1)
@@ -244,7 +244,7 @@ public abstract class AbstractLinkModel {
 //        }
 //
 //        // create the request and add it to the destination lanegroup
-//        for(AbstractLaneGroupLongitudinal lg : to_lanegroups) {
+//        for(AbstractLaneGroup lg : to_lanegroups) {
 //            Queue to_queue = null;
 //            switch(queue_type){
 //                case transit:

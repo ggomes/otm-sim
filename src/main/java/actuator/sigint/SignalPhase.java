@@ -207,7 +207,7 @@ public class SignalPhase {
 
         // record the queue at beginning of green
         //if(to_color==GREEN)
-        //for(AbstractLaneGroupLongitudinal lanegroup : lanegroups)
+        //for(AbstractLaneGroup lanegroup : lanegroups)
         //    lanegroup_vehiclesAtToGreen.put(lanegroup.id, lanegroup.get_total_vehicles());
 
         // send to lane groups

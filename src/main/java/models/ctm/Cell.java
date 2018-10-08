@@ -6,19 +6,17 @@
  */
 package models.ctm;
 
-import common.AbstractLaneGroupLongitudinal;
 import error.OTMErrorLog;
 import keys.KeyCommPathOrLink;
 import utils.OTMUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class Cell {
 
     public LinkModel model;
-    private LaneGroupLong laneGroup;
+    private LaneGroup laneGroup;
 
     public Cell neighbor;
 
@@ -48,7 +46,7 @@ public class Cell {
     // construction
     ///////////////////////////////////////////////////
 
-    public Cell(LinkModel model, double length_in_meters, LaneGroupLong laneGroup) {
+    public Cell(LinkModel model, double length_in_meters, LaneGroup laneGroup) {
         this.am_upstrm = false;
         this.am_dnstrm = false;
         this.model = model;

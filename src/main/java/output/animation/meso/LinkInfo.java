@@ -6,7 +6,7 @@
  */
 package output.animation.meso;
 
-import common.AbstractLaneGroupLongitudinal;
+import common.AbstractLaneGroup;
 import common.Link;
 import output.animation.AbstractLaneGroupInfo;
 import output.animation.AbstractLinkInfo;
@@ -18,7 +18,7 @@ public class LinkInfo extends AbstractLinkInfo {
     }
 
     @Override
-    public AbstractLaneGroupInfo newLaneGroupInfo(AbstractLaneGroupLongitudinal lg) {
+    public AbstractLaneGroupInfo newLaneGroupInfo(AbstractLaneGroup lg) {
         return null;
     }
 }

@@ -21,7 +21,7 @@ import utils.OTMUtils;
 
 import java.util.*;
 
-public class LaneGroupLong extends AbstractLaneGroupLongitudinal {
+public class LaneGroup extends AbstractLaneGroup {
 
     public double cell_length_meters;
 
@@ -37,7 +37,7 @@ public class LaneGroupLong extends AbstractLaneGroupLongitudinal {
     // construction
     ///////////////////////////////////////////
 
-    public LaneGroupLong(Link link, Side side,float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+    public LaneGroup(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side,length, num_lanes, start_lane, out_rcs);
     }
 
@@ -101,7 +101,7 @@ public class LaneGroupLong extends AbstractLaneGroupLongitudinal {
 
             // tell cells who are their neighbors
             // TODO DO THIS AGAIN.
-//            LaneGroupLong neighbor_lg = (LaneGroupLong) neighbors.iterator().next();
+//            LaneGroup neighbor_lg = (LaneGroup) neighbors.iterator().next();
 //            for(int i=0;i<cells.size();i++)
 //                cells.get(i).neighbor = neighbor_lg.cells.get(i);
         }

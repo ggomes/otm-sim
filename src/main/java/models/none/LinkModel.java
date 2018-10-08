@@ -7,7 +7,6 @@
 package models.none;
 
 import common.AbstractLaneGroup;
-import common.AbstractLaneGroupLongitudinal;
 import common.AbstractLinkModel;
 import common.Link;
 import packet.PacketLink;

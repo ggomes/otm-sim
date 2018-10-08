@@ -7,7 +7,7 @@
 package dispatch;
 
 import error.OTMException;
-import models.pq.LaneGroupLong;
+import models.pq.LaneGroup;
 import models.pq.Vehicle;
 
 public class EventTransitToWaiting extends AbstractEvent {
@@ -20,7 +20,7 @@ public class EventTransitToWaiting extends AbstractEvent {
     public void action(boolean verbose) throws OTMException {
         super.action(verbose);
         Vehicle vehicle = (Vehicle)recipient;
-        LaneGroupLong lanegroup = (LaneGroupLong) vehicle.get_lanegroup();
+        LaneGroup lanegroup = (LaneGroup) vehicle.get_lanegroup();
         if(verbose)
             System.out.println(String.format("\tvehicle %d, link %d, lanegroup %d",vehicle.getId(),lanegroup.link.getId(),lanegroup.id));
 

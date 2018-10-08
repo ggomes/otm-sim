@@ -7,7 +7,6 @@
 package models.ctm;
 
 import common.AbstractLaneGroup;
-import common.AbstractLaneGroupLongitudinal;
 import common.Link;
 import common.Node;
 import error.OTMErrorLog;
@@ -55,11 +54,11 @@ public class NodeModel {
 
             // there is only one upstream lanegroup
             assert(up_link.long_lanegroups.size()==1);
-            LaneGroupLong up_lanegroup = (LaneGroupLong) up_link.long_lanegroups.values().iterator().next();
+            LaneGroup up_lanegroup = (LaneGroup) up_link.long_lanegroups.values().iterator().next();
 
             // there is only one dnstream lanegroup
             assert(dn_link.long_lanegroups.size()==1);
-            LaneGroupLong dn_lanegroup = (LaneGroupLong) dn_link.long_lanegroups.values().iterator().next();
+            LaneGroup dn_lanegroup = (LaneGroup) dn_link.long_lanegroups.values().iterator().next();
 
             // add a fictitious road connection with id 0
             RoadConnection rc = new RoadConnection(0L,null);
@@ -102,10 +101,10 @@ public class NodeModel {
             rcs.put(xrc.getId(),rc);
 
             // go through its upstream lanegroups
-            for (AbstractLaneGroupLongitudinal xup_lg : xrc.in_lanegroups) {
+            for (AbstractLaneGroup xup_lg : xrc.in_lanegroups) {
                 UpLaneGroup ulg;
                 if (!up_lgs_map.containsKey(xup_lg.id)) {
-                    ulg = new UpLaneGroup((LaneGroupLong) xup_lg);
+                    ulg = new UpLaneGroup((LaneGroup) xup_lg);
                     up_lgs_map.put(xup_lg.id, ulg);
                 } else
                     ulg = up_lgs_map.get(xup_lg.id);

@@ -31,7 +31,7 @@ public class LinkModel extends AbstractLinkModel {
     @Override
     public void set_road_param(jaxb.Roadparam r, float sim_dt_sec) {
         // send parameters to lane groups
-        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
+        for(AbstractLaneGroup lg : link.long_lanegroups.values())
             lg.set_road_params(r);
     }
 
@@ -53,8 +53,8 @@ public class LinkModel extends AbstractLinkModel {
 
         // returns the maximum of the transit times of all of the lanegroup
         float s = 0f;
-        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values() )
-            s = Math.max( s , ((LaneGroupLong)lg).transit_time_sec );
+        for(AbstractLaneGroup lg : link.long_lanegroups.values() )
+            s = Math.max( s , ((LaneGroup)lg).transit_time_sec );
         return s;
     }
 
@@ -62,8 +62,8 @@ public class LinkModel extends AbstractLinkModel {
     public float get_capacity_vps(){
         // return s the sum of the capacities of all of the lanegroups
         float s = 0f;
-        for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values() )
-            s += ((LaneGroupLong)lg).saturation_flow_rate_vps;
+        for(AbstractLaneGroup lg : link.long_lanegroups.values() )
+            s += ((LaneGroup)lg).saturation_flow_rate_vps;
         return s;
     }
 
@@ -106,7 +106,7 @@ public class LinkModel extends AbstractLinkModel {
 //                AbstractPacketLaneGroup vplg = (AbstractPacketLaneGroup) myPacketClass.newInstance();
 //                vplg.target_lanegroups = null;
 //                vplg.add_link_packet(vp,true);
-//                AbstractLaneGroupLongitudinal join_lanegroup = vp.arrive_to_lanegroups.iterator().next();
+//                AbstractLaneGroup join_lanegroup = vp.arrive_to_lanegroups.iterator().next();
 //                join_lanegroup.add_native_vehicle_packet(timestamp,vplg);
 //            } catch (InstantiationException e) {
 //                e.printStackTrace();
@@ -141,7 +141,7 @@ public class LinkModel extends AbstractLinkModel {
 //            // candidates lanegroups are those where the packet has arrived
 //            // intersected with those that can reach the outlink
 //            // This can be removed if there is a model for "changing lanes" to another lanegroup
-//            Set<AbstractLaneGroupLongitudinal> candidate_lanegroups = OTMUtils.intersect( vp.arrive_to_lanegroups , lanegroup_packet.target_lanegroups );
+//            Set<AbstractLaneGroup> candidate_lanegroups = OTMUtils.intersect( vp.arrive_to_lanegroups , lanegroup_packet.target_lanegroups );
 //
 //            if(candidate_lanegroups.isEmpty()) {
 //                // in this case the vehicle has arrived to lanegroups for which there is
@@ -156,7 +156,7 @@ public class LinkModel extends AbstractLinkModel {
 //            }
 //
 //            // choose the best one
-//            AbstractLaneGroupLongitudinal join_lanegroup = AbstractLaneGroupLongitudinal.choose_best_lanegroup(candidate_lanegroups);
+//            AbstractLaneGroup join_lanegroup = AbstractLaneGroup.choose_best_lanegroup(candidate_lanegroups);
 //
 //            // if all candidates are full, then choose one that is closest and not full
 //            if(join_lanegroup==null) {
@@ -187,8 +187,8 @@ public class LinkModel extends AbstractLinkModel {
         x.requester.move_to_queue(timestamp,x.to_queue);
 
         // remove all of its requests by this vehicle in this link
-        for (AbstractLaneGroupLongitudinal lanegroup : link.long_lanegroups.values()) {
-            LaneGroupLong lg = (LaneGroupLong) lanegroup;
+        for (AbstractLaneGroup lanegroup : link.long_lanegroups.values()) {
+            LaneGroup lg = (LaneGroup) lanegroup;
             lg.transit_queue.remove_lane_change_requests_for_vehicle(x.requester);
             lg.waiting_queue.remove_lane_change_requests_for_vehicle(x.requester);
         }

@@ -7,7 +7,7 @@
 package dispatch;
 
 import error.OTMException;
-import models.pq.LaneGroupLong;
+import models.pq.LaneGroup;
 
 public class EventReleaseVehicleFromLaneGroup extends AbstractEvent {
 
@@ -18,7 +18,7 @@ public class EventReleaseVehicleFromLaneGroup extends AbstractEvent {
         // add dispatch to vehicle release map if the lanegroup is actuated
         // NOTE: OTHER CONDITIONS FOR CHANGING SATURATION FLOW INCLUDE INCIDENTS
         // WE WILL NEED TO ACCOUNT FOR THIS
-//        AbstractLaneGroupLongitudinal lanegroup = (AbstractLaneGroupLongitudinal)obj;
+//        AbstractLaneGroup lanegroup = (AbstractLaneGroup)obj;
 //        if( lanegroup.actuator!=null ){
 //            Set<EventReleaseVehicleFromLaneGroup> set;
 //            if( dispatcher.vehicle_release_events.containsKey(lanegroup.id) ){
@@ -35,7 +35,7 @@ public class EventReleaseVehicleFromLaneGroup extends AbstractEvent {
     @Override
     public void action(boolean verbose) throws OTMException {
         super.action(verbose);
-        ((LaneGroupLong) recipient).release_vehicle_packets(timestamp);
+        ((LaneGroup) recipient).release_vehicle_packets(timestamp);
     }
 
 }

@@ -6,12 +6,9 @@
  */
 package api.info;
 
-import common.AbstractLaneGroupLongitudinal;
+import common.AbstractLaneGroup;
 
 import java.util.*;
-import java.util.stream.IntStream;
-
-import static java.util.stream.Collectors.toList;
 
 public class LaneGroupInfo {
 
@@ -31,14 +28,14 @@ public class LaneGroupInfo {
     /** Id for an actuator on this lane group. */
     public Long actuator_id;
 
-    public LaneGroupInfo(AbstractLaneGroupLongitudinal x){
+    public LaneGroupInfo(AbstractLaneGroup x){
         this.id = x.id;
         this.length = x.length;
         this.max_vehicles = x.max_vehicles;
         this.lanes = x.get_dn_lanes();
         this.actuator_id = x.actuator==null ? null : x.actuator.id;
 //        for(Map.Entry e : x.outlink2roadconnection.entrySet()){
-//            Set<AbstractLaneGroupLongitudinal> nextlanegroups = (Set<AbstractLaneGroupLongitudinal>) e.getValue();
+//            Set<AbstractLaneGroup> nextlanegroups = (Set<AbstractLaneGroup>) e.getValue();
 //            List<MacroLaneGroupInfo> s = new ArrayList<>();
 //            nextlanegroups.forEach( nlg -> s.add(new MacroLaneGroupInfo(nlg)));
 //            outlink2nextlanegroups.put((Long) e.getKey(),s);

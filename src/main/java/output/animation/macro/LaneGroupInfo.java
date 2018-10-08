@@ -6,9 +6,9 @@
  */
 package output.animation.macro;
 
-import common.AbstractLaneGroupLongitudinal;
+import common.AbstractLaneGroup;
 import keys.KeyCommPathOrLink;
-import models.ctm.LaneGroupLong;
+import models.ctm.LaneGroup;
 import output.animation.AbstractLaneGroupInfo;
 
 import java.util.ArrayList;
@@ -24,10 +24,10 @@ public class LaneGroupInfo extends AbstractLaneGroupInfo {
     // contsruction
     //////////////////////////////////////////////////
 
-    public LaneGroupInfo(AbstractLaneGroupLongitudinal lg) {
+    public LaneGroupInfo(AbstractLaneGroup lg) {
         super(lg);
 
-        LaneGroupLong ctm_lg = (LaneGroupLong) lg;
+        LaneGroup ctm_lg = (LaneGroup) lg;
         this.cell_info = new ArrayList<>();
         for(int i=0;i<ctm_lg.cells.size();i++)
             cell_info.add(new CellInfo(ctm_lg.cells.get(i),i));

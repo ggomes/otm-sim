@@ -6,7 +6,7 @@
  */
 package output;
 
-import common.AbstractLaneGroupLongitudinal;
+import common.AbstractLaneGroup;
 import common.Link;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -38,7 +38,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
             if(!scenario.network.links.containsKey(link_id))
                 continue;
             Link link = scenario.network.links.get(link_id);
-            for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values()){
+            for(AbstractLaneGroup lg : link.long_lanegroups.values()){
                 ordered_ids.add(lg.id);
                 lgprofiles.put(lg.id, new LaneGroupProfile(lg));
             }
@@ -65,7 +65,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
                     String subfilename = filename.substring(0,filename.length()-4);
                     Writer lanegroups_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_lanegroups.txt"));
                     for(LaneGroupProfile lgprof: lgprofiles.values()){
-                        AbstractLaneGroupLongitudinal lg = lgprof.lg;
+                        AbstractLaneGroup lg = lgprof.lg;
                         lanegroups_writer.write(lg.id+" "+lg.link.getId() + " " + lg.start_lane_dn+ " " + (lg.start_lane_dn+lg.num_lanes-1) +"\n"); // start/end dn lanes
                     }
                     lanegroups_writer.close();
@@ -96,7 +96,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
             return null;
 
         Map<Long,Profile1D> profiles = new HashMap<>();
-        for(AbstractLaneGroupLongitudinal lg : scenario.network.links.get(link_id).long_lanegroups.values())
+        for(AbstractLaneGroup lg : scenario.network.links.get(link_id).long_lanegroups.values())
             if(lgprofiles.containsKey(lg.id))
                 profiles.put(lg.id,lgprofiles.get(lg.id).profile);
 
@@ -136,9 +136,9 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
     //////////////////////////////////////////////////////
 
     public class LaneGroupProfile {
-        public AbstractLaneGroupLongitudinal lg;
+        public AbstractLaneGroup lg;
         public Profile1D profile;
-        public LaneGroupProfile(AbstractLaneGroupLongitudinal lg){
+        public LaneGroupProfile(AbstractLaneGroup lg){
             this.lg = lg;
         }
         public void initialize(float outDt){

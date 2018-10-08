@@ -44,7 +44,7 @@ public class UpLaneGroup {
         }
     }
 
-    public LaneGroupLong lg;
+    public LaneGroup lg;
 
     public boolean is_empty_or_blocked;
     public double gamma_i;
@@ -56,7 +56,7 @@ public class UpLaneGroup {
     // construction
     ////////////////////////////////////////////
 
-    public UpLaneGroup(LaneGroupLong lg){
+    public UpLaneGroup(LaneGroup lg){
         this.lg = lg;
         this.is_empty_or_blocked = false;
         this.gamma_i = Double.NaN;

@@ -89,7 +89,7 @@ public class Path extends Subnetwork {
     }
 
     // Returns null if it is a sink or a x-to-one case with no road connections defined
-    public RoadConnection get_roadconn_following(AbstractLaneGroupLongitudinal lg){
+    public RoadConnection get_roadconn_following(AbstractLaneGroup lg){
         if(lg==null)
             return null;
         Link next_link = get_link_following(lg.link);

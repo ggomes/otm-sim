@@ -28,7 +28,7 @@ import utils.OTMUtils;
 
 import java.util.*;
 
-public class LaneGroupLong extends AbstractLaneGroupLongitudinal {
+public class LaneGroup extends AbstractLaneGroup {
 
     public models.pq.Queue transit_queue;
     public models.pq.Queue waiting_queue;
@@ -50,7 +50,7 @@ public class LaneGroupLong extends AbstractLaneGroupLongitudinal {
     // construction
     ///////////////////////////////////////////
 
-    public LaneGroupLong(Link link, Side side,float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
+    public LaneGroup(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
         super(link, side,length, num_lanes, start_lane, out_rcs);
         this.transit_queue = new models.pq.Queue(this, models.pq.Queue.Type.transit);
         this.waiting_queue = new models.pq.Queue(this, models.pq.Queue.Type.waiting);

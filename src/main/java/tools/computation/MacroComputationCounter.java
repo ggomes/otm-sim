@@ -6,13 +6,10 @@
  */
 package tools.computation;
 
-import common.AbstractLaneGroupLongitudinal;
-import common.Link;
-import common.Node;
-import common.RoadConnection;
+import common.*;
 import error.OTMException;
 import keys.KeyCommPathOrLink;
-import models.ctm.LaneGroupLong;
+import models.ctm.LaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
 
@@ -327,9 +324,9 @@ public class MacroComputationCounter {
         int num_cells = 0;  // number of cells in the link
 
         public LinkInfoForComputation(Link link){
-            for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
-                if(lg instanceof LaneGroupLong){
-                    LaneGroupLong ctm_lg = (LaneGroupLong) lg;
+            for(AbstractLaneGroup lg : link.long_lanegroups.values())
+                if(lg instanceof LaneGroup){
+                    LaneGroup ctm_lg = (LaneGroup) lg;
                     nSi += ctm_lg.cells.size() * ctm_lg.states.size();
                     num_cells += ctm_lg.cells.size();
                 } else {
@@ -352,7 +349,7 @@ public class MacroComputationCounter {
             // ulgs lane groups
             up_lgs = new HashSet<>();
             for(Link link : x.in_links.values())
-                for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
+                for(AbstractLaneGroup lg : link.long_lanegroups.values())
                     up_lgs.add(new UpLaneGroupInfo(lg));
 
             // road connections
@@ -363,7 +360,7 @@ public class MacroComputationCounter {
             // dlgs lane groups
             dn_lgs = new HashSet<>();
             for(Link link : x.out_links.values())
-                for(AbstractLaneGroupLongitudinal lg : link.long_lanegroups.values())
+                for(AbstractLaneGroup lg : link.long_lanegroups.values())
                     dn_lgs.add(new DnLaneGroupInfo(lg));
 
             // states for road connections
@@ -391,9 +388,9 @@ public class MacroComputationCounter {
         // number of downstream road connections
         public int nDi;
 
-        public UpLaneGroupInfo(AbstractLaneGroupLongitudinal lg) {
-            if(lg instanceof LaneGroupLong){
-                LaneGroupLong ctm_lg = (LaneGroupLong) lg;
+        public UpLaneGroupInfo(AbstractLaneGroup lg) {
+            if(lg instanceof LaneGroup){
+                LaneGroup ctm_lg = (LaneGroup) lg;
                 this.nSi = ctm_lg.states.size();
                 if(nSi ==0) {
                     nDi = 0;
@@ -438,9 +435,9 @@ public class MacroComputationCounter {
         // number of states
         public int nSj;
 
-        public DnLaneGroupInfo(AbstractLaneGroupLongitudinal lg){
-            if(lg instanceof LaneGroupLong){
-                LaneGroupLong ctm_lg = (LaneGroupLong) lg;
+        public DnLaneGroupInfo(AbstractLaneGroup lg){
+            if(lg instanceof LaneGroup){
+                LaneGroup ctm_lg = (LaneGroup) lg;
                 this.nSj = ctm_lg.states.size();
                 if(this.nSj ==0)
                     return;

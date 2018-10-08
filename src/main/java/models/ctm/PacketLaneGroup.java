@@ -6,7 +6,7 @@
  */
 package models.ctm;
 
-import common.AbstractLaneGroupLongitudinal;
+import common.AbstractLaneGroup;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
 import packet.AbstractPacketLaneGroup;
@@ -22,7 +22,7 @@ public class PacketLaneGroup extends AbstractPacketLaneGroup {
 
     public PacketLaneGroup(){}
 
-    public PacketLaneGroup(Set<AbstractLaneGroupLongitudinal> target_lanegroups){
+    public PacketLaneGroup(Set<AbstractLaneGroup> target_lanegroups){
         super(target_lanegroups);
     }
 
