@@ -20,7 +20,10 @@ public class PacketLaneGroup extends AbstractPacketLaneGroup {
 
     public Map<KeyCommPathOrLink,Double> state2vehicles = new HashMap<>();
 
-    public PacketLaneGroup(){}
+    // used by newInstance
+    public PacketLaneGroup(){
+        super();
+    }
 
     public PacketLaneGroup(Set<AbstractLaneGroup> target_lanegroups){
         super(target_lanegroups);

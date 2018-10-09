@@ -216,7 +216,6 @@ public class NodeModel {
 
         }
 
-
     }
 
     private void step2(){
@@ -284,9 +283,6 @@ public class NodeModel {
 
                 }
             }
-
-
-
         }
 
     }
@@ -314,8 +310,7 @@ public class NodeModel {
         }
     }
 
-    private void update_flow_accumulators(){
-
+//    private void update_flow_accumulators(){
 //        for(UpLaneGroup ulg : ulgs){
 //
 //            if(ulg.lg.commodity_flow_accumulators==null)
@@ -358,7 +353,6 @@ public class NodeModel {
 //                    ulg.lg.global_flow_accumulator.increment(flow);
 //            }
 //        }
-
-    }
+//    }
 
 }

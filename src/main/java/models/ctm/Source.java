@@ -37,11 +37,6 @@ public class Source extends common.AbstractSource {
     }
 
     public void validate(OTMErrorLog errorLog){
-
-        // THIS IS A BAD VALIDATION
-//        if(!link.commodities.contains(key.commodity_id))
-//            errorLog.addError("This should never happen. )(@$F(IU");
-
     }
 
     @Override
@@ -51,8 +46,6 @@ public class Source extends common.AbstractSource {
     }
 
     private void update_flow_in(float time){
-
-//        source_flows = null;
 
         // split the demand amongst lanegroups and assign keys
         Map<Long,Map<KeyCommPathOrLink,Double>> new_source_flows = split_demand(get_value_in_veh_per_timestep());
@@ -83,10 +76,6 @@ public class Source extends common.AbstractSource {
     }
 
     private Map<Long,Map<KeyCommPathOrLink,Double>> split_demand(double flow_veh_per_timestep){
-
-//        if(flow_veh_per_timestep==0d) {
-//            return null;
-//        }
 
         // for each lanegroup, a map from key to value.
         Map<Long,Map<KeyCommPathOrLink,Double>> source_flows = new HashMap<>();

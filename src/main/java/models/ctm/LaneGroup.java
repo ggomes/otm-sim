@@ -113,7 +113,6 @@ public class LaneGroup extends AbstractLaneGroup {
         Map<KeyCommPathOrLink,Double> bf_in = flow_in==null ? null : flow_in.get(0);
         Map<KeyCommPathOrLink,Double> bf_out = flow_out==null ? null : flow_out.get(0);
 
-
         for(Map.Entry<KeyCommPathOrLink,Double> e : vp.state2vehicles.entrySet()) {
             KeyCommPathOrLink state = e.getKey();
             Double val = e.getValue();
@@ -131,13 +130,28 @@ public class LaneGroup extends AbstractLaneGroup {
             Side flw_direction = this.state2lanechangedirection.get(state);
             switch(flw_direction){
                 case in:
-                    bf_in.put(state, bf_in.containsKey(state) ? bf_in.get(state)+val : val);
+                    if(bf_in==null) {
+                        bf_in = new HashMap<>();
+                        bf_in.put(state, val);
+                    }
+                    else
+                        bf_in.put(state, bf_in.containsKey(state) ? bf_in.get(state)+val : val);
                     break;
                 case out:
-                    bf_out.put(state, bf_out.containsKey(state) ? bf_out.get(state)+val : val);
+                    if(bf_out==null) {
+                        bf_out = new HashMap<>();
+                        bf_out.put(state, val);
+                    }
+                    else
+                        bf_out.put(state, bf_out.containsKey(state) ? bf_out.get(state)+val : val);
                     break;
                 case full:
-                    bf_dwn.put(state, bf_dwn.containsKey(state) ? bf_dwn.get(state)+val : val);
+                    if(bf_dwn==null) {
+                        bf_dwn = new HashMap<>();
+                        bf_dwn.put(state, val);
+                    }
+                    else
+                        bf_dwn.put(state, bf_dwn.containsKey(state) ? bf_dwn.get(state)+val : val);
                     break;
             }
 
@@ -192,10 +206,7 @@ public class LaneGroup extends AbstractLaneGroup {
     @Override
     public double get_supply(){
         Cell upcell = get_upstream_cell();
-
         return upcell.wspeed_norm * (upcell.jam_density_veh - upcell.get_vehicles());
-
-//        return get_upstream_cell().supply;
     }
 
     ////////////////////////////////////////////
@@ -301,19 +312,5 @@ public class LaneGroup extends AbstractLaneGroup {
     public Double get_demand_in_target_for_state(KeyCommPathOrLink state){
         return get_dnstream_cell().demand_dwn.get(state);
     }
-
-//    ////////////////////////////////////////////
-//    // private
-//    ///////////////////////////////////////////
-//
-//    private static void copy_to_flow(models.ctm.PacketLaneGroup vp,List<Map<KeyCommPathOrLink,Double>> flw){
-//        Map<KeyCommPathOrLink,Double> bf = flw.get(0);
-//        if(bf==null)
-//            flw.set(0,vp.state2vehicles);
-//        else
-//            for(Map.Entry<KeyCommPathOrLink,Double> e : vp.state2vehicles.entrySet())
-//                bf.put(e.getKey(), bf.containsKey(e.getKey()) ?  bf.get(e.getKey()) + e.getValue() : e.getValue() );
-//    }
-
 
 }

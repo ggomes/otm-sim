@@ -19,9 +19,6 @@ public abstract class AbstractPacketLaneGroup implements InterfacePacketLaneGrou
 
     public AbstractPacketLaneGroup(){}
 
-    public AbstractPacketLaneGroup(Set<AbstractLaneGroup> target_lanegroups, PacketLink vp, boolean in_sink) {
-    }
-
     public AbstractPacketLaneGroup(Set<AbstractLaneGroup> target_lanegroups){
         this.target_lanegroups = target_lanegroups;
     }

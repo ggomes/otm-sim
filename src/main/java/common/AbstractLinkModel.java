@@ -10,7 +10,6 @@ import commodity.Commodity;
 import commodity.Subnetwork;
 import error.OTMErrorLog;
 import error.OTMException;
-import keys.KeyCommPathOrLink;
 import packet.AbstractPacketLaneGroup;
 import packet.PacketLink;
 import packet.PacketSplitter;
@@ -81,10 +80,6 @@ public abstract class AbstractLinkModel {
     // public
     //////////////////////////////////////////////////////////////
 
-    public Double get_supply(){
-        return link.lanegroups_flwdn.values().stream().mapToDouble(x->x.get_supply()).sum();
-    }
-
     public void add_vehicle_packet(float timestamp, PacketLink vp) throws OTMException {
 
         if(vp.isEmpty())
@@ -122,23 +117,7 @@ public abstract class AbstractLinkModel {
                         "link " + outlink_id+ ". A possible cause is that there is " +
                         "a positive split ratio between these two links."));
 
-            // candidates lanegroups are those where the packet has arrived
-            // intersected with those that can reach the outlink
-            // TODO: This can be removed if there is a model for "changing lanes" to another lanegroup
-//            Set<AbstractLaneGroup> candidate_lanegroups = OTMUtils.intersect( vp.arrive_to_lanegroups , split_packet.target_lanegroups );
             Set<AbstractLaneGroup> candidate_lanegroups = vp.arrive_to_lanegroups;
-
-//            if(candidate_lanegroups.isEmpty()) {
-                // in this case the vehicle has arrived to lanegroups for which there is
-                // no connection to the out link.
-                // With lane changing implemented, this vehicle would then have to
-                // change lanes (lanegroups) over the length of the link.
-                // For now, just switch it to one of the connecting lanegroups.
-
-//                throw new OTMException("candidate_lanegroups.isEmpty(): in link " + link.getId() + ", vehicle arrived to lanegroups " +
-//                        vpb.arrive_to_lanegroups + " with target lanegroup " + target_lanegroups);
-//                candidate_lanegroups = link.outlink2lanegroups.get(outlink_id);
-//            }
 
             // split the split_packet amongst the candidate lane groups.
             // then add them
@@ -259,6 +238,5 @@ public abstract class AbstractLinkModel {
 //        vehicle.waiting_for_lane_change = true;
 //
 //    }
-
 
 }

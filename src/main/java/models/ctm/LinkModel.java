@@ -182,37 +182,9 @@ public class LinkModel extends AbstractLinkModel {
             ((LaneGroup) lg).update_state(timestamp);
     }
 
-//    ////////////////////////////////////////////
-//    // get
-//    ///////////////////////////////////////////
-//
-//    public Cell get_upstream_cell_for_lanegroup(Long lg_id){
-//        if(link.lanegroups.containsKey(lg_id)) {
-//            models.ctm.LaneGroup lg = ((models.ctm.LaneGroup) link.lanegroups.get(lg_id));
-//            return lg.cells.get(0);
-//        } else {
-//            return null;
-//        }
-//    }
-//
-//    public Cell get_dnstream_cell_for_lanegroup(Long lg_id){
-//        if(link.lanegroups.containsKey(lg_id)) {
-//            models.ctm.LaneGroup lg = ((models.ctm.LaneGroup) link.lanegroups.get(lg_id));
-//            return lg.cells.get(lg.cells.size()-1);
-//        } else {
-//            return null;
-//        }
-//    }
-//
-//    /** arrange demand into array according to commodity id in clist */
-//    public Double get_demand_for_lg_comm_path_rc(Long lg_id, KeyCommodityPathRoadconnection comm_path_rc){
-//        Cell dn_cell = get_dnstream_cell_for_lanegroup(lg_id);
-//        return dn_cell.demand_dwn.get(comm_path_rc);
-//    }
-//
-//    public Double get_supply_for_lanegroup(Long lg_id){
-//        return get_upstream_cell_for_lanegroup(lg_id).supply;
-//    }
+    ////////////////////////////////////////////
+    // private
+    ///////////////////////////////////////////
 
     private static void perform_lane_change(Map<KeyCommPathOrLink, Double> vehs,LaneGroup neighbor_lg,int i,double gamma){
         for (Map.Entry<KeyCommPathOrLink, Double> e : vehs.entrySet()) {

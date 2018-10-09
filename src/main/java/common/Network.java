@@ -150,7 +150,6 @@ public class Network {
         }
 
         // nodes is_many2one
-//        nodes.values().stream().forEach(node -> node.is_many2one = node.in_links.size()==1 && node.out_links.size()==1);
         nodes.values().stream().forEach(node -> node.is_many2one = node.out_links.size()==1);
 
         // abort if we have macro links but were not given a sim_dt
@@ -383,12 +382,6 @@ public class Network {
         links.values().forEach(x->x.validate(errorLog));
         road_geoms.values().forEach(x->x.validate(errorLog));
         road_connections.values().forEach(x->x.validate(errorLog));
-
-        // special validation: if the network contains models.ctm links, then
-        // all commodities must be pathfull. This is because we only have
-        // a simplifies pathfull-only node model
-//        if(!macro_link_models.isEmpty() && scenario.commodities.values().stream().map(x->x.pathfull).anyMatch(x->x==false))
-//            errorLog.addWarning("Networks containing macroscopic links must have only pathfull commodities.");
     }
 
     public void initialize(Scenario scenario,RunParameters runParams) throws OTMException {
@@ -436,9 +429,7 @@ public class Network {
             newrc = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
             new_rcs.put(rc_id, newrc);
         }
-
         return new_rcs;
-
     }
 
     private Set<AbstractLaneGroup> create_dnflw_lanegroups(Link link, Set<RoadConnection> out_rcs) throws OTMException {
@@ -568,8 +559,6 @@ public class Network {
         return lg;
     }
 
-    // ***********************************************************
-
     ///////////////////////////////////////////
     // update
     ///////////////////////////////////////////
@@ -604,7 +593,6 @@ public class Network {
 
         // update cell boundary flows
         macro_link_models.forEach(l -> l.update_dwn_flow());
-        
     }
 
     public void update_macro_state(float timestamp) {
@@ -615,11 +603,6 @@ public class Network {
     ////////////////////////////////////////////
     // get / set
     ///////////////////////////////////////////
-
-    // This is used only by otm-mpi to crop road connections from a base scenario into a new scenario
-    public void set_roadconnections(Map<Long,RoadConnection> rcs){
-        this.road_connections = rcs;
-    }
 
     public Set<AbstractLaneGroup> get_lanegroups(){
         return links.values().stream().flatMap(link->link.lanegroups_flwdn.values().stream()).collect(toSet());
@@ -635,14 +618,7 @@ public class Network {
 
     @Override
     public String toString() {
-        String str = "";
-        str += "# nodes: " + nodes.size() + "\n";
-        str += "# links: " + links.size() + "\n";
-//        str += "# lanegroups: " + lanegroups.size() + "\n";
-        str += "\n";
-        for(Link link : links.values())
-            str+="link "+link.id+":\n"+ link.toString();
-        return str;
+        return String.format("%d nodes, %d links",nodes.size(),links.size());
     }
 
     public jaxb.Network to_jaxb(){

@@ -727,6 +727,14 @@ public class API {
         }
     }
 
+    public void request_links_flow(List<Long> link_ids,Float outDt){
+        try {
+            this.scenario.outputs.add(new LinkFlow(scenario,null,null,null,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void request_links_veh(String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt){
         try {
             this.scenario.outputs.add(new LinkVehicles(scenario,prefix,output_folder,commodity_id,link_ids,outDt));
@@ -738,6 +746,14 @@ public class API {
     public void request_links_veh(Long commodity_id,List<Long> link_ids,Float outDt){
         try {
             this.scenario.outputs.add(new LinkVehicles(scenario,null,null,commodity_id,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void request_links_veh(List<Long> link_ids,Float outDt){
+        try {
+            this.scenario.outputs.add(new LinkVehicles(scenario,null,null,null,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
