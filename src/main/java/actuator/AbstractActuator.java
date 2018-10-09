@@ -22,6 +22,7 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
 
     public enum Type {
         signal,
+        ramp_meter,
         plugin
     }
 
@@ -41,6 +42,7 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
     public AbstractActuator(Scenario scenario, jaxb.Actuator jaxb_actuator) throws OTMException {
         this.id = jaxb_actuator.getId();
         this.type = Type.valueOf(jaxb_actuator.getType());
+        this.dt = jaxb_actuator.getDt();
         if(jaxb_actuator.getActuatorTarget()!=null){
             jaxb.ActuatorTarget e = jaxb_actuator.getActuatorTarget();
             ScenarioElementType type = ScenarioElementType.valueOf(e.getType());
@@ -56,6 +58,10 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
 
     abstract public void initialize(Scenario scenario) throws OTMException;
 
+    public void register_initial_events(Dispatcher dispatcher){
+        dispatcher.register_event(new EventPoke(dispatcher,2,dispatcher.current_time,this));
+    }
+
     /////////////////////////////////////////////////////////////////////
     // update
     /////////////////////////////////////////////////////////////////////
@@ -70,7 +76,7 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
 
         // wake up in dt, if dt is defined
         if(dt>0)
-            dispatcher.register_event(new EventPoke(dispatcher,1,timestamp+dt,this));
+            dispatcher.register_event(new EventPoke(dispatcher,2,timestamp+dt,this));
     }
 
     /////////////////////////////////////////////////////////////////////

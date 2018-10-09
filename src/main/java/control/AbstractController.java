@@ -143,7 +143,9 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
 
     abstract public void initialize(Scenario scenario,float now) throws OTMException;
 
-    abstract public void register_initial_events(Dispatcher dipatcher);
+    public void register_initial_events(Dispatcher dispatcher){
+        dispatcher.register_event(new EventPoke(dispatcher,1,dispatcher.current_time,this));
+    }
 
     ///////////////////////////////////////////////////
     // listeners
@@ -173,7 +175,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
     // update
     ///////////////////////////////////////////////////
 
-    abstract public void update_controller(Dispatcher dispatcher, float timestamp) throws OTMException ;
+    abstract public void update_controller(Dispatcher dispatcher, float timestamp) throws OTMException;
 
     @Override
     public void poke(Dispatcher dispatcher, float timestamp) throws OTMException  {

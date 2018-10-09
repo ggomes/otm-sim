@@ -6,6 +6,8 @@
  */
 package common;
 
+import actuator.AbstractActuator;
+import actuator.InterfaceActuatorTarget;
 import commodity.Commodity;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -23,7 +25,7 @@ import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toSet;
 
-public class Link implements InterfaceScenarioElement {
+public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
     public enum RoadType {none,onramp,offramp,freeway,arterial,hov,interconnect,source,sink,lightrail}
     public enum ModelType {pq,ctm,mn,micro,none}
@@ -82,6 +84,9 @@ public class Link implements InterfaceScenarioElement {
 
     // shape (not used by otm)
     public List<Point> shape;
+
+    // actuator
+    public AbstractActuator ramp_meter;
 
     ///////////////////////////////////////////
     // construction
@@ -309,6 +314,22 @@ public class Link implements InterfaceScenarioElement {
         model.initialize(scenario);
 //        if(is_source && sources!=null)
 //            sources.forEach(x->x.initialize(scenario));
+    }
+
+    ////////////////////////////////////////////
+    // InterfaceActuatorTarget
+    ///////////////////////////////////////////
+
+    @Override
+    public void register_actuator(AbstractActuator act) throws OTMException {
+
+        if(!(act instanceof actuator.ActuatorRampMeter))
+            throw new OTMException("Only ramp meters are allowed");
+
+        if(ramp_meter!=null)
+            throw new OTMException("Multiple ramp meters assigned to the same link.");
+
+        this.ramp_meter = (actuator.ActuatorRampMeter) act;
     }
 
     ////////////////////////////////////////////
