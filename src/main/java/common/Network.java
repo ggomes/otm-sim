@@ -9,6 +9,7 @@ package common;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.AddLanes;
+import geometry.FlowDirection;
 import geometry.RoadGeometry;
 import geometry.Side;
 import models.ctm.NodeModel;
@@ -178,7 +179,7 @@ public class Network {
             if(out_rcs.isEmpty() && link.end_node.out_links.size()>1)
                 throw new OTMException("No road connection leaving link " + link.getId() + ", although it is neither a sink nor a single next link case.");
 
-            // create road connections if it is not a sink
+            // absent road connections: create them, if it is not a sink
             if(out_rcs.isEmpty() && !link.is_sink) { // sink or single next link
                 Map<Long,RoadConnection> new_rcs = create_missing_road_connections(link);
                 out_rcs.addAll(new_rcs.values());
@@ -186,30 +187,30 @@ public class Network {
             }
 
             // create lanegroups
-            link.set_long_lanegroups(create_long_lanegroups(link,out_rcs));
-            create_lat_lanegroups(link);
+            link.set_long_lanegroups(create_dnflw_lanegroups(link,out_rcs));
+            create_up_side_lanegroups(link);
 
             // set start_lane_up
             int up_in_lanes = link.road_geom!=null && link.road_geom.up_in!=null ? link.road_geom.up_in.lanes : 0;
             int dn_in_lanes = link.road_geom!=null && link.road_geom.dn_in!=null ? link.road_geom.dn_in.lanes : 0;
             int offset = dn_in_lanes-up_in_lanes;
-            for(AbstractLaneGroup lg : link.long_lanegroups.values())
+            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
                 if(lg.side==Side.full)
                     lg.start_lane_up = lg.start_lane_dn - offset;
 
             // set neighbors
-            AbstractLaneGroup inner_full = link.get_inner_full_lanegroup();
-            AbstractLaneGroup outer_full = link.get_outer_full_lanegroup();
 
             // .................. lat lanegroups = {up addlane}
-            if(link.lat_lanegroup_in!=null){
-                link.lat_lanegroup_in.neighbor_out = inner_full;
-                inner_full.neighbor_up_in = link.lat_lanegroup_in;
+            if(link.lanegroup_flwside_in !=null){
+                AbstractLaneGroup inner_full = link.get_inner_full_lanegroup();
+                link.lanegroup_flwside_in.neighbor_out = inner_full;
+                inner_full.neighbor_up_in = link.lanegroup_flwside_in;
             }
 
-            if (link.lat_lanegroup_out != null) {
-                link.lat_lanegroup_out.neighbor_in = outer_full;
-                outer_full.neighbor_up_out = link.lat_lanegroup_out;
+            if (link.lanegroup_flwside_out != null) {
+                AbstractLaneGroup outer_full = link.get_outer_full_lanegroup();
+                link.lanegroup_flwside_out.neighbor_in = outer_full;
+                outer_full.neighbor_up_out = link.lanegroup_flwside_out;
             }
 
             // ................... long lanegroups = {dn addlane, full lgs}
@@ -271,8 +272,8 @@ public class Network {
             link.outlink2lanegroups = new HashMap<>();
             for(Long outlink_id : link.end_node.out_links.keySet()) {
                 // lane groups that connect to outlink_id
-                Set<AbstractLaneGroup> connected_lgs = link.long_lanegroups.values().stream()
-                                                                        .filter(lg -> lg.link_is_link_reachable(outlink_id)).collect(toSet());
+                Set<AbstractLaneGroup> connected_lgs = link.lanegroups_flwdn.values().stream()
+                                                           .filter(lg -> lg.link_is_link_reachable(outlink_id)).collect(toSet());
                 if(!connected_lgs.isEmpty())
                     link.outlink2lanegroups.put(outlink_id,connected_lgs);
             }
@@ -440,20 +441,21 @@ public class Network {
 
     }
 
-    private Set<AbstractLaneGroup> create_long_lanegroups(Link link,Set<RoadConnection> out_rcs) throws OTMException {
+    private Set<AbstractLaneGroup> create_dnflw_lanegroups(Link link, Set<RoadConnection> out_rcs) throws OTMException {
+        // Find unique subsets of road connections, and create a lane group for each one.
 
         Set<AbstractLaneGroup> lanegroups = new HashSet<>();
 
         // empty out_rc => sink
         if(out_rcs.isEmpty()){
             assert(link.is_sink);
-            lanegroups.add(create_long_lane_group(link,1, link.full_lanes, null));
+            lanegroups.add(create_dnflw_lanegroup(link,1, link.full_lanes, null));
             return lanegroups;
         }
 
         // faster code for singleton
         if(out_rcs.size()==1) {
-            lanegroups.add(create_long_lane_group(link, 1, link.full_lanes, out_rcs));
+            lanegroups.add(create_dnflw_lanegroup(link, 1, link.full_lanes, out_rcs));
             return lanegroups;
         }
 
@@ -483,13 +485,13 @@ public class Network {
                     .collect(Collectors.toSet());
             int dn_start_lane = lg_lanes.stream().mapToInt(x->x).min().getAsInt();
             int num_lanes = lg_lanes.size();
-            lanegroups.add(create_long_lane_group(link, dn_start_lane, num_lanes, my_rcs));
+            lanegroups.add(create_dnflw_lanegroup(link, dn_start_lane, num_lanes, my_rcs));
         }
 
         return lanegroups;
     }
 
-    private AbstractLaneGroup create_long_lane_group(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
+    private AbstractLaneGroup create_dnflw_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
 
         // Determine whether it is an addlane lanegroup or a full lane group.
         Set<Side> sides = new HashSet<>();
@@ -517,55 +519,50 @@ public class Network {
         switch(link.model_type){
             case ctm:
             case mn:
-                lg = new models.ctm.LaneGroup(link,side,length,num_lanes,dn_start_lane,out_rcs);
+                lg = new models.ctm.LaneGroup(link,side, FlowDirection.dn,length,num_lanes,dn_start_lane,out_rcs);
                 break;
             case pq:
-                lg = new models.pq.LaneGroup(link,side,length,num_lanes,dn_start_lane,out_rcs);
+                lg = new models.pq.LaneGroup(link,side, FlowDirection.dn,length,num_lanes,dn_start_lane,out_rcs);
                 break;
             case micro:
-                lg = new LaneGroup(link,side,length,num_lanes,dn_start_lane,out_rcs);
+                lg = new LaneGroup(link,side, FlowDirection.dn,length,num_lanes,dn_start_lane,out_rcs);
                 break;
             case none:
-                lg = new models.none.LaneGroup(link,side,length,num_lanes,dn_start_lane,out_rcs);
+                lg = new models.none.LaneGroup(link,side, FlowDirection.dn,length,num_lanes,dn_start_lane,out_rcs);
                 break;
         }
         return lg;
     }
 
-    private void create_lat_lanegroups(Link link) throws OTMException {
+    private void create_up_side_lanegroups(Link link) throws OTMException {
         if(link.road_geom==null)
             return;
-        if(link.road_geom.up_in==null && link.road_geom.up_out==null)
-            return;
-
         if(link.road_geom.up_in!=null)
-            link.lat_lanegroup_in = create_lat_lane_group(link, link.road_geom.up_in);
-
+            link.lanegroup_flwside_in = create_up_side_lanegroup(link, link.road_geom.up_in);
         if(link.road_geom.up_out!=null)
-            link.lat_lanegroup_out = create_lat_lane_group(link,link.road_geom.up_out);
-
+            link.lanegroup_flwside_out = create_up_side_lanegroup(link,link.road_geom.up_out);
     }
 
-    private AbstractLaneGroup create_lat_lane_group(Link link,AddLanes addlanes) throws OTMException {
+    private AbstractLaneGroup create_up_side_lanegroup(Link link, AddLanes addlanes) {
         float length = addlanes.length;
         int num_lanes = addlanes.lanes;
         Side side = addlanes.side;
-        int start_lane = side==Side.in ? 1 : link.get_num_up_lanes() - addlanes.lanes + 1;
+        int start_lane_up = side==Side.in ? 1 : link.get_num_up_lanes() - addlanes.lanes + 1;
 
         AbstractLaneGroup lg = null;
         switch(link.model_type){
             case ctm:
             case mn:
-                lg = new models.ctm.LaneGroup(link,side,length,num_lanes,start_lane,null);
+                lg = new models.ctm.LaneGroup(link,side, FlowDirection.up,length,num_lanes,start_lane_up,null);
                 break;
             case pq:
-                lg = new models.pq.LaneGroup(link,side,length,num_lanes,start_lane,null);
+                lg = new models.pq.LaneGroup(link,side, FlowDirection.up,length,num_lanes,start_lane_up,null);
                 break;
             case micro:
-                lg = new models.micro.LaneGroup(link,side,length,num_lanes,start_lane,null);
+                lg = new models.micro.LaneGroup(link,side, FlowDirection.up,length,num_lanes,start_lane_up,null);
                 break;
             case none:
-                lg = new models.none.LaneGroup(link,side,length,num_lanes,start_lane,null);
+                lg = new models.none.LaneGroup(link,side, FlowDirection.up,length,num_lanes,start_lane_up,null);
                 break;
         }
         return lg;
@@ -579,21 +576,14 @@ public class Network {
 
     public void update_macro_flow(float timestamp) throws OTMException {
 
-        // lane changes
-        // (cell.veh_in_target,cell.veh_notin_target -> cell.lane_change_flow)
+        // lane changing -> intermediate state
         macro_link_models.stream()
-                .filter(l -> l.link.long_lanegroups.size() >= 2)
-                .forEach(l -> l.update_lane_changes());
-
-        // intermediate state update
-        // (cell.lane_change_flow -> cell.veh_in_target,cell.veh_notin_target)
-        macro_link_models.stream()
-                .filter(l -> l.link.long_lanegroups.size()>=2)
-                .forEach(l -> l.intermediate_state_update());
+                .filter(l -> l.link.lanegroups_flwdn.size()>=2)
+                .forEach(l -> l.perform_lane_changes());
 
         // update demand and supply
-        // (cell.veh_in_target,cell.veh_notin_target -> cell.demand_in_target , cell.demand_notin_target)
-        // (cell.veh_in_target,cell.veh_notin_target -> cell.supply)
+        // (cell.veh_dwn,cell.veh_out -> cell.demand_dwn , cell.demand_out)
+        // (cell.veh_dwn,cell.veh_out -> cell.supply)
         macro_link_models.forEach(l -> l.update_supply_demand());
 
         // compute node inflow and outflow (all nodes except sources)
@@ -613,7 +603,7 @@ public class Network {
         }
 
         // update cell boundary flows
-        macro_link_models.forEach(l -> l.update_cell_boundary_flows());
+        macro_link_models.forEach(l -> l.update_dwn_flow());
         
     }
 
@@ -632,7 +622,7 @@ public class Network {
     }
 
     public Set<AbstractLaneGroup> get_lanegroups(){
-        return links.values().stream().flatMap(link->link.long_lanegroups.values().stream()).collect(toSet());
+        return links.values().stream().flatMap(link->link.lanegroups_flwdn.values().stream()).collect(toSet());
     }
 
     public Collection<RoadConnection> get_road_connections(){

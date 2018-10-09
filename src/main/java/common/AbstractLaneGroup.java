@@ -11,6 +11,7 @@ import commodity.Commodity;
 import commodity.Path;
 import error.OTMErrorLog;
 import error.OTMException;
+import geometry.FlowDirection;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import packet.AbstractPacketLaneGroup;
@@ -27,12 +28,13 @@ import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup> {
 
-    public long id;
+    public final long id;
     public Link link;
-    public Side side;               // inner, full, or outer
+    public final Side side;               // inner, full, or outer
+    public final FlowDirection flwdir;
     public int start_lane_up;       // counted with respect to upstream boundary
     public int start_lane_dn;       // counted with respect to downstream boundary
-    public int num_lanes;
+    public final int num_lanes;
 
     public AbstractLaneGroup neighbor_in;       // lanegroup down and in
     public AbstractLaneGroup neighbor_out;      // lanegroup down and out
@@ -62,6 +64,9 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // state to the road connection it must use (should be avoided in the one-to-one case)
     public Map<KeyCommPathOrLink,Long> state2roadconnection;
 
+    // target lane group to direction
+    public Map<KeyCommPathOrLink,Side> state2lanechangedirection = new HashMap<>();
+
     ///////////////////////////////////////////////////
     // abstract methods
     ///////////////////////////////////////////////////
@@ -78,7 +83,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     abstract public float vehicles_for_commodity(Long commodity_id);
     abstract public float get_current_travel_time();
 //    abstract public void allocate_state();
-//    abstract public void add_key(KeyCommPathOrLink state);
+//    abstract public void add_state(KeyCommPathOrLink state);
 
     /**
      * An event signals an opportunity to release a vehicle packet. The lanegroup must,
@@ -95,14 +100,22 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // construction
     ///////////////////////////////////////////////////
 
-    public AbstractLaneGroup(Link link, Side side, float length, int num_lanes,int start_lane, Set<RoadConnection> out_rcs){
+    public AbstractLaneGroup(Link link, Side side, FlowDirection flwdir, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
         this.link = link;
         this.side = side;
+        this.flwdir = flwdir;
         this.length = length;
         this.num_lanes = num_lanes;
         this.id = OTMUtils.get_lanegroup_id();
         this.states = new HashSet<>();
-        this.start_lane_dn = start_lane;
+        switch(flwdir){
+            case up:
+                this.start_lane_up = start_lane;
+                break;
+            case dn:
+                this.start_lane_dn = start_lane;
+                break;
+        }
         this.outlink2roadconnection = new HashMap<>();
         this.state2roadconnection = new HashMap<>();
         if(out_rcs!=null)
@@ -179,7 +192,9 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     }
 
-    public void add_key(KeyCommPathOrLink state) {
+    public void add_state(long comm_id, long next_link_id, boolean ispath) throws OTMException {
+
+        KeyCommPathOrLink state = new KeyCommPathOrLink(comm_id, next_link_id, ispath);
 
         states.add(state);
 
@@ -193,24 +208,19 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             return;
         }
 
-        // get next link according to the case
-        Long next_link;
-        if(link.end_node.is_many2one){
-            next_link = link.end_node.out_links.values().iterator().next().getId();
-        }
-        else {
-            if (state.isPath) {
-                Path path = (Path) link.network.scenario.subnetworks.get(state.pathOrlink_id);
-                next_link = path.get_link_following(link).getId();
-            } else {
-                next_link = state.pathOrlink_id;
-            }
-        }
-
         // store in map
-        RoadConnection rc = get_roadconnection_for_outlink(next_link);
+        RoadConnection rc = get_roadconnection_for_outlink(next_link_id);
         if(rc!=null)
             state2roadconnection.put(state,rc.getId());
+
+        // keep lane change side if I am not a target lanegroup
+        if(rc==null){
+            Set<AbstractLaneGroup> next_link_lgs = link.outlink2lanegroups.get(next_link_id);
+            Set<Side> sides = next_link_lgs.stream().map(x->x.get_side_with_respect_to_lg(this)).collect(Collectors.toSet());
+            if(sides.size()!=1)
+                throw new OTMException("asd;liqwr g-q4iwq jg");
+            state2lanechangedirection.put(state,sides.iterator().next());
+        }
 
     }
 
@@ -238,6 +248,20 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return IntStream.range(start_lane_up,start_lane_up+num_lanes).boxed().collect(toList());
     }
 
+    public final Side get_side_with_respect_to_lg(AbstractLaneGroup lg){
+        if(this.link.getId()!=lg.link.getId())
+            return null;
+
+        // This is more complicated with up addlanes
+        assert(lg.flwdir==FlowDirection.dn);
+        assert(this.flwdir==FlowDirection.dn);
+
+        if (this.start_lane_dn < lg.start_lane_dn)
+            return Side.in;
+        else
+            return Side.out;
+    }
+
     ///////////////////////////////////////////////////
     // set
     ///////////////////////////////////////////////////
@@ -255,14 +279,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         if(flw_acc!=null)
             flw_acc.increment(key,num_vehicles);
     }
-
-
-//    public int distance_to_lanes( int min_lane,int max_lane){
-//        int lg_min_lane = lanes.stream().mapToInt(x->x).min().getAsInt();
-//        int lg_max_lane = lanes.stream().mapToInt(x->x).max().getAsInt();
-//        int distance = Math.max(lg_min_lane-max_lane,min_lane-lg_max_lane);
-//        return Math.max(distance,0);
-//    }
 
 
     @Override
@@ -306,7 +322,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         // if the end node is one to one, then all lanegroups in the next link are equally accessible
         if(link.end_node.is_many2one) {
             if (link.outlink2lanegroups.containsKey(out_link.getId()))
-                return new HashSet<>(out_link.long_lanegroups.values());     // all downstream lanegroups are accessible
+                return new HashSet<>(out_link.lanegroups_flwdn.values());     // all downstream lanegroups are accessible
             else
                 return null;
         }

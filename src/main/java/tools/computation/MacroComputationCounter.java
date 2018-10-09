@@ -324,7 +324,7 @@ public class MacroComputationCounter {
         int num_cells = 0;  // number of cells in the link
 
         public LinkInfoForComputation(Link link){
-            for(AbstractLaneGroup lg : link.long_lanegroups.values())
+            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
                 if(lg instanceof LaneGroup){
                     LaneGroup ctm_lg = (LaneGroup) lg;
                     nSi += ctm_lg.cells.size() * ctm_lg.states.size();
@@ -349,7 +349,7 @@ public class MacroComputationCounter {
             // ulgs lane groups
             up_lgs = new HashSet<>();
             for(Link link : x.in_links.values())
-                for(AbstractLaneGroup lg : link.long_lanegroups.values())
+                for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
                     up_lgs.add(new UpLaneGroupInfo(lg));
 
             // road connections
@@ -360,7 +360,7 @@ public class MacroComputationCounter {
             // dlgs lane groups
             dn_lgs = new HashSet<>();
             for(Link link : x.out_links.values())
-                for(AbstractLaneGroup lg : link.long_lanegroups.values())
+                for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
                     dn_lgs.add(new DnLaneGroupInfo(lg));
 
             // states for road connections

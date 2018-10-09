@@ -16,11 +16,11 @@ public class AddLanes {
     public boolean isopen;
 
     public Side side;
-    public Position position;
+    public FlowDirection position;
     public float length;        // meters
     public int lanes;
 
-    public AddLanes(Position pos,Side side){
+    public AddLanes(FlowDirection pos, Side side){
         this.lanes = 0;
         this.side = side;
         this.position = pos;
@@ -37,7 +37,7 @@ public class AddLanes {
 
         this.isopen = jaxb_al.isIsopen();
         this.side = Side.valueOf(jaxb_al.getSide().toLowerCase());
-        this.position = Position.valueOf(jaxb_al.getPos().toLowerCase());
+        this.position = FlowDirection.valueOf(jaxb_al.getPos().toLowerCase());
         this.length = jaxb_al.getLength();
         this.lanes = jaxb_al.getLanes();
 
@@ -47,7 +47,7 @@ public class AddLanes {
     }
 
     public boolean isUp(){
-        return this.position.equals(Position.up);
+        return this.position.equals(FlowDirection.up);
     }
 
     public boolean isIn(){
@@ -87,7 +87,7 @@ public class AddLanes {
     public jaxb.AddLanes to_jaxb(){
         // TODO FIX THIS
         jaxb.AddLanes j1 = new jaxb.AddLanes();
-//        if(position.equals(Position.dn))
+//        if(flwdir.equals(FlowDirection.dn))
 //            j1.setStartPos(this.length);
 //        else
 //            j1.setEndPos(this.length);

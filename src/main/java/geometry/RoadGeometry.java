@@ -15,10 +15,10 @@ import java.util.List;
 public class RoadGeometry implements InterfaceScenarioElement {
 
     final public long id;
-    public AddLanes up_in; // = new AddLanes(AddLanes.Position.up,AddLanes.Side.in);
-    public AddLanes up_out; // = new AddLanes(AddLanes.Position.up,AddLanes.Side.out);
-    public AddLanes dn_in; // = new AddLanes(AddLanes.Position.dn,AddLanes.Side.in);
-    public AddLanes dn_out; // = new AddLanes(AddLanes.Position.dn,AddLanes.Side.out);
+    public AddLanes up_in; // = new AddLanes(AddLanes.FlowDirection.up,AddLanes.Side.in);
+    public AddLanes up_out; // = new AddLanes(AddLanes.FlowDirection.up,AddLanes.Side.out);
+    public AddLanes dn_in; // = new AddLanes(AddLanes.FlowDirection.dn,AddLanes.Side.in);
+    public AddLanes dn_out; // = new AddLanes(AddLanes.FlowDirection.dn,AddLanes.Side.out);
 
     public RoadGeometry(jaxb.Roadgeom jaxb_geom) {
 

@@ -20,8 +20,6 @@ public class NodeModel {
     private static int MAX_ITERATIONS = 10;
     public static double eps = 1e-3;
 
-    private boolean doprint = false;
-
     public Node node;
 
     public Map<Long,UpLaneGroup> ulgs;  // upstrm lane groups.
@@ -38,6 +36,9 @@ public class NodeModel {
         // must be many-to-one.
         if(node.road_connections.isEmpty()){
 
+            // this should not happen because we are completing road connections
+            assert(false);
+
             assert(!node.is_sink && !node.is_source);
             assert(node.is_many2one);
 
@@ -53,12 +54,12 @@ public class NodeModel {
             Link dn_link = node.out_links.values().iterator().next();
 
             // there is only one upstream lanegroup
-            assert(up_link.long_lanegroups.size()==1);
-            LaneGroup up_lanegroup = (LaneGroup) up_link.long_lanegroups.values().iterator().next();
+            assert(up_link.lanegroups_flwdn.size()==1);
+            LaneGroup up_lanegroup = (LaneGroup) up_link.lanegroups_flwdn.values().iterator().next();
 
             // there is only one dnstream lanegroup
-            assert(dn_link.long_lanegroups.size()==1);
-            LaneGroup dn_lanegroup = (LaneGroup) dn_link.long_lanegroups.values().iterator().next();
+            assert(dn_link.lanegroups_flwdn.size()==1);
+            LaneGroup dn_lanegroup = (LaneGroup) dn_link.lanegroups_flwdn.values().iterator().next();
 
             // add a fictitious road connection with id 0
             RoadConnection rc = new RoadConnection(0L,null);
@@ -140,10 +141,6 @@ public class NodeModel {
 
     public void update_flow(float timestamp) {
 
-
-        if(doprint && node.getId()==3L)
-            System.out.println(timestamp + " -----------------------------------------------------------");
-
         // reset
         ulgs.values().forEach(x->x.reset());
         rcs.values().forEach(x->x.reset(node.network.scenario.sim_dt));
@@ -155,12 +152,6 @@ public class NodeModel {
             step0();
             if (eval_stop(it))
                 break;
-
-
-            if(doprint && node.getId()==3L)
-                System.out.println("**** ITERATION " + it + " ********");
-
-
             step1();
             step2();
             step3();
@@ -223,14 +214,6 @@ public class NodeModel {
             // alpha_rj: distribution amongst downstream lanegroups
             rc.dnlg_infos.values().forEach( x -> x.alpha_rj = s_r==0d ? 0d : x.lambda_rj * x.dlg.s_j / s_r);
 
-
-            /////////////////////////////////
-            if(doprint && node.getId()==3L){
-                System.out.println("1 d_r rc from link " + rc.rc.start_link.getId() + " = " + rc.d_r);
-                rc.dnlg_infos.values().forEach( x -> System.out.println("\t" + x.dlg.lg.num_lanes + " alphar_rj " + x.alpha_rj) );
-            }
-            /////////////////////////////////
-
         }
 
 
@@ -257,29 +240,13 @@ public class NodeModel {
                 dlg.gamma_j = d_j>dlg.s_j ? 1d-dlg.s_j/d_j : 0d;
             }
 
-            /////////////////////////////////
-            if(doprint && node.getId()==3L){
-                System.out.println("2 gamma_j lg with lanes " + dlg.lg.num_lanes + " = " + dlg.gamma_j);
-            }
-            /////////////////////////////////
-
         }
     }
 
     private void step3(){
         /** gamma_r */
-
-        for(RoadConnection rc : rcs.values() ) {
-
+        for(RoadConnection rc : rcs.values() )
             rc.gamma_r = rc.is_blocked ? 0d : rc.dnlg_infos.values().stream().mapToDouble(x -> x.dlg.gamma_j * x.alpha_rj).sum();
-
-            /////////////////////////////////
-            if(doprint && node.getId()==3L){
-                System.out.println("3 gamma_r " + rc.gamma_r);
-            }
-            /////////////////////////////////
-        }
-
     }
 
     private void step4(){
@@ -289,12 +256,6 @@ public class NodeModel {
             ulg.gamma_i = ulg.is_empty_or_blocked ?
                     0d :
                     1d - ulg.rc_infos.values().stream().mapToDouble(rc -> rc.rc.gamma_r).max().getAsDouble();
-
-            ////////////////////////////////
-            if(doprint && node.getId()==3L){
-                System.out.println("4 gamma_i " + ulg.gamma_i);
-            }
-            /////////////////////////////////
         }
 
     }
@@ -320,12 +281,6 @@ public class NodeModel {
                         Long rc_id = ulg.lg.state2roadconnection.get(state);
                         ulg.rc_infos.get(rc_id).d_ir -= stateInfo.delta_is;
                     }
-
-                    /////////////////////////////////
-                    if(doprint && node.getId()==3L){
-                        System.out.println("5 delta_is " + stateInfo.delta_is);
-                    }
-                    /////////////////////////////////
 
                 }
             }
@@ -354,12 +309,6 @@ public class NodeModel {
                 // discount s_j
                 for(RoadConnection.DnLgInfo rc_dnlg : rc.dnlg_infos.values())
                     rc_dnlg.dlg.s_j -= delta_rs * rc_dnlg.alpha_rj;
-
-                /////////////////////////////////
-                if(doprint && node.getId()==3L){
-                    System.out.println("6 delta_rs from link " + rc.rc.start_link.getId() + " = " + delta_rs);
-                }
-                /////////////////////////////////
             }
 
         }

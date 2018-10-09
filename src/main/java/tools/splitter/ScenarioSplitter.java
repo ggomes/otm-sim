@@ -378,7 +378,7 @@ public class ScenarioSplitter {
 //                jsns.setLinkId(link_id);
 ////            jsns.setDataId(abssns);
 //                jsns.setLanes(abssns.start_lane + "#" + abssns.end_lane);
-//                jsns.setPosition(abssns.position);
+//                jsns.setPosition(abssns.flwdir);
 //                jsns.setType(abssns.type.toString());
 //            }
 //        }

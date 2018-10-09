@@ -58,7 +58,7 @@ public class Source extends common.AbstractSource {
         Map<Long,Map<KeyCommPathOrLink,Double>> new_source_flows = split_demand(get_value_in_veh_per_timestep());
 
         // update the lanegroup's flow_in
-        for(AbstractLaneGroup alg : link.long_lanegroups.values()){
+        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
 
             if(!new_source_flows.containsKey(alg.id))
                 continue;
@@ -67,7 +67,7 @@ public class Source extends common.AbstractSource {
 
             LaneGroup lg = (LaneGroup) alg;
             Map<KeyCommPathOrLink,Double> old_values = source_flows==null ? null : source_flows.get(alg.id);
-            Map<KeyCommPathOrLink,Double> lg_values = lg.flow_in_target.get(0);
+            Map<KeyCommPathOrLink,Double> lg_values = lg.flow_dwn.get(0);
 
             // iterate through new values
             for(Map.Entry<KeyCommPathOrLink,Double> e : new_values.entrySet()){
@@ -107,13 +107,13 @@ public class Source extends common.AbstractSource {
             // Case no packet_splitter; ie there is no downstream split.
             if(link.packet_splitter ==null){
 
-                assert(link.long_lanegroups.size()==1);
+                assert(link.lanegroups_flwdn.size()==1);
                 assert(link.end_node.is_many2one);
 
                 Link next_link = link.end_node.out_links.values().iterator().next();
                 KeyCommPathOrLink key = new KeyCommPathOrLink(comm_id,next_link.getId(),false);
 
-                AbstractLaneGroup lg = link.long_lanegroups.values().iterator().next();
+                AbstractLaneGroup lg = link.lanegroups_flwdn.values().iterator().next();
                 Map<KeyCommPathOrLink,Double> x = new HashMap<>();
                 x.put(key,flow_veh_per_timestep);
                 source_flows.put(lg.id,x);

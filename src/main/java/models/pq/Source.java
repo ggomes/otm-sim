@@ -58,10 +58,10 @@ public class Source extends common.AbstractSource {
         Long next_link_id;
         if(link.packet_splitter==null){
             next_link_id = link.end_node.out_links.values().iterator().next().getId();
-            target_lanegroups = link.long_lanegroups.values();
+            target_lanegroups = link.lanegroups_flwdn.values();
         } else {
             next_link_id = link.packet_splitter.get_nextlink_for_key(vehicle.get_key());
-            target_lanegroups = next_link_id==null ? link.long_lanegroups.values() :
+            target_lanegroups = next_link_id==null ? link.lanegroups_flwdn.values() :
                     link.packet_splitter.outputlink_targetlanegroups.get(next_link_id);
         }
 

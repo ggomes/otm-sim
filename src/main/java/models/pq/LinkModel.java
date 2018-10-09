@@ -31,7 +31,7 @@ public class LinkModel extends AbstractLinkModel {
     @Override
     public void set_road_param(jaxb.Roadparam r, float sim_dt_sec) {
         // send parameters to lane groups
-        for(AbstractLaneGroup lg : link.long_lanegroups.values())
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
             lg.set_road_params(r);
     }
 
@@ -53,7 +53,7 @@ public class LinkModel extends AbstractLinkModel {
 
         // returns the maximum of the transit times of all of the lanegroup
         float s = 0f;
-        for(AbstractLaneGroup lg : link.long_lanegroups.values() )
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() )
             s = Math.max( s , ((LaneGroup)lg).transit_time_sec );
         return s;
     }
@@ -62,7 +62,7 @@ public class LinkModel extends AbstractLinkModel {
     public float get_capacity_vps(){
         // return s the sum of the capacities of all of the lanegroups
         float s = 0f;
-        for(AbstractLaneGroup lg : link.long_lanegroups.values() )
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() )
             s += ((LaneGroup)lg).saturation_flow_rate_vps;
         return s;
     }
@@ -187,7 +187,7 @@ public class LinkModel extends AbstractLinkModel {
         x.requester.move_to_queue(timestamp,x.to_queue);
 
         // remove all of its requests by this vehicle in this link
-        for (AbstractLaneGroup lanegroup : link.long_lanegroups.values()) {
+        for (AbstractLaneGroup lanegroup : link.lanegroups_flwdn.values()) {
             LaneGroup lg = (LaneGroup) lanegroup;
             lg.transit_queue.remove_lane_change_requests_for_vehicle(x.requester);
             lg.waiting_queue.remove_lane_change_requests_for_vehicle(x.requester);

@@ -39,7 +39,7 @@ public class PacketSplitter {
         // populate outputlink_targetlanegroups
         outputlink_targetlanegroups = new HashMap<>();
         for(Link outlink : link.end_node.out_links.values())
-            outputlink_targetlanegroups.put(outlink.getId(),link.long_lanegroups.values().stream()
+            outputlink_targetlanegroups.put(outlink.getId(),link.lanegroups_flwdn.values().stream()
                                                             .filter(z->z.link_is_link_reachable(outlink.getId()))
                                                             .collect(Collectors.toSet()) );
 

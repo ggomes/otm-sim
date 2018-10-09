@@ -14,7 +14,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
 import dispatch.EventReleaseVehicleFromLaneGroup;
-import geometry.Position;
+import geometry.FlowDirection;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import keys.KeyCommodityLink;
@@ -50,8 +50,8 @@ public class LaneGroup extends AbstractLaneGroup {
     // construction
     ///////////////////////////////////////////
 
-    public LaneGroup(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
-        super(link, side,length, num_lanes, start_lane, out_rcs);
+    public LaneGroup(Link link, Side side, FlowDirection flwdir, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
+        super(link, side,flwdir,length, num_lanes, start_lane, out_rcs);
         this.transit_queue = new models.pq.Queue(this, models.pq.Queue.Type.transit);
         this.waiting_queue = new models.pq.Queue(this, models.pq.Queue.Type.waiting);
         this.downstream_candidate_lanegroups = new HashMap<>();
@@ -76,7 +76,7 @@ public class LaneGroup extends AbstractLaneGroup {
             Link outlink = link.end_node.out_links.values().iterator().next();
             downstream_candidate_lanegroups.put(
                     new KeyCommodityLink(commodity.getId(),outlink.getId()),
-                    new HashSet<>(outlink.long_lanegroups.values()));
+                    new HashSet<>(outlink.lanegroups_flwdn.values()));
             return;
         }
 

@@ -24,18 +24,18 @@ public class CellInfo {
         this.index = index;
 
         Set<KeyCommPathOrLink> keySet = new HashSet<>();
-        if(cell.veh_in_target!=null)
-            keySet.addAll(cell.veh_in_target.keySet());
-        if(cell.veh_notin_target!=null)
-            keySet.addAll(cell.veh_notin_target.keySet());
+        if(cell.veh_dwn !=null)
+            keySet.addAll(cell.veh_dwn.keySet());
+        if(cell.veh_out !=null)
+            keySet.addAll(cell.veh_out.keySet());
 
         comm_vehicles = new HashMap<>();
         for(KeyCommPathOrLink key : keySet){
             double val = 0d;
-            if(cell.veh_in_target!=null && cell.veh_in_target.containsKey(key))
-                val += cell.veh_in_target.get(key);
-            if(cell.veh_notin_target!=null && cell.veh_notin_target.containsKey(key))
-                val += cell.veh_notin_target.get(key);
+            if(cell.veh_dwn !=null && cell.veh_dwn.containsKey(key))
+                val += cell.veh_dwn.get(key);
+            if(cell.veh_out !=null && cell.veh_out.containsKey(key))
+                val += cell.veh_out.get(key);
             comm_vehicles.put(key,val);
         }
     }

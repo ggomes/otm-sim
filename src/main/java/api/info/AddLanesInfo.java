@@ -22,7 +22,7 @@ public class AddLanesInfo {
     /** ???? */
     public boolean isopen;
 
-    /** Position within the link of the additional lanes: "ulgs" or "dlgs",
+    /** FlowDirection within the link of the additional lanes: "ulgs" or "dlgs",
      * corresponding roughly to lane drops and turn pockets, respectively. */
     public String position;
 
@@ -73,7 +73,7 @@ public class AddLanesInfo {
                 "lanes=" + lanes +
                 ", side='" + side + '\'' +
                 ", isopen=" + isopen +
-                ", position='" + position + '\'' +
+                ", flwdir='" + position + '\'' +
                 ", length=" + length +
                 ", gates=" + gates +
                 '}';

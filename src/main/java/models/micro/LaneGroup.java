@@ -9,7 +9,7 @@ package models.micro;
 import commodity.Commodity;
 import common.*;
 import error.OTMException;
-import geometry.Position;
+import geometry.FlowDirection;
 import geometry.Side;
 import packet.AbstractPacketLaneGroup;
 
@@ -17,8 +17,8 @@ import java.util.Set;
 
 public class LaneGroup extends AbstractLaneGroup {
 
-    public LaneGroup(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        super(link, side,length, num_lanes, start_lane, out_rcs);
+    public LaneGroup(Link link, Side side, FlowDirection flwdir, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        super(link, side,flwdir,length, num_lanes, start_lane, out_rcs);
     }
 
     @Override

@@ -45,28 +45,26 @@ public abstract class AbstractLinkModel {
     public void register_commodity(Commodity comm, Subnetwork subnet) throws OTMException {
 
         if(comm.pathfull) {
-            KeyCommPathOrLink state = new KeyCommPathOrLink(comm.getId(), subnet.getId(), true);
-            for (AbstractLaneGroup lg : link.long_lanegroups.values())
-                lg.add_key(state);
+            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                lg.add_state(comm.getId(), subnet.getId(), true);
         }
 
         else {
 
             // for pathless/sink, next link id is same as this id
             if (link.is_sink) {
-                KeyCommPathOrLink state = new KeyCommPathOrLink(comm.getId(), link.getId(), false);
-                for (AbstractLaneGroup lg : link.long_lanegroups.values())
-                    lg.add_key(state);
+                for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                    lg.add_state(comm.getId(), link.getId(), false);
 
             } else {
 
                 // for pathless non-sink, add a state for each next link in the subnetwork
-                for (AbstractLaneGroup lg : link.long_lanegroups.values()) {
-                    for (Long next_link_id : lg.get_dwn_links())
-                        if (subnet.has_link_id(next_link_id))
-                            lg.add_key(new KeyCommPathOrLink(comm.getId(), next_link_id, false));
+                for( Long next_link_id : link.outlink2lanegroups.keySet()  ){
+                    if (!subnet.has_link_id(next_link_id))
+                        continue;
+                    for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                        lg.add_state(comm.getId(), next_link_id, false);
                 }
-
             }
         }
 
@@ -74,7 +72,7 @@ public abstract class AbstractLinkModel {
 
     public void initialize(Scenario scenario) throws OTMException {
         // allocate state for each lanegroup in this link
-        for(AbstractLaneGroup lg : link.long_lanegroups.values() ){
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() ){
             lg.allocate_state();
         }
     }
@@ -84,7 +82,7 @@ public abstract class AbstractLinkModel {
     //////////////////////////////////////////////////////////////
 
     public Double get_supply(){
-        return link.long_lanegroups.values().stream().mapToDouble(x->x.get_supply()).sum();
+        return link.lanegroups_flwdn.values().stream().mapToDouble(x->x.get_supply()).sum();
     }
 
     public void add_vehicle_packet(float timestamp, PacketLink vp) throws OTMException {
@@ -179,7 +177,7 @@ public abstract class AbstractLinkModel {
     }
 
     public float get_max_vehicles(){
-        return (float) link.long_lanegroups.values().stream().map(x->x.max_vehicles).mapToDouble(i->i).sum();
+        return (float) link.lanegroups_flwdn.values().stream().map(x->x.max_vehicles).mapToDouble(i->i).sum();
     }
 
     //////////////////////////////////////////////////////////////

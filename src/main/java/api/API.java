@@ -362,7 +362,7 @@ public class API {
     public Map<Long,Set<Long>> get_link2lgs(){
         Map<Long,Set<Long>> lk2lgs = new HashMap<>();
         for(Link link : scenario.network.links.values())
-            lk2lgs.put(link.getId(),link.long_lanegroups.values().stream()
+            lk2lgs.put(link.getId(),link.lanegroups_flwdn.values().stream()
                     .map(x->x.id).collect(Collectors.toSet()));
         return lk2lgs;
     }

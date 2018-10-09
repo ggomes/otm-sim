@@ -48,7 +48,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     // actuator
     public AbstractActuator actuator;
 
-    // node position
+    // node flwdir
     public Float xcoord;
     public Float ycoord;
 

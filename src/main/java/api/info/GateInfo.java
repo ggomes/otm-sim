@@ -10,11 +10,11 @@ import geometry.Gate;
 
 public class GateInfo {
 
-    /** Starting position of the gate measured in meters from thee upstream
+    /** Starting flwdir of the gate measured in meters from thee upstream
      * boundary of the link. */
     public float start_pos;
 
-    /** Ending position of the gate measured in meters from thee upstream
+    /** Ending flwdir of the gate measured in meters from thee upstream
      * boundary of the link. */
     public float end_pos;
 

@@ -38,7 +38,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
             if(!scenario.network.links.containsKey(link_id))
                 continue;
             Link link = scenario.network.links.get(link_id);
-            for(AbstractLaneGroup lg : link.long_lanegroups.values()){
+            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()){
                 ordered_ids.add(lg.id);
                 lgprofiles.put(lg.id, new LaneGroupProfile(lg));
             }
@@ -96,7 +96,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
             return null;
 
         Map<Long,Profile1D> profiles = new HashMap<>();
-        for(AbstractLaneGroup lg : scenario.network.links.get(link_id).long_lanegroups.values())
+        for(AbstractLaneGroup lg : scenario.network.links.get(link_id).lanegroups_flwdn.values())
             if(lgprofiles.containsKey(lg.id))
                 profiles.put(lg.id,lgprofiles.get(lg.id).profile);
 

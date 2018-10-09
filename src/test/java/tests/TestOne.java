@@ -88,8 +88,8 @@ public class TestOne extends AbstractTest {
             // Load ..............................
             API api = null;
             try {
-//                api = OTM.load_test("onramp_offramp_1",sim_dt,true,"ctm");
-                api = OTM.load("C:\\Users\\gomes\\Desktop\\config\\config_2.xml",sim_dt,true,"ctm");
+                api = OTM.load_test("onramp_offramp_1",sim_dt,true,"ctm");
+//                api = OTM.load("C:\\Users\\gomes\\Desktop\\config\\config_2.xml",sim_dt,true,"ctm");
             } catch (OTMException e) {
                 e.printStackTrace();
             }

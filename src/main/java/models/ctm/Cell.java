@@ -18,8 +18,6 @@ public class Cell {
     public LinkModel model;
     private LaneGroup laneGroup;
 
-    public Cell neighbor;
-
     public boolean am_upstrm;
     public boolean am_dnstrm;
 
@@ -30,15 +28,19 @@ public class Cell {
     public double jam_density_veh;      // [veh]
 
     // vehicles and demand already in their target lanegroup
-    public Map<KeyCommPathOrLink, Double> veh_in_target;      // comm,path|nlink -> number of vehicles
-    public Map<KeyCommPathOrLink, Double> demand_in_target;   // comm,path|nlink -> number of vehicles
+    public Map<KeyCommPathOrLink, Double> veh_dwn;      // comm,path|nlink -> number of vehicles
+    public Map<KeyCommPathOrLink, Double> demand_dwn;   // comm,path|nlink -> number of vehicles
+    public double total_vehs_dwn;
 
-    // vehicles and demand not in their target lanegroup
-    public Map<KeyCommPathOrLink, Double> veh_notin_target;      // comm,path|nlink -> number of vehicles
-    public Map<KeyCommPathOrLink, Double> demand_notin_target;   // comm,path|nlink -> number of vehicles
+    // vehicles changing lanes outward
+    public Map<KeyCommPathOrLink, Double> veh_out;      // comm,path|nlink -> number of vehicles
+    public Map<KeyCommPathOrLink, Double> demand_out;   // comm,path|nlink -> number of vehicles
+    public double total_vehs_out;
 
-    // lane change flow
-    public Map<KeyCommPathOrLink, Double> lane_change_flow;      // comm,path|nlink -> number of vehicles
+    // vehicles changing lanes inward
+    public Map<KeyCommPathOrLink, Double> veh_in;      // comm,path|nlink -> number of vehicles
+    public Map<KeyCommPathOrLink, Double> demand_in;   // comm,path|nlink -> number of vehicles
+    public double total_vehs_in;
 
     public double supply;   // [veh]
 
@@ -95,23 +97,31 @@ public class Cell {
 
     public void allocate_state() {
 
-        // this == target lane group
-        veh_in_target = new HashMap<>();
-        demand_in_target = new HashMap<>();
+        // downstream flow
+        veh_dwn = new HashMap<>();
+        demand_dwn = new HashMap<>();
         for (KeyCommPathOrLink k : laneGroup.states) {
-            veh_in_target.put(k, 0d);
-            demand_in_target.put(k, 0d);
+            veh_dwn.put(k, 0d);
+            demand_dwn.put(k, 0d);
         }
 
-        // this != target lane group
-        if (laneGroup.neighbor_out != null) { // TODO FIX THIS
-            veh_notin_target = new HashMap<>();
-            demand_notin_target = new HashMap<>();
-            lane_change_flow = new HashMap<>();
+        // outward flow
+        if (laneGroup.neighbor_out != null) {
+            veh_out = new HashMap<>();
+            demand_out = new HashMap<>();
             for (KeyCommPathOrLink k : laneGroup.neighbor_out.states) {
-                veh_notin_target.put(k, 0d);
-                demand_notin_target.put(k, 0d);
-                lane_change_flow.put(k, 0d);
+                veh_out.put(k, 0d);
+                demand_out.put(k, 0d);
+            }
+        }
+
+        // inward flow
+        if (laneGroup.neighbor_in != null) {
+            veh_in = new HashMap<>();
+            demand_in = new HashMap<>();
+            for (KeyCommPathOrLink k : laneGroup.neighbor_in.states) {
+                veh_in.put(k, 0d);
+                demand_in.put(k, 0d);
             }
         }
 
@@ -121,86 +131,30 @@ public class Cell {
     // get
     ///////////////////////////////////////////////////
 
-    public double get_vehicles_in_target() {
-        return OTMUtils.sum(veh_in_target.values());
-    }
-
-    public double get_vehicles_notin_target() {
-        return veh_notin_target == null ? 0d : OTMUtils.sum(veh_notin_target.values());
-    }
-
     public double get_vehicles() {
-        return get_vehicles_in_target() + get_vehicles_notin_target();
+        return total_vehs_dwn + total_vehs_in + total_vehs_out;
     }
 
-    public double get_vehicles_for_commodity(Long commodity_id) {
+    public double get_veh_dwn_for_commodity(Long commodity_id) {
 
         if (commodity_id == null)
             return get_vehicles();
 
-        double veh = 0d;
-        for (Map.Entry<KeyCommPathOrLink, Double> e : this.veh_in_target.entrySet())
-            if (e.getKey().commodity_id == commodity_id)
-                veh += e.getValue();
-        return veh;
+        return veh_dwn.entrySet().stream()
+                .filter(x->x.getKey().commodity_id==commodity_id)
+                .mapToDouble(x->x.getValue())
+                .sum();
     }
 
     ///////////////////////////////////////////////////
     // update
     ///////////////////////////////////////////////////
 
-    public void update_lane_change_flow() {
-
-        if(neighbor==null)
-            return;
-
-        double total_veh_notin_target = get_vehicles_notin_target();
-
-        if(total_veh_notin_target<=OTMUtils.epsilon) {
-            lane_change_flow.keySet().forEach(x->lane_change_flow.put(x,0d));
-            return;
-        }
-
-        double total_neighbor_veh = neighbor.get_vehicles();
-
-        double xi = 0.5*(1-neighbor.wspeed_norm);   // TODO FIX THIS!!!
-
-        // total lane changing flow
-        double total_flow = Math.min(total_veh_notin_target, xi * (neighbor.jam_density_veh - total_neighbor_veh));
-
-        // save lane change flows per state
-        for (Map.Entry<KeyCommPathOrLink, Double> e : veh_notin_target.entrySet()) {
-            Double veh = e.getValue();
-            if (veh > 0)
-                lane_change_flow.put(e.getKey(), total_flow * veh / total_veh_notin_target);
-        }
-
-    }
-
-    public void intermediate_state_update(){
-
-        if(neighbor==null || lane_change_flow==null)
-            return;
-
-        // vehicles leaving this cell
-        for (Map.Entry<KeyCommPathOrLink, Double> e : lane_change_flow.entrySet()) {
-            Double veh = e.getValue();
-            if (veh > 0) {
-                KeyCommPathOrLink state = e.getKey();
-                veh_notin_target.put(state,veh_notin_target.get(state)-veh);
-                neighbor.veh_in_target.put(state,neighbor.veh_in_target.get(state) + veh);
-            }
-        }
-
-    }
-
-    // compute demand_in_target (demand per commodity and path)
+    // compute demand_dwn (demand per commodity and path)
     // and supply (total supply)
     public void update_supply_demand() {
 
-        double vehicles_in_target = get_vehicles_in_target();
-        double vehicles_notin_target = get_vehicles_notin_target();
-        double total_vehicles = vehicles_in_target + vehicles_notin_target;
+        double total_vehicles = total_vehs_dwn + total_vehs_out + total_vehs_in;
 
         double external_max_speed = Double.POSITIVE_INFINITY;
         double total_demand;
@@ -209,9 +163,11 @@ public class Cell {
 
         // case empty link
         if (total_vehicles < OTMUtils.epsilon) {
-            demand_in_target.keySet().stream().forEach(k -> demand_in_target.put(k, 0d));
-            if(demand_notin_target!=null)
-                demand_notin_target.keySet().stream().forEach(k -> demand_notin_target.put(k, 0d));
+            demand_dwn.keySet().stream().forEach(k -> demand_dwn.put(k, 0d));
+            if(demand_out!=null)
+                demand_out.keySet().stream().forEach(k -> demand_out.put(k, 0d));
+            if(demand_in!=null)
+                demand_in.keySet().stream().forEach(k -> demand_in.put(k, 0d));
         }
 
         else {
@@ -232,21 +188,25 @@ public class Cell {
             // downstream cell: flow controller and lane change blocking
             if (am_dnstrm) {
 
-                if(vehicles_notin_target>OTMUtils.epsilon) {
+                if(total_vehs_out>OTMUtils.epsilon) {
                     double gamma = 0.9d;
-                    double mulitplier = Math.max(0d,1d-gamma*vehicles_notin_target);
+                    double mulitplier = Math.max(0d,1d-gamma*total_vehs_out);
                     total_demand *= mulitplier;
                 }
             }
 
             // split among in|out target, commodities, paths|nextlinks
             double alpha = total_demand / total_vehicles;
-            for (KeyCommPathOrLink key : demand_in_target.keySet())
-                demand_in_target.put(key, veh_in_target.get(key) * alpha);
+            for (KeyCommPathOrLink key : demand_dwn.keySet())
+                demand_dwn.put(key, veh_dwn.get(key) * alpha);
 
-            if(demand_notin_target!=null)
-                for (KeyCommPathOrLink key : demand_notin_target.keySet())
-                    demand_notin_target.put(key, veh_notin_target.get(key) * alpha);
+            if(demand_out !=null)
+                for (KeyCommPathOrLink key : demand_out.keySet())
+                    demand_out.put(key, veh_out.get(key) * alpha);
+
+            if(demand_in !=null)
+                for (KeyCommPathOrLink key : demand_in.keySet())
+                    demand_in.put(key, veh_in.get(key) * alpha);
         }
 
         // update supply ..............................................
@@ -269,34 +229,56 @@ public class Cell {
         }
     }
 
-    public void update_in_target_state(Map<KeyCommPathOrLink, Double> inflow, Map<KeyCommPathOrLink, Double> outflow) {
+    public void update_dwn_state(Map<KeyCommPathOrLink, Double> inflow, Map<KeyCommPathOrLink, Double> outflow) {
 
         if (inflow != null)
             for (Map.Entry<KeyCommPathOrLink, Double> e : inflow.entrySet()) {
                 KeyCommPathOrLink state = e.getKey();
-                veh_in_target.put(state, veh_in_target.get(state) + e.getValue());
+                veh_dwn.put(state, veh_dwn.get(state) + e.getValue());
             }
 
         if (outflow != null)
             for (Map.Entry<KeyCommPathOrLink, Double> e : outflow.entrySet()) {
                 KeyCommPathOrLink state = e.getKey();
-                veh_in_target.put(state, veh_in_target.get(state) - e.getValue());
+                veh_dwn.put(state, veh_dwn.get(state) - e.getValue());
             }
 
+        total_vehs_dwn = OTMUtils.sum(veh_dwn.values());
     }
 
-    public void update_notin_target_state(Map<KeyCommPathOrLink, Double> inflow, Map<KeyCommPathOrLink, Double> outflow) {
+    public void update_out_state(Map<KeyCommPathOrLink, Double> inflow, Map<KeyCommPathOrLink, Double> outflow) {
 
         if (inflow != null)
             for (Map.Entry<KeyCommPathOrLink, Double> e : inflow.entrySet()) {
                 KeyCommPathOrLink state = e.getKey();
-                veh_notin_target.put(state, veh_notin_target.get(state) + e.getValue());
+                veh_out.put(state, veh_out.get(state) + e.getValue());
             }
 
         if (outflow != null)
             for (Map.Entry<KeyCommPathOrLink, Double> e : outflow.entrySet()) {
                 KeyCommPathOrLink state = e.getKey();
-                veh_notin_target.put(state, veh_notin_target.get(state) - e.getValue());
+                veh_out.put(state, veh_out.get(state) - e.getValue());
             }
+
+        total_vehs_out = veh_out==null ? 0d : OTMUtils.sum(veh_out.values());
     }
+
+    public void update_in_state(Map<KeyCommPathOrLink, Double> inflow, Map<KeyCommPathOrLink, Double> outflow) {
+
+        if (inflow != null)
+            for (Map.Entry<KeyCommPathOrLink, Double> e : inflow.entrySet()) {
+                KeyCommPathOrLink state = e.getKey();
+                veh_in.put(state, veh_in.get(state) + e.getValue());
+            }
+
+        if (outflow != null)
+            for (Map.Entry<KeyCommPathOrLink, Double> e : outflow.entrySet()) {
+                KeyCommPathOrLink state = e.getKey();
+                veh_in.put(state, veh_in.get(state) - e.getValue());
+            }
+
+        total_vehs_in = veh_in==null ? 0d : OTMUtils.sum(veh_in.values());
+
+    }
+
 }

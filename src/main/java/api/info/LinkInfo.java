@@ -66,11 +66,11 @@ public class LinkInfo {
         this.road_geom = x.road_geom==null ? null : new RoadGeomInfo(x.road_geom);
         if(x.shape!=null)
             x.shape.forEach(p->shape.add(new PointInfo(p)));
-        if(x.long_lanegroups !=null)
-            x.long_lanegroups.values().forEach(lg->lanegroups.add(new LaneGroupInfo(lg)));
+        if(x.lanegroups_flwdn !=null)
+            x.lanegroups_flwdn.values().forEach(lg->lanegroups.add(new LaneGroupInfo(lg)));
         this.ffspeed_mps = x.length / x.model.get_ff_travel_time();   // m/s
         this.capacity_vps = x.model.get_capacity_vps();
-        if(x.long_lanegroups !=null)
+        if(x.lanegroups_flwdn !=null)
             this.max_vehicles = x.model.get_max_vehicles();
     }
 

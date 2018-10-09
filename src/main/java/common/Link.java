@@ -44,12 +44,11 @@ public class Link implements InterfaceScenarioElement {
 
     // Longitudinal lanegroups: flow exits from the bottom edge.
     // There are full lanegroups and downstream addlanes
-    public Map<Long,AbstractLaneGroup> long_lanegroups;
+    public Map<Long,AbstractLaneGroup> lanegroups_flwdn;
 
     // Lateral lanegroups: all flow exits laterally. These are the upstream addlanes.
-//    public Map<Long,AbstractLaneGroupLateral> lat_lanegroups;
-    public AbstractLaneGroup lat_lanegroup_in;
-    public AbstractLaneGroup lat_lanegroup_out;
+    public AbstractLaneGroup lanegroup_flwside_in;
+    public AbstractLaneGroup lanegroup_flwside_out;
 
     // downstream lane count -> lane group
     public Map<Integer, AbstractLaneGroup> dnlane2lanegroup;
@@ -161,13 +160,13 @@ public class Link implements InterfaceScenarioElement {
         network = null;
         start_node = null;
         end_node = null;
-        if(long_lanegroups !=null)
-            long_lanegroups.values().forEach(lg->lg.delete());
-        long_lanegroups = null;
-        lat_lanegroup_out.delete();
-        lat_lanegroup_in.delete();
-        lat_lanegroup_out = null;
-        lat_lanegroup_in = null;
+        if(lanegroups_flwdn !=null)
+            lanegroups_flwdn.values().forEach(lg->lg.delete());
+        lanegroups_flwdn = null;
+        lanegroup_flwside_out.delete();
+        lanegroup_flwside_in.delete();
+        lanegroup_flwside_out = null;
+        lanegroup_flwside_in = null;
         dnlane2lanegroup = null;
         path2outlink = null;
         outlink2lanegroups = null;
@@ -186,11 +185,11 @@ public class Link implements InterfaceScenarioElement {
 
     public void add_commodity(Commodity commodity) {
         commodities.add(commodity);
-        long_lanegroups.values().forEach(x -> x.add_commodity(commodity));
-        if(lat_lanegroup_in!=null)
-            lat_lanegroup_in.add_commodity(commodity);
-        if(lat_lanegroup_out!=null)
-            lat_lanegroup_out.add_commodity(commodity);
+        lanegroups_flwdn.values().forEach(x -> x.add_commodity(commodity));
+        if(lanegroup_flwside_in !=null)
+            lanegroup_flwside_in.add_commodity(commodity);
+        if(lanegroup_flwside_out !=null)
+            lanegroup_flwside_out.add_commodity(commodity);
     }
 
     public void add_travel_timer(PathTravelTime x){
@@ -199,7 +198,7 @@ public class Link implements InterfaceScenarioElement {
 
     public void set_long_lanegroups(Collection<AbstractLaneGroup> lgs) {
 
-        long_lanegroups = new HashMap<>();
+        lanegroups_flwdn = new HashMap<>();
         dnlane2lanegroup = new HashMap<>();
 
         if(lgs==null || lgs.isEmpty())
@@ -207,7 +206,7 @@ public class Link implements InterfaceScenarioElement {
 
         // lanegroups
         for(AbstractLaneGroup lg : lgs)
-            long_lanegroups.put(lg.id,lg);
+            lanegroups_flwdn.put(lg.id,lg);
 
         // dnlane2lanegroup
         for (AbstractLaneGroup lg : lgs)
@@ -255,7 +254,7 @@ public class Link implements InterfaceScenarioElement {
 //            errorLog.addError("link " + id + ": road_geom==null");
         if( dnlane2lanegroup ==null )
             errorLog.addError("link " + id + ": dnlane2lanegroup==null");
-        if( long_lanegroups ==null )
+        if( lanegroups_flwdn ==null )
             errorLog.addError("link " + id + ": lanegroups==null");
 
         // check that the road geometry fits the link
@@ -287,16 +286,16 @@ public class Link implements InterfaceScenarioElement {
 //        }
 
         // all lanegroups are represented in dnlane2lanegroup
-        if(long_lanegroups !=null && dnlane2lanegroup !=null) {
+        if(lanegroups_flwdn !=null && dnlane2lanegroup !=null) {
             Set<Long> A = dnlane2lanegroup.values().stream().map(x->x.id).collect(toSet());
-            Set<Long> B = long_lanegroups.values().stream().map(x->x.id).collect(toSet());
+            Set<Long> B = lanegroups_flwdn.values().stream().map(x->x.id).collect(toSet());
             if (!A.equals(B))
                 errorLog.addError("link " + id + ": not all lanegroups are represented in dnlane2lanegroup");
         }
 
         // lanegroups
-        if(long_lanegroups !=null)
-            long_lanegroups.values().forEach(x->x.validate(errorLog));
+        if(lanegroups_flwdn !=null)
+            lanegroups_flwdn.values().forEach(x->x.validate(errorLog));
 
         // check that all lanes have a lanegroup
         // WARNING: Assumes no upstream addlanes
@@ -316,7 +315,7 @@ public class Link implements InterfaceScenarioElement {
     }
 
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
-        for(AbstractLaneGroup lg : long_lanegroups.values())
+        for(AbstractLaneGroup lg : lanegroups_flwdn.values())
             lg.initialize(scenario,runParams);
         model.initialize(scenario);
 //        if(is_source && sources!=null)
@@ -406,7 +405,7 @@ public class Link implements InterfaceScenarioElement {
     }
 
     public AbstractLaneGroup get_lanegroup_for_up_lane(int lane){
-        AbstractLaneGroup lg = lat_lanegroup_in!=null ?lat_lanegroup_in : get_inner_full_lanegroup();
+        AbstractLaneGroup lg = lanegroup_flwside_in !=null ? lanegroup_flwside_in : get_inner_full_lanegroup();
         while(true){
             if(lane<=lg.start_lane_up+lg.num_lanes-1)
                 return lg;
@@ -426,19 +425,19 @@ public class Link implements InterfaceScenarioElement {
     }
 
     public float get_max_vehicles(){
-        return long_lanegroups.values().stream().
+        return lanegroups_flwdn.values().stream().
                 map(x->x.max_vehicles).
                 reduce(0f,(i,j)->i+j);
     }
 
     public double get_veh() {
-        return long_lanegroups.values().stream()
+        return lanegroups_flwdn.values().stream()
                 .mapToDouble(x->x.get_total_vehicles())
                 .sum();
     }
 
     public double get_veh_for_commodity(Long commodity_id) {
-        return long_lanegroups.values().stream()
+        return lanegroups_flwdn.values().stream()
                 .mapToDouble(x->x.vehicles_for_commodity(commodity_id))
                 .sum();
     }
@@ -456,7 +455,7 @@ public class Link implements InterfaceScenarioElement {
 
     public Set<RoadConnection> get_roadconnections_leaving(){
         Set<RoadConnection> rcs = new HashSet<>();
-        for(AbstractLaneGroup lg : long_lanegroups.values())
+        for(AbstractLaneGroup lg : lanegroups_flwdn.values())
             rcs.addAll(lg.outlink2roadconnection.values());
         return rcs;
     }
@@ -475,7 +474,7 @@ public class Link implements InterfaceScenarioElement {
     // This is used by the path travel timer.
     // It should be improved to measure travel times on the lanegroups used by the path.
     public double get_current_average_travel_time(){
-        return long_lanegroups.values().stream().mapToDouble(lg->lg.get_current_travel_time()).average().getAsDouble();
+        return lanegroups_flwdn.values().stream().mapToDouble(lg->lg.get_current_travel_time()).average().getAsDouble();
     }
 
     @Override

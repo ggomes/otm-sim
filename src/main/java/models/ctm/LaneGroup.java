@@ -11,7 +11,7 @@ import common.*;
 import common.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.Position;
+import geometry.FlowDirection;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import packet.AbstractPacketLaneGroup;
@@ -28,17 +28,20 @@ public class LaneGroup extends AbstractLaneGroup {
     public List<Cell> cells;     // sequence of cells
 
     // transversal flow of vehicles already in their target lanegroup
-    public List<Map<KeyCommPathOrLink,Double>> flow_in_target;
+    // size = numcells + 1
+    public List<Map<KeyCommPathOrLink,Double>> flow_dwn;
 
     // transversal flow of vehicles not in their target lanegroup
-    public List<Map<KeyCommPathOrLink,Double>> flow_notin_target;
+    // size = numcells (downstream boundary is always 0)
+    public List<Map<KeyCommPathOrLink,Double>> flow_in;
+    public List<Map<KeyCommPathOrLink,Double>> flow_out;
 
     ////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////
 
-    public LaneGroup(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        super(link, side,length, num_lanes, start_lane, out_rcs);
+    public LaneGroup(Link link, Side side, FlowDirection flwdir, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        super(link, side, flwdir,length, num_lanes, start_lane, out_rcs);
     }
 
     protected void create_cells(int num_cells,double cell_length_meters){
@@ -53,11 +56,6 @@ public class LaneGroup extends AbstractLaneGroup {
         // designate first and last
         this.cells.get(0).am_upstrm = true;
         this.cells.get(num_cells-1).am_dnstrm = true;
-
-//        // populate boundary flows
-//        flow_in_target = new ArrayList<>();
-//        for(int i=0;i<num_cells+1;i++)
-//            flow_in_target.add(new HashMap<>());
 
     }
 
@@ -87,23 +85,21 @@ public class LaneGroup extends AbstractLaneGroup {
         super.initialize(scenario,runParams);
 
         // populate in target boundary flows
-        flow_in_target = new ArrayList<>();
+        flow_dwn = new ArrayList<>();
         for(int i=0;i<cells.size()+1;i++)
-            flow_in_target.add(new HashMap<>());
+            flow_dwn.add(new HashMap<>());
 
-        // Additional configuration for lane changing
-        if(neighbor_in!=null || neighbor_out!=null){
+        // Configuration for lane changing
+        if(neighbor_in!=null){
+            this.flow_in = new ArrayList<>();
+            for(int i=0;i<cells.size();i++)
+                flow_in.add(new HashMap<>());
+        }
 
-            // populate not in target boundary flows
-            flow_notin_target = new ArrayList<>();
+        if(neighbor_out!=null){
+            this.flow_out = new ArrayList<>();
             for(int i=0;i<cells.size()+1;i++)
-                flow_notin_target.add(new HashMap<>());
-
-            // tell cells who are their neighbors
-            // TODO DO THIS AGAIN.
-//            LaneGroup neighbor_lg = (LaneGroup) neighbors.iterator().next();
-//            for(int i=0;i<cells.size();i++)
-//                cells.get(i).neighbor = neighbor_lg.cells.get(i);
+                flow_out.add(new HashMap<>());
         }
 
     }
@@ -113,11 +109,40 @@ public class LaneGroup extends AbstractLaneGroup {
 
         models.ctm.PacketLaneGroup vp = (models.ctm.PacketLaneGroup) avp;
 
-        // case sink or the packet is targeted for this lanegroup
-        if(vp.target_lanegroups==null || vp.target_lanegroups.contains(this))
-            copy_to_flow(vp,flow_in_target);
-        else    // case the packet is targeted for some other lanegroup
-            copy_to_flow(vp, flow_notin_target);
+        Map<KeyCommPathOrLink,Double> bf_dwn = flow_dwn.get(0);
+        Map<KeyCommPathOrLink,Double> bf_in = flow_in==null ? null : flow_in.get(0);
+        Map<KeyCommPathOrLink,Double> bf_out = flow_out==null ? null : flow_out.get(0);
+
+
+        for(Map.Entry<KeyCommPathOrLink,Double> e : vp.state2vehicles.entrySet()) {
+            KeyCommPathOrLink state = e.getKey();
+            Double val = e.getValue();
+
+            if(vp.target_lanegroups==null || vp.target_lanegroups.contains(this)){
+                if(bf_dwn==null) {
+                    bf_dwn = new HashMap<>();
+                    bf_dwn.put(state, val);
+                }
+                else
+                    bf_dwn.put(state, bf_dwn.containsKey(state) ? bf_dwn.get(state)+val : val);
+                continue;
+            }
+
+            Side flw_direction = this.state2lanechangedirection.get(state);
+            switch(flw_direction){
+                case in:
+                    bf_in.put(state, bf_in.containsKey(state) ? bf_in.get(state)+val : val);
+                    break;
+                case out:
+                    bf_out.put(state, bf_out.containsKey(state) ? bf_out.get(state)+val : val);
+                    break;
+                case full:
+                    bf_dwn.put(state, bf_dwn.containsKey(state) ? bf_dwn.get(state)+val : val);
+                    break;
+            }
+
+        }
+
     }
 
     @Override
@@ -143,7 +168,7 @@ public class LaneGroup extends AbstractLaneGroup {
 
             if(veh>0) {
 
-                Map<KeyCommPathOrLink,Double> bf = flow_in_target.get(i+1);
+                Map<KeyCommPathOrLink,Double> bf = flow_dwn.get(i+1);
                 double out_flow = bf==null ? 0d : bf.values().stream().mapToDouble(x->x).sum();
 
                 if(out_flow==0)
@@ -161,7 +186,7 @@ public class LaneGroup extends AbstractLaneGroup {
 
     @Override
     public float vehicles_for_commodity(Long commodity_id) {
-        return (float) cells.stream().mapToDouble(c->c.get_vehicles_for_commodity(commodity_id)).sum();
+        return (float) cells.stream().mapToDouble(c->c.get_veh_dwn_for_commodity(commodity_id)).sum();
     }
 
     @Override
@@ -177,13 +202,8 @@ public class LaneGroup extends AbstractLaneGroup {
     // update
     ////////////////////////////////////////////
 
-    // not called for sinks
-    public void release_vehicles(Map<KeyCommPathOrLink,Double> X){
-        flow_in_target.set(cells.size(),X);
-    }
-
-    protected void update_cell_boundary_flows(){
-        // set flow_in_target and flot_notin_target for internal boundaries and
+    protected void update_dwn_flow(){
+        // set flow_dwn and flot_notin_target for internal boundaries and
         // downstream boundary for sinks
 
         if(states.isEmpty())
@@ -193,39 +213,44 @@ public class LaneGroup extends AbstractLaneGroup {
         // there are (#cells)+1 boundaries
         // each map is from comm_path to value
         for(int i=0;i<cells.size()-1;i++){
-            Map<KeyCommPathOrLink,Double> demand_in_target = cells.get(i).demand_in_target;
-            Map<KeyCommPathOrLink,Double> demand_notin_target = cells.get(i).demand_notin_target;
 
+            Cell cell = cells.get(i);
 
-            double total_demand = OTMUtils.sum(demand_in_target);
+            Map<KeyCommPathOrLink,Double> dem_dwn = cell.demand_dwn;
+            Map<KeyCommPathOrLink,Double> dem_out = cell.demand_out;
+            Map<KeyCommPathOrLink,Double> dem_in = cell.demand_in;
 
-            total_demand += demand_notin_target==null ? 0d : OTMUtils.sum(demand_notin_target);
+            // total demand
+            double total_demand = OTMUtils.sum(dem_dwn);
+            total_demand += dem_out==null ? 0d : OTMUtils.sum(dem_out);
+            total_demand += dem_in==null ? 0d : OTMUtils.sum(dem_in);
 
             if(total_demand>OTMUtils.epsilon) {
                 double total_flow = Math.min( total_demand , cells.get(i+1).supply );
                 double gamma = total_flow / total_demand;
 
-                flow_in_target.set(i+1,OTMUtils.times(demand_in_target,gamma));
+                flow_dwn.set(i+1,OTMUtils.times(dem_dwn,gamma));
+                if(flow_in!=null)
+                    flow_in.set(i+1,OTMUtils.times(dem_in,gamma));
 
-                if(flow_notin_target!=null)
-                    flow_notin_target.set(i+1,OTMUtils.times(demand_notin_target,gamma));
+                if(flow_out!=null)
+                    flow_out.set(i+1,OTMUtils.times(dem_out,gamma));
             }
             else {
-                flow_in_target.set(i+1, null);
-                if(flow_notin_target!=null)
-                    flow_notin_target.set(i+1, null);
+                flow_dwn.set(i+1, null);
+                if(flow_in!=null)
+                    flow_in.set(i+1, null);
+                if(flow_out!=null)
+                    flow_out.set(i+1, null);
             }
         }
 
-        if(link.end_node.is_sink) {
-            flow_in_target.set(cells.size(), cells.get(cells.size()-1).demand_in_target);
-            if(flow_notin_target!=null)
-                flow_notin_target.set(cells.size(), cells.get(cells.size()-1).demand_notin_target);
-        }
+        if(link.end_node.is_sink)
+            flow_dwn.set(cells.size(), cells.get(cells.size()-1).demand_dwn);
 
         // send lanegroup exit flow to flow accumulator
-        // TODO : Check this
-        for(Map.Entry<KeyCommPathOrLink,Double> e : flow_in_target.get(cells.size()).entrySet())
+        // TODO : NOT IN TARGET VEHICLES ARE NOT BEING COUNTED!!!
+        for(Map.Entry<KeyCommPathOrLink,Double> e : flow_dwn.get(cells.size()).entrySet())
             if(e.getValue()>0)
                 update_flow_accummulators(e.getKey(),e.getValue());
     }
@@ -236,33 +261,34 @@ public class LaneGroup extends AbstractLaneGroup {
             return;
 
         for(int i=0;i<cells.size();i++) {
-            cells.get(i).update_in_target_state(flow_in_target.get(i), flow_in_target.get(i + 1));
-            if(flow_notin_target!=null)
-                cells.get(i).update_notin_target_state(flow_notin_target.get(i), flow_notin_target.get(i + 1));
+            cells.get(i).update_dwn_state(flow_dwn.get(i), flow_dwn.get(i + 1));
+            if(flow_in!=null)
+                cells.get(i).update_in_state(flow_in.get(i), null);
+            if(flow_out!=null)
+                cells.get(i).update_out_state(flow_out.get(i), null);
         }
 
         // clear boundary flows
+        // TODO: IS THIS A GOOD IDEA?
         for(int i=link.is_source?1:0;i<=cells.size();i++)
-            flow_in_target.set(i,null);
+            flow_dwn.set(i,null);
 
-        if(flow_notin_target!=null)
-            for(int i=0;i<=cells.size();i++)
-                flow_notin_target.set(i,null);
+        if(flow_in!=null)
+            for(int i=0;i<cells.size();i++)
+                flow_in.set(i,null);
+        if(flow_out!=null)
+            for(int i=0;i<cells.size();i++)
+                flow_out.set(i,null);
+    }
+
+    // not called for sinks
+    public void release_vehicles(Map<KeyCommPathOrLink,Double> X){
+        flow_dwn.set(cells.size(),X);
     }
 
     ////////////////////////////////////////////
     // get
     ////////////////////////////////////////////
-
-    public double get_total_in_flow(){
-        Map<KeyCommPathOrLink,Double> bf = flow_in_target.get(0);
-        return bf==null ? 0d : bf.values().stream().mapToDouble(x->x).sum();
-    }
-
-    public double get_total_out_flow(){
-        Map<KeyCommPathOrLink,Double> bf = flow_in_target.get(flow_in_target.size()-1);
-        return bf==null ? 0d : bf.values().stream().mapToDouble(x->x).sum();
-    }
 
     public Cell get_upstream_cell(){
         return cells.get(0);
@@ -273,31 +299,21 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     public Double get_demand_in_target_for_state(KeyCommPathOrLink state){
-        return get_dnstream_cell().demand_in_target.get(state);
+        return get_dnstream_cell().demand_dwn.get(state);
     }
 
-    public String print_cell_veh(){
-        String str = "| ";
-        for(Cell cell : cells)
-            str += String.format("(%5.1f,%5.1f)",cell.get_vehicles_in_target(),cell.get_vehicles_notin_target()) + " | ";
-        return str;
-    }
-
-    ////////////////////////////////////////////
-    // private
-    ///////////////////////////////////////////
-
-    private void copy_to_flow(models.ctm.PacketLaneGroup vp,List<Map<KeyCommPathOrLink,Double>> flw){
-        Map<KeyCommPathOrLink,Double> bf = flw.get(0);
-        if(bf==null)
-            flw.set(0,vp.state2vehicles);
-        else {
-            for(Map.Entry<KeyCommPathOrLink,Double> e : vp.state2vehicles.entrySet())
-                bf.put(e.getKey(), bf.containsKey(e.getKey()) ?  bf.get(e.getKey()) + e.getValue() : e.getValue() );
-//            flw.set(0,bf);
-        }
-//        flw.set(0,vp.state2vehicles);
-    }
+//    ////////////////////////////////////////////
+//    // private
+//    ///////////////////////////////////////////
+//
+//    private static void copy_to_flow(models.ctm.PacketLaneGroup vp,List<Map<KeyCommPathOrLink,Double>> flw){
+//        Map<KeyCommPathOrLink,Double> bf = flw.get(0);
+//        if(bf==null)
+//            flw.set(0,vp.state2vehicles);
+//        else
+//            for(Map.Entry<KeyCommPathOrLink,Double> e : vp.state2vehicles.entrySet())
+//                bf.put(e.getKey(), bf.containsKey(e.getKey()) ?  bf.get(e.getKey()) + e.getValue() : e.getValue() );
+//    }
 
 
 }

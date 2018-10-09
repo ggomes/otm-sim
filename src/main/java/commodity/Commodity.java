@@ -99,7 +99,7 @@ public class Commodity implements InterfaceScenarioElement {
         for(Subnetwork subnetwork : subnetworks)
             for(Link link : subnetwork.links)
                 if(link.model_type==Link.ModelType.ctm || link.model_type==Link.ModelType.mn)
-                    ((models.ctm.LinkModel)link.model).register_commodity(this,subnetwork);
+                    link.model.register_commodity(this,subnetwork);
     }
 
     ///////////////////////////////////////////////////
