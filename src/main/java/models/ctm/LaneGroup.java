@@ -157,6 +157,14 @@ public class LaneGroup extends AbstractLaneGroup {
 
         }
 
+        if(bf_dwn!=null)
+            flow_dwn.set(0,bf_dwn);
+
+        if(bf_in!=null)
+            flow_in.set(0,bf_in);
+
+        if(bf_out!=null)
+            flow_out.set(0,bf_out);
     }
 
     @Override
@@ -272,11 +280,12 @@ public class LaneGroup extends AbstractLaneGroup {
             return;
 
         for(int i=0;i<cells.size();i++) {
-            cells.get(i).update_dwn_state(flow_dwn.get(i), flow_dwn.get(i + 1));
+            Cell cell = cells.get(i);
+            cell.update_dwn_state(flow_dwn.get(i), flow_dwn.get(i + 1));
             if(flow_in!=null)
-                cells.get(i).update_in_state(flow_in.get(i), null);
+                cell.update_in_state(flow_in.get(i), null);
             if(flow_out!=null)
-                cells.get(i).update_out_state(flow_out.get(i), null);
+                cell.update_out_state(flow_out.get(i), null);
         }
 
         // clear boundary flows

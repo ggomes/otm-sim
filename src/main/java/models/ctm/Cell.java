@@ -188,10 +188,11 @@ public class Cell {
             // downstream cell: flow controller and lane change blocking
             if (am_dnstrm) {
 
-                if(total_vehs_out>OTMUtils.epsilon) {
-                    double gamma = 0.9d;
-                    double mulitplier = Math.max(0d,1d-gamma*total_vehs_out);
-                    total_demand *= mulitplier;
+                if(total_vehs_out+total_vehs_in>OTMUtils.epsilon) {
+//                    double gamma = 0.9d;
+//                    double mulitplier = Math.max(0d,1d-gamma*total_vehs_out);
+//                    total_demand *= mulitplier;
+                    total_demand = 0d;
                 }
             }
 
@@ -234,16 +235,23 @@ public class Cell {
         if (inflow != null)
             for (Map.Entry<KeyCommPathOrLink, Double> e : inflow.entrySet()) {
                 KeyCommPathOrLink state = e.getKey();
-                veh_dwn.put(state, veh_dwn.get(state) + e.getValue());
+                double value = e.getValue();
+                if(value>0d) {
+                    veh_dwn.put(state, veh_dwn.get(state) + value);
+                    total_vehs_dwn += value;
+                }
             }
 
         if (outflow != null)
             for (Map.Entry<KeyCommPathOrLink, Double> e : outflow.entrySet()) {
                 KeyCommPathOrLink state = e.getKey();
-                veh_dwn.put(state, veh_dwn.get(state) - e.getValue());
+                double value = e.getValue();
+                if(value>0d) {
+                    veh_dwn.put(state, veh_dwn.get(state) - value);
+                    total_vehs_dwn -= value;
+                }
             }
 
-        total_vehs_dwn = OTMUtils.sum(veh_dwn.values());
     }
 
     public void update_out_state(Map<KeyCommPathOrLink, Double> inflow, Map<KeyCommPathOrLink, Double> outflow) {
@@ -251,16 +259,25 @@ public class Cell {
         if (inflow != null)
             for (Map.Entry<KeyCommPathOrLink, Double> e : inflow.entrySet()) {
                 KeyCommPathOrLink state = e.getKey();
-                veh_out.put(state, veh_out.get(state) + e.getValue());
+                double value = e.getValue();
+                if(value>0d) {
+                    veh_out.put(state, veh_out.get(state) + value);
+                    total_vehs_out += value;
+                }
             }
 
         if (outflow != null)
             for (Map.Entry<KeyCommPathOrLink, Double> e : outflow.entrySet()) {
                 KeyCommPathOrLink state = e.getKey();
-                veh_out.put(state, veh_out.get(state) - e.getValue());
+                double value = e.getValue();
+                if(value>0d) {
+                    veh_out.put(state, veh_out.get(state) - value);
+                    total_vehs_out -= value;
+                }
             }
 
-        total_vehs_out = veh_out==null ? 0d : OTMUtils.sum(veh_out.values());
+         if(veh_out==null)
+             total_vehs_out = 0d;
     }
 
     public void update_in_state(Map<KeyCommPathOrLink, Double> inflow, Map<KeyCommPathOrLink, Double> outflow) {
@@ -268,16 +285,25 @@ public class Cell {
         if (inflow != null)
             for (Map.Entry<KeyCommPathOrLink, Double> e : inflow.entrySet()) {
                 KeyCommPathOrLink state = e.getKey();
-                veh_in.put(state, veh_in.get(state) + e.getValue());
+                double value = e.getValue();
+                if(value>0d) {
+                    veh_in.put(state, veh_in.get(state) + value);
+                    total_vehs_in += value;
+                }
             }
 
         if (outflow != null)
             for (Map.Entry<KeyCommPathOrLink, Double> e : outflow.entrySet()) {
                 KeyCommPathOrLink state = e.getKey();
-                veh_in.put(state, veh_in.get(state) - e.getValue());
+                double value = e.getValue();
+                if(value>0d) {
+                    veh_in.put(state, veh_in.get(state) - value);
+                    total_vehs_in -= value;
+                }
             }
 
-        total_vehs_in = veh_in==null ? 0d : OTMUtils.sum(veh_in.values());
+        if(veh_in==null)
+            total_vehs_in = 0d;
 
     }
 

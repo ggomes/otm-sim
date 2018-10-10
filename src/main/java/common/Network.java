@@ -568,7 +568,7 @@ public class Network {
         // lane changing -> intermediate state
         macro_link_models.stream()
                 .filter(l -> l.link.lanegroups_flwdn.size()>=2)
-                .forEach(l -> l.perform_lane_changes());
+                .forEach(l -> l.perform_lane_changes(timestamp));
 
         // update demand and supply
         // (cell.veh_dwn,cell.veh_out -> cell.demand_dwn , cell.demand_out)
@@ -593,6 +593,15 @@ public class Network {
 
         // update cell boundary flows
         macro_link_models.forEach(l -> l.update_dwn_flow());
+
+
+
+//        Link link = links.get(3L);
+//        Set<AbstractLaneGroup> lgs = link.lanegroups_flwdn.values().stream().filter(x->x.num_lanes==4).collect(toSet());
+//        AbstractLaneGroup lg_in = lgs.iterator().next();
+//        lgs = link.lanegroups_flwdn.values().stream().filter(x->x.num_lanes==1).collect(toSet());
+//        AbstractLaneGroup lg_out = lgs.iterator().next();
+//        System.out.println(String.format("%.0f\tin %.2f\tout %.2f",timestamp,lg_in.get_total_vehicles(),lg_out.get_total_vehicles()));
     }
 
     public void update_macro_state(float timestamp) {
