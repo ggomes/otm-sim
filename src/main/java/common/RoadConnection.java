@@ -6,7 +6,10 @@
  */
 package common;
 
+import actuator.AbstractActuator;
+import actuator.InterfaceActuatorTarget;
 import error.OTMErrorLog;
+import error.OTMException;
 import runner.InterfaceScenarioElement;
 import runner.ScenarioElementType;
 import utils.OTMUtils;

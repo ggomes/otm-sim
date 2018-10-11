@@ -147,15 +147,10 @@ public class Scenario {
                 .flatMap(node->node.splits.values().stream())
                 .forEach(x->x.register_initial_event(dispatcher));
 
-        for(AbstractController controller : controllers.values()){
-            if(controller.dt >0)
-                controller.register_initial_events(dispatcher);
-            else
-                dispatcher.register_event(new EventPoke(dispatcher,1,now,controller));
-        }
+        controllers.values().forEach(x->x.register_initial_events(dispatcher));
+        actuators.values().forEach(x->x.register_initial_events(dispatcher));
 
         is_initialized = true;
-
     }
 
     ///////////////////////////////////////////////////
