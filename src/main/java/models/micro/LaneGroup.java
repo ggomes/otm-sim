@@ -42,7 +42,17 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public float vehicles_for_commodity(Long commodity_id) {
+    public float vehs_dwn_for_comm(Long commodity_id) {
+        return 0;
+    }
+
+    @Override
+    public float vehs_in_for_comm(Long comm_id) {
+        return 0;
+    }
+
+    @Override
+    public float vehs_out_for_comm(Long comm_id) {
         return 0;
     }
 

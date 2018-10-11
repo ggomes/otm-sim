@@ -31,7 +31,7 @@ public class LaneGroupVehicles extends AbstractOutputTimedLanegroup {
             return Double.NaN;
         else {
             AbstractLaneGroup lg = lgprofiles.get(lg_id).lg;
-            return lg.vehicles_for_commodity(commodity == null ? null : commodity.getId());
+            return lg.vehs_dwn_for_comm(commodity == null ? null : commodity.getId());
         }
     }
 

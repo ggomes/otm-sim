@@ -207,8 +207,18 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public float vehicles_for_commodity(Long commodity_id) {
-        return (float) cells.stream().mapToDouble(c->c.get_veh_dwn_for_commodity(commodity_id)).sum();
+    public float vehs_dwn_for_comm(Long comm_id) {
+        return (float) cells.stream().mapToDouble(c->c.get_veh_dwn_for_commodity(comm_id)).sum();
+    }
+
+    @Override
+    public float vehs_in_for_comm(Long comm_id) {
+        return (float) cells.stream().mapToDouble(c->c.get_veh_in_for_commodity(comm_id)).sum();
+    }
+
+    @Override
+    public float vehs_out_for_comm(Long comm_id) {
+        return (float) cells.stream().mapToDouble(c->c.get_veh_out_for_commodity(comm_id)).sum();
     }
 
     @Override
@@ -283,9 +293,9 @@ public class LaneGroup extends AbstractLaneGroup {
             Cell cell = cells.get(i);
             cell.update_dwn_state(flow_dwn.get(i), flow_dwn.get(i + 1));
             if(flow_in!=null)
-                cell.update_in_state(flow_in.get(i), null);
+                cell.update_in_state(flow_in.get(i), i==cells.size()-1 ? null : flow_in.get(i+1));
             if(flow_out!=null)
-                cell.update_out_state(flow_out.get(i), null);
+                cell.update_out_state(flow_out.get(i), i==cells.size()-1 ? null : flow_out.get(i+1));
         }
 
         // clear boundary flows
@@ -320,6 +330,21 @@ public class LaneGroup extends AbstractLaneGroup {
 
     public Double get_demand_in_target_for_state(KeyCommPathOrLink state){
         return get_dnstream_cell().demand_dwn.get(state);
+    }
+
+    public double get_total_outgoing_flow(){
+        return flow_dwn==null || flow_dwn.size()<cells.size()+1 || flow_dwn.get(cells.size())==null ? 0d : OTMUtils.sum(flow_dwn.get(cells.size()));
+    }
+
+    public double get_total_incoming_flow(){
+        double flow = 0d;
+        if(flow_dwn!=null && flow_dwn.get(0)!=null)
+            flow += OTMUtils.sum(flow_dwn.get(0));
+        if(flow_in!=null && flow_in.get(0)!=null)
+            flow += OTMUtils.sum(flow_in.get(0));
+        if(flow_out!=null && flow_out.get(0)!=null)
+            flow += OTMUtils.sum(flow_out.get(0));
+        return flow;
     }
 
 }

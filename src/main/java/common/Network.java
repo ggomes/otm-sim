@@ -12,6 +12,7 @@ import geometry.AddLanes;
 import geometry.FlowDirection;
 import geometry.RoadGeometry;
 import geometry.Side;
+import keys.KeyCommPathOrLink;
 import models.ctm.NodeModel;
 import models.ctm.UpLaneGroup;
 import models.micro.LaneGroup;
@@ -595,13 +596,6 @@ public class Network {
         macro_link_models.forEach(l -> l.update_dwn_flow());
 
 
-
-//        Link link = links.get(3L);
-//        Set<AbstractLaneGroup> lgs = link.lanegroups_flwdn.values().stream().filter(x->x.num_lanes==4).collect(toSet());
-//        AbstractLaneGroup lg_in = lgs.iterator().next();
-//        lgs = link.lanegroups_flwdn.values().stream().filter(x->x.num_lanes==1).collect(toSet());
-//        AbstractLaneGroup lg_out = lgs.iterator().next();
-//        System.out.println(String.format("%.0f\tin %.2f\tout %.2f",timestamp,lg_in.get_total_vehicles(),lg_out.get_total_vehicles()));
     }
 
     public void update_macro_state(float timestamp) {

@@ -147,6 +147,8 @@ public class LinkModel extends AbstractLinkModel {
                     demand_to_me += ((LaneGroup) lg.neighbor_in).cells.get(i).total_vehs_out;
                 if (lg.neighbor_out != null)
                     demand_to_me += ((LaneGroup) lg.neighbor_out).cells.get(i).total_vehs_in;
+
+                // TODO: extract xi as a parameter
                 double supply = 0.9d * (1d - cell.wspeed_norm) * (cell.jam_density_veh - cell.get_vehicles());
                 gamma.put(lg.id, demand_to_me > supply ? supply / demand_to_me : 1d);
             }
@@ -155,15 +157,97 @@ public class LinkModel extends AbstractLinkModel {
             // WARNING: This assumes that no state has vehicles going in both directions.
             // ie a flow that goes left does not also go right. Otherwise I think there may
             // be "data races", where the result depends on the order of lgs.
-            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+                models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
                 double my_gamma = gamma.get(lg.id);
+
                 if (lg.neighbor_in != null) {
+
                     LaneGroup from_lg = (LaneGroup) lg.neighbor_in;
-                    perform_lane_change(from_lg.cells.get(i).veh_out, (LaneGroup) lg, i, my_gamma);
+                    Cell from_cell = from_lg.cells.get(i);
+                    Map<KeyCommPathOrLink, Double> from_vehs = from_cell.veh_out;
+
+                    ///////////////////////////////////////////////////////////////////////////////////////////
+
+                    for (Map.Entry<KeyCommPathOrLink, Double> e : from_vehs.entrySet()) {
+                        Double from_veh = e.getValue();
+                        KeyCommPathOrLink state = e.getKey();
+
+                        if (from_veh > OTMUtils.epsilon) {
+
+                            Cell to_cell = lg.cells.get(i);
+                            double flw = my_gamma  * from_veh;
+
+                            // remove from this cell
+                            from_vehs.put(state, from_veh-flw );
+                            from_cell.total_vehs_out -= flw;
+
+                            // add to side cell
+                            Side newside = lg.state2lanechangedirection.containsKey(state) ?
+                                    lg.state2lanechangedirection.get(state) :
+                                    Side.full;
+                            switch (newside) {
+                                case in:
+                                    to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);
+                                    to_cell.total_vehs_in += flw;
+                                    break;
+                                case full:
+                                    to_cell.veh_dwn.put(state, to_cell.veh_dwn.get(state) + flw);
+                                    to_cell.total_vehs_dwn += flw;
+                                    break;
+                                case out:
+                                    to_cell.veh_out.put(state, to_cell.veh_out.get(state) + flw);
+                                    to_cell.total_vehs_out += flw;
+                                    break;
+                            }
+                        }
+                    }
+                    ///////////////////////////////////////////////////////////////////////////////////////////
                 }
                 if (lg.neighbor_out != null) {
+
                     LaneGroup from_lg = (LaneGroup) lg.neighbor_out;
-                    perform_lane_change(from_lg.cells.get(i).veh_in, (LaneGroup) lg, i, my_gamma);
+                    Cell from_cell = from_lg.cells.get(i);
+                    Map<KeyCommPathOrLink, Double> from_vehs = from_cell.veh_in;
+
+                    ///////////////////////////////////////////////////////////////////////////////////////////
+
+                    for (Map.Entry<KeyCommPathOrLink, Double> e : from_vehs.entrySet()) {
+                        Double from_veh = e.getValue();
+                        KeyCommPathOrLink state = e.getKey();
+
+                        if (from_veh > OTMUtils.epsilon) {
+
+                            Cell to_cell = lg.cells.get(i);
+                            double flw = my_gamma * from_veh;
+
+                            // remove from this cell
+                            from_vehs.put(state, from_veh-flw );
+                            from_cell.total_vehs_in -= flw;
+
+                            // add to side cell
+                            Side newside = lg.state2lanechangedirection.containsKey(state) ?
+                                    lg.state2lanechangedirection.get(state) :
+                                    Side.full;
+                            switch (newside) {
+                                case in:
+                                    to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);
+                                    to_cell.total_vehs_in += flw;
+                                    break;
+                                case full:
+                                    to_cell.veh_dwn.put(state, to_cell.veh_dwn.get(state) + flw);
+                                    to_cell.total_vehs_dwn += flw;
+                                    break;
+                                case out:
+                                    to_cell.veh_out.put(state, to_cell.veh_out.get(state) + flw);
+                                    to_cell.total_vehs_out += flw;
+                                    break;
+                            }
+                        }
+                    }
+
+
+                    ///////////////////////////////////////////////////////////////////////////////////////////
                 }
             }
         }
@@ -193,38 +277,42 @@ public class LinkModel extends AbstractLinkModel {
     // private
     ///////////////////////////////////////////
 
-    private static void perform_lane_change(Map<KeyCommPathOrLink, Double> from_vehs,LaneGroup to_lg,int i,double gamma){
-        for (Map.Entry<KeyCommPathOrLink, Double> e : from_vehs.entrySet()) {
-
-            Double from_veh = e.getValue();
-            KeyCommPathOrLink state = e.getKey();
-
-            if (from_veh > OTMUtils.epsilon) {
-
-                double flw = gamma * from_veh;
-
-                // remove from this cell
-                from_vehs.put(state, from_veh-flw );
-
-                // add to side cell
-                Side newside = to_lg.state2lanechangedirection.containsKey(state) ?
-                               to_lg.state2lanechangedirection.get(state) :
-                               Side.full;
-                Cell to_cell = to_lg.cells.get(i);
-                switch (newside) {
-                    case in:
-                        to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);
-                        break;
-                    case full:
-                        to_cell.veh_dwn.put(state, to_cell.veh_dwn.get(state) + flw);
-                        break;
-                    case out:
-                        to_cell.veh_out.put(state, to_cell.veh_out.get(state) + flw);
-                        break;
-                }
-            }
-        }
-
-    }
+//    private static void perform_lane_change(Map<KeyCommPathOrLink, Double> from_vehs,LaneGroup to_lg,int i,double gamma){
+//
+//        for (Map.Entry<KeyCommPathOrLink, Double> e : from_vehs.entrySet()) {
+//            Double from_veh = e.getValue();
+//            KeyCommPathOrLink state = e.getKey();
+//
+//            if (from_veh > OTMUtils.epsilon) {
+//
+//                Cell to_cell = to_lg.cells.get(i);
+//                double flw = gamma * from_veh;
+//
+//                // remove from this cell
+//                from_vehs.put(state, from_veh-flw );
+//                fromcell. XXX -= flw;
+//
+//                // add to side cell
+//                Side newside = to_lg.state2lanechangedirection.containsKey(state) ?
+//                               to_lg.state2lanechangedirection.get(state) :
+//                               Side.full;
+//                switch (newside) {
+//                    case in:
+//                        to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);
+//                        to_cell.total_vehs_in += flw;
+//                        break;
+//                    case full:
+//                        to_cell.veh_dwn.put(state, to_cell.veh_dwn.get(state) + flw);
+//                        to_cell.total_vehs_dwn += flw;
+//                        break;
+//                    case out:
+//                        to_cell.veh_out.put(state, to_cell.veh_out.get(state) + flw);
+//                        to_cell.total_vehs_out += flw;
+//                        break;
+//                }
+//            }
+//        }
+//
+//    }
 
 }

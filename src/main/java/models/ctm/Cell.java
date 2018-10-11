@@ -104,6 +104,7 @@ public class Cell {
             veh_dwn.put(k, 0d);
             demand_dwn.put(k, 0d);
         }
+        total_vehs_dwn = 0d;
 
         // outward flow
         if (laneGroup.neighbor_out != null) {
@@ -113,6 +114,7 @@ public class Cell {
                 veh_out.put(k, 0d);
                 demand_out.put(k, 0d);
             }
+            total_vehs_out = 0d;
         }
 
         // inward flow
@@ -123,6 +125,7 @@ public class Cell {
                 veh_in.put(k, 0d);
                 demand_in.put(k, 0d);
             }
+            total_vehs_in = 0d;
         }
 
     }
@@ -135,15 +138,38 @@ public class Cell {
         return total_vehs_dwn + total_vehs_in + total_vehs_out;
     }
 
-    public double get_veh_dwn_for_commodity(Long commodity_id) {
+    public double get_veh_dwn_for_commodity(Long comm_id) {
+        if(comm_id==null)
+            return this.total_vehs_dwn;
+        else
+            return veh_dwn.entrySet().stream()
+                    .filter(x->x.getKey().commodity_id==comm_id)
+                    .mapToDouble(x->x.getValue())
+                    .sum();
+    }
 
-        if (commodity_id == null)
-            return get_vehicles();
-
-        return veh_dwn.entrySet().stream()
-                .filter(x->x.getKey().commodity_id==commodity_id)
+    public double get_veh_in_for_commodity(Long comm_id) {
+        if(comm_id==null)
+            return this.total_vehs_in;
+        else
+            return veh_in.entrySet().stream()
+                .filter(x->x.getKey().commodity_id==comm_id)
                 .mapToDouble(x->x.getValue())
                 .sum();
+    }
+
+    public double get_veh_out_for_commodity(Long comm_id) {
+        if(comm_id==null)
+            return this.total_vehs_out;
+        else
+            return veh_out.entrySet().stream()
+                    .filter(x->x.getKey().commodity_id==comm_id)
+                    .mapToDouble(x->x.getValue())
+                    .sum();
+    }
+
+    public double get_veh_for_commodity(Long comm_id) {
+        return get_veh_dwn_for_commodity(comm_id) + get_veh_in_for_commodity(comm_id) + get_veh_out_for_commodity(comm_id);
     }
 
     ///////////////////////////////////////////////////
@@ -251,7 +277,6 @@ public class Cell {
                     total_vehs_dwn -= value;
                 }
             }
-
     }
 
     public void update_out_state(Map<KeyCommPathOrLink, Double> inflow, Map<KeyCommPathOrLink, Double> outflow) {
@@ -278,6 +303,7 @@ public class Cell {
 
          if(veh_out==null)
              total_vehs_out = 0d;
+
     }
 
     public void update_in_state(Map<KeyCommPathOrLink, Double> inflow, Map<KeyCommPathOrLink, Double> outflow) {

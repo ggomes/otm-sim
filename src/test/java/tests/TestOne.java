@@ -80,9 +80,9 @@ public class TestOne extends AbstractTest {
     @Test
     public void run_one() {
         try {
-            float duration = 3600f;
+            float duration = 1000f;
             float outdt = 10f;
-            float sim_dt = 1f;
+            float sim_dt = 2f;
 
             // Load ..............................
             API api = null;

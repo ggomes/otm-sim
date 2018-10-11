@@ -438,7 +438,7 @@ public class Link implements InterfaceScenarioElement {
 
     public double get_veh_for_commodity(Long commodity_id) {
         return lanegroups_flwdn.values().stream()
-                .mapToDouble(x->x.vehicles_for_commodity(commodity_id))
+                .mapToDouble(x->x.vehs_dwn_for_comm(commodity_id))
                 .sum();
     }
 
