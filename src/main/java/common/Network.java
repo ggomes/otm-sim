@@ -38,7 +38,7 @@ public class Network {
     public Map<Long, RoadGeometry> road_geoms = new HashMap<>();
     public Map<Long,jaxb.Roadparam> road_params = new HashMap<>();    // keep this for the sake of the scenario splitter
 
-    private Map<Long,RoadConnection> road_connections = new HashMap<>();
+    public Map<Long,RoadConnection> road_connections = new HashMap<>();
 
     public Set<models.ctm.LinkModel> macro_link_models = new HashSet<>();
     public Set<Node> macro_internal_nodes = new HashSet<>();
