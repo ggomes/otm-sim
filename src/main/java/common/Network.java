@@ -566,6 +566,20 @@ public class Network {
 
     public void update_macro_flow(float timestamp) throws OTMException {
 
+        update_macro_flow_part_I(timestamp);
+
+        // -- MPI communication (in otm-mpi) -- //
+
+        update_macro_flow_part_II(timestamp);
+    }
+
+    public void update_macro_state(float timestamp) {
+        for(models.ctm.LinkModel linkModel : macro_link_models)
+            linkModel.update_state(timestamp);
+    }
+
+    public void update_macro_flow_part_I(float timestamp){
+
         // lane changing -> intermediate state
         macro_link_models.stream()
                 .filter(l -> l.link.lanegroups_flwdn.size()>=2)
@@ -578,6 +592,10 @@ public class Network {
 
         // compute node inflow and outflow (all nodes except sources)
         macro_internal_nodes.forEach(node->node.node_model.update_flow(timestamp));
+
+    }
+
+    public void update_macro_flow_part_II(float timestamp) throws OTMException {
 
         // exchange packets
         for(Node node : macro_internal_nodes) {
@@ -595,12 +613,6 @@ public class Network {
         // update cell boundary flows
         macro_link_models.forEach(l -> l.update_dwn_flow());
 
-
-    }
-
-    public void update_macro_state(float timestamp) {
-        for(models.ctm.LinkModel linkModel : macro_link_models)
-            linkModel.update_state(timestamp);
     }
 
     ////////////////////////////////////////////
