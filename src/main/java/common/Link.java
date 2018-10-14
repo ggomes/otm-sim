@@ -266,19 +266,19 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         if(this.road_geom!=null){
 
             // each addlane has length less than the link
-            if(road_geom.up_in.length>this.length )
+            if(road_geom.up_in!=null && road_geom.up_in.length>this.length )
                 errorLog.addError("link " + id + ", road_geom.up_in.length > this.length");
-            if( road_geom.up_out.length>this.length )
+            if(road_geom.up_out!=null && road_geom.up_out.length>this.length )
                 errorLog.addError("link " + id + ", road_geom.up_out.length > this.length");
-            if( road_geom.dn_in.length>this.length )
+            if(road_geom.dn_in!=null && road_geom.dn_in.length>this.length )
                 errorLog.addError("link " + id + ", road_geom.dn_in.length > this.length");
-            if( road_geom.dn_out.length>this.length )
+            if(road_geom.dn_out!=null && road_geom.dn_out.length>this.length )
                 errorLog.addError("link " + id + ", road_geom.dn_out.length > this.length");
 
             // sum of inside (outside) addlane lengths is less than link length
-            if( road_geom.up_in.length+road_geom.dn_in.length>this.length)
+            if(road_geom.up_in!=null && road_geom.dn_in!=null && road_geom.up_in.length+road_geom.dn_in.length>this.length)
                 errorLog.addError("link " + id + ", road_geom.up_in.length+road_geom.dn_in.length>this.length");
-            if( road_geom.up_out.length+road_geom.dn_out.length>this.length)
+            if(road_geom.up_out!=null && road_geom.dn_out!=null && road_geom.up_out.length+road_geom.dn_out.length>this.length)
                 errorLog.addError("link " + id + ", road_geom.up_out.length+road_geom.dn_out.length>this.length");
         }
 
@@ -347,16 +347,19 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     // get
     ///////////////////////////////////////////
 
-    // WARNING: possible inefficiency if this is called a lot
-    public List<Integer> get_entry_lanes(){
-        // find first lane
-        int first_lane = road_geom==null ? 1 : 1 + Math.max(0,road_geom.dn_in.lanes-road_geom.up_in.lanes);
-        int last_lane = road_geom==null ? full_lanes : first_lane + road_geom.up_in.lanes + full_lanes + road_geom.up_out.lanes -1;
-        List<Integer> lanes = new ArrayList<>();
-        for(int lane=first_lane;lane<=last_lane;lane++)
-            lanes.add(lane);
-        return lanes;
-    }
+//    // WARNING: possible inefficiency if this is called a lot
+//    public List<Integer> get_up_lanes(){
+//        // find first lane
+//        int first_lane = road_geom==null ? 1 : 1 + Math.max(0,road_geom.dn_in.lanes-road_geom.up_in.lanes);
+//        int last_lane = road_geom==null ? full_lanes : first_lane + road_geom.up_in.lanes + full_lanes + road_geom.up_out.lanes -1;
+//
+//
+//
+//        List<Integer> lanes = new ArrayList<>();
+//        for(int lane=first_lane;lane<=last_lane;lane++)
+//            lanes.add(lane);
+//        return lanes;
+//    }
 
     public int get_num_dn_lanes(){
         return full_lanes +

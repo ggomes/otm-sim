@@ -335,6 +335,9 @@ public class ScenarioFactory {
 
         HashMap<Long, Subnetwork> subnetworks = new HashMap<>();
 
+        if(jaxb_subnets!=null && jaxb_subnets.getSubnetwork().stream().anyMatch(x->x.getId()==0L))
+            throw new OTMException("Subnetwork id '0' is not allowed.");
+
         // create global commodity
         if(have_global_commodity)
             subnetworks.put(0L,new Subnetwork(network));
@@ -353,66 +356,66 @@ public class ScenarioFactory {
             }
         }
 
-        // build subnetwork of lanegroups
-        for(Subnetwork subnetwork : subnetworks.values()){
-
-            // special case for global subnetworks
-            if(subnetwork.is_global) {
-                subnetwork.add_lanegroups(network.get_lanegroups());
-                continue;
-            }
-
-            for(Link link : subnetwork.links){
-
-                // case single lane group, then add it and continue
-                // this takes care of the one2one case
-                if(link.lanegroups_flwdn.size()==1){
-                    subnetwork.add_lanegroup( link.lanegroups_flwdn.values().iterator().next());
-                    continue;
-                }
-
-                // lane covered by road connections from inputs to here
-                Set<Integer> input_lanes = new HashSet<>();
-                if(link.is_source)
-                    input_lanes.addAll(link.get_entry_lanes());
-                else {
-                    Set<Link> inputs = OTMUtils.intersect(link.start_node.in_links.values(), subnetwork.links);
-                    for (Link input : inputs) {
-                        if (input.outlink2lanegroups.containsKey(link.getId())) {
-                            for (AbstractLaneGroup lg : input.outlink2lanegroups.get(link.getId())) {
-                                RoadConnection rc = lg.get_roadconnection_for_outlink(link.getId());
-                                if (rc != null)
-                                    input_lanes.addAll(IntStream.rangeClosed(rc.end_link_from_lane, rc.end_link_to_lane)
-                                            .boxed().collect(toSet()));
-                            }
-                        }
-                    }
-                }
-
-                // lane covered by road connections from here to outputs
-                Set<Integer> output_lanes = new HashSet<>();
-                if(link.is_sink) {
-                    for(int lane=1;lane<=link.get_num_dn_lanes();lane++)
-                        output_lanes.add(lane);
-                }
-                else {
-                    Set<Link> outputs = OTMUtils.intersect(link.end_node.out_links.values(), subnetwork.links);
-                    for (Link output : outputs)
-                        for (AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
-                            RoadConnection rc = lg.get_roadconnection_for_outlink(output.getId());
-                            if (rc != null)
-                                output_lanes.addAll(IntStream.rangeClosed(rc.start_link_from_lane, rc.start_link_to_lane)
-                                        .boxed().collect(toSet()));
-                        }
-                }
-
-                // add the lanegroups that cover the intersection of the two
-                Set<Integer> subnetlanes = OTMUtils.intersect(input_lanes,output_lanes);
-                for(Integer lane : subnetlanes)
-                    subnetwork.add_lanegroup( link.get_lanegroup_for_dn_lane(lane) ); // TODO FIX THIS!!!
-            }
-
-        }
+//        // build subnetwork of lanegroups
+//        for(Subnetwork subnetwork : subnetworks.values()){
+//
+//            // special case for global subnetworks
+//            if(subnetwork.is_global) {
+//                subnetwork.add_lanegroups(network.get_lanegroups());
+//                continue;
+//            }
+//
+//            for(Link link : subnetwork.links){
+//
+//                // case single lane group, then add it and continue
+//                // this takes care of the one2one case
+//                if(link.lanegroups_flwdn.size()==1){
+//                    subnetwork.add_lanegroup( link.lanegroups_flwdn.values().iterator().next());
+//                    continue;
+//                }
+//
+//                // lane covered by road connections from inputs to here
+//                Set<Integer> input_lanes = new HashSet<>();
+//                if(link.is_source)
+//                    input_lanes.addAll(link.get_up_lanes());
+//                else {
+//                    Set<Link> inputs = OTMUtils.intersect(link.start_node.in_links.values(), subnetwork.links);
+//                    for (Link input : inputs) {
+//                        if (input.outlink2lanegroups.containsKey(link.getId())) {
+//                            for (AbstractLaneGroup lg : input.outlink2lanegroups.get(link.getId())) {
+//                                RoadConnection rc = lg.get_roadconnection_for_outlink(link.getId());
+//                                if (rc != null)
+//                                    input_lanes.addAll(IntStream.rangeClosed(rc.end_link_from_lane, rc.end_link_to_lane)
+//                                            .boxed().collect(toSet()));
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                // lane covered by road connections from here to outputs
+//                Set<Integer> output_lanes = new HashSet<>();
+//                if(link.is_sink) {
+//                    for(int lane=1;lane<=link.get_num_dn_lanes();lane++)
+//                        output_lanes.add(lane);
+//                }
+//                else {
+//                    Set<Link> outputs = OTMUtils.intersect(link.end_node.out_links.values(), subnetwork.links);
+//                    for (Link output : outputs)
+//                        for (AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+//                            RoadConnection rc = lg.get_roadconnection_for_outlink(output.getId());
+//                            if (rc != null)
+//                                output_lanes.addAll(IntStream.rangeClosed(rc.start_link_from_lane, rc.start_link_to_lane)
+//                                        .boxed().collect(toSet()));
+//                        }
+//                }
+//
+//                // add the lanegroups that cover the intersection of the two
+//                Set<Integer> subnetlanes = OTMUtils.intersect(input_lanes,output_lanes);
+//                for(Integer lane : subnetlanes)
+//                    subnetwork.add_lanegroup( link.get_lanegroup_for_dn_lane(lane) ); // TODO FIX THIS!!!
+//            }
+//
+//        }
 
         return subnetworks;
     }
@@ -429,21 +432,23 @@ public class ScenarioFactory {
                 throw new OTMException("Repeated commodity id in <commodities>");
 
             List<Long> subnet_ids = new ArrayList<>();
-            if(!jaxb_comm.isPathfull() && (jaxb_comm.getSubnetworks()==null || jaxb_comm.getSubnetworks().isEmpty()))
+            boolean is_global = !jaxb_comm.isPathfull() && (jaxb_comm.getSubnetworks()==null || jaxb_comm.getSubnetworks().isEmpty());
+            if(is_global)
                 subnet_ids.add(0L);
             else
                 subnet_ids = OTMUtils.csv2longlist(jaxb_comm.getSubnetworks());
 
             // check subnetwork ids are good
-            if(!subnetworks.keySet().containsAll(subnet_ids))
-                throw new OTMException("Bad subnetwork id in commodity");
+            if(!is_global && !subnetworks.keySet().containsAll(subnet_ids))
+                throw new OTMException(String.format("Bad subnetwork id in commodity %d",jaxb_comm.getId()) );
 
             Commodity comm = new Commodity( jaxb_comm,subnet_ids,scenario);
             commodities.put( jaxb_comm.getId(), comm );
 
             // inform the subnetwork of their commodities
-            for(Long subnet_id : subnet_ids)
-                subnetworks.get(subnet_id).add_commodity(comm);
+            if(!is_global)
+                for(Long subnet_id : subnet_ids)
+                    subnetworks.get(subnet_id).add_commodity(comm);
         }
 
         return commodities;

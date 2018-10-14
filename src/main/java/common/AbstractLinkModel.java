@@ -7,6 +7,7 @@
 package common;
 
 import commodity.Commodity;
+import commodity.Path;
 import commodity.Subnetwork;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -44,8 +45,10 @@ public abstract class AbstractLinkModel {
     public void register_commodity(Commodity comm, Subnetwork subnet) throws OTMException {
 
         if(comm.pathfull) {
+            Link next_link = ((Path) subnet).get_link_following(this.link);
+            Long next_link_id = next_link==null ? null : next_link.getId();
             for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                lg.add_state(comm.getId(), subnet.getId(), true);
+                lg.add_state(comm.getId(), subnet.getId(),next_link_id, true);
         }
 
         else {
@@ -53,7 +56,7 @@ public abstract class AbstractLinkModel {
             // for pathless/sink, next link id is same as this id
             if (link.is_sink) {
                 for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                    lg.add_state(comm.getId(), link.getId(), false);
+                    lg.add_state(comm.getId(), null,link.getId(), false);
 
             } else {
 
@@ -62,7 +65,7 @@ public abstract class AbstractLinkModel {
                     if (!subnet.has_link_id(next_link_id))
                         continue;
                     for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                        lg.add_state(comm.getId(), next_link_id, false);
+                        lg.add_state(comm.getId(), null,next_link_id, false);
                 }
             }
         }

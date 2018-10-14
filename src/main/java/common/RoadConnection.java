@@ -6,10 +6,7 @@
  */
 package common;
 
-import actuator.AbstractActuator;
-import actuator.InterfaceActuatorTarget;
 import error.OTMErrorLog;
-import error.OTMException;
 import runner.InterfaceScenarioElement;
 import runner.ScenarioElementType;
 import utils.OTMUtils;
@@ -42,15 +39,21 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         end_link = links.get(jaxb_rc.getOutLink())==null ? null : links.get(jaxb_rc.getOutLink());
         this.external_max_flow_vps = Float.POSITIVE_INFINITY;
 
-        int [] in_lanes = OTMUtils.int_hash_int(jaxb_rc.getInLinkLanes());
-        if(in_lanes!=null && in_lanes.length==2){
-            start_link_from_lane = in_lanes[0];
-            start_link_to_lane = in_lanes[1];
+        if(jaxb_rc.getInLinkLanes()!=null) {
+            int [] in_lanes = OTMUtils.int_hash_int(jaxb_rc.getInLinkLanes());
+            if(in_lanes!=null && in_lanes.length==2){
+                start_link_from_lane = in_lanes[0];
+                start_link_to_lane = in_lanes[1];
+            }
+            else{
+                start_link_from_lane = 0;
+                start_link_to_lane = 0;
+            }
+        } else { // in_link_lanes is not defined => assign all lanes
+            start_link_from_lane = 1;
+            start_link_to_lane = start_link.get_num_dn_lanes();
         }
-        else{
-            start_link_from_lane = 0;
-            start_link_to_lane = 0;
-        }
+
 
         if(jaxb_rc.getOutLinkLanes()!=null) {
             int[] out_lanes = OTMUtils.int_hash_int(jaxb_rc.getOutLinkLanes());
@@ -63,9 +66,8 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
             }
         }
         else{  // out_link_lanes is not defined => assign all lanes
-            List<Integer> entry_lanes = end_link.get_entry_lanes();
-            end_link_from_lane = entry_lanes.get(0);
-            end_link_to_lane = entry_lanes.get(entry_lanes.size()-1);
+            end_link_from_lane = 1;
+            end_link_to_lane = end_link.get_num_up_lanes();
         }
 
     }

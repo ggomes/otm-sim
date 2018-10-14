@@ -24,7 +24,7 @@ public class Subnetwork {
     public boolean is_global;
     public Set<Link> links;
     public Set<Commodity> used_by_comm;
-    public Set<AbstractLaneGroup> lanegroups;
+//    public Set<AbstractLaneGroup> lanegroups;
     public boolean is_path;
 
     ///////////////////////////////////////////////////
@@ -58,17 +58,17 @@ public class Subnetwork {
 //            scenario.error_log.addError("id<=0 not allowed for subnetworks.");
     }
 
-    public void add_lanegroup(AbstractLaneGroup lg){
-        if(lanegroups==null)
-            lanegroups = new HashSet<>();
-        lanegroups.add(lg);
-    }
-
-    public void add_lanegroups(Collection<AbstractLaneGroup> lgs){
-        if(lanegroups==null)
-            lanegroups = new HashSet<>();
-        lanegroups.addAll(lgs);
-    }
+//    public void add_lanegroup(AbstractLaneGroup lg){
+//        if(lanegroups==null)
+//            lanegroups = new HashSet<>();
+//        lanegroups.add(lg);
+//    }
+//
+//    public void add_lanegroups(Collection<AbstractLaneGroup> lgs){
+//        if(lanegroups==null)
+//            lanegroups = new HashSet<>();
+//        lanegroups.addAll(lgs);
+//    }
 
     public void add_commodity(Commodity c){
         used_by_comm.add(c);

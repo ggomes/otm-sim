@@ -190,34 +190,32 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     }
 
-    public void add_state(long comm_id, long next_link_id, boolean ispath) throws OTMException {
+    public void add_state(long comm_id, Long path_id,Long next_link_id, boolean ispathfull) throws OTMException {
 
-        KeyCommPathOrLink state = new KeyCommPathOrLink(comm_id, next_link_id, ispath);
+        KeyCommPathOrLink state = ispathfull ?
+                new KeyCommPathOrLink(comm_id, path_id, true) :
+                new KeyCommPathOrLink(comm_id, next_link_id, false);
 
         states.add(state);
 
-        // state2roadconnection: for this state, what is the road connection exiting
-        // this lanegroup that it will follow. There need not be one: this may not be
-        // a target lane group for this state.
-
-        // sink case -- no road connection
         if(link.is_sink){
             state2roadconnection.put(state,null);
-            return;
-        }
+        } else {
 
-        // store in map
-        RoadConnection rc = get_roadconnection_for_outlink(next_link_id);
-        if(rc!=null)
-            state2roadconnection.put(state,rc.getId());
+            // store in map
+            RoadConnection rc = get_roadconnection_for_outlink(next_link_id);
+            if(rc!=null)
+                state2roadconnection.put(state,rc.getId());
 
-        // keep lane change side if I am not a target lanegroup
-        if(rc==null){
-            Set<AbstractLaneGroup> next_link_lgs = link.outlink2lanegroups.get(next_link_id);
-            Set<Side> sides = next_link_lgs.stream().map(x->x.get_side_with_respect_to_lg(this)).collect(Collectors.toSet());
-            if(sides.size()!=1)
-                throw new OTMException("asd;liqwr g-q4iwq jg");
-            state2lanechangedirection.put(state,sides.iterator().next());
+            // keep lane change side
+            if(rc==null){
+                Set<AbstractLaneGroup> next_link_lgs = link.outlink2lanegroups.get(next_link_id);
+                Set<Side> sides = next_link_lgs.stream().map(x->x.get_side_with_respect_to_lg(this)).collect(Collectors.toSet());
+                if(sides.size()!=1)
+                    throw new OTMException("asd;liqwr g-q4iwq jg");
+                state2lanechangedirection.put(state,sides.iterator().next());
+            }
+
         }
 
     }

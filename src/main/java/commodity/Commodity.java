@@ -29,7 +29,7 @@ public class Commodity implements InterfaceScenarioElement {
     public final String name;
     public final Set<Subnetwork> subnetworks;
     public  Set<Link> all_links;
-    public  Set<AbstractLaneGroup> all_lanegroups;
+//    public  Set<AbstractLaneGroup> all_lanegroups;
     public boolean pathfull;
 
     // this is a dispatch output writer for vehicles of this commodity
@@ -43,14 +43,14 @@ public class Commodity implements InterfaceScenarioElement {
         this.id = id;
         this.name = name;
         this.subnetworks = new HashSet<>();
-        this.all_lanegroups = new HashSet<>();
+//        this.all_lanegroups = new HashSet<>();
         this.all_links = new HashSet<>();
         if(subnet_ids!=null)
             for(Long subnet_id : subnet_ids){
                 Subnetwork subnet = scenario.subnetworks.get(subnet_id);
                 if(subnet!=null)
                     this.subnetworks.add(subnet);
-                all_lanegroups.addAll(subnet.lanegroups);
+//                all_lanegroups.addAll(subnet.lanegroups);
                 all_links.addAll(subnet.links);
             }
         this.vehicle_event_listeners = new HashSet<>();
@@ -62,7 +62,7 @@ public class Commodity implements InterfaceScenarioElement {
         this.name = jaxb_comm.getName();
         this.pathfull = jaxb_comm.isPathfull();
         this.subnetworks = new HashSet<>();
-        this.all_lanegroups = new HashSet<>();
+//        this.all_lanegroups = new HashSet<>();
         this.all_links = new HashSet<>();
         if(subnet_ids!=null)
             for(Long subnet_id : subnet_ids){
@@ -70,8 +70,8 @@ public class Commodity implements InterfaceScenarioElement {
                 if(subnet!=null) {
                     this.subnetworks.add(subnet);
                     all_links.addAll(subnet.links);
-                    if(subnet.lanegroups!=null)
-                        all_lanegroups.addAll(subnet.lanegroups);
+//                    if(subnet.lanegroups!=null)
+//                        all_lanegroups.addAll(subnet.lanegroups);
                 }
             }
         this.vehicle_event_listeners = new HashSet<>();

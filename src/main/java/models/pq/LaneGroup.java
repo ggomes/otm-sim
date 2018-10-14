@@ -42,7 +42,7 @@ public class LaneGroup extends AbstractLaneGroup {
     // a) lanegroups not reached by the road connection between the two
     // b) lanegroups that connect only to links not within the commoditie's subnetwork
     // c) any explicitly prohibitted lanegroups (not implemented)
-    public Map<KeyCommodityLink,Set<AbstractLaneGroup>> downstream_candidate_lanegroups;
+//    public Map<KeyCommodityLink,Set<AbstractLaneGroup>> downstream_candidate_lanegroups;
 
     public PartialVehicleMemory pvm;
 
@@ -54,7 +54,7 @@ public class LaneGroup extends AbstractLaneGroup {
         super(link, side,flwdir,length, num_lanes, start_lane, out_rcs);
         this.transit_queue = new models.pq.Queue(this, models.pq.Queue.Type.transit);
         this.waiting_queue = new models.pq.Queue(this, models.pq.Queue.Type.waiting);
-        this.downstream_candidate_lanegroups = new HashMap<>();
+//        this.downstream_candidate_lanegroups = new HashMap<>();
     }
 
     ////////////////////////////////////////////
@@ -72,22 +72,22 @@ public class LaneGroup extends AbstractLaneGroup {
     @Override
     public void add_commodity(Commodity commodity) {
 
-        if(link.end_node.is_many2one){
-            Link outlink = link.end_node.out_links.values().iterator().next();
-            downstream_candidate_lanegroups.put(
-                    new KeyCommodityLink(commodity.getId(),outlink.getId()),
-                    new HashSet<>(outlink.lanegroups_flwdn.values()));
-            return;
-        }
-
-        for(Long outlink_id : get_dwn_links()){
-            RoadConnection rc = get_roadconnection_for_outlink(outlink_id);
-            if(rc!=null){
-                Set<AbstractLaneGroup> out_lanegroups = OTMUtils.intersect(rc.out_lanegroups,commodity.all_lanegroups);
-                if(!out_lanegroups.isEmpty())
-                    downstream_candidate_lanegroups.put(new KeyCommodityLink(commodity.getId(),outlink_id),out_lanegroups);
-            }
-        }
+//        if(link.end_node.is_many2one){
+//            Link outlink = link.end_node.out_links.values().iterator().next();
+//            downstream_candidate_lanegroups.put(
+//                    new KeyCommodityLink(commodity.getId(),outlink.getId()),
+//                    new HashSet<>(outlink.lanegroups_flwdn.values()));
+//            return;
+//        }
+//
+//        for(Long outlink_id : get_dwn_links()){
+//            RoadConnection rc = get_roadconnection_for_outlink(outlink_id);
+//            if(rc!=null){
+//                Set<AbstractLaneGroup> out_lanegroups = OTMUtils.intersect(rc.out_lanegroups,commodity.all_lanegroups);
+//                if(!out_lanegroups.isEmpty())
+//                    downstream_candidate_lanegroups.put(new KeyCommodityLink(commodity.getId(),outlink_id),out_lanegroups);
+//            }
+//        }
     }
 
     @Override

@@ -88,11 +88,11 @@ public class DemandProfile extends AbstractDemandProfile {
 
             // link is a source
             if (!link.is_source)
-                errorLog.addError("!link.is_source()");
+                errorLog.addError(String.format("In demand for commodity %d, link %d is not a source.",this.get_commodity_id(),link.getId()));
 
             // this link is in the commodities subnetworks
-            if(!commodity.subnetworks.stream().anyMatch(x->x.links.contains(link)))
-                errorLog.addError("demand defined for commodity " + commodity.getId() + " on link " + link.getId());
+//            if(!commodity.subnetworks.stream().anyMatch(x->x.links.contains(link)))
+//                errorLog.addError("demand defined for commodity " + commodity.getId() + " on link " + link.getId());
         }
 
         if(path!=null){
