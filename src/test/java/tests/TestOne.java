@@ -38,7 +38,6 @@ public class TestOne extends AbstractTest {
             LinkInfo link = api.get_link_with_id(107948L);
 
             System.out.println(link.getFull_length());
-            System.out.println(link.get_ffspeed_mps());
 
             List<ODInfo> odinfo = api.get_od_info();
 
@@ -74,6 +73,17 @@ public class TestOne extends AbstractTest {
         } catch (OTMException e) {
             System.out.print(e);
             fail();
+        }
+    }
+
+
+    @Test
+    public void load_one() {
+        try {
+            float sim_dt = 2f;
+            API api = OTM.load("C:\\Users\\gomes\\Desktop\\config\\draw.xml",sim_dt,true);
+        } catch (OTMException e) {
+            e.printStackTrace();
         }
     }
 

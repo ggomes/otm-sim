@@ -30,8 +30,8 @@ public abstract class AbstractLinkModel {
     abstract public void set_road_param(jaxb.Roadparam r, float sim_dt_sec);
     abstract public void validate(OTMErrorLog errorLog);
     abstract public void reset();
-    abstract public float get_ff_travel_time(); // seconds
-    abstract public float get_capacity_vps();   // vps
+//    abstract public float get_ff_travel_time(); // seconds
+//    abstract public float get_capacity_vps();   // vps
     abstract public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups);
 
     //////////////////////////////////////////////////////////////

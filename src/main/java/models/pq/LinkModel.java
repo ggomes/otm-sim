@@ -48,24 +48,24 @@ public class LinkModel extends AbstractLinkModel {
         System.out.println("IMPLEMENT THIS");
     }
 
-    @Override
-    public float get_ff_travel_time() {
+//    @Override
+//    public float get_ff_travel_time() {
+//
+//        // returns the maximum of the transit times of all of the lanegroup
+//        float s = 0f;
+//        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() )
+//            s = Math.max( s , ((LaneGroup)lg).transit_time_sec );
+//        return s;
+//    }
 
-        // returns the maximum of the transit times of all of the lanegroup
-        float s = 0f;
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() )
-            s = Math.max( s , ((LaneGroup)lg).transit_time_sec );
-        return s;
-    }
-
-    @Override
-    public float get_capacity_vps(){
-        // return s the sum of the capacities of all of the lanegroups
-        float s = 0f;
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() )
-            s += ((LaneGroup)lg).saturation_flow_rate_vps;
-        return s;
-    }
+//    @Override
+//    public float get_capacity_vps(){
+//        // return s the sum of the capacities of all of the lanegroups
+//        float s = 0f;
+//        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() )
+//            s += ((LaneGroup)lg).saturation_flow_rate_vps;
+//        return s;
+//    }
 
     @Override
     public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {

@@ -58,16 +58,6 @@ public class LinkModel extends AbstractLinkModel {
     }
 
     @Override
-    public float get_ff_travel_time() {
-        return ff_travel_time_sec;
-    }
-
-    @Override
-    public float get_capacity_vps() {
-        return capacity_vps;
-    }
-
-    @Override
     public Map<AbstractLaneGroup, Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
         return null;
     }

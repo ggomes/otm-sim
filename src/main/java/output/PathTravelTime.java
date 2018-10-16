@@ -114,7 +114,8 @@ public class PathTravelTime extends AbstractOutputTimedSubnetwork {
 
             case pq:
             case micro:
-                return info.has_samples() ? info.get_mean_and_clear() : link.model.get_ff_travel_time();
+                return info.get_mean_and_clear();
+//                return info.has_samples() ? info.get_mean_and_clear() : link.model.get_ff_travel_time();
 
             case ctm:
             case mn:

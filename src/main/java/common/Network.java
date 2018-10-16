@@ -48,8 +48,8 @@ public class Network {
     // construction
     ///////////////////////////////////////////
 
-    public Network(Scenario scneario){
-        this.scenario = scneario;
+    public Network(Scenario scenario){
+        this.scenario = scenario;
         nodes = new HashMap<>();
         links = new HashMap<>();
     }

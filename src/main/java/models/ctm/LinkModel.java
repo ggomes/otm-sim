@@ -18,11 +18,6 @@ import java.util.Map;
 
 public class LinkModel extends AbstractLinkModel {
 
-    public float ff_travel_time_sec;       // free flow travel time in seconds
-    private float cell_length_meters;
-    private float capacity_vps;
-    private int cells_per_lanegroup;
-
     ////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////
@@ -39,19 +34,22 @@ public class LinkModel extends AbstractLinkModel {
     public void create_cells(float max_cell_length){
 
         // construct cells
-        float r = link.length/max_cell_length;
-        boolean is_source_or_sink = link.is_source || link.is_sink;
-
-        cells_per_lanegroup = is_source_or_sink ?
-                1 :
-                OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
-        cell_length_meters = is_source_or_sink ?
-                link.length :
-                link.length/cells_per_lanegroup;
 
         // create cells
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-            ((LaneGroup)lg).create_cells(cells_per_lanegroup,cell_length_meters);
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+
+            float r = lg.length/max_cell_length;
+            boolean is_source_or_sink = link.is_source || link.is_sink;
+
+            int cells_per_lanegroup = is_source_or_sink ?
+                    1 :
+                    OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
+            float cell_length_meters = is_source_or_sink ?
+                    lg.length :
+                    lg.length/cells_per_lanegroup;
+
+            ((LaneGroup) lg).create_cells(cells_per_lanegroup, cell_length_meters);
+        }
     }
 
     ////////////////////////////////////////////
@@ -68,36 +66,22 @@ public class LinkModel extends AbstractLinkModel {
         if(link.model_type==Link.ModelType.mn)
             r.setJamDensity(Float.POSITIVE_INFINITY);
 
-        this.capacity_vps = r.getCapacity()/3600f;
-
         // normalize
         float dt_hr = sim_dt_sec/3600f;
         float capacity_vehperlane = r.getCapacity()*dt_hr;
-        float jam_density_vehperlane = r.getJamDensity() * cell_length_meters / 1000f;
-        float ffspeed_veh = 1000f * r.getSpeed()*dt_hr / cell_length_meters;
 
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+
+            float jam_density_vehperlane = r.getJamDensity() * lg.length / 1000f;
+            float ffspeed_veh = 1000f * r.getSpeed()*dt_hr / lg.length;
+
             lg.set_road_params(r);
             ((LaneGroup) lg).cells.forEach(c -> c.set_road_params(capacity_vehperlane, jam_density_vehperlane, ffspeed_veh));
         }
-
-        ff_travel_time_sec = 3.6f * link.length / r.getSpeed();
     }
 
     @Override
     public void validate(OTMErrorLog errorLog) {
-
-        if(link.road_geom!=null)
-            errorLog.addError("CTM can't yet deal with non-trivial road geometries.");
-
-        if(ff_travel_time_sec<=0)
-            errorLog.addError("ff_travel_time_sec<=0");
-        if(cell_length_meters<=0)
-            errorLog.addError("cell_length_meters<=0");
-        if(capacity_vps<=0)
-            errorLog.addError("capacity_vps<=0");
-        if(cells_per_lanegroup<=0)
-            errorLog.addError("cells_per_lanegroup<=0");
     }
 
     @Override
@@ -106,16 +90,6 @@ public class LinkModel extends AbstractLinkModel {
             LaneGroup lg = (LaneGroup) alg;
             lg.cells.forEach(x->x.reset());
         }
-    }
-
-    @Override
-    public float get_ff_travel_time() {
-        return ff_travel_time_sec;
-    }
-
-    @Override
-    public float get_capacity_vps() {
-        return capacity_vps;
     }
 
     @Override
@@ -132,10 +106,13 @@ public class LinkModel extends AbstractLinkModel {
     ///////////////////////////////////////////
 
     public void perform_lane_changes(float timestamp) {
+
         // WARNING: THIS ASSUMES NO ADDLANES (lanegroups_flwdn=all lanegroups)
 
+        int cells_in_full_lg = ((LaneGroup)link.lanegroups_flwdn.values().iterator().next()).cells.size();
+
         // scan cross section from upstream to downstream
-        for (int i = 0; i < cells_per_lanegroup; i++) {
+        for (int i = 0; i < cells_in_full_lg; i++) {
 
             Map<Long, Double> gamma = new HashMap<>();
 
@@ -272,47 +249,5 @@ public class LinkModel extends AbstractLinkModel {
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
             ((LaneGroup) lg).update_state(timestamp);
     }
-
-    ////////////////////////////////////////////
-    // private
-    ///////////////////////////////////////////
-
-//    private static void perform_lane_change(Map<KeyCommPathOrLink, Double> from_vehs,LaneGroup to_lg,int i,double gamma){
-//
-//        for (Map.Entry<KeyCommPathOrLink, Double> e : from_vehs.entrySet()) {
-//            Double from_veh = e.getValue();
-//            KeyCommPathOrLink state = e.getKey();
-//
-//            if (from_veh > OTMUtils.epsilon) {
-//
-//                Cell to_cell = to_lg.cells.get(i);
-//                double flw = gamma * from_veh;
-//
-//                // remove from this cell
-//                from_vehs.put(state, from_veh-flw );
-//                fromcell. XXX -= flw;
-//
-//                // add to side cell
-//                Side newside = to_lg.state2lanechangedirection.containsKey(state) ?
-//                               to_lg.state2lanechangedirection.get(state) :
-//                               Side.full;
-//                switch (newside) {
-//                    case in:
-//                        to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);
-//                        to_cell.total_vehs_in += flw;
-//                        break;
-//                    case full:
-//                        to_cell.veh_dwn.put(state, to_cell.veh_dwn.get(state) + flw);
-//                        to_cell.total_vehs_dwn += flw;
-//                        break;
-//                    case out:
-//                        to_cell.veh_out.put(state, to_cell.veh_out.get(state) + flw);
-//                        to_cell.total_vehs_out += flw;
-//                        break;
-//                }
-//            }
-//        }
-//
-//    }
 
 }
