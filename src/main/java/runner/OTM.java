@@ -14,7 +14,19 @@ import dispatch.EventStopSimulation;
 import error.OTMException;
 import jaxb.OutputRequests;
 
-import output.*;
+import output.AbstractOutput;
+import output.EventsActuator;
+import output.EventsController;
+import output.EventsVehicle;
+import output.LaneGroupFlow;
+import output.LaneGroupVehicles;
+import output.LaneGroups;
+import output.LinkFlow;
+import output.LinkVHT;
+import output.LinkVehicles;
+import output.PathTravelTime;
+import output.VehicleClass;
+import output.VehicleTravelTime;
 import utils.OTMUtils;
 import xml.JaxbLoader;
 

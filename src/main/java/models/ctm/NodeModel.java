@@ -91,7 +91,7 @@ public class NodeModel {
         for (common.RoadConnection xrc : node.road_connections) {
 
             // skip road connections starting or ending in non-macro links
-            if( xrc.start_link.model_type!=Link.ModelType.mn && xrc.start_link.model_type!=Link.ModelType.ctm )
+            if( xrc.get_start_link_model_type()!=Link.ModelType.mn && xrc.get_start_link_model_type()!=Link.ModelType.ctm )
                 continue;
 
             // skip if it is disconnected

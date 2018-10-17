@@ -245,8 +245,8 @@ public class ScenarioSplitter {
         jnet.setRoadconnections(jconns);
         for(common.RoadConnection rcn : base.network.get_road_connections()){
 
-            Long start_link = rcn.start_link.getId();
-            Long end_link = rcn.end_link.getId();
+            Long start_link = rcn.get_start_link_id();
+            Long end_link = rcn.get_end_link_id();
 
             if( graph.links.contains(start_link) && graph.links.contains(end_link) ){
                 jaxb.Roadconnection jrcn = new jaxb.Roadconnection();

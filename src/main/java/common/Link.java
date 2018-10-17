@@ -323,8 +323,6 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         for(AbstractLaneGroup lg : lanegroups_flwdn.values())
             lg.initialize(scenario,runParams);
         model.initialize(scenario);
-//        if(is_source && sources!=null)
-//            sources.forEach(x->x.initialize(scenario));
     }
 
     ////////////////////////////////////////////

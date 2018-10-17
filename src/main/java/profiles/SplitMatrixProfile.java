@@ -65,16 +65,16 @@ public class SplitMatrixProfile {
         if(!subnetwork_nodes.contains(node))
             errorLog.addError("!subnetwork_nodes.contains(node))");
 
-        // link_in_id is good
-        Link link_in = scenario.network.links.get(link_in_id);
-        if(link_in==null)
-            errorLog.addError("link_in==null");
+//        // link_in_id is good
+//        Link link_in = scenario.network.links.get(link_in_id);
+//        if(link_in==null)
+//            errorLog.addError("link_in==null");
 
-        // link_in_id is  in a subnetwork
-        for(Subnetwork subnetwork : commodity.subnetworks){
-            if(!subnetwork.links.contains(link_in))
-                errorLog.addError("!commodity.subnetwork.links.contains(link_in)");
-        }
+//        // link_in_id is  in a subnetwork
+//        for(Subnetwork subnetwork : commodity.subnetworks){
+//            if(!subnetwork.links.contains(link_in))
+//                errorLog.addError("!commodity.subnetwork.links.contains(link_in)");
+//        }
 
         splits.validate(errorLog,node.getId(),link_in_id,commodity_id);
 

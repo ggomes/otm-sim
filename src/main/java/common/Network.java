@@ -173,11 +173,9 @@ public class Network {
             link.is_sink = link.end_node.out_links.isEmpty();
 
             // get road connections that exit this link
-            Set<RoadConnection> out_rcs = road_connections.values().stream().filter(x->x.start_link.id==link.id).collect(toSet());
-
-            // empty out_rc is allowed only if num_out<=1
-            if(out_rcs.isEmpty() && link.end_node.out_links.size()>1)
-                throw new OTMException("No road connection leaving link " + link.getId() + ", although it is neither a sink nor a single next link case.");
+            Set<RoadConnection> out_rcs = road_connections.values().stream()
+                    .filter(x->x.get_start_link()!=null && x.get_start_link_id()==link.id)
+                    .collect(toSet());
 
             // absent road connections: create them, if it is not a sink
             if(out_rcs.isEmpty() && !link.is_sink) { // sink or single next link
@@ -250,15 +248,13 @@ public class Network {
 
         // store list of road connections in nodes
         for(common.RoadConnection rc : road_connections.values()) {
-            if (rc.start_link.end_node != rc.end_link.start_node) {
-                System.err.println("bad road connection: id=" + rc.getId()
-                        + " start_link = " + rc.start_link.getId()
-                        + " end_link = " + rc.end_link.getId()
-                        + " start_link.end_node = " + rc.start_link.end_node.getId()
-                        + " end_link.start_node = " + rc.end_link.start_node.getId() );
+            if(rc.has_start_link()){
+                rc.get_start_link().end_node.add_road_connection(rc);
+            } else if(rc.has_end_link()){
+                rc.get_end_link().start_node.add_road_connection(rc);
+            } else {
+                System.err.println("bad road connection: id=" + rc.getId());
             }
-
-            rc.start_link.end_node.add_road_connection(rc);
         }
 
         // populate link.outlink2lanegroups
@@ -603,7 +599,7 @@ public class Network {
             // flows on road connections arrive to links on give lanes
             // convert to packets and send
             for(models.ctm.RoadConnection rc : node.node_model.rcs.values())
-                rc.rc.end_link.model.add_vehicle_packet(timestamp,new PacketLink(rc.f_rs,rc.rc.out_lanegroups));
+                rc.rc.get_end_link().model.add_vehicle_packet(timestamp,new PacketLink(rc.f_rs,rc.rc.out_lanegroups));
 
             // set exit flows on non-sink lanegroups
             for(UpLaneGroup ulg : node.node_model.ulgs.values())

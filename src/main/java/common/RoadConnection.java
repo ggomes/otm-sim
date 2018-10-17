@@ -18,10 +18,10 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
 
     protected final long id;
     private final float length;
-    public final Link start_link;
+    private final Link start_link;
     public final int start_link_from_lane;
     public final int start_link_to_lane;
-    public final Link end_link;
+    private final Link end_link;
     public final int end_link_from_lane;
     public final int end_link_to_lane;
 
@@ -91,16 +91,25 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     }
 
     public void set_in_out_lanegroups(){
-        in_lanegroups = start_link.get_unique_lanegroups_for_dn_lanes(start_link_from_lane,start_link_to_lane);
-        out_lanegroups = end_link.get_unique_lanegroups_for_up_lanes(end_link_from_lane,end_link_to_lane);
+        in_lanegroups = start_link !=null ?
+                start_link.get_unique_lanegroups_for_dn_lanes(start_link_from_lane,start_link_to_lane) :
+                new HashSet<>();
+
+        out_lanegroups = end_link!=null ?
+                end_link.get_unique_lanegroups_for_up_lanes(end_link_from_lane,end_link_to_lane) :
+                new HashSet<>();
     }
 
     public void validate(OTMErrorLog errorLog){
 
-        if(start_link==null)
-            errorLog.addError("Bad start link");
-        if(end_link==null)
-            errorLog.addError("Bad end link");
+        if (start_link!=null && end_link!=null && start_link.end_node!=end_link.start_node ) {
+            System.err.println("bad road connection: id=" + id
+                    + " start_link = " + start_link.getId()
+                    + " end_link = " + end_link.getId()
+                    + " start_link.end_node = " + start_link.end_node.getId()
+                    + " end_link.start_node = " + end_link.start_node.getId() );
+        }
+
         if( start_link_from_lane<=0 | start_link_to_lane<=0 |  end_link_from_lane<=0 |  end_link_to_lane<=0 )
             errorLog.addError("positivity");
         if(start_link_from_lane>start_link_to_lane)
@@ -120,12 +129,17 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         if(in_lanegroups.stream().anyMatch(x->x==null))
             errorLog.addError("null in_lanegroup in road connection " + this.getId());
 
-        if(out_lanegroups.stream().anyMatch(x->x==null))
-            errorLog.addError("null out_lanegroups in road connection " + this.getId());
+        if(!out_lanegroups.isEmpty()){
 
-        Set<Link> all_outlink = out_lanegroups.stream().map(x->x.link).collect(Collectors.toSet());
-        if(all_outlink.size()!=1 || ((Link) all_outlink.toArray()[0]).id!=end_link.id)
-            errorLog.addError("all_outlink.size()!=1 || ((Link) all_outlink.toArray()[0]).id!=end_link.id");
+            if(out_lanegroups.stream().anyMatch(x->x==null))
+                errorLog.addError("null out_lanegroups in road connection " + this.getId());
+
+            Set<Link> all_outlink = out_lanegroups.stream().map(x->x.link).collect(Collectors.toSet());
+            if(all_outlink.size()>1)
+                errorLog.addError("all_outlink.size()>1");
+            if(all_outlink.iterator().next().id!=end_link.id)
+                errorLog.addError("all_outlink.iterator().next().id!=end_link.id");
+        }
 
 //        if(!OTMUtils.approximately_equals(out_lanegroup_probability.stream().mapToDouble(Double::new).sum(),1d))
 //            errorLog.addError("splits don't add to 1");
@@ -164,7 +178,43 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         return 0;
     }
 
-    ////////////////////////////////////////////
+    ///////////////////////////////////////////
+    // get
+    ///////////////////////////////////////////
+
+    public boolean has_start_link(){
+        return start_link!=null;
+    }
+
+    public boolean has_end_link(){
+        return end_link!=null;
+    }
+
+    public Long get_start_link_id(){
+        return start_link==null ? null : start_link.getId();
+    }
+
+    public Link get_start_link(){
+        return start_link;
+    }
+
+    public Link get_end_link(){
+        return end_link;
+    }
+
+    public Long get_end_link_id(){
+        return end_link==null ? null : end_link.getId();
+    }
+
+    public Link.ModelType get_start_link_model_type(){
+        return start_link==null ? Link.ModelType.none : start_link.model_type;
+    }
+
+    public Link.ModelType get_end_link_model_type(){
+        return end_link==null ? Link.ModelType.none : end_link.model_type;
+    }
+
+    ///////////////////////////////////////////
     // InterfaceScenarioElement
     ///////////////////////////////////////////
 

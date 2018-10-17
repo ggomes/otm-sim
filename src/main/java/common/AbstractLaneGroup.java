@@ -119,7 +119,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         this.state2roadconnection = new HashMap<>();
         if(out_rcs!=null)
             for(RoadConnection rc : out_rcs)
-                outlink2roadconnection.put(rc.end_link.id,rc);
+                if(rc.has_end_link())
+                    outlink2roadconnection.put(rc.get_end_link_id(),rc);
     }
 
     public void delete(){
