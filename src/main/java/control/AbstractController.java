@@ -38,12 +38,14 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
     public float dt;
 
     public Set<AbstractActuator> actuators;
-    public Map<Long,String> actuator_usage;
+    public Map<String,AbstractActuator> actuator_by_usage;
 
     public Set<AbstractSensor> sensors;
-    public Map<Long,String> sensor_usage;
+    public Map<String,AbstractSensor> sensor_by_usage;
 
     public EventsController event_listener;
+
+    public Map<Long,Object> command;    // actuator id -> command
 
     ///////////////////////////////////////////////////
     // construction
@@ -62,11 +64,11 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
 
         // read actuators ..............................................................
         actuators = new HashSet<>();
-        actuator_usage = new HashMap<>();
+        actuator_by_usage = new HashMap<>();
         if(jaxb_controller.getTargetActuators()!=null){
 
             // read usage-less
-            if(jaxb_controller.getTargetActuators().getIds()!=null){
+            if(!jaxb_controller.getTargetActuators().getIds().isEmpty()){
                 List<Long> ids = OTMUtils.csv2longlist(jaxb_controller.getTargetActuators().getIds());
                 Iterator it = ids.iterator();
                 while(it.hasNext()){
@@ -76,7 +78,6 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
                     if(act.myController!=null)
                         throw new OTMException("Multiple controllers assigned to single actuator");
                     actuators.add(act);
-                    actuator_usage.put(act.id,"");
                     act.myController=this;
                 }
             }
@@ -89,18 +90,20 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
                 if(act.myController!=null)
                     throw new OTMException("Multiple controllers assigned to single actuator");
                 actuators.add(act);
-                actuator_usage.put(act.id,jaxb_act.getUsage());
+                if(actuator_by_usage.containsKey(jaxb_act.getUsage()))
+                    throw new OTMException("Repeated value in actuator usage for controller " +this.id);
+                actuator_by_usage.put(jaxb_act.getUsage(),act);
                 act.myController=this;
             }
         }
 
         // read sensors ..............................................................
         sensors = new HashSet<>();
-        sensor_usage = new HashMap<>();
+        sensor_by_usage = new HashMap<>();
         if(jaxb_controller.getFeedbackSensors()!=null){
 
             // read usage-less
-            if(jaxb_controller.getFeedbackSensors().getIds()!=null){
+            if(!jaxb_controller.getFeedbackSensors().getIds().isEmpty()){
                 List<Long> ids = OTMUtils.csv2longlist(jaxb_controller.getFeedbackSensors().getIds());
                 Iterator it = ids.iterator();
                 while(it.hasNext()){
@@ -108,7 +111,6 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
                     if(sensor==null)
                         throw new OTMException("Bad sensor id in controller");
                     sensors.add(sensor);
-                    sensor_usage.put(sensor.id,"");
                 }
             }
 
@@ -118,20 +120,10 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
                 if(sensor==null)
                     throw new OTMException("Bad sensor id in controller");
                 sensors.add(sensor);
-                sensor_usage.put(sensor.id,jaxb_sensor.getUsage());
+                sensor_by_usage.put(jaxb_sensor.getUsage(),sensor);
             }
         }
 
-
-        // read sensors
-//        sensors = new ArrayList<Sensor>();
-//        sensor_usage = new ArrayList<String>();
-//        if(jaxbC.getFeedbackSensors()!=null && jaxbC.getFeedbackSensors().getFeedbackSensor()!=null){
-//            for(FeedbackSensor fs : jaxbC.getFeedbackSensors().getFeedbackSensor()){
-//                sensors.add(getMyScenario().get.sensorWithId(fs.getId()));
-//                sensor_usage.add(fs.getUsage()==null ? "" : fs.getUsage());
-//            }
-//        }
     }
 
     public void validate(OTMErrorLog errorLog){
@@ -169,7 +161,15 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
         return false;
     }
 
-    abstract public Object get_current_command();
+    public Object get_command_for_actuator_id(Long act_id){
+        return command.get(act_id);
+    }
+
+    public final Object get_command_for_actuator_usage(String act_usage){
+        if(!actuator_by_usage.containsKey(act_usage))
+            return null;
+        return get_command_for_actuator_id(actuator_by_usage.get(act_usage).getId());
+    }
 
     ///////////////////////////////////////////////////
     // update

@@ -81,7 +81,7 @@ public class TestOne extends AbstractTest {
     public void load_one() {
         try {
             float sim_dt = 2f;
-            API api = OTM.load("C:\\Users\\gomes\\Desktop\\config\\draw.xml",sim_dt,true);
+            API api = OTM.load("C:\\Users\\gomes\\Desktop\\chester\\line_controller.xml",sim_dt,true);
         } catch (OTMException e) {
             e.printStackTrace();
         }

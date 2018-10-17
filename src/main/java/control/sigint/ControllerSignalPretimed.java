@@ -90,7 +90,8 @@ public class ControllerSignalPretimed extends AbstractController {
     }
 
     @Override
-    public Object get_current_command() {
+    public Object get_command_for_actuator_id(Long act_id) {
+        // always returns the current command, regardless of act_id
         return schedule.get(current_schedule_item_index);
     }
 
@@ -105,7 +106,7 @@ public class ControllerSignalPretimed extends AbstractController {
         if(advance_schedule_item_index()) {
 
             // send current item to actuator
-            get_signal().process_controller_command(get_current_command(),dispatcher,timestamp);
+            get_signal().process_controller_command(get_command_for_actuator_id(null),dispatcher,timestamp);
 
             // register next change schedule change
             register_next_poke(dispatcher);
