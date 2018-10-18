@@ -80,12 +80,6 @@ public  class Dispatcher {
         events.removeAll(remove);
     }
 
-//    public void disable_future_vehicle_release_events(models.ctm.pq.LaneGroup lanegroup){
-//        if(vehicle_release_events.containsKey(lanegroup.id))
-//            for(EventReleaseVehicleFromLaneGroup e : vehicle_release_events.get(lanegroup.id))
-//                e.enabled = false;
-//    }
-
     public void register_event(AbstractEvent event){
         if(event.timestamp<current_time) // || event.timestamp>end_time)
             return;

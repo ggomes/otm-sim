@@ -40,6 +40,8 @@ public class ActuatorRampMeter extends AbstractActuator {
 
     @Override
     public void process_controller_command(Object command, Dispatcher dispatcher, float timestamp) {
+        if(command==null)
+            return;
         Link link = (Link) target;
         Color color = (Color) command;
         float rate_vps = color==Color.red ? 0f : Float.POSITIVE_INFINITY;

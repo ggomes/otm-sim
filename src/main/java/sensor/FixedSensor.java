@@ -3,19 +3,21 @@ package sensor;
 import common.AbstractLaneGroup;
 import common.Link;
 import dispatch.Dispatcher;
-import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Sensor;
 import runner.RunParameters;
 import runner.Scenario;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class FixedSensor extends AbstractSensor {
 
     public float position;
-    public Map<AbstractLaneGroup, SubSensor> subsensors;  // because a fixed sensor may span several lanegroups
+    public Map<AbstractLaneGroup,SubSensor> subsensors;  // because a fixed sensor may span several lanegroups
+    public Measurement measurement;
 
     public FixedSensor(Scenario scenario, Sensor jaxb_sensor) {
         super(scenario, jaxb_sensor);
@@ -68,19 +70,46 @@ public class FixedSensor extends AbstractSensor {
     }
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-
-    }
-
-    @Override
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
-
+        subsensors.values().forEach(x->x.initialize());
+        measurement = new Measurement();
     }
 
     @Override
     public void take_measurement(Dispatcher dispatcher, float timestamp) {
+        double total_count = 0d;
+        double total_vehicles = 0d;
+        for(Map.Entry<AbstractLaneGroup, SubSensor> e :  subsensors.entrySet()){
+            AbstractLaneGroup lg = e.getKey();
+            SubSensor subsensor = e.getValue();
+            double sub_count = subsensor.flow_accumulator.get_total_count();
+            total_count += sub_count - subsensor.prev_count;
+            subsensor.prev_count = sub_count;
+            total_vehicles += lg.get_total_vehicles();
+        }
+        measurement.flow = total_count;
+        measurement.density = total_vehicles;
 
+        System.out.println(String.format("%.1f\t%d\t%f\t%f",timestamp,this.getId(),measurement.flow,measurement.density));
     }
 
+    /////////////////////////////////////////////////////////////////
+    // classes
+    /////////////////////////////////////////////////////////////////
+
+    public class SubSensor {
+        public Set<Integer> lanes = new HashSet<>();
+        public FlowAccumulator flow_accumulator;
+        public double prev_count;
+        public void initialize(){
+            flow_accumulator.reset();
+            prev_count = 0d;
+        }
+    }
+
+    public class Measurement {
+        public double flow = 0d;
+        public double density = 0d;
+    }
 
 }

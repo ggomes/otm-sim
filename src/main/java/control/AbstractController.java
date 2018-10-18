@@ -97,6 +97,10 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
             }
         }
 
+
+        this.command = new HashMap<>();
+        actuators.forEach(x->command.put(x.id,null));
+
         // read sensors ..............................................................
         sensors = new HashSet<>();
         sensor_by_usage = new HashMap<>();

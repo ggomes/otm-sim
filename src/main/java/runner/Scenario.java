@@ -149,6 +149,7 @@ public class Scenario {
 
         controllers.values().forEach(x->x.register_initial_events(dispatcher));
         actuators.values().forEach(x->x.register_initial_events(dispatcher));
+        sensors.values().forEach(x->x.register_initial_events(dispatcher));
 
         is_initialized = true;
     }
