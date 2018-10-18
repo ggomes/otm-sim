@@ -165,7 +165,7 @@ public class ControllerSignalPretimed extends AbstractController {
 
         int next_item_index = current_schedule_item_index ==null ? 0 : current_schedule_item_index +1;
         ScheduleItem next_item = schedule.get(next_item_index);
-        dispatcher.register_event(new EventPoke(dispatcher,1,next_item.start_time,this));
+        dispatcher.register_event(new EventPoke(dispatcher,2,next_item.start_time,this));
     }
 
 }

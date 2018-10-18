@@ -53,7 +53,7 @@ public abstract class AbstractSensor implements InterfacePokable, InterfaceScena
     }
 
     public void register_initial_events(Dispatcher dispatcher){
-        dispatcher.register_event(new EventPoke(dispatcher,4,dispatcher.current_time,this));
+        dispatcher.register_event(new EventPoke(dispatcher,1,dispatcher.current_time,this));
     }
 
     /////////////////////////////////////////////////////////////////////
@@ -63,12 +63,12 @@ public abstract class AbstractSensor implements InterfacePokable, InterfaceScena
     abstract public void take_measurement(Dispatcher dispatcher, float timestamp);
 
     @Override
-    public void poke(Dispatcher dispatcher, float timestamp) throws OTMException {
+    public void poke(Dispatcher dispatcher, float timestamp) {
         take_measurement(dispatcher,timestamp);
 
         // wake up in dt, if dt is defined
         if(dt>0)
-            dispatcher.register_event(new EventPoke(dispatcher,4,timestamp+dt,this));
+            dispatcher.register_event(new EventPoke(dispatcher,1,timestamp+dt,this));
     }
 
     /////////////////////////////////////////////////////////////////////

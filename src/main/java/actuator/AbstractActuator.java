@@ -59,7 +59,7 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
     abstract public void initialize(Scenario scenario) throws OTMException;
 
     public void register_initial_events(Dispatcher dispatcher){
-        dispatcher.register_event(new EventPoke(dispatcher,2,dispatcher.current_time,this));
+        dispatcher.register_event(new EventPoke(dispatcher,3,dispatcher.current_time,this));
     }
 
     /////////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
 
         // wake up in dt, if dt is defined
         if(dt>0)
-            dispatcher.register_event(new EventPoke(dispatcher,2,timestamp+dt,this));
+            dispatcher.register_event(new EventPoke(dispatcher,3,timestamp+dt,this));
     }
 
     /////////////////////////////////////////////////////////////////////

@@ -12,7 +12,7 @@ import error.OTMException;
 public class EventMacroStateUpdate extends AbstractEvent  {
 
     public EventMacroStateUpdate(Dispatcher dispatcher, float timestamp, Object network){
-        super(dispatcher,4,timestamp,network);
+        super(dispatcher,6,timestamp,network);
     }
 
     @Override
