@@ -1,6 +1,7 @@
 package sensor;
 
 import common.AbstractLaneGroup;
+import common.FlowAccumulator;
 import common.Link;
 import dispatch.Dispatcher;
 import error.OTMException;
@@ -15,9 +16,12 @@ import java.util.Set;
 
 public class FixedSensor extends AbstractSensor {
 
-    public float position;
-    public Map<AbstractLaneGroup,SubSensor> subsensors;  // because a fixed sensor may span several lanegroups
-    public Measurement measurement;
+    private Map<AbstractLaneGroup,SubSensor> subsensors;  // because a fixed sensor may span several lanegroups
+    private Measurement measurement;
+
+    /////////////////////////////////////////////////////////////////
+    // construction
+    /////////////////////////////////////////////////////////////////
 
     public FixedSensor(Scenario scenario, Sensor jaxb_sensor) {
         super(scenario, jaxb_sensor);
@@ -25,7 +29,7 @@ public class FixedSensor extends AbstractSensor {
         Link link = scenario.network.links.containsKey((jaxb_sensor.getLinkId())) ?
                 scenario.network.links.get(jaxb_sensor.getLinkId()) : null;
 
-        this.position = jaxb_sensor.getPosition();
+//        this.position = jaxb_sensor.getPosition();
 
         // read lanes
         String lanes = jaxb_sensor.getLanes();
@@ -75,6 +79,10 @@ public class FixedSensor extends AbstractSensor {
         measurement = new Measurement();
     }
 
+    /////////////////////////////////////////////////////////////////
+    // implementation
+    /////////////////////////////////////////////////////////////////
+
     @Override
     public void take_measurement(Dispatcher dispatcher, float timestamp) {
         double total_count = 0d;
@@ -87,10 +95,20 @@ public class FixedSensor extends AbstractSensor {
             subsensor.prev_count = sub_count;
             total_vehicles += lg.get_total_vehicles();
         }
-        measurement.flow = total_count;
-        measurement.density = total_vehicles;
+        measurement.flow_vph = total_count*dt_inv;
+        measurement.vehicles = total_vehicles;
+    }
 
-        System.out.println(String.format("%.1f\t%d\t%f\t%f",timestamp,this.getId(),measurement.flow,measurement.density));
+    /////////////////////////////////////////////////////////////////
+    // get
+    /////////////////////////////////////////////////////////////////
+
+    public double get_flow_vph(){
+        return measurement.flow_vph;
+    }
+
+    public double get_vehicles(){
+        return measurement.vehicles;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -108,8 +126,8 @@ public class FixedSensor extends AbstractSensor {
     }
 
     public class Measurement {
-        public double flow = 0d;
-        public double density = 0d;
+        public double flow_vph = 0d;
+        public double vehicles = 0d;
     }
 
 }

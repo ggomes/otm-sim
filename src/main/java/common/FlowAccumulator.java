@@ -1,4 +1,4 @@
-package sensor;
+package common;
 
 import keys.KeyCommPathOrLink;
 

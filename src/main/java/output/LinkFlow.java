@@ -4,7 +4,7 @@ import common.AbstractLaneGroup;
 import error.OTMException;
 import profiles.Profile1D;
 import runner.Scenario;
-import sensor.FlowAccumulator;
+import common.FlowAccumulator;
 
 import java.util.*;
 
