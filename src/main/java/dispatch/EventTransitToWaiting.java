@@ -13,7 +13,7 @@ import models.pq.Vehicle;
 public class EventTransitToWaiting extends AbstractEvent {
 
     public EventTransitToWaiting(Dispatcher dispatcher,float timestamp, Object vehicle) {
-        super(dispatcher,0,timestamp,vehicle);
+        super(dispatcher,4,timestamp,vehicle);
     }
 
     @Override

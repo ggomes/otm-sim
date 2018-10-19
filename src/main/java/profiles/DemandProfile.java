@@ -111,7 +111,7 @@ public class DemandProfile extends AbstractDemandProfile {
 
             // this should be a commodity subnetwork
             if(!commodity.subnetworks.stream().anyMatch(x->x.is_global))
-                if(!commodity.subnetworks.stream().anyMatch(x->x.getId()==path.getId()))
+                if(!commodity.subnetworks.stream().anyMatch(x->x.getId().equals(path.getId())))
                     errorLog.addError("in demand profile for commodity " + commodity.getId() + ", subnetwork " + path.getId() + " is not allowed.");
         }
 

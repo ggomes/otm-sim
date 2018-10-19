@@ -2,7 +2,7 @@ package output;
 
 import error.OTMException;
 import runner.Scenario;
-import sensor.FlowAccumulator;
+import common.FlowAccumulator;
 
 import java.util.HashMap;
 import java.util.List;

@@ -149,6 +149,7 @@ public class Scenario {
 
         controllers.values().forEach(x->x.register_initial_events(dispatcher));
         actuators.values().forEach(x->x.register_initial_events(dispatcher));
+        sensors.values().forEach(x->x.register_initial_events(dispatcher));
 
         is_initialized = true;
     }
@@ -337,7 +338,7 @@ public class Scenario {
     public Set<AbstractDemandProfile> get_demands_for_commodity(Long commodity_id){
         Set<AbstractDemandProfile> x = new HashSet<>();
         for(Map.Entry<KeyCommodityDemandTypeId,AbstractDemandProfile> e : data_demands.entrySet())
-            if(e.getKey().commodity_id==commodity_id)
+            if(commodity_id.equals(e.getKey().commodity_id))
                 x.add(e.getValue());
         return x;
     }

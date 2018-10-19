@@ -519,7 +519,7 @@ public class ScenarioFactory {
 
             // add flow for demand that feeds this subnetwork, n times
             total_flow += n*demands.stream()
-                    .filter(x->x.path.getId()==subnetwork.getId())
+                    .filter(x->x.path.getId().equals(subnetwork.getId()))
                     .mapToDouble(x->x.profile.get_value_for_time(time))
                     .sum();
         }

@@ -27,6 +27,7 @@ public abstract class AbstractSensor implements InterfacePokable, InterfaceScena
     public long id;
     public Type type;
     public float dt;
+    public double dt_inv;
 
     public Object target;
 
@@ -40,11 +41,20 @@ public abstract class AbstractSensor implements InterfacePokable, InterfaceScena
         this.id = jaxb_sensor.getId();
         this.type = Type.valueOf(jaxb_sensor.getType());
         this.dt = jaxb_sensor.getDt();
+        this.dt_inv = 3600d/dt;
     }
 
-    abstract public void validate(OTMErrorLog errorLog);
+    public void validate(OTMErrorLog errorLog){
 
-    abstract public void initialize(Scenario scenario, RunParameters runParams) throws OTMException;
+    }
+
+    public void initialize(Scenario scenario, RunParameters runParams) throws OTMException{
+
+    }
+
+    public void register_initial_events(Dispatcher dispatcher){
+        dispatcher.register_event(new EventPoke(dispatcher,1,dispatcher.current_time,this));
+    }
 
     /////////////////////////////////////////////////////////////////////
     // update
@@ -53,7 +63,7 @@ public abstract class AbstractSensor implements InterfacePokable, InterfaceScena
     abstract public void take_measurement(Dispatcher dispatcher, float timestamp);
 
     @Override
-    public void poke(Dispatcher dispatcher, float timestamp) throws OTMException {
+    public void poke(Dispatcher dispatcher, float timestamp) {
         take_measurement(dispatcher,timestamp);
 
         // wake up in dt, if dt is defined

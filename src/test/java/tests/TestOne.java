@@ -94,12 +94,14 @@ public class TestOne extends AbstractTest {
             float duration = 1000f;
             float outdt = 10f;
             float sim_dt = 2f;
+            String prefix = "test";
+            String output_folder = "temp/";
 
             // Load ..............................
             API api = null;
             try {
-                api = OTM.load_test("signal",sim_dt,true,"ctm");
-//                api = OTM.load("C:\\Users\\gomes\\Desktop\\config\\config_2.xml",sim_dt,true,"ctm");
+//                api = OTM.load_test("signal",sim_dt,true,"ctm");
+                api = OTM.load("C:\\Users\\gomes\\vbox_shared\\all_cfgs\\100.xml",sim_dt,true,"ctm");
             } catch (OTMException e) {
                 e.printStackTrace();
             }
@@ -107,8 +109,11 @@ public class TestOne extends AbstractTest {
             api.set_stochastic_process("deterministic");
 
             // Output requests .....................
-            api.request_links_flow(null, api.get_link_ids(), outdt);
-            api.request_links_veh(null, api.get_link_ids(), outdt);
+            api.request_links_flow(prefix,output_folder,null, api.get_link_ids(), outdt);
+            api.request_links_veh(prefix,output_folder,null, api.get_link_ids(), outdt);
+
+//            api.request_links_flow(null, api.get_link_ids(), outdt);
+//            api.request_links_veh(null, api.get_link_ids(), outdt);
 
 //            api.request_controller(1L);
 //            api.request_actuator(1L);

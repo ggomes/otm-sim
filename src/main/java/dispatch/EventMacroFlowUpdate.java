@@ -12,7 +12,7 @@ import common.Network;
 public class EventMacroFlowUpdate extends AbstractEvent {
 
     public EventMacroFlowUpdate(Dispatcher dispatcher, float timestamp, Object network){
-        super(dispatcher,1,timestamp,network);
+        super(dispatcher,5,timestamp,network);
     }
 
     @Override

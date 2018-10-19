@@ -97,6 +97,10 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
             }
         }
 
+
+        this.command = new HashMap<>();
+        actuators.forEach(x->command.put(x.id,null));
+
         // read sensors ..............................................................
         sensors = new HashSet<>();
         sensor_by_usage = new HashMap<>();
@@ -136,7 +140,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
     abstract public void initialize(Scenario scenario,float now) throws OTMException;
 
     public void register_initial_events(Dispatcher dispatcher){
-        dispatcher.register_event(new EventPoke(dispatcher,1,dispatcher.current_time,this));
+        dispatcher.register_event(new EventPoke(dispatcher,2,dispatcher.current_time,this));
     }
 
     ///////////////////////////////////////////////////
@@ -183,7 +187,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
 
         // wake up in dt, if dt is defined
         if(dt >0)
-            dispatcher.register_event(new EventPoke(dispatcher,1,timestamp+ dt,this));
+            dispatcher.register_event(new EventPoke(dispatcher,2,timestamp+ dt,this));
     }
 
     ////////////////////////////////////////////
