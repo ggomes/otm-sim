@@ -105,7 +105,7 @@ public class Subnetwork {
     }
 
     public boolean has_link_id(Long link_id){
-        return links.stream().anyMatch(x->x.getId()==link_id);
+        return links.stream().anyMatch(x->x.getId().equals(link_id));
     }
 
     // This is overridden by Path to return the ordered list

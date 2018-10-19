@@ -16,7 +16,6 @@ import keys.KeyCommPathOrLink;
 import packet.AbstractPacketLaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
-import sensor.FlowAccumulator;
 import utils.OTMUtils;
 
 import java.util.*;
