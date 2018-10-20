@@ -157,7 +157,8 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
             throw new OTMException("Node " + getId() + "  does not support this commodity " + commodity_id);
 
         Link linkin = in_links.get(linkinid);
-        linkin.packet_splitter.set_splits(commodity_id,outlink2value);
+        if(linkin!=null && linkin.packet_splitter!=null)
+           linkin.packet_splitter.set_splits(commodity_id,outlink2value);
     }
 
     public int num_inputs(){
