@@ -173,11 +173,11 @@ public class API {
     /**
      * Get information for all commodities in the scenario.
      *
-     * @return a list of CommodityInfo
+     * @return a Set of CommodityInfo
      * @see CommodityInfo
      */
-    public List<CommodityInfo> get_commodities(){
-        List<CommodityInfo> commInfo = new ArrayList<>();
+    public Set<CommodityInfo> get_commodities(){
+        Set<CommodityInfo> commInfo = new HashSet<>();
         for(Commodity comm : scenario.commodities.values())
             commInfo.add(new CommodityInfo(comm));
         return commInfo;
@@ -195,8 +195,8 @@ public class API {
         return comm==null? null : new CommodityInfo(comm);
     }
 
-    public List<Long> get_commodity_ids(){
-        return new ArrayList(scenario.commodities.keySet());
+    public Set<Long> get_commodity_ids(){
+        return new HashSet(scenario.commodities.keySet());
     }
 
     ////////////////////////////////////////////////////////
@@ -232,11 +232,11 @@ public class API {
     /**
      * Get information for all subnetworks in the scenario.
      *
-     * @return a list of SubnetworkInfo
+     * @return a set of SubnetworkInfo
      * @see SubnetworkInfo
      */
-    public List<SubnetworkInfo> get_subnetworks(){
-        List<SubnetworkInfo> subnetInfo = new ArrayList<>();
+    public Set<SubnetworkInfo> get_subnetworks(){
+        Set<SubnetworkInfo> subnetInfo = new HashSet<>();
         for(Subnetwork subnet : scenario.subnetworks.values())
             subnetInfo.add(new SubnetworkInfo(subnet));
         return subnetInfo;
@@ -304,10 +304,10 @@ public class API {
      * @return a list of LinkInfo
      * @see LinkInfo
      */
-    public List<LinkInfo> get_links(){
-        List<LinkInfo> linkInfo = new ArrayList<>();
+    public Map<Long,LinkInfo> get_links(){
+        Map<Long,LinkInfo> linkInfo = new HashMap<>();
         for(Link link : scenario.network.links.values())
-            linkInfo.add(new LinkInfo(link));
+            linkInfo.put(link.getId(),new LinkInfo(link));
         return linkInfo;
     }
 

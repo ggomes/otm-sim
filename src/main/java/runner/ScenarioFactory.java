@@ -339,8 +339,10 @@ public class ScenarioFactory {
             throw new OTMException("Subnetwork id '0' is not allowed.");
 
         // create global commodity
-        if(have_global_commodity)
-            subnetworks.put(0L,new Subnetwork(network));
+        if(have_global_commodity) {
+            Subnetwork subnet = new Subnetwork(network);
+            subnetworks.put(0l, subnet.is_path ? new Path(network) : subnet );
+        }
 
         if ( jaxb_subnets != null ){
             // initialize
@@ -348,11 +350,7 @@ public class ScenarioFactory {
                 if (subnetworks.containsKey(jaxb_subnet.getId()))
                     throw new OTMException("Repeated subnetwork id");
                 Subnetwork subnet = new Subnetwork(jaxb_subnet,network);
-                if(subnet.is_path){
-                    subnetworks.put(jaxb_subnet.getId(),new Path(jaxb_subnet,network));
-                } else {
-                    subnetworks.put(jaxb_subnet.getId(),subnet);
-                }
+                subnetworks.put(jaxb_subnet.getId(), subnet.is_path ? new Path(jaxb_subnet,network) : subnet );
             }
         }
 

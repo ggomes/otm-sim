@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class LinkInfo {
 
     /** The unique id for the link. */
-    public double id;
+    public long id;
 
     /** The length of the link in meters. */
     public double full_length;
@@ -74,7 +74,7 @@ public class LinkInfo {
             this.max_vehicles = x.model.get_max_vehicles();
     }
 
-    public double getId() {
+    public long getId() {
         return id;
     }
 

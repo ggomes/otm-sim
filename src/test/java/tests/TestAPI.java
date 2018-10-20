@@ -8,6 +8,12 @@ package tests;
 
 import api.API;
 import api.APIopen;
+import api.info.CommodityInfo;
+import api.info.DemandInfo;
+import api.info.LinkInfo;
+import api.info.SubnetworkInfo;
+import commodity.Commodity;
+import commodity.Subnetwork;
 import common.Link;
 import error.OTMException;
 import org.junit.BeforeClass;
@@ -17,7 +23,13 @@ import output.animation.AnimationInfo;
 import runner.OTM;
 import runner.Scenario;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestAPI extends AbstractTest {
 
@@ -34,13 +46,8 @@ public class TestAPI extends AbstractTest {
     //////////////////////////////////////////////////////////////////
 
     @Test
-    @Ignore
     public void test_get_version(){
-    }
-
-    @Test
-    @Ignore
-    public void test_set_random_seed(){
+        assertTrue(!OTM.getGitHash().isEmpty());
     }
 
     @Test
@@ -58,23 +65,26 @@ public class TestAPI extends AbstractTest {
     ////////////////////////////////////////////////////////
 
     @Test
-    @Ignore
     public void test_get_num_commodities(){
+        assertEquals(api.get_num_commodities(),1);
     }
 
     @Test
-    @Ignore
     public void test_get_commodities(){
+        Set<CommodityInfo> commodities = api.get_commodities();
+        CommodityInfo comm = commodities.iterator().next();
+        assertEquals(comm.getId(),1);
     }
 
     @Test
-    @Ignore
     public void test_get_commodity_with_id(){
+        CommodityInfo comm = api.get_commodity_with_id(1l);
+        assertEquals(comm.getId(),1);
     }
 
     @Test
-    @Ignore
     public void test_get_commodity_ids(){
+        assertEquals((long) api.get_commodity_ids().iterator().next(),1l);
     }
 
     ////////////////////////////////////////////////////////
@@ -82,28 +92,30 @@ public class TestAPI extends AbstractTest {
     ////////////////////////////////////////////////////////
 
     @Test
-    @Ignore
     public void test_get_num_subnetworks(){
+        assertEquals(api.get_num_subnetworks(),1);
     }
 
     @Test
-    @Ignore
     public void test_get_subnetwork_ids(){
+        assertEquals((long)api.get_subnetwork_ids().iterator().next(),0l);
     }
 
     @Test
-    @Ignore
     public void test_get_path_ids(){
+        assertEquals((long)api.get_path_ids().iterator().next(),0l);
     }
 
     @Test
-    @Ignore
     public void test_get_subnetworks(){
+        Set<SubnetworkInfo> subnet = api.get_subnetworks();
+        assertEquals(subnet.iterator().next().getId(),0l);
     }
 
     @Test
-    @Ignore
     public void test_get_subnetwork_with_id(){
+        SubnetworkInfo subnet = api.get_subnetwork_with_id(0l);
+        assertEquals(subnet.getId(),0l);
     }
 
     ////////////////////////////////////////////////////////
@@ -111,48 +123,50 @@ public class TestAPI extends AbstractTest {
     ////////////////////////////////////////////////////////
 
     @Test
-    @Ignore
     public void test_get_num_links(){
+        assertEquals(api.get_num_links(),3);
     }
 
     @Test
-    @Ignore
     public void test_get_num_nodes(){
+        assertEquals(api.get_num_nodes(),4);
     }
 
     @Test
-    @Ignore
     public void test_get_links(){
+        Map<Long,LinkInfo> links = api.get_links();
+        assertEquals(links.get(1l).getId(),1l);
     }
 
     @Test
-    @Ignore
     public void test_get_link_with_id(){
+        LinkInfo info = api.get_link_with_id(2l);
+        assertEquals(info.getId(),2l);
     }
 
     @Test
-    @Ignore
     public void test_get_link_ids(){
+        List<Long> link_ids = api.get_link_ids();
+        assertTrue(link_ids.contains(1l));
+        assertTrue(link_ids.contains(2l));
+        assertTrue(link_ids.contains(3l));
+        assertEquals(link_ids.size(),3);
     }
 
     @Test
     public void test_get_node_ids(){
+        List<Long> node_ids = api.get_node_ids();
+        assertTrue(node_ids.contains(1l));
+        assertTrue(node_ids.contains(2l));
+        assertTrue(node_ids.contains(3l));
+        assertTrue(node_ids.contains(4l));
+        assertEquals(node_ids.size(),4);
     }
 
     @Test
-    @Ignore
     public void test_get_source_link_ids(){
-    }
-
-    @Test
-    @Ignore
-    public void test_get_in_lanegroups_for_road_connection(){
-    }
-
-    @Test
-    @Ignore
-    public void test_get_out_lanegroups_for_road_connection(){
-
+        List<Long> source_ids = api.get_source_link_ids();
+        assertEquals((long)source_ids.iterator().next(),1l);
     }
 
     ////////////////////////////////////////////////////////
@@ -160,33 +174,30 @@ public class TestAPI extends AbstractTest {
     ////////////////////////////////////////////////////////
 
     @Test
-    @Ignore
     public void test_get_demands(){
-
-    }
-
-    @Test
-    @Ignore
-    public void test_get_demand_with_ids(){
-
-    }
-
-    @Test
-    @Ignore
-    public void test_clear_all_demands(){
-
+        DemandInfo demands = api.get_demands().iterator().next();
+        assertEquals((long)demands.getCommodity_id(),1l);
+        assertEquals(demands.getLink_id(),1l);
     }
 
     @Test
     @Ignore
     public void test_set_demand_on_path_in_vph() {
-//        set_demand_on_path_in_vph(long path_id,long commodity_id,float start_time,float dt,List<Double> values)
+        try {
+            long path_id = 0l;
+            long commodity_id = 1l;
+            float start_time = 0;
+            float dt = 10f;
+            List<Double> values = new ArrayList<>();
+            api.set_demand_on_path_in_vph(path_id,commodity_id,start_time,dt,values);
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
-    @Ignore
     public void test_get_total_trips() {
-
+        assertEquals(api.get_total_trips(),416.666666666666,0.0001);
     }
 
     ////////////////////////////////////////////////////////
@@ -194,22 +205,21 @@ public class TestAPI extends AbstractTest {
     ////////////////////////////////////////////////////////
 
     @Test
-    @Ignore
     public void test_get_num_sensors(){
-
+        assertEquals(api.get_num_sensors(),0);
     }
 
     @Test
     @Ignore
     public void test_get_sensors(){
+        System.out.println(api.get_sensors());
 
     }
 
     @Test
     @Ignore
     public void test_get_sensor_with_id(){
-//        get_sensor_with_id(long id)
-
+        System.out.println(api.get_sensor_with_id(1l));
     }
 
     ////////////////////////////////////////////////////////
@@ -217,21 +227,20 @@ public class TestAPI extends AbstractTest {
     ////////////////////////////////////////////////////////
 
     @Test
-    @Ignore
     public void test_get_num_controllers(){
-
+        assertEquals(api.get_num_controllers(),0);
     }
 
     @Test
     @Ignore
     public void test_get_controllers(){
-
+        System.out.println(api.get_controllers());
     }
 
     @Test
     @Ignore
     public void test_get_controller_with_id(){
-//        get_controller_with_id(long id)
+        System.out.println(api.get_controller_with_id(1l));
     }
 
     ////////////////////////////////////////////////////////
@@ -239,38 +248,20 @@ public class TestAPI extends AbstractTest {
     ////////////////////////////////////////////////////////
 
     @Test
-    @Ignore
     public void test_get_num_actuators(){
-
+        assertEquals(api.get_num_actuators(),0);
     }
 
     @Test
     @Ignore
     public void test_get_actuators(){
-
+        System.out.println(api.get_actuators());
     }
 
     @Test
     @Ignore
     public void test_get_actuator_with_id(){
-//        get_actuator_with_id(long id)
-    }
-
-    ////////////////////////////////////////////////////////
-    // performance
-    ////////////////////////////////////////////////////////
-
-    @Test
-    @Ignore
-    public void test_get_performance(){
-
-    }
-
-    @Test
-    @Ignore
-    public void test_get_performance_for_commodity() {
-//        get_performance_for_commodity(Long commodity_id)
-
+        System.out.println(api.get_actuator_with_id(1l));
     }
 
     ////////////////////////////////////////////////////////
@@ -280,17 +271,19 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_get_output_data(){
-
+        System.out.println(api.get_output_data());
     }
 
     @Test
     @Ignore
     public void test_clear_output_requests(){
+        api.clear_output_requests();
     }
 
     @Test
     @Ignore
     public void test_get_outputs(){
+        System.out.println(api.get_outputs());
     }
 
     // network ................
@@ -298,7 +291,7 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_request_lanegroups(){
-//        request_lanegroups(String prefix,String output_folder)
+        api.request_lanegroups("lgs",output_folder);
     }
 
     // links ....................
@@ -306,15 +299,13 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_request_links_veh(){
-//        request_links_veh(String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt
-//        request_links_veh(Long commodity_id,List<Long> link_ids,Float outDt)
+        api.request_links_veh("lv",output_folder,null,null,10f);
     }
 
     @Test
     @Ignore
     public void test_request_links_flow(){
-//        request_links_flow(String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt
-//        request_links_flow(Long commodity_id,List<Long> link_ids,Float outDt)
+        api.request_links_flow("lf",output_folder,null,null,10f);
     }
 
     // lanegroups ...............
@@ -322,15 +313,13 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_request_lanegroup_flw(){
-//        request_lanegroup_flw(String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt)
-//        request_lanegroup_flw(Long commodity_id,List<Long> link_ids,Float outDt)
+        api.request_lanegroup_flw("lgf",output_folder,null,null,10f);
     }
 
     @Test
     @Ignore
     public void test_request_lanegroup_veh(){
-//        request_lanegroup_veh(String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt)
-//        request_lanegroup_veh(Long commodity_id,List<Long> link_ids,Float outDt)
+        api.request_lanegroup_veh("lgv",output_folder,null,null,10f);
     }
 
     // subnetwroks ..............
@@ -338,15 +327,14 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_request_path_travel_time(){
-//        request_path_travel_time(String prefix,String output_folder,Long subnetwork_id,Float outDt)
-//        request_path_travel_time(Long subnetwork_id,Float outDt)
+        api.request_path_travel_time("ptt",output_folder,0l,10f);
     }
 
 
     @Test
     @Ignore
     public void test_request_subnetwork_vht(){
-//        request_subnetwork_vht(String prefix,String output_folder,Long commodity_id,Long subnetwork_id,Float outDt
+        api.request_subnetwork_vht("vht",output_folder,null,0l,10f);
     }
 
     // vehicles .................
@@ -354,21 +342,19 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_request_vehicle_events(){
-//        request_vehicle_events(float commodity_id)
-//        request_vehicle_events(String prefix,String output_folder,Long commodity_id)
-
+        api.request_vehicle_events("vehev",output_folder,null);
     }
 
     @Test
     @Ignore
     public void test_request_vehicle_class(){
-//        request_vehicle_class(String prefix,String output_folder)
+        api.request_vehicle_class("vc",output_folder);
     }
 
     @Test
     @Ignore
     public void test_request_vehicle_travel_time(){
-//        request_vehicle_travel_time(String prefix,String output_folder)
+        api.request_vehicle_travel_time("vtt",output_folder);
     }
 
     // sensors ..................
@@ -378,8 +364,7 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_request_actuator(){
-//        request_actuator(String prefix,String output_folder,Long actuator_id)
-//        request_actuator(Long actuator_id)
+        api.request_actuator("act", output_folder,1l);
     }
 
     // controllers ..............
@@ -387,7 +372,7 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_request_controller(){
-//        request_controller(Long controller_id)
+        api.request_controller(0l);
     }
 
     ////////////////////////////////////////////////////////
@@ -396,23 +381,21 @@ public class TestAPI extends AbstractTest {
 
     @Test
     @Ignore
-    public void test_initialize() {
-//        initialize(float start_time)
-    }
-
-    @Test
-    @Ignore
     public void test_advance() {
-//        advance(float duration)
+        try {
+            api.advance(100f);
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     @Ignore
     public void test_get_current_time(){
+        System.out.println(api.get_current_time());
     }
 
     @Test
-    @Ignore
     public void test_get_animation_info() {
 
         try {

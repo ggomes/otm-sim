@@ -76,12 +76,11 @@ public class TestOne extends AbstractTest {
         }
     }
 
-
     @Test
     public void load_one() {
         try {
             float sim_dt = 2f;
-            API api = OTM.load("/home/gomes/code/otm-mpi-bb/test/pc_mpi/100_0.xml",sim_dt,true);
+            API api = OTM.load("C:\\Users\\gomes\\vbox_shared\\all_cfgs\\25.xml",sim_dt,true);
 //            API api = OTM.load("/home/gomes/code/otm-mpi-bb/config/100.xml",sim_dt,true);
         } catch (OTMException e) {
             e.printStackTrace();

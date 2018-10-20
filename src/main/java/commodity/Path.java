@@ -25,6 +25,15 @@ public class Path extends Subnetwork {
 
     public Path(jaxb.Subnetwork js, Network network) throws OTMException {
         super(js, network);
+        create_ordered_links();
+    }
+
+    public Path(Network network) {
+        super(network);
+        create_ordered_links();
+    }
+
+    private void create_ordered_links(){
 
         // generate ordered links ..........
         // get all sources in the subnetwork
