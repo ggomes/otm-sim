@@ -114,11 +114,16 @@ public abstract class AbstractLinkModel {
 
             split_packet.target_lanegroups = link.outlink2lanegroups.get(outlink_id);
 
-            if(split_packet.target_lanegroups==null)
-                throw new OTMException(String.format("target_lanegroups==null.\nThis may be an error in split ratios. " +
-                        "There is no access from link " + link.getId() + " to " +
-                        "link " + outlink_id+ ". A possible cause is that there is " +
-                        "a positive split ratio between these two links."));
+            if(split_packet.target_lanegroups==null) {
+
+                // In MPI, the link may not be present, so don't throw and exception.
+                continue;
+
+//                throw new OTMException(String.format("target_lanegroups==null.\nThis may be an error in split ratios. " +
+//                        "There is no access from link " + link.getId() + " to " +
+//                        "link " + outlink_id + ". A possible cause is that there is " +
+//                        "a positive split ratio between these two links."));
+            }
 
             Set<AbstractLaneGroup> candidate_lanegroups = vp.arrive_to_lanegroups;
 
