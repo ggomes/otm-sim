@@ -99,8 +99,8 @@ public class TestOne extends AbstractTest {
             // Load ..............................
             API api = null;
             try {
-//                api = OTM.load_test("signal",sim_dt,true,"ctm");
-                api = OTM.load("C:\\Users\\gomes\\vbox_shared\\all_cfgs\\100.xml",sim_dt,true,"ctm");
+                api = OTM.load_test("signal_nopocket",sim_dt,true,"ctm");
+//                api = OTM.load("C:\\Users\\gomes\\vbox_shared\\all_cfgs\\100.xml",sim_dt,true,"ctm");
             } catch (OTMException e) {
                 e.printStackTrace();
             }

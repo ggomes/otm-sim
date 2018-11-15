@@ -112,6 +112,7 @@ public abstract class AbstractLinkModel {
             if(split_packet.isEmpty())
                 continue;
 
+            // TODO: THIS IS NO LONGER NEEDED
             split_packet.target_lanegroups = link.outlink2lanegroups.get(outlink_id);
 
             if(split_packet.target_lanegroups==null) {

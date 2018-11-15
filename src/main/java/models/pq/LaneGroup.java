@@ -17,14 +17,12 @@ import dispatch.EventReleaseVehicleFromLaneGroup;
 import geometry.FlowDirection;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import keys.KeyCommodityLink;
 import output.InterfaceVehicleListener;
 import packet.AbstractPacketLaneGroup;
 import packet.PacketLink;
 import packet.PartialVehicleMemory;
 import runner.RunParameters;
 import runner.Scenario;
-import utils.OTMUtils;
 
 import java.util.*;
 
@@ -54,7 +52,6 @@ public class LaneGroup extends AbstractLaneGroup {
         super(link, side,flwdir,length, num_lanes, start_lane, out_rcs);
         this.transit_queue = new models.pq.Queue(this, models.pq.Queue.Type.transit);
         this.waiting_queue = new models.pq.Queue(this, models.pq.Queue.Type.waiting);
-//        this.downstream_candidate_lanegroups = new HashMap<>();
     }
 
     ////////////////////////////////////////////
