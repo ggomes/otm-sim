@@ -11,6 +11,7 @@ import utils.OTMUtils;
 import utils.CircularList;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,24 @@ public class ScheduleItem implements Comparable<ScheduleItem> {
             stage_collection.add(new Stage(stage));
         stages = new CircularList<>(stage_collection);
 
+        // set start_time
+        float relstarttime = 0f;
+        for(Stage stage : stages.queue){
+            stage.cycle_starttime = relstarttime%cycle;
+            relstarttime += stage.duration;
+        }
+    }
+
+    public ScheduleItem(float start_time, float offset, List<Stage> stagelist){
+        // this.cycle = cycle;
+        float accum = 0;
+        for (Stage stage : stagelist) accum += stage.duration;
+        this.cycle = accum;
+        this.offset = offset;
+        this.start_time = start_time;
+
+        // create stages
+        stages = new CircularList<>(stagelist);
         // set start_time
         float relstarttime = 0f;
         for(Stage stage : stages.queue){
