@@ -74,6 +74,10 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     abstract public double get_supply();
     abstract public void exiting_roadconnection_capacity_has_been_modified(float timestamp);
 
+    abstract public void set_max_speed_mps(Float max_speed_mps) throws OTMException;
+    abstract public void set_max_flow_vpspl(Float max_flow_vpspl) throws OTMException;
+    abstract public void set_max_density_vpkpl(Float max_density_vpkpl) throws OTMException;
+
     /** Return the total number of vehicles in this lane group with the
      * given commodity id. commodity_id==null means return total over all
      * commodities.

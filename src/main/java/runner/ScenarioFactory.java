@@ -297,6 +297,9 @@ public class ScenarioFactory {
                 case "vsl":
                     actuator = new ActuatorVSL(scenario,jaxb_actuator);
                     break;
+                case "fd":
+                    actuator = new ActuatorFD(scenario,jaxb_actuator);
+                    break;
                 default:
                     actuator = null;
                     break;
