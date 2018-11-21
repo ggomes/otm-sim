@@ -6,6 +6,7 @@
  */
 package common;
 
+import actuator.ActuatorFD;
 import commodity.Commodity;
 import commodity.Path;
 import commodity.Subnetwork;
@@ -166,6 +167,31 @@ public abstract class AbstractLinkModel {
 
     public float get_max_vehicles(){
         return (float) link.lanegroups_flwdn.values().stream().map(x->x.max_vehicles).mapToDouble(i->i).sum();
+    }
+
+    public void set_road_param(ActuatorFD.FDCommand newfd) throws OTMException {
+
+        jaxb.Roadparam roadparam = new jaxb.Roadparam();
+
+        if(newfd.max_speed_kph!=null) {
+            if(newfd.max_speed_kph<0)
+                throw new OTMException("max_speed_kph<0");
+            roadparam.setSpeed(newfd.max_speed_kph);
+        }
+
+        if(newfd.capacity_vphpl!=null) {
+            if(newfd.capacity_vphpl<0)
+                throw new OTMException("capacity_vphpl<0");
+            roadparam.setCapacity(newfd.capacity_vphpl);
+        }
+
+        if(newfd.jam_density_vpkpl!=null) {
+            if(newfd.jam_density_vpkpl<link.get_veh())
+                throw new OTMException("jam_density_vpkpl<link.get_veh()");
+            roadparam.setJamDensity(newfd.jam_density_vpkpl);
+        }
+
+        set_road_param(roadparam,link.network.scenario.sim_dt);
     }
 
     //////////////////////////////////////////////////////////////
