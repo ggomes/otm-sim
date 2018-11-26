@@ -144,4 +144,32 @@ public class TestOne extends AbstractTest {
         }
     }
 
+    @Test
+    public void run_main(){
+
+        //    0 command
+        //    1 configfile
+        //    2 prefix
+        //    3 output_request
+        //    4 output folder
+        //    5 start_time
+        //    6 sim_dt
+        //    7 duration
+        //    8 global_model
+
+        String [] args = new String[9];
+        args[0] = "-run";
+        args[1] = "C:\\Users\\gomes\\code\\otm\\otm-plugin\\config\\line_controller_pedestrian.xml";
+        args[2] = "plugin";
+        args[3] = "C:\\Users\\gomes\\code\\otm\\otm-plugin\\config\\output_request.xml";
+        args[4] = "C:\\Users\\gomes\\code\\otm\\otm-plugin\\output";
+        args[5] = "0";
+        args[6] = "10";
+        args[7] = "3600";
+        args[8] = "ctm";
+
+        OTM.main(args);
+
+    }
+
 }
