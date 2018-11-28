@@ -244,7 +244,7 @@ public class ScenarioFactory {
                 throw new OTMException("Bad global model: " + global_model);
         }
 
-        System.out.println("Warning: Overwriting the link model. Setting all to " + global_model);
+//        System.out.println("Warning: Overwriting the link model. Setting all to " + global_model);
 
         js.setModel(model);
 
