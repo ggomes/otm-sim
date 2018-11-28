@@ -27,7 +27,7 @@ public class TestAllConfig extends AbstractTest {
 
     String testname;
     float start_time = 0f;
-    float duration = 300f;
+    float duration = 100f;
     float sim_dt = 2f;
 
     public TestAllConfig(String testname){
@@ -77,8 +77,8 @@ public class TestAllConfig extends AbstractTest {
             api.run(start_time,duration);
 
             // check the output against expects
-//            for(String output_path : api.get_outputs())
-//                compare_files(output_path);
+            for(String output_path : api.get_outputs())
+                compare_files(output_path);
 
         }
 
