@@ -15,7 +15,6 @@ import java.util.Map;
 
 public class Cell {
 
-    public LinkModel model;
     private LaneGroup laneGroup;
 
     public boolean am_upstrm;
@@ -48,16 +47,15 @@ public class Cell {
     // construction
     ///////////////////////////////////////////////////
 
-    public Cell(LinkModel model, double length_in_meters, LaneGroup laneGroup) {
+    public Cell(double length_in_meters, LaneGroup laneGroup) {
         this.am_upstrm = false;
         this.am_dnstrm = false;
-        this.model = model;
         this.laneGroup = laneGroup;
     }
 
     public void set_road_params(float capacity_vehperlane, float jam_density_vehperlane, float ffspeed_veh) {
         int lanes = laneGroup.num_lanes;
-        if (model.link.is_source) {
+        if (laneGroup.link.is_source) {
             this.capacity_veh = capacity_vehperlane * lanes;
             this.ffspeed_norm = Double.NaN;
             this.jam_density_veh = Double.NaN;
@@ -73,7 +71,7 @@ public class Cell {
 
     public void validate(OTMErrorLog errorLog) {
 
-        if (!model.link.is_source) {
+        if (!laneGroup.link.is_source) {
             if (ffspeed_norm < 0)
                 errorLog.addError("non-negativity");
             if (jam_density_veh < 0)
@@ -199,7 +197,7 @@ public class Cell {
         else {
 
             // compute total flow leaving the cell in the absence of flow control
-            if (model.link.is_source)
+            if (laneGroup.link.is_source)
                 // sources discharge at capacity
                 total_demand = Math.min(total_vehicles, capacity_veh);
             else {
@@ -237,10 +235,10 @@ public class Cell {
         }
 
         // update supply ..............................................
-        if (model.link.is_sink)
+        if (laneGroup.link.is_sink)
             supply = capacity_veh;
         else {
-            switch (model.link.model_type) {
+            switch (laneGroup.link.model_type) {
                 case ctm:
                     if(am_dnstrm)
                         supply = Math.min(wspeed_norm * (jam_density_veh - total_vehicles), capacity_veh);

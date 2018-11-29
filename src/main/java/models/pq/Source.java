@@ -72,12 +72,8 @@ public class Source extends common.AbstractSource {
         if(target_lanegroups.isEmpty())
             return;
 
-        // I need a linkModel object to call lanegroup_proportions on
-        // Annoyingly, Java does not allow overriding of static methods.
-        models.pq.LinkModel linkModel = (models.pq.LinkModel) target_lanegroups.iterator().next().link.model;
-
         // this map will have a single entry
-        LaneGroup joinlanegroup = (LaneGroup) linkModel.lanegroup_proportions(target_lanegroups).keySet().iterator().next();
+        LaneGroup joinlanegroup = (LaneGroup) link.model.lanegroup_proportions(target_lanegroups).keySet().iterator().next();
 
         // move the vehicle
         vehicle.move_to_queue(timestamp,joinlanegroup.transit_queue);

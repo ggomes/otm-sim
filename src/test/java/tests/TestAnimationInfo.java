@@ -28,7 +28,7 @@ public class TestAnimationInfo {
             float duration = 100f;
             float sim_dt = 2f;
 
-            API api = OTM.load_test("line", sim_dt,true,"ctm");
+            API api = OTM.load_test("line", sim_dt,true);
 
             api.initialize(start_time);
             float time = start_time;

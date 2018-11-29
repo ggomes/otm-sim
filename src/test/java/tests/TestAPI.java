@@ -39,7 +39,7 @@ public class TestAPI extends AbstractTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        api = OTM.load_test("line",sim_dt,true,"ctm");
+        api = OTM.load_test("line",sim_dt,true);
         apiopen = new APIopen(api);
     }
 

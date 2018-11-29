@@ -27,7 +27,6 @@ public abstract class AbstractLinkModel {
     // abstract methods
     //////////////////////////////////////////////////////////////
 
-    abstract public void set_road_param(jaxb.Roadparam r, float sim_dt_sec);
     abstract public void validate(OTMErrorLog errorLog);
     abstract public void reset();
 //    abstract public float get_ff_travel_time(); // seconds
@@ -42,36 +41,6 @@ public abstract class AbstractLinkModel {
         this.link = link;
     }
 
-    public void register_commodity(Commodity comm, Subnetwork subnet) throws OTMException {
-
-        if(comm.pathfull) {
-            Link next_link = ((Path) subnet).get_link_following(this.link);
-            Long next_link_id = next_link==null ? null : next_link.getId();
-            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                lg.add_state(comm.getId(), subnet.getId(),next_link_id, true);
-        }
-
-        else {
-
-            // for pathless/sink, next link id is same as this id
-            if (link.is_sink) {
-                for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                    lg.add_state(comm.getId(), null,link.getId(), false);
-
-            } else {
-
-                // for pathless non-sink, add a state for each next link in the subnetwork
-                for( Long next_link_id : link.outlink2lanegroups.keySet()  ){
-                    if (!subnet.has_link_id(next_link_id))
-                        continue;
-                    for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                        lg.add_state(comm.getId(), null,next_link_id, false);
-                }
-            }
-        }
-
-    }
-
     public void initialize(Scenario scenario) throws OTMException {
         // allocate state for each lanegroup in this link
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() ){
@@ -82,91 +51,91 @@ public abstract class AbstractLinkModel {
     //////////////////////////////////////////////////////////////
     // public
     //////////////////////////////////////////////////////////////
-
-    public void add_vehicle_packet(float timestamp, PacketLink vp) throws OTMException {
-
-        if(vp.isEmpty())
-            return;
-
-        // sink or many-to-one
-        // this implies that next-link is trivial
-        // and (for now) target_lanegroup is trivial
-        if(link.packet_splitter==null){
-            // if sink, encode by using current link id as nextlink.
-            Long outlink_id = link.is_sink ? link.getId() : link.end_node.out_links.values().iterator().next().getId();
-            AbstractPacketLaneGroup packet = PacketSplitter.cast_packet_null_splitter(myPacketClass,vp,outlink_id);
-            AbstractLaneGroup join_lanegroup = vp.arrive_to_lanegroups.iterator().next();
-            join_lanegroup.add_native_vehicle_packet(timestamp,packet);
-            return;
-        }
-
-        // tag the packet with next_link and target_lanegroups
-        Map<Long, AbstractPacketLaneGroup> split_packets = link.packet_splitter.split_packet(myPacketClass,vp);
-
-        // process each split packet
-        for(Map.Entry<Long, AbstractPacketLaneGroup> e : split_packets.entrySet()){
-
-            Long outlink_id = e.getKey();
-            AbstractPacketLaneGroup split_packet = e.getValue();
-
-            if(split_packet.isEmpty())
-                continue;
-
-            // TODO: THIS IS NO LONGER NEEDED
-            split_packet.target_lanegroups = link.outlink2lanegroups.get(outlink_id);
-
-            if(split_packet.target_lanegroups==null) {
-
-                // In MPI, the link may not be present, so don't throw and exception.
-                continue;
-
-//                throw new OTMException(String.format("target_lanegroups==null.\nThis may be an error in split ratios. " +
-//                        "There is no access from link " + link.getId() + " to " +
-//                        "link " + outlink_id + ". A possible cause is that there is " +
-//                        "a positive split ratio between these two links."));
-            }
-
-            Set<AbstractLaneGroup> candidate_lanegroups = vp.arrive_to_lanegroups;
-
-            // split the split_packet amongst the candidate lane groups.
-            // then add them
-            if(candidate_lanegroups.size()==1) {
-                AbstractLaneGroup laneGroup = candidate_lanegroups.iterator().next();
-                laneGroup.add_native_vehicle_packet(timestamp, split_packet);
-            } else {
-                for (Map.Entry<AbstractLaneGroup, Double> ee : lanegroup_proportions(candidate_lanegroups).entrySet()) {
-                    AbstractLaneGroup laneGroup = ee.getKey();
-                    Double prop = ee.getValue();
-                    if (prop <= 0d)
-                        continue;
-                    if (prop==1d)
-                        laneGroup.add_native_vehicle_packet(timestamp, split_packet );
-                    else
-                        laneGroup.add_native_vehicle_packet(timestamp, split_packet.times(prop));
-                }
-            }
-
-//            // TODO: FOR MESO and MICRO MODELS, CHECK THAT THERE IS AT LEAST 1 VEHICLE WORTH OF SUPPLY.
 //
-//            // if all candidates are full, then choose one that is closest and not full
-//            if(join_lanegroup==null) {
+//    public void add_vehicle_packet(float timestamp, PacketLink vp) throws OTMException {
 //
-//                join_lanegroup = choose_closest_that_is_not_full(vp.arrive_to_lanegroups,candidate_lanegroups,split_packet.target_lanegroups);
+//        if(vp.isEmpty())
+//            return;
 //
-//                // put lane change requests on the target lane groups
-//                // TODO: REDO THIS
-////                add_lane_change_request(timestamp,lanegroup_packet,join_lanegroup,lanegroup_packet.target_lanegroups,Queue.Type.transit);
+//        // sink or many-to-one
+//        // this implies that next-link is trivial
+//        // and (for now) target_lanegroup is trivial
+//        if(link.packet_splitter==null){
+//            // if sink, encode by using current link id as nextlink.
+//            Long outlink_id = link.is_sink ? link.getId() : link.end_node.out_links.values().iterator().next().getId();
+//            AbstractPacketLaneGroup packet = PacketSplitter.cast_packet_null_splitter(myPacketClass,vp,outlink_id);
+//            AbstractLaneGroup join_lanegroup = vp.arrive_to_lanegroups.iterator().next();
+//            join_lanegroup.add_native_vehicle_packet(timestamp,packet);
+//            return;
+//        }
+//
+//        // tag the packet with next_link and target_lanegroups
+//        Map<Long, AbstractPacketLaneGroup> split_packets = link.packet_splitter.split_packet(myPacketClass,vp);
+//
+//        // process each split packet
+//        for(Map.Entry<Long, AbstractPacketLaneGroup> e : split_packets.entrySet()){
+//
+//            Long outlink_id = e.getKey();
+//            AbstractPacketLaneGroup split_packet = e.getValue();
+//
+//            if(split_packet.isEmpty())
+//                continue;
+//
+//            // TODO: THIS IS NO LONGER NEEDED
+//            split_packet.target_lanegroups = link.outlink2lanegroups.get(outlink_id);
+//
+//            if(split_packet.target_lanegroups==null) {
+//
+//                // In MPI, the link may not be present, so don't throw and exception.
+//                continue;
+//
+////                throw new OTMException(String.format("target_lanegroups==null.\nThis may be an error in split ratios. " +
+////                        "There is no access from link " + link.getId() + " to " +
+////                        "link " + outlink_id + ". A possible cause is that there is " +
+////                        "a positive split ratio between these two links."));
 //            }
-
-            // add the packet to it
-
-        }
-
-    }
-
-    public float get_max_vehicles(){
-        return (float) link.lanegroups_flwdn.values().stream().map(x->x.max_vehicles).mapToDouble(i->i).sum();
-    }
+//
+//            Set<AbstractLaneGroup> candidate_lanegroups = vp.arrive_to_lanegroups;
+//
+//            // split the split_packet amongst the candidate lane groups.
+//            // then add them
+//            if(candidate_lanegroups.size()==1) {
+//                AbstractLaneGroup laneGroup = candidate_lanegroups.iterator().next();
+//                laneGroup.add_native_vehicle_packet(timestamp, split_packet);
+//            } else {
+//                for (Map.Entry<AbstractLaneGroup, Double> ee : lanegroup_proportions(candidate_lanegroups).entrySet()) {
+//                    AbstractLaneGroup laneGroup = ee.getKey();
+//                    Double prop = ee.getValue();
+//                    if (prop <= 0d)
+//                        continue;
+//                    if (prop==1d)
+//                        laneGroup.add_native_vehicle_packet(timestamp, split_packet );
+//                    else
+//                        laneGroup.add_native_vehicle_packet(timestamp, split_packet.times(prop));
+//                }
+//            }
+//
+////            // TODO: FOR MESO and MICRO MODELS, CHECK THAT THERE IS AT LEAST 1 VEHICLE WORTH OF SUPPLY.
+////
+////            // if all candidates are full, then choose one that is closest and not full
+////            if(join_lanegroup==null) {
+////
+////                join_lanegroup = choose_closest_that_is_not_full(vp.arrive_to_lanegroups,candidate_lanegroups,split_packet.target_lanegroups);
+////
+////                // put lane change requests on the target lane groups
+////                // TODO: REDO THIS
+//////                add_lane_change_request(timestamp,lanegroup_packet,join_lanegroup,lanegroup_packet.target_lanegroups,Queue.Type.transit);
+////            }
+//
+//            // add the packet to it
+//
+//        }
+//
+//    }
+//
+//    public float get_max_vehicles(){
+//        return (float) link.lanegroups_flwdn.values().stream().map(x->x.max_vehicles).mapToDouble(i->i).sum();
+//    }
 
     //////////////////////////////////////////////////////////////
     // private

@@ -29,7 +29,6 @@ public class Commodity implements InterfaceScenarioElement {
     public final String name;
     public final Set<Subnetwork> subnetworks;
     public  Set<Link> all_links;
-//    public  Set<AbstractLaneGroup> all_lanegroups;
     public boolean pathfull;
 
     // this is a dispatch output writer for vehicles of this commodity
@@ -98,8 +97,7 @@ public class Commodity implements InterfaceScenarioElement {
     public void initialize() throws OTMException {
         for(Subnetwork subnetwork : subnetworks)
             for(Link link : subnetwork.links)
-                if(link.model_type==Link.ModelType.ctm || link.model_type==Link.ModelType.mn)
-                    link.model.register_commodity(this,subnetwork);
+                link.model.register_commodity(link,this,subnetwork);
     }
 
     ///////////////////////////////////////////////////

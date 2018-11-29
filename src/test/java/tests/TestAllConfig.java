@@ -37,7 +37,7 @@ public class TestAllConfig extends AbstractTest {
     @Test
     public void test_load() {
         try {
-            API api = OTM.load_test(testname,sim_dt,true,"ctm");
+            API api = OTM.load_test(testname,sim_dt,true);
             assertNotNull(api);
         } catch (OTMException e) {
             System.out.print(e);
@@ -47,28 +47,23 @@ public class TestAllConfig extends AbstractTest {
 
     @Test
     public void test_run_ctm() {
-        run("ctm");
-    }
-
-    @Test
-    public void test_run_mn() {
-        run("mn");
+        run();
     }
 
     ///////////////////////////////////////////////
     // private
     ///////////////////////////////////////////////
 
-    private void run(String model) {
+    private void run() {
         try {
 
-            API api = OTM.load_test(testname,sim_dt,true,model);
+            API api = OTM.load_test(testname,sim_dt,true);
             List<Long> link_ids = api.get_link_ids();
             Float outDt = sim_dt;
 
             // request outputs
             for(CommodityInfo comm : api.get_commodities()) {
-                String prefix = model + "_" + testname;
+                String prefix = "ctm" + "_" + testname;
                 api.request_links_flow(prefix,output_folder, comm.getId(), link_ids, outDt);
                 api.request_links_veh(prefix, output_folder, comm.getId(), link_ids, outDt);
             }

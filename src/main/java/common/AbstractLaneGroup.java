@@ -57,9 +57,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     protected Map<Long,RoadConnection> outlink2roadconnection;
 
     // exiting road connection to the states that use it (should be avoided in the one-to-one case)
+    // TODO MOVE THIS TO DISCRETE TIME MODEL OR REMOVE
     public Map<Long, Set<KeyCommPathOrLink>> roadconnection2states;
 
     // state to the road connection it must use (should be avoided in the one-to-one case)
+    // TODO MOVE THIS TO DISCRETE TIME MODEL
     public Map<KeyCommPathOrLink,Long> state2roadconnection;
 
     // target lane group to direction

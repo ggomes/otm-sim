@@ -43,41 +43,21 @@ public class ScenarioFactory {
     ///////////////////////////////////////////
 
     public static runner.Scenario create_scenario(jaxb.Scenario js, float sim_dt, boolean validate) throws OTMException {
-        return create_scenario(js,sim_dt, validate,null);
-    }
-
-    public static runner.Scenario create_scenario(jaxb.Scenario js, float sim_dt, boolean validate,String global_model) throws OTMException {
 
         OTMUtils.reset_counters();
 
         Scenario scenario = new Scenario(sim_dt);
 
-        // process global model
-        if(global_model!=null)
-            set_global_model(js,global_model);
-
         // plugins ..........................................................
         PluginLoader.load_plugins( js.getPlugins() );
 
-        // common ...........................................................
-        scenario.network = ScenarioFactory.create_network_from_jaxb(
-                scenario ,
-                js.getNetwork() ,
-                js.getModel() );
+        // network ...........................................................
+        scenario.network = ScenarioFactory.create_network_from_jaxb(scenario, js.getModels(), js.getNetwork());
 
-        // actuators & sensors ...............................................
-        scenario.actuators = ScenarioFactory.create_actuators_from_jaxb(
-                scenario,
-                js.getActuators() );
-
-        scenario.sensors = ScenarioFactory.create_sensors_from_jaxb(
-                scenario,
-                js.getSensors() );
-
-        // controllers ......................................................
-        scenario.controllers = ScenarioFactory.create_controllers_from_jaxb(
-                scenario,
-                js.getControllers() );
+        // control ...............................................
+        scenario.actuators = ScenarioFactory.create_actuators_from_jaxb(scenario, js.getActuators() );
+        scenario.sensors = ScenarioFactory.create_sensors_from_jaxb(scenario, js.getSensors() );
+        scenario.controllers = ScenarioFactory.create_controllers_from_jaxb(scenario,js.getControllers() );
 
         // commodities ......................................................
         scenario.subnetworks = ScenarioFactory.create_subnetworks_from_jaxb(
@@ -130,12 +110,12 @@ public class ScenarioFactory {
         scenario.data_demands = ScenarioFactory.create_demands_from_jaxb(scenario.network, js.getDemands());
 
         // tell the network about macro sources
-        scenario.network.macro_sources = new HashSet<>();
-        scenario.network.macro_sources.addAll( scenario.data_demands.values().stream()
-                .map(d->d.source)
-                .filter(s->s instanceof models.ctm.Source)
-                .map (x -> (models.ctm.Source) x)
-                .collect(Collectors.toSet()) );
+//        scenario.network.macro_sources = new HashSet<>();
+//        scenario.network.macro_sources.addAll( scenario.data_demands.values().stream()
+//                .map(d->d.source)
+//                .filter(s->s instanceof models.ctm.Source)
+//                .map (x -> (models.ctm.Source) x)
+//                .collect(Collectors.toSet()) );
 
 //        // register vehicle events requests with commodities
 //        for(AbstractOutput or : scenario.outputs){
@@ -212,50 +192,50 @@ public class ScenarioFactory {
     // private static
     ///////////////////////////////////////////
 
-    private static void set_global_model(jaxb.Scenario js,String global_model) throws OTMException {
-        if(global_model==null)
-            return;
+//    private static void set_global_model(jaxb.Scenario js,String global_model) throws OTMException {
+//        if(global_model==null)
+//            return;
+//
+//        Model model = new Model();
+//
+//        // all link ids
+//        List<Long> link_ids = js.getNetwork().getLinks().getLink().stream().map(link->link.getId()).collect(Collectors.toList());
+//        String all_links = OTMUtils.comma_format(link_ids);
+//
+//        switch(global_model){
+//            case "pq":
+//                PointQueue pq = new PointQueue();
+//                pq.setContent(all_links);
+//                model.setPointQueue(pq);
+//                break;
+//            case "ctm":
+//                Ctm ctm = new Ctm();
+//                ctm.setContent(all_links);
+//                ctm.setMaxCellLength(100f);     // default to 100 meters
+//                model.setCtm(ctm);
+//                break;
+//            case "mn":
+//                Mn mn = new Mn();
+//                mn.setContent(all_links);
+//                mn.setMaxCellLength(100f);     // default to 100 meters
+//                model.setMn(mn);
+//                break;
+//            default:
+//                throw new OTMException("Bad global model: " + global_model);
+//        }
+//
+////        System.out.println("Warning: Overwriting the link model. Setting all to " + global_model);
+//
+//        js.setModel(model);
+//
+//    }
 
-        Model model = new Model();
-
-        // all link ids
-        List<Long> link_ids = js.getNetwork().getLinks().getLink().stream().map(link->link.getId()).collect(Collectors.toList());
-        String all_links = OTMUtils.comma_format(link_ids);
-
-        switch(global_model){
-            case "pq":
-                PointQueue pq = new PointQueue();
-                pq.setContent(all_links);
-                model.setPointQueue(pq);
-                break;
-            case "ctm":
-                Ctm ctm = new Ctm();
-                ctm.setContent(all_links);
-                ctm.setMaxCellLength(100f);     // default to 100 meters
-                model.setCtm(ctm);
-                break;
-            case "mn":
-                Mn mn = new Mn();
-                mn.setContent(all_links);
-                mn.setMaxCellLength(100f);     // default to 100 meters
-                model.setMn(mn);
-                break;
-            default:
-                throw new OTMException("Bad global model: " + global_model);
-        }
-
-//        System.out.println("Warning: Overwriting the link model. Setting all to " + global_model);
-
-        js.setModel(model);
-
-    }
-
-    private static common.Network create_network_from_jaxb(Scenario scenario, jaxb.Network jaxb_network, jaxb.Model model) throws OTMException {
+    private static common.Network create_network_from_jaxb(Scenario scenario, jaxb.Models jaxb_models,jaxb.Network jaxb_network) throws OTMException {
         common.Network network = new common.Network(
                 scenario ,
+                jaxb_models==null ? null : jaxb_models.getModel(),
                 jaxb_network.getNodes().getNode(),
                 jaxb_network.getLinks().getLink(),
-                model ,
                 jaxb_network.getRoadgeoms() ,
                 jaxb_network.getRoadconnections() ,
                 jaxb_network.getRoadparams() );

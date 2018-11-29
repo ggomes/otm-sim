@@ -51,7 +51,7 @@ public class LaneGroup extends AbstractLaneGroup {
         this.cell_length_meters = cell_length_meters;
 
         for(int i=0;i<num_cells;i++)
-            this.cells.add(new Cell((models.ctm.LinkModel)link.model, cell_length_meters, this));
+            this.cells.add(new Cell(cell_length_meters, this));
 
         // designate first and last
         this.cells.get(0).am_upstrm = true;

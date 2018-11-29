@@ -52,15 +52,30 @@ public class API {
     }
 
     public void load(String configfile) throws OTMException{
-        load(configfile,Float.NaN,true,null);
+        load(configfile,Float.NaN,true);
     }
 
     public void load(String configfile,float sim_dt) throws OTMException{
-        load(configfile,sim_dt,true,null);
+        load(configfile,sim_dt,true);
     }
 
     public List<Long> load(String configfile,float sim_dt,boolean validate) throws OTMException{
-        return load(configfile,sim_dt,validate,null);
+
+        List<Long> timestamps = new ArrayList<>();
+        Date now = new Date();
+
+        timestamps.add(now.getTime());
+        jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,validate);
+        now = new Date();
+        timestamps.add(now.getTime());
+
+        this.scenario =  ScenarioFactory.create_scenario(jaxb_scenario,sim_dt,validate);
+
+        now = new Date();
+        timestamps.add(now.getTime());
+
+        return timestamps;
+
     }
 
     public List<Long> load_for_static_traffic_assignment(String configfile) throws OTMException{
@@ -85,26 +100,7 @@ public class API {
 
     }
 
-    public List<Long> load(String configfile,float sim_dt,boolean validate, String global_model) throws OTMException{
-
-        List<Long> timestamps = new ArrayList<>();
-        Date now = new Date();
-
-        timestamps.add(now.getTime());
-        jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,validate);
-        now = new Date();
-        timestamps.add(now.getTime());
-
-        this.scenario =  ScenarioFactory.create_scenario(jaxb_scenario,sim_dt,validate,global_model);
-
-        now = new Date();
-        timestamps.add(now.getTime());
-
-        return timestamps;
-
-    }
-
-    public List<Long> load_test(String testname,float sim_dt,boolean validate, String global_model) throws OTMException{
+    public List<Long> load_test(String testname,float sim_dt,boolean validate) throws OTMException{
 
         List<Long> timestamps = new ArrayList<>();
         Date now = new Date();
@@ -114,7 +110,7 @@ public class API {
         now = new Date();
         timestamps.add(now.getTime());
 
-        this.scenario =  ScenarioFactory.create_scenario(jaxb_scenario,sim_dt,validate,global_model);
+        this.scenario =  ScenarioFactory.create_scenario(jaxb_scenario,sim_dt,validate);
 
         now = new Date();
         timestamps.add(now.getTime());

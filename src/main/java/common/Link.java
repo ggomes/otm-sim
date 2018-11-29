@@ -14,6 +14,7 @@ import error.OTMException;
 import geometry.RoadGeometry;
 import geometry.Side;
 import jaxb.Points;
+import models.AbstractModel;
 import output.PathTravelTime;
 import packet.PacketSplitter;
 import runner.InterfaceScenarioElement;
@@ -79,7 +80,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
     // model
     public ModelType model_type;
-    public AbstractLinkModel model;
+    public AbstractModel model;
 
     // for path travel time output
     public Set<PathTravelTime> travel_timers;
@@ -94,7 +95,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     // construction
     ///////////////////////////////////////////
 
-    public Link(Network network, Link.ModelType model_type, Long road_param_id, RoadGeometry rg, Link.RoadType road_type,long id, float length, int full_lanes, Points jpoints, Node start_node, Node end_node) throws OTMException {
+    public Link(Network network, Long road_param_id, RoadGeometry rg, Link.RoadType road_type,long id, float length, int full_lanes, Points jpoints, Node start_node, Node end_node) throws OTMException {
 
         if (start_node == null)
             throw new OTMException("Unknown start node id in link " + id);
@@ -104,7 +105,6 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
         this.id = id;
         this.road_type = road_type==null ? RoadType.none : road_type;
-        this.model_type = model_type == null ? ModelType.none : model_type;
         this.road_param_id = road_param_id;
         this.network = network;
         this.length = length;
@@ -146,8 +146,6 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
             throw new OTMException("Unknown end node id in link " + id);
 
         this.id = id;
-        this.road_type = road_type==null ? RoadType.none : road_type;
-        this.model_type = model_type == null ? ModelType.none : model_type;
         this.road_param_id = road_param_id;
         this.network = network;
         this.length = length;
@@ -227,7 +225,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 //            lat_lanegroups.put(lg.id,lg);
 //    }
 
-    public void set_model(AbstractLinkModel model) throws OTMException {
+    public void set_model(AbstractModel model) throws OTMException {
         if (this.model != null)
             throw new OTMException("ModelType multiply assigned for link " + this.id);
         this.model = model;
@@ -311,7 +309,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
         // model
         if(model!=null)
-            model.validate(errorLog);
+            model.validate(this,errorLog);
 
         // packet_splitter
         if(packet_splitter !=null)
@@ -322,7 +320,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
         for(AbstractLaneGroup lg : lanegroups_flwdn.values())
             lg.initialize(scenario,runParams);
-        model.initialize(scenario);
+        model.initialize(this,scenario);
     }
 
     ////////////////////////////////////////////

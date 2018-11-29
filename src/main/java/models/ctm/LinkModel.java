@@ -57,30 +57,6 @@ public class LinkModel extends AbstractLinkModel {
     ///////////////////////////////////////////
 
     @Override
-    public void set_road_param(jaxb.Roadparam r, float sim_dt_sec) {
-
-        if(Float.isNaN(sim_dt_sec))
-            return;
-
-        // adjustment for MN model
-        if(link.model_type==Link.ModelType.mn)
-            r.setJamDensity(Float.POSITIVE_INFINITY);
-
-        // normalize
-        float dt_hr = sim_dt_sec/3600f;
-        float capacity_vehperlane = r.getCapacity()*dt_hr;
-
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
-
-            float jam_density_vehperlane = r.getJamDensity() * lg.length / 1000f;
-            float ffspeed_veh = 1000f * r.getSpeed()*dt_hr / lg.length;
-
-            lg.set_road_params(r);
-            ((LaneGroup) lg).cells.forEach(c -> c.set_road_params(capacity_vehperlane, jam_density_vehperlane, ffspeed_veh));
-        }
-    }
-
-    @Override
     public void validate(OTMErrorLog errorLog) {
     }
 

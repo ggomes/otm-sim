@@ -236,7 +236,7 @@ public class LaneGroup extends AbstractLaneGroup {
                 PacketLink vp = new PacketLink(vehicle,dwn_lanegroups);
 
                 // add vehicle to next link
-                next_link.model.add_vehicle_packet(timestamp,vp);
+                next_link.model.add_vehicle_packet(next_link,timestamp,vp);
 
             } else { // all targets are blocked
                 return;

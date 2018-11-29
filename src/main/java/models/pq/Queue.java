@@ -6,6 +6,7 @@
  */
 package models.pq;
 
+import common.Link;
 import error.OTMErrorLog;
 import error.OTMException;
 
@@ -66,7 +67,8 @@ public class Queue {
         this.vehicles.remove(v);
 
         // process any lane change requests
-        ((LinkModel)lanegroup.link.model).process_lane_change_request(timestamp,lane_change_requests.poll());
+        Link link = lanegroup.link;
+        ((Model_PQ)link.model).process_lane_change_request(link,timestamp,lane_change_requests.poll());
 
     }
 

@@ -12,11 +12,10 @@ import geometry.AddLanes;
 import geometry.FlowDirection;
 import geometry.RoadGeometry;
 import geometry.Side;
-import keys.KeyCommPathOrLink;
-import models.ctm.NodeModel;
-import models.ctm.UpLaneGroup;
+import models.AbstractModel;
+import models.ctm.Model_CTM;
 import models.micro.LaneGroup;
-import packet.PacketLink;
+import models.pq.Model_PQ;
 import runner.RunParameters;
 import runner.Scenario;
 import utils.OTMUtils;
@@ -37,12 +36,9 @@ public class Network {
     public Map<Long,Link> links;
     public Map<Long, RoadGeometry> road_geoms = new HashMap<>();
     public Map<Long,jaxb.Roadparam> road_params = new HashMap<>();    // keep this for the sake of the scenario splitter
-
     public Map<Long,RoadConnection> road_connections = new HashMap<>();
 
-    public Set<models.ctm.LinkModel> macro_link_models = new HashSet<>();
-    public Set<Node> macro_internal_nodes = new HashSet<>();
-    public Set<models.ctm.Source> macro_sources = new HashSet<>();
+    public Set<AbstractModel> models = new HashSet<>();
 
     ///////////////////////////////////////////
     // construction
@@ -54,7 +50,7 @@ public class Network {
         links = new HashMap<>();
     }
 
-    public Network(Scenario scenario,List<jaxb.Node> jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Model model, jaxb.Roadgeoms jaxb_geoms, jaxb.Roadconnections jaxb_conns, jaxb.Roadparams jaxb_params) throws OTMException {
+    public Network(Scenario scenario,List<jaxb.Model> jaxb_models,List<jaxb.Node> jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadgeoms jaxb_geoms, jaxb.Roadconnections jaxb_conns, jaxb.Roadparams jaxb_params) throws OTMException {
 
         this(scenario);
 
@@ -72,32 +68,8 @@ public class Network {
             for(jaxb.Roadgeom jaxb_geom : jaxb_geoms.getRoadgeom())
                 road_geoms.put(jaxb_geom.getId(),new RoadGeometry(jaxb_geom));
 
-        // specified models
-        Map<Long,Link.ModelType> specified_models = new HashMap<>();
-        if(model!=null){
-
-            // point-queue
-            if (model.getPointQueue()!=null) {
-                List<Long> ids = OTMUtils.csv2longlist(model.getPointQueue().getContent());
-                ids.forEach(x -> specified_models.put(x, Link.ModelType.pq));
-            }
-
-            // ctm
-            if (model.getCtm()!=null) {
-                List<Long> ids = OTMUtils.csv2longlist(model.getCtm().getContent());
-                ids.forEach(x -> specified_models.put(x, Link.ModelType.ctm));
-            }
-
-            // mn
-            if (model.getMn()!=null) {
-                List<Long> ids = OTMUtils.csv2longlist(model.getMn().getContent());
-                ids.forEach(x -> specified_models.put(x, Link.ModelType.mn));
-            }
-
-        }
 
         // create links
-        macro_link_models = new HashSet<>();
         for( jaxb.Link jl : jaxb_links ) {
             long id = jl.getId();
 
@@ -105,11 +77,7 @@ public class Network {
             if( links.containsKey(id)  )
                 throw new OTMException("Tried to add duplicate link id " + id );
 
-            // get its type. if not specified, it is models.ctm.pq
-            Link.ModelType my_model_type = specified_models.containsKey(id) ? specified_models.get(id) : Link.ModelType.none;
-
             Link link = new Link(this,
-                    my_model_type,
                     jl.getRoadparam() ,
                     jl.getRoadgeom()==null ? null : road_geoms.get(jl.getRoadgeom()),
                     jl.getRoadType()==null ? Link.RoadType.none : Link.RoadType.valueOf(jl.getRoadType()) ,
@@ -120,42 +88,56 @@ public class Network {
                     nodes.get(jl.getStartNodeId()),
                     nodes.get(jl.getEndNodeId()) );
 
-            // set model
-            switch(my_model_type) {
-
-                case pq:
-                    models.pq.LinkModel pq_model = new models.pq.LinkModel(link);
-                    link.set_model(pq_model);
-                    break;
-
-                case ctm:
-                    models.ctm.LinkModel ctm_model = new models.ctm.LinkModel(link);
-                    link.set_model(ctm_model);
-                    macro_link_models.add(ctm_model);
-                    break;
-
-                case mn:
-                    models.ctm.LinkModel mn_model = new models.ctm.LinkModel(link);
-                    link.set_model(mn_model);
-                    macro_link_models.add(mn_model);
-                    break;
-
-                case none:
-                    models.none.LinkModel none_model = new models.none.LinkModel(link);
-                    link.set_model(none_model);
-                    break;
-
-            }
             links.put(id,link);
+        }
+
+
+        // specified models
+        if(jaxb_models!=null){
+
+            for(jaxb.Model jaxb_model : jaxb_models ){
+
+                // link set
+                List<Long> link_ids = OTMUtils.csv2longlist(jaxb_model.getLinks());
+                Set<Link> my_links = new HashSet<>();
+                for(Long link_id : link_ids){
+                    if(!links.containsKey(link_id))
+                        throw new OTMException("Unknown link id in model " + jaxb_model.getName());
+                    my_links.add(links.get(link_id));
+                }
+
+
+                AbstractModel model;
+                switch(jaxb_model.getType()){
+
+                    case "ctm":
+                        model = new Model_CTM(my_links,
+                                jaxb_model.getName(),
+                                jaxb_model.getModelParams().getSimDt(),
+                                jaxb_model.getModelParams().getMaxCellLength());
+                        break;
+
+                    case "pq":
+                        model = new Model_PQ(my_links,jaxb_model.getName());
+                        break;
+
+                    default:
+                        continue;
+
+                }
+
+                models.add(model);
+            }
 
         }
 
+        // set link models
+        for( AbstractModel model : models)
+            for(Link link : model.links)
+                link.set_model(model);
+
         // nodes is_many2one
         nodes.values().stream().forEach(node -> node.is_many2one = node.out_links.size()==1);
-
-        // abort if we have macro links but were not given a sim_dt
-        if( !macro_link_models.isEmpty() && Float.isNaN(scenario.sim_dt) )
-            throw new OTMException("Attempted to load a scenario with macroscopic links, but did not provide a simulation time step.");
 
         // read road connections
         road_connections = new HashMap<>();
@@ -276,31 +258,7 @@ public class Network {
         }
 
         // construct cells for macro links (this has to be after sources are set)
-        if(!macro_link_models.isEmpty()){
-
-            // populate macro_internal_nodes: connected in any way to ctm models, minus sources and sinks
-            Set<Node> all_nodes = macro_link_models.stream().map(x->x.link.start_node).collect(toSet());
-            all_nodes.addAll(macro_link_models.stream().map(x->x.link.end_node).collect(toSet()));
-            all_nodes.removeAll(nodes.values().stream().filter(node->node.is_source || node.is_sink).collect(Collectors.toSet()));
-            macro_internal_nodes = all_nodes;
-
-            // give them models.ctm node models
-            for(Node node : macro_internal_nodes)
-                node.set_macro_model( new NodeModel(node) );
-
-            // ctm links
-            if(model.getCtm()!=null)
-                links.values().stream()
-                        .filter(x->x.model_type==Link.ModelType.ctm)
-                        .forEach(v->((models.ctm.LinkModel)v.model).create_cells(model.getCtm().getMaxCellLength()));
-
-            // mn links
-            if(model.getMn()!=null)
-                links.values().stream()
-                        .filter(x->x.model_type==Link.ModelType.mn)
-                        .forEach(v->((models.ctm.LinkModel)v.model).create_cells(model.getMn().getMaxCellLength()));
-
-        }
+        models.forEach(x->x.build());
 
         // assign road params
         road_params = new HashMap<>();
@@ -313,12 +271,12 @@ public class Network {
             jaxb.Roadparam rp = road_params.get(jl.getRoadparam());
             if(rp==null)
                 throw new OTMException("No road parameters for link id " + jl.getId()  );
-            link.model.set_road_param(rp,scenario.sim_dt);
+            link.model.set_road_param(link,rp,scenario.sim_dt);
         }
 
     }
 
-    // constuctor for static scenario
+    // constructor for static scenario
     public Network(Scenario scenario,List<jaxb.Node> jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadparams jaxb_params) throws OTMException {
 
         this(scenario);
@@ -332,7 +290,6 @@ public class Network {
         }
 
         // create links
-        macro_link_models = new HashSet<>();
         for( jaxb.Link jl : jaxb_links ) {
             long id = jl.getId();
 
@@ -340,12 +297,10 @@ public class Network {
             if( links.containsKey(id)  )
                 throw new OTMException("Tried to add duplicate link id " + id );
 
-            // get its type. if not specified, it is models.ctm.pq
             Link link = new Link(this,
-                    null,
                     jl.getRoadparam() ,
                     null,
-                    null ,
+                    Link.RoadType.none ,
                     id,
                     jl.getLength(),
                     jl.getFullLanes(),
@@ -353,8 +308,6 @@ public class Network {
                     nodes.get(jl.getStartNodeId()),
                     nodes.get(jl.getEndNodeId()) );
 
-            models.ctm.LinkModel none_model = new models.ctm.LinkModel(link);
-            link.set_model(none_model);
             links.put(id,link);
         }
 
@@ -369,7 +322,7 @@ public class Network {
             jaxb.Roadparam rp = road_params.get(jl.getRoadparam());
             if(rp==null)
                 throw new OTMException("No road parameters for link id " + jl.getId()  );
-            link.model.set_road_param(rp,scenario.sim_dt);
+            link.model.set_road_param(link,rp,scenario.sim_dt);
         }
 
     }
@@ -570,44 +523,44 @@ public class Network {
     }
 
     public void update_macro_state(float timestamp) {
-        for(models.ctm.LinkModel linkModel : macro_link_models)
-            linkModel.update_state(timestamp);
+//        for(models.ctm.LinkModel linkModel : macro_link_models)
+//            linkModel.update_state(timestamp);
     }
 
     public void update_macro_flow_part_I(float timestamp){
 
-        // lane changing -> intermediate state
-        macro_link_models.stream()
-                .filter(l -> l.link.lanegroups_flwdn.size()>=2)
-                .forEach(l -> l.perform_lane_changes(timestamp));
-
-        // update demand and supply
-        // (cell.veh_dwn,cell.veh_out -> cell.demand_dwn , cell.demand_out)
-        // (cell.veh_dwn,cell.veh_out -> cell.supply)
-        macro_link_models.forEach(l -> l.update_supply_demand());
-
-        // compute node inflow and outflow (all nodes except sources)
-        macro_internal_nodes.forEach(node->node.node_model.update_flow(timestamp));
+//        // lane changing -> intermediate state
+//        macro_link_models.stream()
+//                .filter(l -> l.link.lanegroups_flwdn.size()>=2)
+//                .forEach(l -> l.perform_lane_changes(timestamp));
+//
+//        // update demand and supply
+//        // (cell.veh_dwn,cell.veh_out -> cell.demand_dwn , cell.demand_out)
+//        // (cell.veh_dwn,cell.veh_out -> cell.supply)
+//        macro_link_models.forEach(l -> l.update_supply_demand());
+//
+//        // compute node inflow and outflow (all nodes except sources)
+//        macro_internal_nodes.forEach(node->node.node_model.update_flow(timestamp));
 
     }
 
     public void update_macro_flow_part_II(float timestamp) throws OTMException {
 
-        // exchange packets
-        for(Node node : macro_internal_nodes) {
-
-            // flows on road connections arrive to links on give lanes
-            // convert to packets and send
-            for(models.ctm.RoadConnection rc : node.node_model.rcs.values())
-                rc.rc.get_end_link().model.add_vehicle_packet(timestamp,new PacketLink(rc.f_rs,rc.rc.out_lanegroups));
-
-            // set exit flows on non-sink lanegroups
-            for(UpLaneGroup ulg : node.node_model.ulgs.values())
-                ulg.lg.release_vehicles(ulg.f_is);
-        }
-
-        // update cell boundary flows
-        macro_link_models.forEach(l -> l.update_dwn_flow());
+//        // exchange packets
+//        for(Node node : macro_internal_nodes) {
+//
+//            // flows on road connections arrive to links on give lanes
+//            // convert to packets and send
+//            for(models.ctm.RoadConnection rc : node.node_model.rcs.values())
+//                rc.rc.get_end_link().model.add_vehicle_packet(timestamp,new PacketLink(rc.f_rs,rc.rc.out_lanegroups));
+//
+//            // set exit flows on non-sink lanegroups
+//            for(UpLaneGroup ulg : node.node_model.ulgs.values())
+//                ulg.lg.release_vehicles(ulg.f_is);
+//        }
+//
+//        // update cell boundary flows
+//        macro_link_models.forEach(l -> l.update_dwn_flow());
 
     }
 

@@ -83,7 +83,6 @@ public class OTM {
         //    4 start_time
         //    5 sim_dt
         //    6 duration
-        //    7 global_model
         if (cmd.equals("-run")){
             try {
 
@@ -100,10 +99,7 @@ public class OTM {
                 float sim_dt = Float.parseFloat(arguments[5]);
                 int duration = Integer.parseInt(arguments[6]);
 
-                API api = arguments.length>7 ?
-                            OTM.load(configfile,sim_dt,true,arguments[7]) :
-                            OTM.load(configfile,sim_dt,true);
-
+                API api = OTM.load(configfile,sim_dt,true);
                 api.run(prefix,output_requests_file,output_folder,start_time,duration);
 
             } catch (OTMException e) {
@@ -131,11 +127,11 @@ public class OTM {
         return api;
     }
 
-    public static API load_test(String testname,float sim_dt,boolean validate, String global_model) throws OTMException {
+    public static API load_test(String testname,float sim_dt,boolean validate) throws OTMException {
         if(!JaxbLoader.get_test_config_names().contains(testname))
             return null;
         API api = new API();
-        api.load_test(JaxbLoader.get_test_filename(testname),sim_dt,validate,global_model);
+        api.load_test(JaxbLoader.get_test_filename(testname),sim_dt,validate);
         return api;
     }
 
@@ -152,15 +148,9 @@ public class OTM {
     }
 
     public static API load(String configfile, float sim_dt,boolean validate) throws OTMException {
-        API api = new API();
-        api.load(configfile,sim_dt,validate);
-        return api;
-    }
-
-    public static API load(String configfile, float sim_dt,boolean validate,String global_model) throws OTMException {
         System.out.println("Load");
         API api = new API();
-        List<Long> times = api.load(configfile,sim_dt,validate,global_model);
+        List<Long> times = api.load(configfile,sim_dt,validate);
         System.out.println("\tTime to load XML: " + String.format("%.1f",(times.get(1)-times.get(0))/1000d) + " seconds.");
         System.out.println("\tTime to configure scenario: " + String.format("%.1f",(times.get(2)-times.get(1))/1000d) + " seconds.");
         return api;
@@ -210,11 +200,8 @@ public class OTM {
         dispatcher.set_stop_time(now+duration);
         dispatcher.register_event(new EventStopSimulation(scenario,dispatcher,now+duration));
 
-        // register first models.ctm clock tick
-        if(!scenario.network.macro_link_models.isEmpty()) {
-            dispatcher.register_event(new EventMacroFlowUpdate(dispatcher, now + scenario.sim_dt, scenario.network));
-            dispatcher.register_event(new EventMacroStateUpdate(dispatcher, now + scenario.sim_dt, scenario.network));
-        }
+        // register initial events for each model
+        scenario.network.models.forEach(m->m.register_first_events(scenario, dispatcher,now));
 
         // process all events
         dispatcher.dispatch_events_to_stop();
@@ -237,8 +224,7 @@ public class OTM {
                         "\t\toutput request file: absolute location and name of the output request file.\n" +
                         "\t\toutput folder: folder where the output files should go.\n" +
                         "\t\tstart_time: [integer] start time for the simultion in seconds after midnight.\n" +
-                        "\t\tduration: [integer] simulation duration in seconds.\n" +
-                        "\t\tglobal model: [empty|'ctm'|'pq'] Use this model for all links.\n";
+                        "\t\tduration: [integer] simulation duration in seconds.\n";
         return str;
     }
 

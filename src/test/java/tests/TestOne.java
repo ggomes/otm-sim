@@ -60,7 +60,7 @@ public class TestOne extends AbstractTest {
             float duration = 3600f;
             float sim_dt = 2f;
 
-            API api = OTM.load_test("onramp_offramp_1", sim_dt,true,"ctm");
+            API api = OTM.load_test("onramp_offramp_1", sim_dt,true);
 
             api.initialize(start_time);
 
@@ -102,7 +102,7 @@ public class TestOne extends AbstractTest {
             // Load ..............................
             API api = null;
             try {
-                api = OTM.load_test("signal_nopocket",sim_dt,true,"ctm");
+                api = OTM.load_test("signal_nopocket",sim_dt,true);
 //                api = OTM.load("C:\\Users\\gomes\\vbox_shared\\all_cfgs\\100.xml",sim_dt,true,"ctm");
             } catch (OTMException e) {
                 e.printStackTrace();

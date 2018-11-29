@@ -52,8 +52,8 @@ public class LinkInfo {
     /** Capacity in veh/sec */
 //    public Float capacity_vps;
 
-    /** Max vehicles in veh */
-    public Float max_vehicles;
+//    /** Max vehicles in veh */
+//    public Float max_vehicles;
 
     public LinkInfo(Link x){
         this.id = x.getId();
@@ -70,8 +70,8 @@ public class LinkInfo {
             x.lanegroups_flwdn.values().forEach(lg->lanegroups.add(new LaneGroupInfo(lg)));
 //        this.ffspeed_mps = x.length / x.model.get_ff_travel_time();   // m/s
 //        this.capacity_vps = x.model.get_capacity_vps();
-        if(x.lanegroups_flwdn !=null)
-            this.max_vehicles = x.model.get_max_vehicles();
+//        if(x.lanegroups_flwdn !=null)
+//            this.max_vehicles = x.model.get_max_vehicles();
     }
 
     public long getId() {
@@ -118,7 +118,8 @@ public class LinkInfo {
 
 //    public Float get_capacity_vps(){ return capacity_vps; }
 
-    public Float get_max_vehicles(){ return max_vehicles; }
+//    public Float get_max_vehicles(){ return max_vehicles; }
+
     @Override
     public String toString() {
         return "LinkInfo{" +
