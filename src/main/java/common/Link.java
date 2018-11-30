@@ -14,6 +14,7 @@ import error.OTMException;
 import geometry.RoadGeometry;
 import geometry.Side;
 import jaxb.Points;
+import models.AbstractLaneGroup;
 import models.AbstractModel;
 import output.PathTravelTime;
 import packet.PacketSplitter;
@@ -29,7 +30,7 @@ import static java.util.stream.Collectors.toSet;
 public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
     public enum RoadType {none,onramp,offramp,freeway,arterial,hov,interconnect,source,sink,lightrail}
-    public enum ModelType {pq,ctm,mn,micro,none}
+//    public enum ModelType {pq,ctm,mn,micro,none}
 
     protected final long id;
     public Network network;
@@ -47,7 +48,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
     // Longitudinal lanegroups: flow exits from the bottom edge.
     // There are full lanegroups and downstream addlanes
-    public Map<Long,AbstractLaneGroup> lanegroups_flwdn;
+    public Map<Long, AbstractLaneGroup> lanegroups_flwdn;
 
     // Lateral lanegroups: all flow exits laterally. These are the upstream addlanes.
     public AbstractLaneGroup lanegroup_flwside_in;
@@ -79,7 +80,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     public Long road_param_id;
 
     // model
-    public ModelType model_type;
+//    public ModelType model_type;
     public AbstractModel model;
 
     // for path travel time output
@@ -180,7 +181,6 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         commodities = null;
         road_type = null;
         road_geom = null;
-        model_type = null;
         model = null;
         travel_timers = null;
         shape = null;

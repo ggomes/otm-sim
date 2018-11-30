@@ -1,6 +1,6 @@
 package models.ctm;
 
-import common.AbstractLaneGroup;
+import models.AbstractLaneGroup;
 import keys.KeyCommPathOrLink;
 
 import java.util.HashMap;

@@ -6,7 +6,7 @@
  */
 package packet;
 
-import common.AbstractLaneGroup;
+import models.AbstractLaneGroup;
 
 import java.util.Set;
 

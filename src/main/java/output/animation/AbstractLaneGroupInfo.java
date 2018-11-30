@@ -6,7 +6,7 @@
  */
 package output.animation;
 
-import common.AbstractLaneGroup;
+import models.AbstractLaneGroup;
 
 public abstract class AbstractLaneGroupInfo implements InterfaceLaneGroupInfo {
     public Long lg_id;

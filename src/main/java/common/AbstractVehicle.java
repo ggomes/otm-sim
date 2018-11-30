@@ -7,6 +7,7 @@
 package common;
 
 import keys.KeyCommPathOrLink;
+import models.AbstractLaneGroup;
 import output.InterfaceVehicleListener;
 import utils.OTMUtils;
 

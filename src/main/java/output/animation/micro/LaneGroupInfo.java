@@ -6,7 +6,7 @@
  */
 package output.animation.micro;
 
-import common.AbstractLaneGroup;
+import models.AbstractLaneGroup;
 import output.animation.AbstractLaneGroupInfo;
 
 public class LaneGroupInfo extends AbstractLaneGroupInfo {

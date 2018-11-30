@@ -1,6 +1,6 @@
 package output;
 
-import common.AbstractLaneGroup;
+import models.AbstractLaneGroup;
 import error.OTMException;
 import profiles.Profile1D;
 import runner.Scenario;

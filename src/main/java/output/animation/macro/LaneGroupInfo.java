@@ -6,7 +6,7 @@
  */
 package output.animation.macro;
 
-import common.AbstractLaneGroup;
+import models.AbstractLaneGroup;
 import keys.KeyCommPathOrLink;
 import models.ctm.LaneGroup;
 import output.animation.AbstractLaneGroupInfo;

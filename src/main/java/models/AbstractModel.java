@@ -1,15 +1,21 @@
 package models;
 
 import commodity.Commodity;
+import commodity.Path;
 import commodity.Subnetwork;
-import common.AbstractLaneGroup;
+import common.AbstractSource;
 import common.Link;
+import common.RoadConnection;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
+import geometry.FlowDirection;
+import geometry.Side;
+import output.animation.AbstractLinkInfo;
 import packet.AbstractPacketLaneGroup;
 import packet.PacketLink;
 import packet.PacketSplitter;
+import profiles.DemandProfile;
 import runner.Scenario;
 
 import java.util.Collection;
@@ -18,14 +24,19 @@ import java.util.Set;
 
 public abstract class AbstractModel {
 
+    public enum ModelType {discrete_time,discrete_event};
+
     public Class myPacketClass;
+    public ModelType model_type;
 
     public Set<Link> links;
     public String name;
+    public boolean is_default;
 
-    public AbstractModel(Set<Link> links,String name){
+    public AbstractModel(Set<Link> links,String name,boolean is_default){
         this.links = links;
         this.name = name;
+        this.is_default = is_default;
     }
 
 
@@ -33,18 +44,24 @@ public abstract class AbstractModel {
     // link interface methods
     //////////////////////////////////////////////////////////////
 
-    abstract public void set_road_param(Link link, jaxb.Roadparam r, float sim_dt_sec);
-    abstract public void validate(Link link, OTMErrorLog errorLog);
-    abstract public void reset(Link link);
     //    abstract public float get_ff_travel_time(); // seconds
 //    abstract public float get_capacity_vps();   // vps
     abstract public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups);
 
-    abstract public void build(Link link);
 
     abstract public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time);
 
+    // LINK LEVEL INTERFACE
     abstract public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException;
+    abstract public void set_road_param(Link link, jaxb.Roadparam r, float sim_dt_sec);
+    abstract public void validate(Link link, OTMErrorLog errorLog);
+    abstract public void reset(Link link);
+    abstract public void build(Link link);
+
+    abstract public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes,int start_lane,Set<RoadConnection> out_rcs);
+    abstract public AbstractLinkInfo get_link_info(Link link);
+    abstract public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path);
+
 
     //////////////////////////////////////////////////
 
@@ -59,7 +76,6 @@ public abstract class AbstractModel {
             lg.allocate_state();
         }
     }
-
 
     public void add_vehicle_packet(Link link,float timestamp, PacketLink vp) throws OTMException {
 

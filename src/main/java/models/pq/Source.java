@@ -13,6 +13,7 @@ import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import dispatch.EventTransitToWaiting;
 import error.OTMException;
+import models.AbstractLaneGroup;
 import profiles.DemandProfile;
 import runner.Scenario;
 

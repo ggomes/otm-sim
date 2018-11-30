@@ -238,19 +238,22 @@ public class Cell {
         if (laneGroup.link.is_sink)
             supply = capacity_veh;
         else {
-            switch (laneGroup.link.model_type) {
-                case ctm:
+
+            // TODO REIMPLEMENT MN
+
+//            switch (laneGroup.link.model_type) {
+//                case ctm:
                     if(am_dnstrm)
                         supply = Math.min(wspeed_norm * (jam_density_veh - total_vehicles), capacity_veh);
                     else
                         supply = wspeed_norm * (jam_density_veh - total_vehicles);
-                    break;
-                case mn:
-                    supply = Float.POSITIVE_INFINITY;
-                    break;
-                default:
-                    System.err.println("Wha??");
-            }
+//                    break;
+//                case mn:
+//                    supply = Float.POSITIVE_INFINITY;
+//                    break;
+//                default:
+//                    System.err.println("Wha??");
+//            }
         }
     }
 

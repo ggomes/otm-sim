@@ -14,6 +14,7 @@ import error.OTMException;
 import geometry.FlowDirection;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
+import models.AbstractLaneGroup;
 import packet.AbstractPacketLaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
@@ -44,7 +45,7 @@ public class LaneGroup extends AbstractLaneGroup {
         super(link, side, flwdir,length, num_lanes, start_lane, out_rcs);
     }
 
-    protected void create_cells(int num_cells,double cell_length_meters){
+    public void create_cells(int num_cells,double cell_length_meters){
 
         this.cells = new ArrayList<>();
 

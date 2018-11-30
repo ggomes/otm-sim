@@ -7,6 +7,7 @@
 package common;
 
 import error.OTMErrorLog;
+import models.AbstractLaneGroup;
 import runner.InterfaceScenarioElement;
 import runner.ScenarioElementType;
 import utils.OTMUtils;
@@ -204,14 +205,6 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
 
     public Long get_end_link_id(){
         return end_link==null ? null : end_link.getId();
-    }
-
-    public Link.ModelType get_start_link_model_type(){
-        return start_link==null ? Link.ModelType.none : start_link.model_type;
-    }
-
-    public Link.ModelType get_end_link_model_type(){
-        return end_link==null ? Link.ModelType.none : end_link.model_type;
     }
 
     ///////////////////////////////////////////

@@ -208,7 +208,7 @@ public class DemandProfile extends AbstractDemandProfile {
 
         // create a source and add it to the origin
         Link origin = get_origin();
-        source = create_source(origin,commodity,null);
+        source = origin.model.create_source(origin,this,commodity,null);
         origin.add_source(source);
 
         // assume the content to be given in veh/hr
@@ -223,36 +223,14 @@ public class DemandProfile extends AbstractDemandProfile {
 
         // create a source and add it to the origin
         Link origin = get_origin();
-        source = create_source(origin,commodity,path);
+        source = origin.model.create_source(origin,this,commodity,path);
+
+
         origin.add_source(source);
 
         // assume the content to be given in veh/hr
         profile = new Profile1D(start_time,dt,values);
         profile.multiply(1.0/3600.0);
-    }
-
-    private AbstractSource create_source(Link origin, Commodity commodity, Path path) throws OTMException {
-
-        // create a source for this demand
-        AbstractSource source;
-        switch(origin.model_type){
-            case ctm:
-            case mn:
-                source = new models.ctm.Source(origin,this,commodity,path);
-                break;
-            case pq:
-                source = new models.pq.Source(origin,this,commodity,path);
-                break;
-            case micro:
-                source = new models.micro.Source(origin,this,commodity,path);
-                break;
-            case none:
-                source = new models.none.Source(origin,this,commodity,path);
-                break;
-            default:
-                throw new OTMException("yo!");
-        }
-        return source;
     }
 
 }

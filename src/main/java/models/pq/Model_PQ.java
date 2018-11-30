@@ -1,27 +1,44 @@
 package models.pq;
 
 import commodity.Commodity;
+import commodity.Path;
 import commodity.Subnetwork;
-import common.AbstractLaneGroup;
+import common.AbstractSource;
+import common.RoadConnection;
+import geometry.FlowDirection;
+import geometry.Side;
+import models.AbstractLaneGroup;
 import common.Link;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import models.AbstractDiscreteEventModel;
+import output.animation.AbstractLinkInfo;
+import profiles.DemandProfile;
 import runner.Scenario;
 
 import java.util.*;
 
 public class Model_PQ extends AbstractDiscreteEventModel {
 
-    public Model_PQ(Set<Link> links, String name) {
-        super(links, name);
+    public Model_PQ(Set<Link> links, String name,boolean is_default) {
+        super(links, name,is_default);
         myPacketClass = models.pq.PacketLaneGroup.class;
     }
 
     @Override
     public void build(Link link) {
 
+    }
+
+    @Override
+    public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
+        return new models.pq.Source(origin,demand_profile,commodity,path);
+    }
+
+    @Override
+    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        return new models.pq.LaneGroup(link,side,flowdir,length,num_lanes,start_lane,out_rcs);
     }
 
     @Override
@@ -65,6 +82,10 @@ public class Model_PQ extends AbstractDiscreteEventModel {
             return null;
     }
 
+    @Override
+    public AbstractLinkInfo get_link_info(Link link) {
+        return new output.animation.meso.LinkInfo(link);
+    }
 
     protected void process_lane_change_request(Link link,float timestamp,LaneChangeRequest x) throws OTMException {
 

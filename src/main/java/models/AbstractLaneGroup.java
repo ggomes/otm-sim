@@ -4,10 +4,13 @@
  * This source code is licensed under the standard 3-clause BSD license found
  * in the LICENSE file in the root directory of this source tree.
  */
-package common;
+package models;
 
 import actuator.AbstractActuator;
 import commodity.Commodity;
+import common.FlowAccumulator;
+import common.Link;
+import common.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.FlowDirection;
@@ -40,7 +43,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public AbstractLaneGroup neighbor_up_out;   // lanegroup up and out (full lanes only)
 
     // set of keys for states in this lanegroup
-    public Set<KeyCommPathOrLink> states;
+    public Set<KeyCommPathOrLink> states;   // TODO MOVE THIS TO DISCRETE TIME ONLY?
 
     public float length;
 
@@ -54,7 +57,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     // map from outlink to road-connection. For one-to-one links with no road connection defined,
     // this returns a null.
-    protected Map<Long,RoadConnection> outlink2roadconnection;
+    public Map<Long, RoadConnection> outlink2roadconnection;
 
     // exiting road connection to the states that use it (should be avoided in the one-to-one case)
     // TODO MOVE THIS TO DISCRETE TIME MODEL OR REMOVE
@@ -71,7 +74,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // abstract methods
     ///////////////////////////////////////////////////
 
-    abstract public void add_commodity(Commodity commodity);
+    abstract public void add_commodity(Commodity commodity);  // TODO CAN THIS BE PUT AT ABSTRACT LEVEL?
+
     abstract public void add_native_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp) throws OTMException;
     abstract public double get_supply();
     abstract public void exiting_roadconnection_capacity_has_been_modified(float timestamp);
@@ -133,7 +137,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public void validate(OTMErrorLog errorLog) {
         // out_road_connections all lead to links that are immediately downstream
-        Set dwn_links = link.end_node.out_links.values().stream().map(x->x.id).collect(Collectors.toSet());
+        Set dwn_links = link.end_node.out_links.values().stream().map(x->x.getId()).collect(Collectors.toSet());
         if(!dwn_links.containsAll(outlink2roadconnection.keySet()))
             errorLog.addError("some outlinks are not immediately downstream");
 

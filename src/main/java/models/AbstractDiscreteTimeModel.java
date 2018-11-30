@@ -3,20 +3,23 @@ package models;
 import commodity.Commodity;
 import commodity.Path;
 import commodity.Subnetwork;
-import common.AbstractLaneGroup;
 import common.Link;
 import common.Node;
 import dispatch.Dispatcher;
 import dispatch.EventMacroFlowUpdate;
 import dispatch.EventMacroStateUpdate;
 import error.OTMException;
+import models.ctm.LaneGroup;
+import output.animation.AbstractLinkInfo;
 import runner.Scenario;
+import utils.OTMUtils;
 
 import java.util.Set;
 
 public abstract class AbstractDiscreteTimeModel extends AbstractModel {
 
     public float dt;
+    public float max_cell_length;
     public Set<Node> nodes;
 
 
@@ -24,9 +27,11 @@ public abstract class AbstractDiscreteTimeModel extends AbstractModel {
 //    public Set<Node> macro_internal_nodes = new HashSet<>();
 //    public Set<models.ctm.Source> macro_sources = new HashSet<>();
 
-    public AbstractDiscreteTimeModel(Set<Link> links,String name,Float dt) {
-        super(links,name);
-        this.dt = dt == null ? -1 : dt;
+    public AbstractDiscreteTimeModel(Set<Link> links,String name,boolean is_default,Float dt,Float max_cell_length) {
+        super(links,name,is_default);
+        this.model_type = ModelType.discrete_time;
+        this.dt = dt==null ? -1 : dt;
+        this.max_cell_length = max_cell_length==null ? -1 : max_cell_length;
 
 //        // populate macro_internal_nodes: connected in any way to ctm models, minus sources and sinks
 //        Set<Node> all_nodes = macro_link_models.stream().map(x->x.link.start_node).collect(toSet());
@@ -41,7 +46,7 @@ public abstract class AbstractDiscreteTimeModel extends AbstractModel {
 
     @Override
     public void build(Link link) {
-//        link.create_cells(max_cell_length);
+        create_cells(link,max_cell_length);
     }
 
     @Override
@@ -81,4 +86,26 @@ public abstract class AbstractDiscreteTimeModel extends AbstractModel {
         }
 
     }
+
+    private void create_cells(Link link,float max_cell_length){
+
+        // construct cells
+
+        // create cells
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+
+            float r = lg.length/max_cell_length;
+            boolean is_source_or_sink = link.is_source || link.is_sink;
+
+            int cells_per_lanegroup = is_source_or_sink ?
+                    1 :
+                    OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
+            float cell_length_meters = is_source_or_sink ?
+                    lg.length :
+                    lg.length/cells_per_lanegroup;
+
+            ((LaneGroup) lg).create_cells(cells_per_lanegroup, cell_length_meters);
+        }
+    }
+
 }

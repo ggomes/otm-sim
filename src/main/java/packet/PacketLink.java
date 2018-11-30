@@ -6,7 +6,7 @@
  */
 package packet;
 
-import common.AbstractLaneGroup;
+import models.AbstractLaneGroup;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
 import models.pq.Vehicle;

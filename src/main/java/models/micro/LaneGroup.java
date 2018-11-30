@@ -11,6 +11,7 @@ import common.*;
 import error.OTMException;
 import geometry.FlowDirection;
 import geometry.Side;
+import models.AbstractLaneGroup;
 import packet.AbstractPacketLaneGroup;
 
 import java.util.Set;

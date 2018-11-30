@@ -110,25 +110,28 @@ public class PathTravelTime extends AbstractOutputTimedSubnetwork {
 
         LinkTravelTime info = link_tt.get(link.getId());
 
-        switch(info.model_type){
+        // TODO FIX THIS
+        return Double.NaN;
 
-            case pq:
-            case micro:
-                return info.get_mean_and_clear();
-//                return info.has_samples() ? info.get_mean_and_clear() : link.model.get_ff_travel_time();
-
-            case ctm:
-            case mn:
-                return link.get_current_average_travel_time();
-
-            case none:
-                return Double.NaN;
-
-            default:
-                System.err.println("NOT IMPLEMENTED.");
-                return Double.NaN;
-
-        }
+//        switch(info.model_type){
+//
+//            case pq:
+//            case micro:
+//                return info.get_mean_and_clear();
+////                return info.has_samples() ? info.get_mean_and_clear() : link.model.get_ff_travel_time();
+//
+//            case ctm:
+//            case mn:
+//                return link.get_current_average_travel_time();
+//
+//            case none:
+//                return Double.NaN;
+//
+//            default:
+//                System.err.println("NOT IMPLEMENTED.");
+//                return Double.NaN;
+//
+//        }
 
     }
 

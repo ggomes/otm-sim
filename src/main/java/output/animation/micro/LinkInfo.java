@@ -6,7 +6,7 @@
  */
 package output.animation.micro;
 
-import common.AbstractLaneGroup;
+import models.AbstractLaneGroup;
 import common.Link;
 import output.animation.AbstractLaneGroupInfo;
 import output.animation.AbstractLinkInfo;

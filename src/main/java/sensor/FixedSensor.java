@@ -1,6 +1,6 @@
 package sensor;
 
-import common.AbstractLaneGroup;
+import models.AbstractLaneGroup;
 import common.FlowAccumulator;
 import common.Link;
 import dispatch.Dispatcher;

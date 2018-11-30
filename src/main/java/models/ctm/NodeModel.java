@@ -6,11 +6,12 @@
  */
 package models.ctm;
 
-import common.AbstractLaneGroup;
+import models.AbstractLaneGroup;
 import common.Link;
 import common.Node;
 import error.OTMErrorLog;
 import keys.KeyCommPathOrLink;
+import models.AbstractModel;
 import runner.Scenario;
 
 import java.util.*;
@@ -90,8 +91,8 @@ public class NodeModel {
         // iterate through the road connections
         for (common.RoadConnection xrc : node.road_connections) {
 
-            // skip road connections starting or ending in non-macro links
-            if( xrc.get_start_link_model_type()!=Link.ModelType.mn && xrc.get_start_link_model_type()!=Link.ModelType.ctm )
+            // skip road connections starting in discrete event links
+            if( xrc.get_start_link()==null || xrc.get_start_link().model.model_type==AbstractModel.ModelType.discrete_event )
                 continue;
 
             // skip if it is disconnected

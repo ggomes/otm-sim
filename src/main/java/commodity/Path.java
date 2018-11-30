@@ -9,7 +9,7 @@ package commodity;
 import common.*;
 import error.OTMErrorLog;
 import error.OTMException;
-import runner.Scenario;
+import models.AbstractLaneGroup;
 import utils.OTMUtils;
 
 import java.util.ArrayList;

@@ -17,6 +17,7 @@ import dispatch.EventReleaseVehicleFromLaneGroup;
 import geometry.FlowDirection;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
+import models.AbstractLaneGroup;
 import output.InterfaceVehicleListener;
 import packet.AbstractPacketLaneGroup;
 import packet.PacketLink;

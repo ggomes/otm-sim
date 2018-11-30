@@ -9,6 +9,7 @@ package tools.computation;
 import common.*;
 import error.OTMException;
 import keys.KeyCommPathOrLink;
+import models.AbstractLaneGroup;
 import models.ctm.LaneGroup;
 import runner.RunParameters;
 import runner.Scenario;

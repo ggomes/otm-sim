@@ -6,7 +6,7 @@
  */
 package output.animation;
 
-import common.AbstractLaneGroup;
+import models.AbstractLaneGroup;
 import common.Link;
 
 import java.util.HashMap;

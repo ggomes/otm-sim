@@ -37,6 +37,8 @@ public class TestAllConfig extends AbstractTest {
     @Test
     public void test_load() {
         try {
+            System.out.println(testname);
+
             API api = OTM.load_test(testname,sim_dt,true);
             assertNotNull(api);
         } catch (OTMException e) {

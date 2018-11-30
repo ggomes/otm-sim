@@ -11,7 +11,7 @@ import actuator.sigint.ActuatorSignal;
 import api.info.*;
 import commodity.Commodity;
 import commodity.Subnetwork;
-import common.AbstractLaneGroup;
+import models.AbstractLaneGroup;
 import common.RoadConnection;
 import control.AbstractController;
 import dispatch.EventCreateVehicle;

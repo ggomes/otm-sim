@@ -12,6 +12,7 @@ import geometry.AddLanes;
 import geometry.FlowDirection;
 import geometry.RoadGeometry;
 import geometry.Side;
+import models.AbstractLaneGroup;
 import models.AbstractModel;
 import models.ctm.Model_CTM;
 import models.micro.LaneGroup;
@@ -34,8 +35,8 @@ public class Network {
     public Scenario scenario;
     public Map<Long,Node> nodes;
     public Map<Long,Link> links;
-    public Map<Long, RoadGeometry> road_geoms = new HashMap<>();
-    public Map<Long,jaxb.Roadparam> road_params = new HashMap<>();    // keep this for the sake of the scenario splitter
+    public Map<Long, RoadGeometry> road_geoms;
+    public Map<Long,jaxb.Roadparam> road_params;    // keep this for the sake of the scenario splitter
     public Map<Long,RoadConnection> road_connections = new HashMap<>();
 
     public Set<AbstractModel> models = new HashSet<>();
@@ -54,87 +55,11 @@ public class Network {
 
         this(scenario);
 
-        // read nodes
-        for( jaxb.Node jn : jaxb_nodes ) {
-            long id = jn.getId();
-            if( nodes.containsKey(id) )
-                throw new OTMException("Tried to add duplicate node id " + id);
-            nodes.put(id,new Node(this,jn));
-        }
+        read_nodes_params_geoms(jaxb_nodes,jaxb_geoms,jaxb_params);
 
-        // read road geoms
-        road_geoms = new HashMap<>();
-        if(jaxb_geoms!=null)
-            for(jaxb.Roadgeom jaxb_geom : jaxb_geoms.getRoadgeom())
-                road_geoms.put(jaxb_geom.getId(),new RoadGeometry(jaxb_geom));
+        create_links(jaxb_links);
 
-
-        // create links
-        for( jaxb.Link jl : jaxb_links ) {
-            long id = jl.getId();
-
-            // check if we have the link id
-            if( links.containsKey(id)  )
-                throw new OTMException("Tried to add duplicate link id " + id );
-
-            Link link = new Link(this,
-                    jl.getRoadparam() ,
-                    jl.getRoadgeom()==null ? null : road_geoms.get(jl.getRoadgeom()),
-                    jl.getRoadType()==null ? Link.RoadType.none : Link.RoadType.valueOf(jl.getRoadType()) ,
-                    id,
-                    jl.getLength(),
-                    jl.getFullLanes(),
-                    jl.getPoints(),
-                    nodes.get(jl.getStartNodeId()),
-                    nodes.get(jl.getEndNodeId()) );
-
-            links.put(id,link);
-        }
-
-
-        // specified models
-        if(jaxb_models!=null){
-
-            for(jaxb.Model jaxb_model : jaxb_models ){
-
-                // link set
-                List<Long> link_ids = OTMUtils.csv2longlist(jaxb_model.getLinks());
-                Set<Link> my_links = new HashSet<>();
-                for(Long link_id : link_ids){
-                    if(!links.containsKey(link_id))
-                        throw new OTMException("Unknown link id in model " + jaxb_model.getName());
-                    my_links.add(links.get(link_id));
-                }
-
-
-                AbstractModel model;
-                switch(jaxb_model.getType()){
-
-                    case "ctm":
-                        model = new Model_CTM(my_links,
-                                jaxb_model.getName(),
-                                jaxb_model.getModelParams().getSimDt(),
-                                jaxb_model.getModelParams().getMaxCellLength());
-                        break;
-
-                    case "pq":
-                        model = new Model_PQ(my_links,jaxb_model.getName());
-                        break;
-
-                    default:
-                        continue;
-
-                }
-
-                models.add(model);
-            }
-
-        }
-
-        // set link models
-        for( AbstractModel model : models)
-            for(Link link : model.links)
-                link.set_model(model);
+        read_models(jaxb_models);
 
         // nodes is_many2one
         nodes.values().stream().forEach(node -> node.is_many2one = node.out_links.size()==1);
@@ -148,7 +73,8 @@ public class Network {
         max_rcid = road_connections.isEmpty() ? 0L : road_connections.keySet().stream().max(Long::compareTo).get();
 
         // create lane groups .......................................
-        for(Link link : links.values()) {   // not parallelizable
+        // not parallelizable
+        for(Link link : links.values()) {
 
             // set sources and sinks according to incoming and outgoing links
             link.is_source = link.start_node.in_links.isEmpty();
@@ -166,63 +92,7 @@ public class Network {
                 road_connections.putAll(new_rcs);
             }
 
-            // create lanegroups
-            link.set_long_lanegroups(create_dnflw_lanegroups(link,out_rcs));
-            create_up_side_lanegroups(link);
-
-            // set start_lane_up
-            int up_in_lanes = link.road_geom!=null && link.road_geom.up_in!=null ? link.road_geom.up_in.lanes : 0;
-            int dn_in_lanes = link.road_geom!=null && link.road_geom.dn_in!=null ? link.road_geom.dn_in.lanes : 0;
-            int offset = dn_in_lanes-up_in_lanes;
-            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                if(lg.side==Side.full)
-                    lg.start_lane_up = lg.start_lane_dn - offset;
-
-            // set neighbors
-
-            // .................. lat lanegroups = {up addlane}
-            if(link.lanegroup_flwside_in !=null){
-                AbstractLaneGroup inner_full = link.get_inner_full_lanegroup();
-                link.lanegroup_flwside_in.neighbor_out = inner_full;
-                inner_full.neighbor_up_in = link.lanegroup_flwside_in;
-            }
-
-            if (link.lanegroup_flwside_out != null) {
-                AbstractLaneGroup outer_full = link.get_outer_full_lanegroup();
-                link.lanegroup_flwside_out.neighbor_in = outer_full;
-                outer_full.neighbor_up_out = link.lanegroup_flwside_out;
-            }
-
-            // ................... long lanegroups = {dn addlane, full lgs}
-            int num_dn_lanes = link.get_num_dn_lanes();
-            if(num_dn_lanes>1) {
-                List<AbstractLaneGroup> long_lgs = IntStream.rangeClosed(1, link.get_num_dn_lanes())
-                        .mapToObj(lane -> link.dnlane2lanegroup.get(lane)).collect(toList());
-                AbstractLaneGroup prev_lg = null;
-                for (int lane = 1; lane <= num_dn_lanes; lane++) {
-
-                    AbstractLaneGroup lg = long_lgs.get(lane - 1);
-                    if (prev_lg == null)
-                        prev_lg = lg;
-                    if (lg != prev_lg) {
-                        lg.neighbor_in = prev_lg;
-                        prev_lg.neighbor_out = lg;
-                        prev_lg = lg;
-                    }
-                }
-
-                prev_lg = null;
-                for(int lane=num_dn_lanes;lane>=1;lane--){
-                    AbstractLaneGroup lg = long_lgs.get(lane-1);
-                    if(prev_lg==null)
-                        prev_lg = lg;
-                    if(lg!=prev_lg) {
-                        lg.neighbor_out = prev_lg;
-                        prev_lg.neighbor_in = lg;
-                        prev_lg = lg;
-                    }
-                }
-            }
+            create_lane_groups(link,out_rcs);
         }
 
         // set in/out lanegroups on road connections
@@ -261,18 +131,7 @@ public class Network {
         models.forEach(x->x.build());
 
         // assign road params
-        road_params = new HashMap<>();
-        if(jaxb_params!=null)
-            for(jaxb.Roadparam r : jaxb_params.getRoadparam())
-                road_params.put(r.getId(),r);
-
-        for( jaxb.Link jl : jaxb_links ) {
-            Link link = links.get(jl.getId());
-            jaxb.Roadparam rp = road_params.get(jl.getRoadparam());
-            if(rp==null)
-                throw new OTMException("No road parameters for link id " + jl.getId()  );
-            link.model.set_road_param(link,rp,scenario.sim_dt);
-        }
+        assign_road_params(jaxb_links);
 
     }
 
@@ -281,15 +140,16 @@ public class Network {
 
         this(scenario);
 
-        // read nodes
-        for( jaxb.Node jn : jaxb_nodes ) {
-            long id = jn.getId();
-            if( nodes.containsKey(id) )
-                throw new OTMException("Tried to add duplicate node id " + id);
-            nodes.put(id,new Node(this,jn));
-        }
+        read_nodes_params_geoms(jaxb_nodes,null,jaxb_params);
 
-        // create links
+        create_links(jaxb_links);
+
+        assign_road_params(jaxb_links);
+
+    }
+
+    private void create_links(List<jaxb.Link> jaxb_links) throws OTMException {
+
         for( jaxb.Link jl : jaxb_links ) {
             long id = jl.getId();
 
@@ -299,23 +159,99 @@ public class Network {
 
             Link link = new Link(this,
                     jl.getRoadparam() ,
-                    null,
-                    Link.RoadType.none ,
+                    jl.getRoadgeom()==null ? null : road_geoms.get(jl.getRoadgeom()),
+                    jl.getRoadType()==null ? Link.RoadType.none : Link.RoadType.valueOf(jl.getRoadType()) ,
                     id,
                     jl.getLength(),
                     jl.getFullLanes(),
-                    null,
+                    jl.getPoints()==null ? null : jl.getPoints(),
                     nodes.get(jl.getStartNodeId()),
                     nodes.get(jl.getEndNodeId()) );
 
             links.put(id,link);
         }
+    }
 
-        // assign road params
+    private void read_nodes_params_geoms(List<jaxb.Node> jaxb_nodes, jaxb.Roadgeoms jaxb_geoms, jaxb.Roadparams jaxb_params) throws OTMException {
+
+        // read nodes
+        for( jaxb.Node jn : jaxb_nodes ) {
+            long id = jn.getId();
+            if( nodes.containsKey(id) )
+                throw new OTMException("Tried to add duplicate node id " + id);
+            nodes.put(id,new Node(this,jn));
+        }
+
+        // read road params
         road_params = new HashMap<>();
         if(jaxb_params!=null)
             for(jaxb.Roadparam r : jaxb_params.getRoadparam())
                 road_params.put(r.getId(),r);
+
+        // read road geoms
+        road_geoms = new HashMap<>();
+        if(jaxb_geoms!=null)
+            for(jaxb.Roadgeom jaxb_geom : jaxb_geoms.getRoadgeom())
+                road_geoms.put(jaxb_geom.getId(),new RoadGeometry(jaxb_geom));
+    }
+
+    private void read_models(List<jaxb.Model> jaxb_models) throws OTMException {
+
+        // specified models
+        if(jaxb_models!=null){
+
+            boolean has_default_model = false;
+
+            for(jaxb.Model jaxb_model : jaxb_models ){
+
+                Set<Link> my_links = new HashSet<>();
+                if(jaxb_model.isIsDefault()){
+                    if(has_default_model)
+                        throw new OTMException("Multiple default models.");
+                    has_default_model = true;
+                    my_links.addAll(links.values());
+                } else {
+                    List<Long> link_ids = OTMUtils.csv2longlist(jaxb_model.getLinks());
+                    for(Long link_id : link_ids){
+                        if(!links.containsKey(link_id))
+                            throw new OTMException("Unknown link id in model " + jaxb_model.getName());
+                        my_links.add(links.get(link_id));
+                    }
+                }
+
+                AbstractModel model;
+                switch(jaxb_model.getType()){
+
+                    case "ctm":
+                        model = new Model_CTM(my_links,
+                                jaxb_model.getName(),
+                                jaxb_model.isIsDefault(),
+                                jaxb_model.getModelParams().getSimDt(),
+                                jaxb_model.getModelParams().getMaxCellLength());
+                        break;
+
+                    case "pq":
+                        model = new Model_PQ(my_links,jaxb_model.getName(),jaxb_model.isIsDefault());
+                        break;
+
+                    default:
+                        continue;
+
+                }
+
+                models.add(model);
+            }
+
+        }
+
+        // set link models
+        for( AbstractModel model : models)
+            for(Link link : model.links)
+                link.set_model(model);
+
+    }
+
+    private void assign_road_params(List<jaxb.Link> jaxb_links) throws OTMException{
 
         for( jaxb.Link jl : jaxb_links ) {
             Link link = links.get(jl.getId());
@@ -324,27 +260,7 @@ public class Network {
                 throw new OTMException("No road parameters for link id " + jl.getId()  );
             link.model.set_road_param(link,rp,scenario.sim_dt);
         }
-
     }
-
-    public void validate(Scenario scenario,OTMErrorLog errorLog){
-        nodes.values().forEach(x->x.validate(scenario,errorLog));
-        links.values().forEach(x->x.validate(errorLog));
-        road_geoms.values().forEach(x->x.validate(errorLog));
-        road_connections.values().forEach(x->x.validate(errorLog));
-    }
-
-    public void initialize(Scenario scenario,RunParameters runParams) throws OTMException {
-
-        for(Link link : links.values())
-            link.initialize(scenario,runParams);
-
-        for(Node node: nodes.values())
-            node.initialize(scenario,runParams);
-    }
-
-    // ***********************************************************
-    // TODO : Make these static and put them into scenarioFactory
 
     private Map<Long,RoadConnection> create_missing_road_connections(Link link){
 
@@ -380,6 +296,67 @@ public class Network {
             new_rcs.put(rc_id, newrc);
         }
         return new_rcs;
+    }
+
+    private void create_lane_groups(Link link,Set<RoadConnection> out_rcs) throws OTMException {
+
+        // create lanegroups
+        link.set_long_lanegroups(create_dnflw_lanegroups(link,out_rcs));
+        create_up_side_lanegroups(link);
+
+        // set start_lane_up
+        int up_in_lanes = link.road_geom!=null && link.road_geom.up_in!=null ? link.road_geom.up_in.lanes : 0;
+        int dn_in_lanes = link.road_geom!=null && link.road_geom.dn_in!=null ? link.road_geom.dn_in.lanes : 0;
+        int offset = dn_in_lanes-up_in_lanes;
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+            if(lg.side==Side.full)
+                lg.start_lane_up = lg.start_lane_dn - offset;
+
+        // set neighbors
+
+        // .................. lat lanegroups = {up addlane}
+        if(link.lanegroup_flwside_in !=null){
+            AbstractLaneGroup inner_full = link.get_inner_full_lanegroup();
+            link.lanegroup_flwside_in.neighbor_out = inner_full;
+            inner_full.neighbor_up_in = link.lanegroup_flwside_in;
+        }
+
+        if (link.lanegroup_flwside_out != null) {
+            AbstractLaneGroup outer_full = link.get_outer_full_lanegroup();
+            link.lanegroup_flwside_out.neighbor_in = outer_full;
+            outer_full.neighbor_up_out = link.lanegroup_flwside_out;
+        }
+
+        // ................... long lanegroups = {dn addlane, full lgs}
+        int num_dn_lanes = link.get_num_dn_lanes();
+        if(num_dn_lanes>1) {
+            List<AbstractLaneGroup> long_lgs = IntStream.rangeClosed(1, link.get_num_dn_lanes())
+                    .mapToObj(lane -> link.dnlane2lanegroup.get(lane)).collect(toList());
+            AbstractLaneGroup prev_lg = null;
+            for (int lane = 1; lane <= num_dn_lanes; lane++) {
+
+                AbstractLaneGroup lg = long_lgs.get(lane - 1);
+                if (prev_lg == null)
+                    prev_lg = lg;
+                if (lg != prev_lg) {
+                    lg.neighbor_in = prev_lg;
+                    prev_lg.neighbor_out = lg;
+                    prev_lg = lg;
+                }
+            }
+
+            prev_lg = null;
+            for(int lane=num_dn_lanes;lane>=1;lane--){
+                AbstractLaneGroup lg = long_lgs.get(lane-1);
+                if(prev_lg==null)
+                    prev_lg = lg;
+                if(lg!=prev_lg) {
+                    lg.neighbor_out = prev_lg;
+                    prev_lg.neighbor_in = lg;
+                    prev_lg = lg;
+                }
+            }
+        }
     }
 
     private Set<AbstractLaneGroup> create_dnflw_lanegroups(Link link, Set<RoadConnection> out_rcs) throws OTMException {
@@ -456,23 +433,7 @@ public class Network {
                 break;
         }
 
-        AbstractLaneGroup lg = null;
-        switch(link.model_type){
-            case ctm:
-            case mn:
-                lg = new models.ctm.LaneGroup(link,side, FlowDirection.dn,length,num_lanes,dn_start_lane,out_rcs);
-                break;
-            case pq:
-                lg = new models.pq.LaneGroup(link,side, FlowDirection.dn,length,num_lanes,dn_start_lane,out_rcs);
-                break;
-            case micro:
-                lg = new LaneGroup(link,side, FlowDirection.dn,length,num_lanes,dn_start_lane,out_rcs);
-                break;
-            case none:
-                lg = new models.none.LaneGroup(link,side, FlowDirection.dn,length,num_lanes,dn_start_lane,out_rcs);
-                break;
-        }
-        return lg;
+        return link.model.create_lane_group(link,side, FlowDirection.dn,length,num_lanes,dn_start_lane,out_rcs);
     }
 
     private void create_up_side_lanegroups(Link link) throws OTMException {
@@ -490,23 +451,23 @@ public class Network {
         Side side = addlanes.side;
         int start_lane_up = side==Side.in ? 1 : link.get_num_up_lanes() - addlanes.lanes + 1;
 
-        AbstractLaneGroup lg = null;
-        switch(link.model_type){
-            case ctm:
-            case mn:
-                lg = new models.ctm.LaneGroup(link,side, FlowDirection.up,length,num_lanes,start_lane_up,null);
-                break;
-            case pq:
-                lg = new models.pq.LaneGroup(link,side, FlowDirection.up,length,num_lanes,start_lane_up,null);
-                break;
-            case micro:
-                lg = new models.micro.LaneGroup(link,side, FlowDirection.up,length,num_lanes,start_lane_up,null);
-                break;
-            case none:
-                lg = new models.none.LaneGroup(link,side, FlowDirection.up,length,num_lanes,start_lane_up,null);
-                break;
-        }
-        return lg;
+        return link.model.create_lane_group(link,side, FlowDirection.up,length,num_lanes,start_lane_up,null);
+    }
+
+    public void validate(Scenario scenario,OTMErrorLog errorLog){
+        nodes.values().forEach(x->x.validate(scenario,errorLog));
+        links.values().forEach(x->x.validate(errorLog));
+        road_geoms.values().forEach(x->x.validate(errorLog));
+        road_connections.values().forEach(x->x.validate(errorLog));
+    }
+
+    public void initialize(Scenario scenario,RunParameters runParams) throws OTMException {
+
+        for(Link link : links.values())
+            link.initialize(scenario,runParams);
+
+        for(Node node: nodes.values())
+            node.initialize(scenario,runParams);
     }
 
     ///////////////////////////////////////////
