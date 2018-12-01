@@ -52,7 +52,7 @@ public class Model_PQ extends AbstractDiscreteEventModel {
     }
 
     @Override
-    public void set_road_param(Link link, jaxb.Roadparam r, float sim_dt_sec) {
+    public void set_road_param(Link link, jaxb.Roadparam r) {
         // send parameters to lane groups
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
             lg.set_road_params(r);

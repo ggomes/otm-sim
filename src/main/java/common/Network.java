@@ -15,7 +15,6 @@ import geometry.Side;
 import models.AbstractLaneGroup;
 import models.AbstractModel;
 import models.ctm.Model_CTM;
-import models.micro.LaneGroup;
 import models.pq.Model_PQ;
 import runner.RunParameters;
 import runner.Scenario;
@@ -258,7 +257,7 @@ public class Network {
             jaxb.Roadparam rp = road_params.get(jl.getRoadparam());
             if(rp==null)
                 throw new OTMException("No road parameters for link id " + jl.getId()  );
-            link.model.set_road_param(link,rp,scenario.sim_dt);
+            link.model.set_road_param(link,rp);
         }
     }
 
@@ -468,61 +467,6 @@ public class Network {
 
         for(Node node: nodes.values())
             node.initialize(scenario,runParams);
-    }
-
-    ///////////////////////////////////////////
-    // update
-    ///////////////////////////////////////////
-
-    public void update_macro_flow(float timestamp) throws OTMException {
-
-        update_macro_flow_part_I(timestamp);
-
-        // -- MPI communication (in otm-mpi) -- //
-
-        update_macro_flow_part_II(timestamp);
-    }
-
-    public void update_macro_state(float timestamp) {
-//        for(models.ctm.LinkModel linkModel : macro_link_models)
-//            linkModel.update_state(timestamp);
-    }
-
-    public void update_macro_flow_part_I(float timestamp){
-
-//        // lane changing -> intermediate state
-//        macro_link_models.stream()
-//                .filter(l -> l.link.lanegroups_flwdn.size()>=2)
-//                .forEach(l -> l.perform_lane_changes(timestamp));
-//
-//        // update demand and supply
-//        // (cell.veh_dwn,cell.veh_out -> cell.demand_dwn , cell.demand_out)
-//        // (cell.veh_dwn,cell.veh_out -> cell.supply)
-//        macro_link_models.forEach(l -> l.update_supply_demand());
-//
-//        // compute node inflow and outflow (all nodes except sources)
-//        macro_internal_nodes.forEach(node->node.node_model.update_flow(timestamp));
-
-    }
-
-    public void update_macro_flow_part_II(float timestamp) throws OTMException {
-
-//        // exchange packets
-//        for(Node node : macro_internal_nodes) {
-//
-//            // flows on road connections arrive to links on give lanes
-//            // convert to packets and send
-//            for(models.ctm.RoadConnection rc : node.node_model.rcs.values())
-//                rc.rc.get_end_link().model.add_vehicle_packet(timestamp,new PacketLink(rc.f_rs,rc.rc.out_lanegroups));
-//
-//            // set exit flows on non-sink lanegroups
-//            for(UpLaneGroup ulg : node.node_model.ulgs.values())
-//                ulg.lg.release_vehicles(ulg.f_is);
-//        }
-//
-//        // update cell boundary flows
-//        macro_link_models.forEach(l -> l.update_dwn_flow());
-
     }
 
     ////////////////////////////////////////////

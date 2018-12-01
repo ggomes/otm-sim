@@ -33,7 +33,7 @@ public abstract class AbstractModel {
     public String name;
     public boolean is_default;
 
-    public AbstractModel(Set<Link> links,String name,boolean is_default){
+    public AbstractModel(Set<Link> links, String name, boolean is_default){
         this.links = links;
         this.name = name;
         this.is_default = is_default;
@@ -53,7 +53,7 @@ public abstract class AbstractModel {
 
     // LINK LEVEL INTERFACE
     abstract public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException;
-    abstract public void set_road_param(Link link, jaxb.Roadparam r, float sim_dt_sec);
+    abstract public void set_road_param(Link link, jaxb.Roadparam r);
     abstract public void validate(Link link, OTMErrorLog errorLog);
     abstract public void reset(Link link);
     abstract public void build(Link link);

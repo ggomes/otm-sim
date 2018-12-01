@@ -49,9 +49,8 @@ public class ScenarioSplitter {
         Config cfg = load_large();
 
         // read the scenario
-        float sim_dt = 0.5f;
         try {
-            api = new APIopen(OTM.load(cfg.config, sim_dt));
+            api = new APIopen(OTM.load(cfg.config));
 
             to_metis(api.scenario(),
                     "C:\\Users\\gomes\\code\\beats\\metisfile.txt",

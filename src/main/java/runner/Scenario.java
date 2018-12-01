@@ -35,7 +35,7 @@ import static java.util.stream.Collectors.toSet;
 
 public class Scenario {
 
-    public float sim_dt;    // simulation dt in seconds
+//    public float sim_dt;    // simulation dt in seconds
 
     public boolean is_initialized;
 
@@ -59,8 +59,7 @@ public class Scenario {
     // construction
     ///////////////////////////////////////////////////
 
-    public Scenario(float sim_dt){
-        this.sim_dt = sim_dt;
+    public Scenario(){
         this.is_initialized = false;
         this.stochastic_process = StochasticProcess.poisson;
     }
@@ -363,8 +362,8 @@ public class Scenario {
         }
     }
 
-    public Float get_waiting_time(double rate){
-        return OTMUtils.get_waiting_time(rate,stochastic_process);
+    public Float get_waiting_time_sec(double rate_vps){
+        return OTMUtils.get_waiting_time(rate_vps,stochastic_process);
     }
 
 }

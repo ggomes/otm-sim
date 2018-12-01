@@ -11,7 +11,6 @@ import error.OTMErrorLog;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import models.AbstractDiscreteTimeModel;
-import models.AbstractModel;
 import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
 import utils.OTMUtils;
@@ -26,9 +25,9 @@ public class Model_CTM extends AbstractDiscreteTimeModel {
     }
 
     @Override
-    public void set_road_param(Link link,jaxb.Roadparam r, float sim_dt_sec) {
+    public void set_road_param(Link link,jaxb.Roadparam r) {
 
-        if(Float.isNaN(sim_dt_sec))
+        if(Float.isNaN(dt))
             return;
 
         // adjustment for MN model
@@ -37,7 +36,7 @@ public class Model_CTM extends AbstractDiscreteTimeModel {
 //            r.setJamDensity(Float.POSITIVE_INFINITY);
 
         // normalize
-        float dt_hr = sim_dt_sec/3600f;
+        float dt_hr = dt/3600f;
         float capacity_vehperlane = r.getCapacity()*dt_hr;
 
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
@@ -90,6 +89,7 @@ public class Model_CTM extends AbstractDiscreteTimeModel {
     // update
     ///////////////////////////////////////////
 
+    @Override
     public void perform_lane_changes(Link link,float timestamp) {
 
         // WARNING: THIS ASSUMES NO ADDLANES (lanegroups_flwdn=all lanegroups)
@@ -217,6 +217,7 @@ public class Model_CTM extends AbstractDiscreteTimeModel {
     }
 
     // call update_supply_demand on each cell
+    @Override
     public void update_supply_demand(Link link) {
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
             LaneGroup ctmlg = (LaneGroup) lg;
@@ -225,11 +226,13 @@ public class Model_CTM extends AbstractDiscreteTimeModel {
         }
     }
 
+    @Override
     public void update_dwn_flow(Link link) {
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
             ((LaneGroup) lg).update_dwn_flow();
     }
 
+    @Override
     public void update_state(float timestamp,Link link) {
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
             ((LaneGroup) lg).update_state(timestamp);

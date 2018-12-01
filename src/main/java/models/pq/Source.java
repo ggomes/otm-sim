@@ -28,8 +28,8 @@ public class Source extends common.AbstractSource {
     }
 
     @Override
-    public void set_demand_in_veh_per_timestep(Dispatcher dispatcher,float time,double value) throws OTMException {
-        super.set_demand_in_veh_per_timestep(dispatcher,time,value);
+    public void set_demand_vps(Dispatcher dispatcher,float time,double value) throws OTMException {
+        super.set_demand_vps(dispatcher,time,value);
         if(value>0)
             schedule_next_vehicle(dispatcher, time);
     }
@@ -38,7 +38,7 @@ public class Source extends common.AbstractSource {
         if(!link.is_source)
             return;
         Scenario scenario = link.network.scenario;
-        Float wait_time = scenario.get_waiting_time(source_demand);
+        Float wait_time = scenario.get_waiting_time_sec(source_demand_vps);
         if(wait_time!=null && scheduled_vehicle_event ==null) {
             EventCreateVehicle new_event = new EventCreateVehicle(dispatcher, timestamp + wait_time, this);
             dispatcher.register_event(new_event);

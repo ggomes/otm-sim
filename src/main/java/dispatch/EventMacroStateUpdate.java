@@ -6,13 +6,13 @@
  */
 package dispatch;
 
-import common.Network;
 import error.OTMException;
+import models.AbstractDiscreteTimeModel;
 
 public class EventMacroStateUpdate extends AbstractEvent  {
 
-    public EventMacroStateUpdate(Dispatcher dispatcher, float timestamp, Object network){
-        super(dispatcher,6,timestamp,network);
+    public EventMacroStateUpdate(Dispatcher dispatcher, float timestamp, Object model){
+        super(dispatcher,6,timestamp,model);
     }
 
     @Override
@@ -20,15 +20,15 @@ public class EventMacroStateUpdate extends AbstractEvent  {
 
         super.action(verbose);
 
-        Network network = (Network)recipient;
+        AbstractDiscreteTimeModel model = (AbstractDiscreteTimeModel)recipient;
 
         // update the models.ctm state
-        network.update_macro_state(timestamp);
+        model.update_macro_state(timestamp);
 
         // register next clock tick
-        float next_timestamp = timestamp+network.scenario.sim_dt;
+        float next_timestamp = timestamp + model.dt;
         if(next_timestamp<=dispatcher.stop_time)
-            dispatcher.register_event(new EventMacroStateUpdate(dispatcher,next_timestamp,network));
+            dispatcher.register_event(new EventMacroStateUpdate(dispatcher,next_timestamp,model));
     }
 
 }

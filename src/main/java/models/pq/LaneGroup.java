@@ -290,7 +290,7 @@ public class LaneGroup extends AbstractLaneGroup {
 
     private void schedule_release_vehicle(float nowtime,float rate){
         Scenario scenario = link.network.scenario;
-        Float wait_time = scenario.get_waiting_time(rate);
+        Float wait_time = scenario.get_waiting_time_sec(rate);
 
         if(wait_time!=null){
             float timestamp = nowtime + wait_time;

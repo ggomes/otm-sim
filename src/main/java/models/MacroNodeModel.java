@@ -1,22 +1,16 @@
-/**
- * Copyright (c) 2018, Gabriel Gomes
- * All rights reserved.
- * This source code is licensed under the standard 3-clause BSD license found
- * in the LICENSE file in the root directory of this source tree.
- */
-package models.ctm;
+package models;
 
-import models.AbstractLaneGroup;
 import common.Link;
 import common.Node;
 import error.OTMErrorLog;
 import keys.KeyCommPathOrLink;
-import models.AbstractModel;
+import models.ctm.*;
 import runner.Scenario;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-public class NodeModel {
+public class MacroNodeModel {
 
     private static int MAX_ITERATIONS = 10;
     public static double eps = 1e-3;
@@ -24,10 +18,10 @@ public class NodeModel {
     public Node node;
 
     public Map<Long,UpLaneGroup> ulgs;  // upstrm lane groups.
-    public Map<Long,RoadConnection> rcs;  // road connections.
-    public Map<Long,DnLaneGroup> dlgs; /// dnstrm lane groups.
+    public Map<Long, RoadConnection> rcs;  // road connections.
+    public Map<Long, DnLaneGroup> dlgs; /// dnstrm lane groups.
 
-    public NodeModel(Node node) {
+    public MacroNodeModel(Node node) {
 
         this.node = node;
         rcs = new HashMap<>();
@@ -92,7 +86,7 @@ public class NodeModel {
         for (common.RoadConnection xrc : node.road_connections) {
 
             // skip road connections starting in discrete event links
-            if( xrc.get_start_link()==null || xrc.get_start_link().model.model_type==AbstractModel.ModelType.discrete_event )
+            if( xrc.get_start_link()==null || xrc.get_start_link().model.model_type== AbstractModel.ModelType.discrete_event )
                 continue;
 
             // skip if it is disconnected
@@ -144,7 +138,7 @@ public class NodeModel {
 
         // reset
         ulgs.values().forEach(x->x.reset());
-        rcs.values().forEach(x->x.reset(node.network.scenario.sim_dt));
+        rcs.values().forEach(x->x.reset());
         dlgs.values().forEach(x->x.reset());
 
         // iteration
@@ -203,9 +197,9 @@ public class NodeModel {
         for(RoadConnection rc : rcs.values()) {
 
             rc.d_r = rc.is_blocked ? 0d : rc.ulgs.stream()
-                                            .mapToDouble(x -> x.rc_infos.get(rc.id).d_ir).sum();
+                    .mapToDouble(x -> x.rc_infos.get(rc.id).d_ir).sum();
 
-            if(rc.d_r<NodeModel.eps)
+            if(rc.d_r< MacroNodeModel.eps)
                 continue;
 
 

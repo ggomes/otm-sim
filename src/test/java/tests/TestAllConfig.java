@@ -28,7 +28,6 @@ public class TestAllConfig extends AbstractTest {
     String testname;
     float start_time = 0f;
     float duration = 100f;
-    float sim_dt = 2f;
 
     public TestAllConfig(String testname){
         this.testname = testname;
@@ -39,7 +38,7 @@ public class TestAllConfig extends AbstractTest {
         try {
             System.out.println(testname);
 
-            API api = OTM.load_test(testname,sim_dt,true);
+            API api = OTM.load_test(testname,true);
             assertNotNull(api);
         } catch (OTMException e) {
             System.out.print(e);
@@ -49,6 +48,7 @@ public class TestAllConfig extends AbstractTest {
 
     @Test
     public void test_run_ctm() {
+        System.out.println(testname);
         run();
     }
 
@@ -59,9 +59,9 @@ public class TestAllConfig extends AbstractTest {
     private void run() {
         try {
 
-            API api = OTM.load_test(testname,sim_dt,true);
+            API api = OTM.load_test(testname,true);
             List<Long> link_ids = api.get_link_ids();
-            Float outDt = sim_dt;
+            Float outDt = 2f;
 
             // request outputs
             for(CommodityInfo comm : api.get_commodities()) {

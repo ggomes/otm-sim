@@ -52,14 +52,10 @@ public class API {
     }
 
     public void load(String configfile) throws OTMException{
-        load(configfile,Float.NaN,true);
+        load(configfile,true);
     }
 
-    public void load(String configfile,float sim_dt) throws OTMException{
-        load(configfile,sim_dt,true);
-    }
-
-    public List<Long> load(String configfile,float sim_dt,boolean validate) throws OTMException{
+    public List<Long> load(String configfile,boolean validate) throws OTMException{
 
         List<Long> timestamps = new ArrayList<>();
         Date now = new Date();
@@ -69,7 +65,7 @@ public class API {
         now = new Date();
         timestamps.add(now.getTime());
 
-        this.scenario =  ScenarioFactory.create_scenario(jaxb_scenario,sim_dt,validate);
+        this.scenario =  ScenarioFactory.create_scenario(jaxb_scenario,validate);
 
         now = new Date();
         timestamps.add(now.getTime());
@@ -100,7 +96,7 @@ public class API {
 
     }
 
-    public List<Long> load_test(String testname,float sim_dt,boolean validate) throws OTMException{
+    public List<Long> load_test(String testname,boolean validate) throws OTMException{
 
         List<Long> timestamps = new ArrayList<>();
         Date now = new Date();
@@ -110,7 +106,7 @@ public class API {
         now = new Date();
         timestamps.add(now.getTime());
 
-        this.scenario =  ScenarioFactory.create_scenario(jaxb_scenario,sim_dt,validate);
+        this.scenario =  ScenarioFactory.create_scenario(jaxb_scenario,validate);
 
         now = new Date();
         timestamps.add(now.getTime());

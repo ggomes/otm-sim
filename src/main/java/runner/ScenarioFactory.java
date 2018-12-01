@@ -42,11 +42,11 @@ public class ScenarioFactory {
     // public
     ///////////////////////////////////////////
 
-    public static runner.Scenario create_scenario(jaxb.Scenario js, float sim_dt, boolean validate) throws OTMException {
+    public static runner.Scenario create_scenario(jaxb.Scenario js, boolean validate) throws OTMException {
 
         OTMUtils.reset_counters();
 
-        Scenario scenario = new Scenario(sim_dt);
+        Scenario scenario = new Scenario();
 
         // plugins ..........................................................
         PluginLoader.load_plugins( js.getPlugins() );
@@ -145,7 +145,7 @@ public class ScenarioFactory {
 
         OTMUtils.reset_counters();
 
-        Scenario scenario = new Scenario(Float.NaN);
+        Scenario scenario = new Scenario();
 
         // common ...........................................................
         scenario.network = new common.Network(

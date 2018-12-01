@@ -8,11 +8,12 @@ package dispatch;
 
 import error.OTMException;
 import common.Network;
+import models.AbstractDiscreteTimeModel;
 
 public class EventMacroFlowUpdate extends AbstractEvent {
 
-    public EventMacroFlowUpdate(Dispatcher dispatcher, float timestamp, Object network){
-        super(dispatcher,5,timestamp,network);
+    public EventMacroFlowUpdate(Dispatcher dispatcher, float timestamp, Object model){
+        super(dispatcher,5,timestamp,model);
     }
 
     @Override
@@ -20,15 +21,15 @@ public class EventMacroFlowUpdate extends AbstractEvent {
 
         super.action(verbose);
 
-        Network network = (Network)recipient;
+        AbstractDiscreteTimeModel model = (AbstractDiscreteTimeModel)recipient;
 
         // update the models.ctm state
-        network.update_macro_flow(timestamp);
+        model.update_macro_flow(timestamp);
 
         // register next clock tick
-        float next_timestamp = timestamp+network.scenario.sim_dt;
+        float next_timestamp = timestamp + model.dt;
         if(next_timestamp<=dispatcher.stop_time)
-            dispatcher.register_event(new EventMacroFlowUpdate(dispatcher,next_timestamp,network));
+            dispatcher.register_event(new EventMacroFlowUpdate(dispatcher,next_timestamp,model));
     }
 
 }

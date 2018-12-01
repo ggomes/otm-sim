@@ -7,6 +7,8 @@
 package models.ctm;
 
 import keys.KeyCommPathOrLink;
+import models.AbstractDiscreteTimeModel;
+import models.MacroNodeModel;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -86,7 +88,7 @@ public class RoadConnection {
     // update
     ////////////////////////////////////////////
 
-    public void reset(float sim_dt){
+    public void reset(){
         is_blocked = false;
         d_r = Double.NaN;
         gamma_r = Double.NaN;
@@ -98,16 +100,18 @@ public class RoadConnection {
         // fbar
         if(Double.isInfinite(rc.external_max_flow_vps))
             fbar = Double.POSITIVE_INFINITY;
-        else if(rc.external_max_flow_vps<NodeModel.eps)
+        else if(rc.external_max_flow_vps< MacroNodeModel.eps)
             fbar = 0d;
-        else
-            fbar = rc.external_max_flow_vps * sim_dt;
+        else {
+            float dt = ((AbstractDiscreteTimeModel)this.rc.get_start_link().model).dt;
+            fbar = rc.external_max_flow_vps * dt;
+        }
     }
 
     public void update_is_blocked(){
         if(!is_blocked)
             is_blocked = dnlg_infos.values().stream().allMatch(x->x.dlg.is_blocked) ||
-                         fbar<NodeModel.eps;
+                         fbar<MacroNodeModel.eps;
     }
 
 }

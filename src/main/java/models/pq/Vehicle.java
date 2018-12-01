@@ -29,11 +29,6 @@ public class Vehicle extends AbstractVehicle {
         this.waiting_for_lane_change = false;
     }
 
-    public Vehicle(models.micro.Vehicle micro_vehicle) {
-        super(micro_vehicle);
-        this.waiting_for_lane_change = false;
-    }
-
     ///////////////////////////////////////////////////
     // update
     ///////////////////////////////////////////////////

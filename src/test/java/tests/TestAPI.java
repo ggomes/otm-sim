@@ -35,11 +35,10 @@ public class TestAPI extends AbstractTest {
 
     static API api;
     static APIopen apiopen;
-    static float sim_dt = 2f;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        api = OTM.load_test("line",sim_dt,true);
+        api = OTM.load_test("line",true);
         apiopen = new APIopen(api);
     }
 
@@ -398,27 +397,27 @@ public class TestAPI extends AbstractTest {
     @Test
     public void test_get_animation_info() {
 
-        try {
-
-            float start_time = 0f;
-            float duration = 300f;
-
-            api.initialize(start_time);
-
-            Scenario scenario = apiopen.scenario();
-            Link link = scenario.network.links.get(0L);
-
-            final int steps = (int) (duration / sim_dt);
-            for (int i=1; i<=steps; i++) {
-
-                api.advance(sim_dt);
-                AnimationInfo info = api.get_animation_info();
-                Map<Long,Double> x = info.get_total_vehicles_per_link();
-//                System.out.println(((output.animation.macro.LinkInfo)info.link_info.get(0L)).lanegroup_info.get(0L).cell_info.get(0).comm_vehicles.get(1L));
-            }
-        } catch (OTMException e) {
-            System.err.print(e);
-        }
+//        try {
+//
+//            float start_time = 0f;
+//            float duration = 300f;
+//
+//            api.initialize(start_time);
+//
+//            Scenario scenario = apiopen.scenario();
+//            Link link = scenario.network.links.get(0L);
+//
+//            final int steps = (int) (duration / sim_dt);
+//            for (int i=1; i<=steps; i++) {
+//
+//                api.advance(sim_dt);
+//                AnimationInfo info = api.get_animation_info();
+//                Map<Long,Double> x = info.get_total_vehicles_per_link();
+////                System.out.println(((output.animation.macro.LinkInfo)info.link_info.get(0L)).lanegroup_info.get(0L).cell_info.get(0).comm_vehicles.get(1L));
+//            }
+//        } catch (OTMException e) {
+//            System.err.print(e);
+//        }
 
     }
 

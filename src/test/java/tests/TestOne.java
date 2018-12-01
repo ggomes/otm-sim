@@ -58,18 +58,17 @@ public class TestOne extends AbstractTest {
 
             float start_time = 0f;
             float duration = 3600f;
-            float sim_dt = 2f;
 
-            API api = OTM.load_test("onramp_offramp_1", sim_dt,true);
+            API api = OTM.load_test("onramp_offramp_1",true);
 
             api.initialize(start_time);
 
             float time = start_time;
             float end_time = start_time+duration;
-            while(time<end_time){
-                api.advance(sim_dt);
-                time += sim_dt;
-            }
+//            while(time<end_time){
+//                api.advance(sim_dt);
+//                time += sim_dt;
+//            }
 
         } catch (OTMException e) {
             System.out.print(e);
@@ -81,9 +80,8 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            float sim_dt = 2f;
-            API api = OTM.load("C:\\Users\\gomes\\vbox_shared\\all_cfgs\\25.xml",sim_dt,true);
-//            API api = OTM.load("/home/gomes/code/otm-mpi-bb/config/100.xml",sim_dt,true);
+            API api = OTM.load("C:\\Users\\gomes\\vbox_shared\\all_cfgs\\25.xml",true);
+//            API api = OTM.load("/home/gomes/code/otm-mpi-bb/config/100.xml",true);
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -95,15 +93,14 @@ public class TestOne extends AbstractTest {
         try {
             float duration = 1000f;
             float outdt = 10f;
-            float sim_dt = 2f;
             String prefix = "test";
             String output_folder = "temp/";
 
             // Load ..............................
             API api = null;
             try {
-                api = OTM.load_test("signal_nopocket",sim_dt,true);
-//                api = OTM.load("C:\\Users\\gomes\\vbox_shared\\all_cfgs\\100.xml",sim_dt,true,"ctm");
+                api = OTM.load_test("signal_nopocket",true);
+//                api = OTM.load("C:\\Users\\gomes\\vbox_shared\\all_cfgs\\100.xml",true,"ctm");
             } catch (OTMException e) {
                 e.printStackTrace();
             }

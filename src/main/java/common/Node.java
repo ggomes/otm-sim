@@ -11,7 +11,6 @@ import commodity.Commodity;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.KeyCommodityLink;
-import models.ctm.NodeModel;
 import profiles.SplitMatrixProfile;
 import actuator.InterfaceActuatorTarget;
 import runner.InterfaceScenarioElement;
@@ -38,8 +37,8 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     public boolean is_many2one;
 
     // models.ctm model
-    public boolean is_macro_node;  //
-    public NodeModel node_model;
+//    public boolean is_macro_node;  //
+//    public NodeModel node_model;
 
     // split ratio data
     public Map<KeyCommodityLink, SplitMatrixProfile> splits;   // these hold split profiles and issue events when they change
@@ -62,7 +61,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
         this.xcoord = xcoord;
         this.ycoord = ycoord;
 
-        this.is_macro_node = false;
+//        this.is_macro_node = false;
         this.in_links = new HashMap<>();
         this.out_links = new HashMap<>();
         this.road_connections = new HashSet<>();
@@ -82,7 +81,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
         out_links = null;
         commodities = null;
         road_connections = null;
-        node_model = null;
+//        node_model = null;
         splits = null;
         actuator = null;
     }
@@ -116,11 +115,11 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
             commodities.addAll(link.commodities);
     }
 
-    public void set_macro_model(NodeModel model){
-        this.is_macro_node = true;
-        if( node_model==null )
-            node_model = model;
-    }
+//    public void set_macro_model(NodeModel model){
+//        this.is_macro_node = true;
+//        if( node_model==null )
+//            node_model = model;
+//    }
 
     @Override
     public void register_actuator(AbstractActuator act) throws OTMException {
@@ -130,8 +129,8 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     }
 
     public void validate(Scenario scenario,OTMErrorLog errorLog){
-        if(node_model!=null)
-            node_model.validate(errorLog);
+//        if(node_model!=null)
+//            node_model.validate(errorLog);
 
         if(splits!=null){
             splits.values().stream().forEach(x -> x.validate(scenario,errorLog));
@@ -139,8 +138,8 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     }
 
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
-        if(node_model!=null)
-            node_model.initialize(scenario);
+//        if(node_model!=null)
+//            node_model.initialize(scenario);
 
         if(splits!=null)
             for(SplitMatrixProfile x : splits.values())

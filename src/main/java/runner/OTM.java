@@ -63,10 +63,7 @@ public class OTM {
         // load and validate
         if (cmd.equals("-load")){
             try {
-                if(arguments.length<2)
-                    OTM.load(arguments[0]); // config
-                else
-                    OTM.load(arguments[0],Float.parseFloat(arguments[1]));  // config,simdt
+                OTM.load(arguments[0]); // config
             } catch (OTMException e) {
                 e.printStackTrace();
                 return;
@@ -81,8 +78,7 @@ public class OTM {
         //    2 output_request
         //    3 output folder
         //    4 start_time
-        //    5 sim_dt
-        //    6 duration
+        //    5 duration
         if (cmd.equals("-run")){
             try {
 
@@ -96,10 +92,9 @@ public class OTM {
                 String output_requests_file = arguments[2];
                 String output_folder = arguments[3];
                 int start_time = Integer.parseInt(arguments[4]);
-                float sim_dt = Float.parseFloat(arguments[5]);
-                int duration = Integer.parseInt(arguments[6]);
+                int duration = Integer.parseInt(arguments[5]);
 
-                API api = OTM.load(configfile,sim_dt,true);
+                API api = OTM.load(configfile,true);
                 api.run(prefix,output_requests_file,output_folder,start_time,duration);
 
             } catch (OTMException e) {
@@ -127,11 +122,11 @@ public class OTM {
         return api;
     }
 
-    public static API load_test(String testname,float sim_dt,boolean validate) throws OTMException {
+    public static API load_test(String testname,boolean validate) throws OTMException {
         if(!JaxbLoader.get_test_config_names().contains(testname))
             return null;
         API api = new API();
-        api.load_test(JaxbLoader.get_test_filename(testname),sim_dt,validate);
+        api.load_test(JaxbLoader.get_test_filename(testname),validate);
         return api;
     }
 
@@ -141,16 +136,10 @@ public class OTM {
         return api;
     }
 
-    public static API load(String configfile, float sim_dt) throws OTMException {
-        API api = new API();
-        api.load(configfile,sim_dt);
-        return api;
-    }
-
-    public static API load(String configfile, float sim_dt,boolean validate) throws OTMException {
+    public static API load(String configfile,boolean validate) throws OTMException {
         System.out.println("Load");
         API api = new API();
-        List<Long> times = api.load(configfile,sim_dt,validate);
+        List<Long> times = api.load(configfile,validate);
         System.out.println("\tTime to load XML: " + String.format("%.1f",(times.get(1)-times.get(0))/1000d) + " seconds.");
         System.out.println("\tTime to configure scenario: " + String.format("%.1f",(times.get(2)-times.get(1))/1000d) + " seconds.");
         return api;
@@ -218,7 +207,7 @@ public class OTM {
                         "\t-help\t\tDisplay usage message.\n" +
                         "\t-version\tDisplay version information.\n" +
                         "\t-load\t\tLoad and validate a config file. arguments: <configfile>\n" +
-                        "\t-run\t\tRun a config file with default paramters. arguments: <configfile> <prefix> <output request file> <output folder> <start_time> <sim_dt> <duration> <global model>\n" +
+                        "\t-run\t\tRun a config file with default paramters. arguments: <configfile> <prefix> <output request file> <output folder> <start_time> <duration> <global model>\n" +
                         "\t\tconfigfile: absolute location and name of the configuration file.\n" +
                         "\t\tprefix: string to be pre-pended to all output files.\n" +
                         "\t\toutput request file: absolute location and name of the output request file.\n" +

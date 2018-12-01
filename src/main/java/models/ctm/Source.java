@@ -13,6 +13,7 @@ import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.KeyCommPathOrLink;
+import models.AbstractDiscreteTimeModel;
 import models.AbstractLaneGroup;
 import profiles.DemandProfile;
 import utils.OTMUtils;
@@ -41,15 +42,16 @@ public class Source extends common.AbstractSource {
     }
 
     @Override
-    public void set_demand_in_veh_per_timestep(Dispatcher dispatcher, float time, double value) throws OTMException {
-        super.set_demand_in_veh_per_timestep(dispatcher, time, value);
+    public void set_demand_vps(Dispatcher dispatcher, float time, double value) throws OTMException {
+        super.set_demand_vps(dispatcher, time, value);
         update_flow_in(time);
     }
 
     private void update_flow_in(float time){
 
         // split the demand amongst lanegroups and assign keys
-        Map<Long,Map<KeyCommPathOrLink,Double>> new_source_flows = split_demand(get_value_in_veh_per_timestep());
+        double source_demand_veh_per_timestep = source_demand_vps*((AbstractDiscreteTimeModel)link.model).dt;
+        Map<Long,Map<KeyCommPathOrLink,Double>> new_source_flows = split_demand(source_demand_veh_per_timestep);
 
         // update the lanegroup's flow_in
         for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
