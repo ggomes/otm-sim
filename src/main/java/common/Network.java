@@ -12,6 +12,7 @@ import geometry.AddLanes;
 import geometry.FlowDirection;
 import geometry.RoadGeometry;
 import geometry.Side;
+import jaxb.Roadparam;
 import models.AbstractLaneGroup;
 import models.AbstractModel;
 import models.ctm.Model_CTM;
@@ -29,7 +30,7 @@ import static java.util.stream.Collectors.toSet;
 
 public class Network {
 
-    private Long max_rcid;
+    public static Long max_rcid;
 
     public Scenario scenario;
     public Map<Long,Node> nodes;
@@ -38,7 +39,7 @@ public class Network {
     public Map<Long,jaxb.Roadparam> road_params;    // keep this for the sake of the scenario splitter
     public Map<Long,RoadConnection> road_connections = new HashMap<>();
 
-    public Set<AbstractModel> models = new HashSet<>();
+    public Set<AbstractModel> models;
 
     ///////////////////////////////////////////
     // construction
@@ -54,48 +55,22 @@ public class Network {
 
         this(scenario);
 
-        read_nodes_params_geoms(jaxb_nodes,jaxb_geoms,jaxb_params);
+        nodes = read_nodes(jaxb_nodes,this);
+        road_params = read_params(jaxb_params);
+        road_geoms = read_geoms(jaxb_geoms);
 
-        create_links(jaxb_links);
+        links = create_links(jaxb_links,this,nodes);
 
-        read_models(jaxb_models);
-
-        // nodes is_many2one
         nodes.values().stream().forEach(node -> node.is_many2one = node.out_links.size()==1);
 
-        // read road connections
-        road_connections = new HashMap<>();
-        if(jaxb_conns!=null && jaxb_conns.getRoadconnection()!=null)
-            for(jaxb.Roadconnection jaxb_rc : jaxb_conns.getRoadconnection() )
-                road_connections.put(jaxb_rc.getId(),new RoadConnection(this.links,jaxb_rc));
-
-        max_rcid = road_connections.isEmpty() ? 0L : road_connections.keySet().stream().max(Long::compareTo).get();
-
-        // create lane groups .......................................
-        // not parallelizable
-        for(Link link : links.values()) {
-
-            // set sources and sinks according to incoming and outgoing links
+        // set sources and sinks according to incoming and outgoing links
+        for(Link link : links.values()){
             link.is_source = link.start_node.in_links.isEmpty();
             link.is_sink = link.end_node.out_links.isEmpty();
-
-            // get road connections that exit this link
-            Set<RoadConnection> out_rcs = road_connections.values().stream()
-                    .filter(x->x.get_start_link()!=null && x.get_start_link_id()==link.id)
-                    .collect(toSet());
-
-            // absent road connections: create them, if it is not a sink
-            if(out_rcs.isEmpty() && !link.is_sink) { // sink or single next link
-                Map<Long,RoadConnection> new_rcs = create_missing_road_connections(link);
-                out_rcs.addAll(new_rcs.values());
-                road_connections.putAll(new_rcs);
-            }
-
-            create_lane_groups(link,out_rcs);
         }
 
-        // set in/out lanegroups on road connections
-        road_connections.values().forEach(x->x.set_in_out_lanegroups());
+        // read road connections (requires links)
+        road_connections = read_road_connections(jaxb_conns,links);
 
         // store list of road connections in nodes
         for(common.RoadConnection rc : road_connections.values()) {
@@ -107,6 +82,18 @@ public class Network {
                 System.err.println("bad road connection: id=" + rc.getId());
             }
         }
+
+        // assign models to links
+        models = generate_models(jaxb_models,links);
+
+        // create lane groups .......................................
+        for(Link link : links.values())
+            create_lane_groups(link,road_connections);
+
+        // Lanegroup connections .........................................................
+
+        // set in/out lanegroups on road connections
+        road_connections.values().forEach(rc->set_rc_in_out_lanegroups(rc));
 
         // populate link.outlink2lanegroups
         for(Link link : links.values()){
@@ -126,11 +113,11 @@ public class Network {
             }
         }
 
-        // construct cells for macro links (this has to be after sources are set)
+        // models .................................................
         models.forEach(x->x.build());
 
         // assign road params
-        assign_road_params(jaxb_links);
+        assign_road_params(jaxb_links,links,road_params);
 
     }
 
@@ -139,16 +126,21 @@ public class Network {
 
         this(scenario);
 
-        read_nodes_params_geoms(jaxb_nodes,null,jaxb_params);
+        nodes = read_nodes(jaxb_nodes,this);
+        road_params = read_params(jaxb_params);
+        links = create_links(jaxb_links,this,nodes);
 
-        create_links(jaxb_links);
-
-        assign_road_params(jaxb_links);
+        assign_road_params(jaxb_links,links,road_params);
 
     }
 
-    private void create_links(List<jaxb.Link> jaxb_links) throws OTMException {
+    //////////////////////////////////////////////////
+    // private static
+    /////////////////////////////////////////////////
 
+    private static HashMap<Long,Link> create_links(List<jaxb.Link> jaxb_links,Network network,Map<Long,Node> nodes) throws OTMException {
+
+        HashMap<Long,Link> links = new HashMap<>();
         for( jaxb.Link jl : jaxb_links ) {
             long id = jl.getId();
 
@@ -156,9 +148,9 @@ public class Network {
             if( links.containsKey(id)  )
                 throw new OTMException("Tried to add duplicate link id " + id );
 
-            Link link = new Link(this,
+            Link link = new Link(network,
                     jl.getRoadparam() ,
-                    jl.getRoadgeom()==null ? null : road_geoms.get(jl.getRoadgeom()),
+                    jl.getRoadgeom()==null ? null : network.road_geoms.get(jl.getRoadgeom()),
                     jl.getRoadType()==null ? Link.RoadType.none : Link.RoadType.valueOf(jl.getRoadType()) ,
                     id,
                     jl.getLength(),
@@ -169,32 +161,42 @@ public class Network {
 
             links.put(id,link);
         }
+
+        return links;
     }
 
-    private void read_nodes_params_geoms(List<jaxb.Node> jaxb_nodes, jaxb.Roadgeoms jaxb_geoms, jaxb.Roadparams jaxb_params) throws OTMException {
-
-        // read nodes
+    private static HashMap<Long,Node> read_nodes(List<jaxb.Node> jaxb_nodes,Network network) throws OTMException {
+        HashMap<Long,Node> nodes = new HashMap<>();
         for( jaxb.Node jn : jaxb_nodes ) {
             long id = jn.getId();
             if( nodes.containsKey(id) )
                 throw new OTMException("Tried to add duplicate node id " + id);
-            nodes.put(id,new Node(this,jn));
+            nodes.put(id,new Node(network,jn));
         }
-
-        // read road params
-        road_params = new HashMap<>();
-        if(jaxb_params!=null)
-            for(jaxb.Roadparam r : jaxb_params.getRoadparam())
-                road_params.put(r.getId(),r);
-
-        // read road geoms
-        road_geoms = new HashMap<>();
-        if(jaxb_geoms!=null)
-            for(jaxb.Roadgeom jaxb_geom : jaxb_geoms.getRoadgeom())
-                road_geoms.put(jaxb_geom.getId(),new RoadGeometry(jaxb_geom));
+        return nodes;
     }
 
-    private void read_models(List<jaxb.Model> jaxb_models) throws OTMException {
+    private static HashMap<Long,jaxb.Roadparam> read_params(jaxb.Roadparams jaxb_params) {
+        HashMap<Long,jaxb.Roadparam> road_params = new HashMap<>();
+        if(jaxb_params!=null) {
+            for (jaxb.Roadparam r : jaxb_params.getRoadparam())
+                road_params.put(r.getId(), r);
+        }
+        return road_params;
+    }
+
+    private static HashMap<Long,RoadGeometry> read_geoms(jaxb.Roadgeoms jaxb_geoms) {
+        HashMap<Long,RoadGeometry> road_geoms = new HashMap<>();
+        if(jaxb_geoms!=null) {
+            for (jaxb.Roadgeom jaxb_geom : jaxb_geoms.getRoadgeom())
+                road_geoms.put(jaxb_geom.getId(), new RoadGeometry(jaxb_geom));
+        }
+        return road_geoms;
+    }
+
+    private static Set<AbstractModel> generate_models(List<jaxb.Model> jaxb_models, Map<Long,Link> links) throws OTMException {
+
+        Set<AbstractModel> models = new HashSet<>();
 
         // specified models
         if(jaxb_models!=null){
@@ -244,14 +246,42 @@ public class Network {
         }
 
         // set link models
-        for( AbstractModel model : models)
-            for(Link link : model.links)
+        for( AbstractModel model : models) {
+            for (Link link : model.links)
                 link.set_model(model);
+        }
+
+        return models;
 
     }
 
-    private void assign_road_params(List<jaxb.Link> jaxb_links) throws OTMException{
+    private static HashMap<Long,RoadConnection> read_road_connections(jaxb.Roadconnections jaxb_conns,Map<Long,Link> links) {
 
+        HashMap<Long,RoadConnection> road_connections = new HashMap<>();
+        if (jaxb_conns != null && jaxb_conns.getRoadconnection() != null) {
+            for (jaxb.Roadconnection jaxb_rc : jaxb_conns.getRoadconnection())
+                road_connections.put(jaxb_rc.getId(), new RoadConnection(links, jaxb_rc));
+        }
+
+        max_rcid = road_connections.isEmpty() ? 0L : road_connections.keySet().stream().max(Long::compareTo).get();
+
+        // create absent road connections
+        for(Link link : links.values()) {
+            Set<RoadConnection> out_rcs = road_connections.values().stream()
+                    .filter(x -> x.get_start_link()!=null && x.get_start_link_id()==link.id)
+                    .collect(toSet());
+
+            if (out_rcs.isEmpty() && !link.is_sink) { // sink or single next link
+                Map<Long, RoadConnection> new_rcs = create_missing_road_connections(link);
+                out_rcs.addAll(new_rcs.values());
+                road_connections.putAll(new_rcs);
+            }
+        }
+
+        return road_connections;
+    }
+
+    private static void assign_road_params(List<jaxb.Link> jaxb_links, Map<Long,Link> links, Map<Long, Roadparam> road_params) throws OTMException{
         for( jaxb.Link jl : jaxb_links ) {
             Link link = links.get(jl.getId());
             jaxb.Roadparam rp = road_params.get(jl.getRoadparam());
@@ -261,8 +291,7 @@ public class Network {
         }
     }
 
-    private Map<Long,RoadConnection> create_missing_road_connections(Link link){
-
+    private static Map<Long,RoadConnection> create_missing_road_connections(Link link){
         Map<Long,RoadConnection> new_rcs = new HashMap<>();
         int start_lane = 1;
         int lanes;
@@ -297,7 +326,16 @@ public class Network {
         return new_rcs;
     }
 
-    private void create_lane_groups(Link link,Set<RoadConnection> out_rcs) throws OTMException {
+    private static void create_lane_groups(Link link,final Map<Long,RoadConnection> road_connections) throws OTMException {
+
+        // get road connections that exit this link
+        Set<RoadConnection> out_rcs = road_connections.values().stream()
+                .filter(x->x.get_start_link()!=null && x.get_start_link_id()==link.id)
+                .collect(toSet());
+
+        // absent road connections: create them, if it is not a sink
+        if(out_rcs.isEmpty() && !link.is_sink)
+            throw new OTMException("THIS SHOULD NOT HAPPEN.");
 
         // create lanegroups
         link.set_long_lanegroups(create_dnflw_lanegroups(link,out_rcs));
@@ -358,7 +396,7 @@ public class Network {
         }
     }
 
-    private Set<AbstractLaneGroup> create_dnflw_lanegroups(Link link, Set<RoadConnection> out_rcs) throws OTMException {
+    private static Set<AbstractLaneGroup> create_dnflw_lanegroups(Link link, Set<RoadConnection> out_rcs) throws OTMException {
         // Find unique subsets of road connections, and create a lane group for each one.
 
         Set<AbstractLaneGroup> lanegroups = new HashSet<>();
@@ -408,7 +446,7 @@ public class Network {
         return lanegroups;
     }
 
-    private AbstractLaneGroup create_dnflw_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
+    private static AbstractLaneGroup create_dnflw_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
 
         // Determine whether it is an addlane lanegroup or a full lane group.
         Set<Side> sides = new HashSet<>();
@@ -435,7 +473,7 @@ public class Network {
         return link.model.create_lane_group(link,side, FlowDirection.dn,length,num_lanes,dn_start_lane,out_rcs);
     }
 
-    private void create_up_side_lanegroups(Link link) throws OTMException {
+    private static void create_up_side_lanegroups(Link link) throws OTMException {
         if(link.road_geom==null)
             return;
         if(link.road_geom.up_in!=null)
@@ -444,7 +482,7 @@ public class Network {
             link.lanegroup_flwside_out = create_up_side_lanegroup(link,link.road_geom.up_out);
     }
 
-    private AbstractLaneGroup create_up_side_lanegroup(Link link, AddLanes addlanes) {
+    private static AbstractLaneGroup create_up_side_lanegroup(Link link, AddLanes addlanes) {
         float length = addlanes.length;
         int num_lanes = addlanes.lanes;
         Side side = addlanes.side;
@@ -452,6 +490,28 @@ public class Network {
 
         return link.model.create_lane_group(link,side, FlowDirection.up,length,num_lanes,start_lane_up,null);
     }
+
+    private static void set_rc_in_out_lanegroups(RoadConnection rc){
+        rc.in_lanegroups = rc.start_link !=null ?
+                rc.start_link.get_unique_lanegroups_for_dn_lanes(rc.start_link_from_lane,rc.start_link_to_lane) :
+                new HashSet<>();
+
+        rc.out_lanegroups = rc.end_link!=null ?
+                rc.end_link.get_unique_lanegroups_for_up_lanes(rc.end_link_from_lane,rc.end_link_to_lane) :
+                new HashSet<>();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void validate(Scenario scenario,OTMErrorLog errorLog){
         nodes.values().forEach(x->x.validate(scenario,errorLog));

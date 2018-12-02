@@ -32,7 +32,6 @@ public abstract class AbstractDiscreteTimeModel extends AbstractModel {
     abstract public void update_supply_demand(Link link);
     abstract public void perform_lane_changes(Link link,float timestamp);
 
-
     public AbstractDiscreteTimeModel(Set<Link> links,String name,boolean is_default,Float dt,Float max_cell_length) {
         super(links,name,is_default);
         this.model_type = ModelType.discrete_time;
@@ -44,6 +43,7 @@ public abstract class AbstractDiscreteTimeModel extends AbstractModel {
                 .map(link->link.start_node)
                 .filter(node->!node.is_source)
                 .collect(toSet());
+
         all_nodes.addAll(links.stream()
                 .map(link->link.end_node)
                 .filter(node->!node.is_sink)
@@ -57,6 +57,11 @@ public abstract class AbstractDiscreteTimeModel extends AbstractModel {
 
     @Override
     public void build(Link link) {
+
+        // build node models
+        node_models.forEach(m->m.build());
+
+        // create cells
         create_cells(link,max_cell_length);
     }
 

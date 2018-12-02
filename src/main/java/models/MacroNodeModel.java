@@ -24,6 +24,11 @@ public class MacroNodeModel {
     public MacroNodeModel(Node node) {
 
         this.node = node;
+
+    }
+
+    public void build(){
+
         rcs = new HashMap<>();
 
         // if the node has no road connections, it is because it is a source node, a sink node,

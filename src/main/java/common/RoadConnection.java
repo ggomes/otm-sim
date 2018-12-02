@@ -19,10 +19,10 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
 
     protected final long id;
     private final float length;
-    private final Link start_link;
+    public final Link start_link;
     public final int start_link_from_lane;
     public final int start_link_to_lane;
-    private final Link end_link;
+    public final Link end_link;
     public final int end_link_from_lane;
     public final int end_link_to_lane;
 
@@ -32,13 +32,13 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     // control
     public float external_max_flow_vps;
 
-    public RoadConnection(Map<Long,Link> links , jaxb.Roadconnection jaxb_rc ){
+    public RoadConnection(final Map<Long,Link> links , jaxb.Roadconnection jaxb_rc ){
 
         id = jaxb_rc.getId();
         length = jaxb_rc.getLength();
         start_link = links.get(jaxb_rc.getInLink())==null ? null : links.get(jaxb_rc.getInLink());
         end_link = links.get(jaxb_rc.getOutLink())==null ? null : links.get(jaxb_rc.getOutLink());
-        this.external_max_flow_vps = Float.POSITIVE_INFINITY;
+        external_max_flow_vps = Float.POSITIVE_INFINITY;
 
         if(jaxb_rc.getInLinkLanes()!=null) {
             int [] in_lanes = OTMUtils.int_hash_int(jaxb_rc.getInLinkLanes());
@@ -54,7 +54,6 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
             start_link_from_lane = 1;
             start_link_to_lane = start_link.get_num_dn_lanes();
         }
-
 
         if(jaxb_rc.getOutLinkLanes()!=null) {
             int[] out_lanes = OTMUtils.int_hash_int(jaxb_rc.getOutLinkLanes());
@@ -91,15 +90,15 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         this( id, start_link, 1,start_link.get_num_dn_lanes(),end_link,1,end_link.get_num_up_lanes());
     }
 
-    public void set_in_out_lanegroups(){
-        in_lanegroups = start_link !=null ?
-                start_link.get_unique_lanegroups_for_dn_lanes(start_link_from_lane,start_link_to_lane) :
-                new HashSet<>();
-
-        out_lanegroups = end_link!=null ?
-                end_link.get_unique_lanegroups_for_up_lanes(end_link_from_lane,end_link_to_lane) :
-                new HashSet<>();
-    }
+//    public void set_in_out_lanegroups(){
+//        in_lanegroups = start_link !=null ?
+//                start_link.get_unique_lanegroups_for_dn_lanes(start_link_from_lane,start_link_to_lane) :
+//                new HashSet<>();
+//
+//        out_lanegroups = end_link!=null ?
+//                end_link.get_unique_lanegroups_for_up_lanes(end_link_from_lane,end_link_to_lane) :
+//                new HashSet<>();
+//    }
 
     public void validate(OTMErrorLog errorLog){
 

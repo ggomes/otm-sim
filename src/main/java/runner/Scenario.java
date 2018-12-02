@@ -35,8 +35,6 @@ import static java.util.stream.Collectors.toSet;
 
 public class Scenario {
 
-//    public float sim_dt;    // simulation dt in seconds
-
     public boolean is_initialized;
 
     // ScenarioElements

@@ -212,7 +212,7 @@ public class OTM {
                         "\t\tprefix: string to be pre-pended to all output files.\n" +
                         "\t\toutput request file: absolute location and name of the output request file.\n" +
                         "\t\toutput folder: folder where the output files should go.\n" +
-                        "\t\tstart_time: [integer] start time for the simultion in seconds after midnight.\n" +
+                        "\t\tstart_time: [integer] start time for the simrultion in seconds after midnight.\n" +
                         "\t\tduration: [integer] simulation duration in seconds.\n";
         return str;
     }
