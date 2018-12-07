@@ -89,8 +89,9 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     // shape (not used by otm)
     public List<Point> shape;
 
-    // actuator
-    public AbstractActuator ramp_meter;
+    // actuators
+    public actuator.ActuatorRampMeter ramp_meter;
+    public actuator.ActuatorFD actuator_fd;
 
     ///////////////////////////////////////////
     // construction
@@ -329,13 +330,18 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     @Override
     public void register_actuator(AbstractActuator act) throws OTMException {
 
-        if(!(act instanceof actuator.ActuatorRampMeter))
-            throw new OTMException("Only ramp meters are allowed");
+        if(act instanceof actuator.ActuatorRampMeter) {
+            if(ramp_meter!=null)
+                throw new OTMException("Multiple ramp meters assigned to the same link.");
+            this.ramp_meter = (actuator.ActuatorRampMeter) act;
+        }
 
-        if(ramp_meter!=null)
-            throw new OTMException("Multiple ramp meters assigned to the same link.");
+        if(act instanceof actuator.ActuatorFD){
+            if(actuator_fd!=null)
+                throw new OTMException("Multiple fd actiuators assigned to the same link.");
+            this.actuator_fd = (actuator.ActuatorFD) act;
+        }
 
-        this.ramp_meter = (actuator.ActuatorRampMeter) act;
     }
 
     ////////////////////////////////////////////

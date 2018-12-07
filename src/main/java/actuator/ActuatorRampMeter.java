@@ -30,11 +30,6 @@ public class ActuatorRampMeter extends AbstractActuator {
     }
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
-    }
-
-    @Override
     public void initialize(Scenario scenario) throws OTMException {
     }
 
