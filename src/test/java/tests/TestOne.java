@@ -51,6 +51,7 @@ public class TestOne extends AbstractTest {
         }
     }
 
+    @Ignore
     @Test
     public void run_step_by_step() {
         try {
@@ -76,6 +77,7 @@ public class TestOne extends AbstractTest {
         }
     }
 
+    @Ignore
     @Test
     public void load_one() {
         try {
@@ -87,6 +89,7 @@ public class TestOne extends AbstractTest {
         }
     }
 
+    @Ignore
     @Test
     public void run_one() {
         try {

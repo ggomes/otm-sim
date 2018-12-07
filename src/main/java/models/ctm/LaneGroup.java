@@ -224,7 +224,9 @@ public class LaneGroup extends AbstractLaneGroup {
     @Override
     public double get_supply(){
         Cell upcell = get_upstream_cell();
-        return upcell.wspeed_norm * (upcell.jam_density_veh - upcell.get_vehicles());
+        return Double.isInfinite(upcell.jam_density_veh) ?
+                Double.POSITIVE_INFINITY :
+                upcell.wspeed_norm * (upcell.jam_density_veh - upcell.get_vehicles());
     }
 
     @Override

@@ -207,12 +207,27 @@ public class NodeModel {
             if(rc.d_r<NodeModel.eps)
                 continue;
 
-            // s_r: downstream supply seen by this road connection
-            double s_r = rc.dnlg_infos.values().stream()
-                           .mapToDouble(x->x.lambda_rj*x.dlg.s_j).sum();
 
-            // alpha_rj: distribution amongst downstream lanegroups
-            rc.dnlg_infos.values().forEach( x -> x.alpha_rj = s_r==0d ? 0d : x.lambda_rj * x.dlg.s_j / s_r);
+            boolean any_is_infinite = rc.dnlg_infos.values().stream().anyMatch(x-> Double.isInfinite(x.dlg.s_j));
+
+            if(any_is_infinite){
+
+                // distribute equally
+                double p = 1d/rc.dnlg_infos.size();
+
+                // alpha_rj: distribution amongst downstream lanegroups
+                rc.dnlg_infos.values().forEach( x -> x.alpha_rj =  x.lambda_rj * p );
+
+
+            } else {
+                // s_r: downstream supply seen by this road connection
+                double s_r = rc.dnlg_infos.values().stream()
+                        .mapToDouble(x->x.lambda_rj*x.dlg.s_j).sum();
+
+                // alpha_rj: distribution amongst downstream lanegroups
+                rc.dnlg_infos.values().forEach( x -> x.alpha_rj = s_r==0d ? 0d : x.lambda_rj * x.dlg.s_j / s_r);
+            }
+
 
         }
 

@@ -9,7 +9,6 @@ package tests;
 import api.API;
 import api.info.CommodityInfo;
 import error.OTMException;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -28,7 +27,7 @@ public class TestAllConfig extends AbstractTest {
 
     String testname;
     float start_time = 0f;
-    float duration = 300f;
+    float duration = 100f;
     float sim_dt = 2f;
 
     public TestAllConfig(String testname){
@@ -51,7 +50,6 @@ public class TestAllConfig extends AbstractTest {
         run("ctm");
     }
 
-    @Ignore
     @Test
     public void test_run_mn() {
         run("mn");
@@ -64,7 +62,7 @@ public class TestAllConfig extends AbstractTest {
     private void run(String model) {
         try {
 
-            API api = OTM.load_test(testname,sim_dt,true,"ctm");
+            API api = OTM.load_test(testname,sim_dt,true,model);
             List<Long> link_ids = api.get_link_ids();
             Float outDt = sim_dt;
 
