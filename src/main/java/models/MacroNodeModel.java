@@ -22,9 +22,7 @@ public class MacroNodeModel {
     public Map<Long, DnLaneGroup> dlgs; /// dnstrm lane groups.
 
     public MacroNodeModel(Node node) {
-
         this.node = node;
-
     }
 
     public void build(){
@@ -131,7 +129,6 @@ public class MacroNodeModel {
     }
 
     public void validate(OTMErrorLog errorLog) {
-
     }
 
     public void initialize(Scenario scenario) {
@@ -265,13 +262,11 @@ public class MacroNodeModel {
 
     private void step4(){
         /** gamma_i */
-
         for(UpLaneGroup ulg : ulgs.values() ) {
             ulg.gamma_i = ulg.is_empty_or_blocked ?
                     0d :
                     1d - ulg.rc_infos.values().stream().mapToDouble(rc -> rc.rc.gamma_r).max().getAsDouble();
         }
-
     }
 
     private void step5(){
@@ -295,11 +290,9 @@ public class MacroNodeModel {
                         Long rc_id = ulg.lg.state2roadconnection.get(state);
                         ulg.rc_infos.get(rc_id).d_ir -= stateInfo.delta_is;
                     }
-
                 }
             }
         }
-
     }
 
     private void step6(){

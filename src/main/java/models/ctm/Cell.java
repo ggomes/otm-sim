@@ -255,6 +255,7 @@ public class Cell {
 //                    System.err.println("Wha??");
 //            }
         }
+
     }
 
     public void update_dwn_state(Map<KeyCommPathOrLink, Double> inflow, Map<KeyCommPathOrLink, Double> outflow) {

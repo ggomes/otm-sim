@@ -320,7 +320,6 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
         for(AbstractLaneGroup lg : lanegroups_flwdn.values())
             lg.initialize(scenario,runParams);
-        model.initialize(this,scenario);
     }
 
     ////////////////////////////////////////////

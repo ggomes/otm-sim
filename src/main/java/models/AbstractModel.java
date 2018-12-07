@@ -39,7 +39,6 @@ public abstract class AbstractModel {
         this.is_default = is_default;
     }
 
-
     //////////////////////////////////////////////////////////////
     // link interface methods
     //////////////////////////////////////////////////////////////
@@ -62,7 +61,6 @@ public abstract class AbstractModel {
     abstract public AbstractLinkInfo get_link_info(Link link);
     abstract public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path);
 
-
     //////////////////////////////////////////////////
 
     final public void build(){
@@ -70,10 +68,11 @@ public abstract class AbstractModel {
             build(link);
     }
 
-    public void initialize(Link link,Scenario scenario) throws OTMException {
-        // allocate state for each lanegroup in this link
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() ){
-            lg.allocate_state();
+    public void initialize(Scenario scenario) throws OTMException {
+        for(Link link : links){
+            // allocate state for each lanegroup in this link
+            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() )
+                lg.allocate_state();
         }
     }
 

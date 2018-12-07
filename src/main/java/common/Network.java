@@ -501,18 +501,6 @@ public class Network {
                 new HashSet<>();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
     public void validate(Scenario scenario,OTMErrorLog errorLog){
         nodes.values().forEach(x->x.validate(scenario,errorLog));
         links.values().forEach(x->x.validate(errorLog));
@@ -527,6 +515,12 @@ public class Network {
 
         for(Node node: nodes.values())
             node.initialize(scenario,runParams);
+
+
+        for(AbstractModel model : models){
+            model.initialize(scenario);
+
+        }
     }
 
     ////////////////////////////////////////////

@@ -55,6 +55,15 @@ public abstract class AbstractDiscreteTimeModel extends AbstractModel {
             node_models.add( new MacroNodeModel(node) );
     }
 
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+
+        for(MacroNodeModel node_model : node_models)
+            node_model.initialize(scenario);
+    }
+
     @Override
     public void build(Link link) {
 
@@ -159,7 +168,6 @@ public abstract class AbstractDiscreteTimeModel extends AbstractModel {
     }
 
     public void update_macro_flow_part_II(float timestamp) throws OTMException {
-
         // exchange packets
         for(MacroNodeModel node_model : node_models) {
 
