@@ -24,9 +24,10 @@ public class ActuatorFD extends AbstractActuator {
 
     @Override
     public void process_controller_command(Object command, Dispatcher dispatcher, float timestamp) throws OTMException {
-//        if(command==null)
-//            return;
-//        ((Link) target).model.set_road_param((FDCommand) command);
+        if(command==null)
+            return;
+        Link link = (Link) target;
+        link.model.set_road_param(link,(FDCommand) command);
     }
 
     /** This is the class for the controller command **/

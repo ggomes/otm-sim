@@ -1,5 +1,6 @@
 package models;
 
+import actuator.ActuatorFD;
 import commodity.Commodity;
 import commodity.Path;
 import commodity.Subnetwork;
@@ -161,5 +162,12 @@ public abstract class AbstractModel {
         return (float) link.lanegroups_flwdn.values().stream().map(x->x.max_vehicles).mapToDouble(i->i).sum();
     }
 
+    final public void set_road_param(Link link, ActuatorFD.FDCommand fd_comm){
+        jaxb.Roadparam r = new jaxb.Roadparam();
+        r.setJamDensity(fd_comm.jam_density_vpkpl);      //roadparam.jam_density 	... veh/km/lane
+        r.setCapacity(fd_comm.capacity_vphpl);        //roadparam.capacity 		... veh/hr/lane
+        r.setSpeed(fd_comm.max_speed_kph);           //roadparam.speed 		... km/hr
+        set_road_param(link,r);
+    }
 
 }
