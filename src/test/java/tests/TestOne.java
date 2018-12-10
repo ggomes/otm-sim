@@ -153,20 +153,16 @@ public class TestOne extends AbstractTest {
         //    3 output_request
         //    4 output folder
         //    5 start_time
-        //    6 sim_dt
-        //    7 duration
-        //    8 global_model
+        //    6 duration
 
         String [] args = new String[9];
         args[0] = "-run";
-        args[1] = "C:\\Users\\gomes\\code\\otm\\otm-plugin\\config\\line_controller_pedestrian.xml";
+        args[1] = "C:\\Users\\gomes\\code\\otm\\otm-base\\src\\main\\resources\\test_configs\\line.xml";
         args[2] = "plugin";
         args[3] = "C:\\Users\\gomes\\code\\otm\\otm-plugin\\config\\output_request.xml";
-        args[4] = "C:\\Users\\gomes\\code\\otm\\otm-plugin\\output";
+        args[4] = "C:\\Users\\gomes\\code\\otm\\otm-sim\\temp";
         args[5] = "0";
-        args[6] = "10";
-        args[7] = "3600";
-        args[8] = "ctm";
+        args[6] = "3600";
 
         OTM.main(args);
 

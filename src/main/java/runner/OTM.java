@@ -49,6 +49,23 @@ public class OTM {
 
     private static Dispatcher dispatcher;
 
+
+/**
+ 0:  -help      Display usage message.
+     -version   Display version information.
+     -load      Load and validate a config file. arguments: <configfile>
+     -run       Run a config file with default paramters. arguments: <configfile> <prefix> <output request file> <output folder> <start_time> <duration>
+         1: configfile: absolute location and name of the configuration file.
+         2: prefix: string to be pre-pended to all output files.
+         3: output request file: absolute location and name of the output request file.
+         4: output folder: folder where the output files should go.
+         5: start_time: [integer] start time for the simrultion in seconds after midnight.
+         6: duration: [integer] simulation duration in seconds.
+  */
+
+
+
+
     public static void main(String[] args) {
 
         if (0 == args.length) {
@@ -207,7 +224,7 @@ public class OTM {
                         "\t-help\t\tDisplay usage message.\n" +
                         "\t-version\tDisplay version information.\n" +
                         "\t-load\t\tLoad and validate a config file. arguments: <configfile>\n" +
-                        "\t-run\t\tRun a config file with default paramters. arguments: <configfile> <prefix> <output request file> <output folder> <start_time> <duration> <global model>\n" +
+                        "\t-run\t\tRun a config file with default paramters. arguments: <configfile> <prefix> <output request file> <output folder> <start_time> <duration>\n" +
                         "\t\tconfigfile: absolute location and name of the configuration file.\n" +
                         "\t\tprefix: string to be pre-pended to all output files.\n" +
                         "\t\toutput request file: absolute location and name of the output request file.\n" +
