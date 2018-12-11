@@ -226,10 +226,23 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 //            lat_lanegroups.put(lg.id,lg);
 //    }
 
-    public void set_model(AbstractModel model) throws OTMException {
-        if (this.model != null)
+    public void set_model(AbstractModel newmodel) throws OTMException {
+
+        if (model==null){
+            this.model = newmodel;
+            return;
+        }
+
+        if(model.is_default && !newmodel.is_default) {
+            this.model = newmodel;
+            return;
+        }
+
+        if(model.is_default && newmodel.is_default)
+            throw new OTMException("Multiple default models");
+
+        if(!model.is_default && !newmodel.is_default)
             throw new OTMException("ModelType multiply assigned for link " + this.id);
-        this.model = model;
     }
 
     public void add_source(AbstractSource source) {

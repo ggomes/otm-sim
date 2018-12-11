@@ -32,11 +32,17 @@ public abstract class AbstractDiscreteTimeModel extends AbstractModel {
     abstract public void update_supply_demand(Link link);
     abstract public void perform_lane_changes(Link link,float timestamp);
 
-    public AbstractDiscreteTimeModel(Set<Link> links,String name,boolean is_default,Float dt,Float max_cell_length) {
-        super(links,name,is_default);
+    public AbstractDiscreteTimeModel(String name,boolean is_default,Float dt,Float max_cell_length) {
+        super(name,is_default);
         this.model_type = ModelType.discrete_time;
         this.dt = dt==null ? -1 : dt;
         this.max_cell_length = max_cell_length==null ? -1 : max_cell_length;
+
+    }
+
+    @Override
+    public void set_links(Set<Link> links) {
+        super.set_links(links);
 
         // populate macro_internal_nodes: connected in any way to ctm models, minus sources and sinks
         Set<Node> all_nodes = links.stream()
@@ -54,7 +60,6 @@ public abstract class AbstractDiscreteTimeModel extends AbstractModel {
         for(Node node : all_nodes)
             node_models.add( new MacroNodeModel(node) );
     }
-
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {

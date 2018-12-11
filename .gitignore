@@ -18,3 +18,4 @@ doc/
 *.zip
 *.tar.gz
 hs_err_pid*
+temp/

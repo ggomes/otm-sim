@@ -21,8 +21,8 @@ import java.util.*;
 
 public class Model_PQ extends AbstractDiscreteEventModel {
 
-    public Model_PQ(Set<Link> links, String name,boolean is_default) {
-        super(links, name,is_default);
+    public Model_PQ(String name,boolean is_default) {
+        super(name,is_default);
         myPacketClass = models.pq.PacketLaneGroup.class;
     }
 
@@ -43,12 +43,12 @@ public class Model_PQ extends AbstractDiscreteEventModel {
 
     @Override
     public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time) {
-
+        System.out.println("PQ register_first_events");
     }
 
     @Override
     public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException {
-
+        System.out.println("PQ register_commodity");
     }
 
     @Override
@@ -60,11 +60,12 @@ public class Model_PQ extends AbstractDiscreteEventModel {
 
     @Override
     public void validate(Link link,OTMErrorLog errorLog) {
+        System.out.println("PQ validate");
     }
 
     @Override
     public void reset(Link link) {
-        System.out.println("IMPLEMENT THIS");
+        System.out.println("PQ reset");
     }
 
     @Override

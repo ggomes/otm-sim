@@ -80,7 +80,8 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            API api = OTM.load("C:\\Users\\gomes\\vbox_shared\\all_cfgs\\25.xml",true);
+            String configfile = "C:\\Users\\gomes\\Desktop\\otm_testing\\line.xml";
+            API api = OTM.load(configfile,true);
 //            API api = OTM.load("/home/gomes/code/otm-mpi-bb/config/100.xml",true);
         } catch (OTMException e) {
             e.printStackTrace();
@@ -90,6 +91,64 @@ public class TestOne extends AbstractTest {
     @Ignore
     @Test
     public void run_one() {
+        try {
+
+            String configfile = "C:\\Users\\gomes\\Desktop\\otm_testing\\line.xml";
+            float duration = 1000f;
+            float outdt = 10f;
+            String prefix = "test";
+            String output_folder = "temp/";
+
+            // Load ..............................
+            API api = null;
+            try {
+                api = OTM.load(configfile,true);
+            } catch (OTMException e) {
+                e.printStackTrace();
+            }
+
+            api.set_stochastic_process("deterministic");
+
+            // Output requests .....................
+            api.request_links_flow(prefix,output_folder,null, api.get_link_ids(), outdt);
+            api.request_links_veh(prefix,output_folder,null, api.get_link_ids(), outdt);
+
+//            api.request_links_flow(null, api.get_link_ids(), outdt);
+//            api.request_links_veh(null, api.get_link_ids(), outdt);
+
+//            api.request_controller(1L);
+//            api.request_actuator(1L);
+
+            // Run .................................
+            api.run(0,duration);
+
+            // Print output .........................
+            String outfolder = "temp/";
+            for(AbstractOutput output :  api.get_output_data()){
+
+                if (output instanceof EventsActuator)
+                    ((EventsActuator) output).plot(String.format("%sactuator%d.png",outfolder,((EventsActuator) output).actuator_id));
+
+                if (output instanceof EventsController)
+                    ((EventsController) output).plot(String.format("%scontroller%d.png",outfolder,((EventsController) output).controller_id));
+
+                if (output instanceof LinkFlow)
+                    ((LinkFlow) output).plot_for_links(null,String.format("%sflow.png",outfolder));
+
+                if (output instanceof LinkVehicles)
+                    ((LinkVehicles) output).plot_for_links(null,String.format("%sveh.png",outfolder));
+
+            }
+
+        } catch (OTMException e) {
+            System.out.print(e);
+            fail();
+        }
+    }
+
+    @Ignore
+    @Test
+    public void run_one_test() {
         try {
             float duration = 1000f;
             float outdt = 10f;

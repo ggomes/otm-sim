@@ -34,10 +34,13 @@ public abstract class AbstractModel {
     public String name;
     public boolean is_default;
 
-    public AbstractModel(Set<Link> links, String name, boolean is_default){
-        this.links = links;
+    public AbstractModel(String name, boolean is_default){
         this.name = name;
         this.is_default = is_default;
+    }
+
+    public void set_links(Set<Link> links){
+        this.links = links;
     }
 
     //////////////////////////////////////////////////////////////

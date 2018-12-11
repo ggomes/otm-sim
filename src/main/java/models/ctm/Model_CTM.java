@@ -19,8 +19,8 @@ import java.util.*;
 
 public class Model_CTM extends AbstractDiscreteTimeModel {
 
-    public Model_CTM(Set<Link> links, String name,boolean is_default, Float dt, Float max_cell_length) {
-        super(links, name,is_default,dt,max_cell_length);
+    public Model_CTM(String name,boolean is_default, Float dt, Float max_cell_length) {
+        super(name,is_default,dt,max_cell_length);
         myPacketClass = models.ctm.PacketLaneGroup.class;
     }
 

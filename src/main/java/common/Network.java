@@ -196,60 +196,67 @@ public class Network {
 
     private static Set<AbstractModel> generate_models(List<jaxb.Model> jaxb_models, Map<Long,Link> links) throws OTMException {
 
+        if(jaxb_models==null)
+            return new HashSet<>();
+
         Set<AbstractModel> models = new HashSet<>();
+        Map<String,Set<Link>> model2links = new HashMap<>();
+        Set<Link> all_links = new HashSet<>();
 
-        // specified models
-        if(jaxb_models!=null){
+        boolean has_default_model = false;
 
-            boolean has_default_model = false;
+        for(jaxb.Model jaxb_model : jaxb_models ){
 
-            for(jaxb.Model jaxb_model : jaxb_models ){
+            String name = jaxb_model.getName();
 
-                Set<Link> my_links = new HashSet<>();
-                if(jaxb_model.isIsDefault()){
-                    if(has_default_model)
-                        throw new OTMException("Multiple default models.");
-                    has_default_model = true;
-                    my_links.addAll(links.values());
-                } else {
-                    List<Long> link_ids = OTMUtils.csv2longlist(jaxb_model.getLinks());
-                    for(Long link_id : link_ids){
-                        if(!links.containsKey(link_id))
-                            throw new OTMException("Unknown link id in model " + jaxb_model.getName());
-                        my_links.add(links.get(link_id));
-                    }
-                }
+            if(model2links.containsKey(name))
+                throw new OTMException("Duplicate model name.");
 
-                AbstractModel model;
-                switch(jaxb_model.getType()){
-
-                    case "ctm":
-                        model = new Model_CTM(my_links,
-                                jaxb_model.getName(),
-                                jaxb_model.isIsDefault(),
-                                jaxb_model.getModelParams().getSimDt(),
-                                jaxb_model.getModelParams().getMaxCellLength());
-                        break;
-
-                    case "pq":
-                        model = new Model_PQ(my_links,jaxb_model.getName(),jaxb_model.isIsDefault());
-                        break;
-
-                    default:
-                        continue;
-
-                }
-
-                models.add(model);
+            AbstractModel model;
+            switch(jaxb_model.getType()){
+                case "ctm":
+                    model = new Model_CTM( jaxb_model.getName(),
+                                        jaxb_model.isIsDefault(),
+                                        jaxb_model.getModelParams().getSimDt(),
+                                        jaxb_model.getModelParams().getMaxCellLength());
+                    break;
+                case "pq":
+                    model = new Model_PQ(jaxb_model.getName(),jaxb_model.isIsDefault());
+                    break;
+                default:
+                    continue;
             }
+            models.add(model);
+
+            // save the links for this model
+            Set<Link> my_links = new HashSet<>();
+            if(jaxb_model.isIsDefault()){
+                if(has_default_model)
+                    throw new OTMException("Multiple default models.");
+                has_default_model = true;
+                my_links.addAll(links.values());
+            } else {
+                List<Long> link_ids = OTMUtils.csv2longlist(jaxb_model.getLinks());
+                for(Long link_id : link_ids){
+                    if(!links.containsKey(link_id))
+                        throw new OTMException("Unknown link id in model " + jaxb_model.getName());
+                    my_links.add(links.get(link_id));
+                }
+            }
+            all_links.addAll(my_links);
+
+            model2links.put(model.name,my_links);
 
         }
 
-        // set link models
-        for( AbstractModel model : models) {
-            for (Link link : model.links)
+        // set link models (links will choose new over default, so this determines the link list for each model)
+        for( AbstractModel model : models)
+            for (Link link : model2links.get(model.name))
                 link.set_model(model);
-        }
+
+        // Set links for each model
+        for( AbstractModel model : models)
+            model.set_links( all_links.stream().filter(link->link.model==model).collect(toSet()) );
 
         return models;
 
@@ -516,11 +523,9 @@ public class Network {
         for(Node node: nodes.values())
             node.initialize(scenario,runParams);
 
-
-        for(AbstractModel model : models){
+        for(AbstractModel model : models)
             model.initialize(scenario);
 
-        }
     }
 
     ////////////////////////////////////////////
