@@ -220,7 +220,7 @@ public class Network {
                                         jaxb_model.getModelParams().getSimDt(),
                                         jaxb_model.getModelParams().getMaxCellLength());
                     break;
-                case "pq":
+                case "point_queue":
                     model = new Model_PQ(jaxb_model.getName(),jaxb_model.isIsDefault());
                     break;
                 default:
