@@ -99,7 +99,7 @@ public class OTM {
         if (cmd.equals("-run")){
             try {
 
-                if(arguments.length<7) {
+                if(arguments.length<6) {
                     System.err.println("Not enough input arguments.");
                     return;
                 }
