@@ -16,6 +16,7 @@ import runner.Scenario;
 import utils.OTMUtils;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
@@ -153,6 +154,14 @@ public abstract class AbstractDiscreteTimeModel extends AbstractModel {
     public void update_macro_state(float timestamp) {
         for(Link link : links)
             update_state(timestamp,link);
+
+        System.out.print(String.format("%.1f",timestamp));
+        Map<Long,Link> linkmap = links.iterator().next().network.links;
+        for(Long id=1L;id<=7L;id++) {
+            Link link = linkmap.get(id);
+            System.out.print(String.format("\t%d (%.3f)", link.getId(), link.get_veh()));
+        }
+        System.out.print("\n");
     }
 
     public void update_macro_flow_part_I(float timestamp){

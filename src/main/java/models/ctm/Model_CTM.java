@@ -41,8 +41,9 @@ public class Model_CTM extends AbstractDiscreteTimeModel {
 
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
 
-            float jam_density_vehperlane = r.getJamDensity() * lg.length / 1000f;
-            float ffspeed_veh = 1000f * r.getSpeed()*dt_hr / lg.length;
+            float cell_length = lg.length / ((LaneGroup) lg).cells.size() / 1000f;
+            float jam_density_vehperlane = r.getJamDensity() * cell_length;
+            float ffspeed_veh = r.getSpeed() * dt_hr / cell_length;
 
             lg.set_road_params(r);
             ((LaneGroup) lg).cells.forEach(c -> c.set_road_params(capacity_vehperlane, jam_density_vehperlane, ffspeed_veh));
