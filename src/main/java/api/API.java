@@ -11,6 +11,8 @@ import actuator.sigint.ActuatorSignal;
 import api.info.*;
 import commodity.Commodity;
 import commodity.Subnetwork;
+import models.AbstractDiscreteEventModel;
+import models.AbstractDiscreteTimeModel;
 import models.AbstractLaneGroup;
 import common.RoadConnection;
 import control.AbstractController;
@@ -21,6 +23,7 @@ import error.OTMException;
 import common.Link;
 import keys.DemandType;
 import keys.KeyCommodityDemandTypeId;
+import models.AbstractModel;
 import output.*;
 import output.animation.AnimationInfo;
 import profiles.AbstractDemandProfile;
@@ -147,6 +150,33 @@ public class API {
      */
     public void set_stochastic_process(String str){
         scenario.set_stochastic_process(StochasticProcess.valueOf(str));
+    }
+
+    ////////////////////////////////////////////////////////
+    // models
+    ////////////////////////////////////////////////////////
+
+    public Set<ModelInfo> get_models(){
+        Set<ModelInfo> x = new HashSet<>();
+        for(AbstractModel model : scenario.network.models) {
+            switch(model.model_type){
+                case discrete_event:
+                    x.add(new ModelDiscreteEventInfo((AbstractDiscreteEventModel)model));
+                    break;
+                case discrete_time:
+                    x.add(new ModelDiscreteTimeInfo((AbstractDiscreteTimeModel) model));
+                    break;
+            }
+        }
+        return x;
+    }
+
+    public Float get_unique_dt_sec(){
+        Set<Float> dts = scenario.network.models.stream()
+                .filter(model->model.model_type== AbstractModel.ModelType.discrete_time)
+                .map(model->((AbstractDiscreteTimeModel)model).dt)
+                .collect(Collectors.toSet());
+        return dts.size()==1 ? dts.iterator().next() : null;
     }
 
     ////////////////////////////////////////////////////////

@@ -93,7 +93,8 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "C:\\Users\\gomes\\Desktop\\otm_testing\\line.xml";
+//            String configfile = "C:\\Users\\gomes\\Downloads\\aimsun_extracted.xml";
+            String configfile = "C:\\Users\\gomes\\Desktop\\jeff\\line.xml";
             float duration = 1000f;
             float outdt = 10f;
             String prefix = "test";

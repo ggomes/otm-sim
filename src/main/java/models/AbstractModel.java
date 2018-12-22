@@ -56,7 +56,7 @@ public abstract class AbstractModel {
 
     // LINK LEVEL INTERFACE
     abstract public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException;
-    abstract public void set_road_param(Link link, jaxb.Roadparam r);
+//    abstract public void set_road_param(Link link, jaxb.Roadparam r);
     abstract public void validate(Link link, OTMErrorLog errorLog);
     abstract public void reset(Link link);
     abstract public void build(Link link);
@@ -164,6 +164,11 @@ public abstract class AbstractModel {
     public float get_max_vehicles(Link link){
         return (float) link.lanegroups_flwdn.values().stream().map(x->x.max_vehicles).mapToDouble(i->i).sum();
     }
+
+    public void set_road_param(Link link, jaxb.Roadparam r){
+        link.road_param = r;
+    }
+
 
     final public void set_road_param(Link link, ActuatorFD.FDCommand fd_comm){
         jaxb.Roadparam r = new jaxb.Roadparam();

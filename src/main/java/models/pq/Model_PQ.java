@@ -43,16 +43,15 @@ public class Model_PQ extends AbstractDiscreteEventModel {
 
     @Override
     public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time) {
-        System.out.println("PQ register_first_events");
     }
 
     @Override
     public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException {
-        System.out.println("PQ register_commodity");
     }
 
     @Override
     public void set_road_param(Link link, jaxb.Roadparam r) {
+        super.set_road_param(link,r);
         // send parameters to lane groups
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
             lg.set_road_params(r);
@@ -60,12 +59,10 @@ public class Model_PQ extends AbstractDiscreteEventModel {
 
     @Override
     public void validate(Link link,OTMErrorLog errorLog) {
-        System.out.println("PQ validate");
     }
 
     @Override
     public void reset(Link link) {
-        System.out.println("PQ reset");
     }
 
     @Override

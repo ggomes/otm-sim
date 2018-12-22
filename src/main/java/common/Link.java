@@ -14,6 +14,7 @@ import error.OTMException;
 import geometry.RoadGeometry;
 import geometry.Side;
 import jaxb.Points;
+import jaxb.Roadparam;
 import models.AbstractLaneGroup;
 import models.AbstractModel;
 import output.PathTravelTime;
@@ -30,7 +31,6 @@ import static java.util.stream.Collectors.toSet;
 public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
     public enum RoadType {none,onramp,offramp,freeway,arterial,hov,interconnect,source,sink,lightrail}
-//    public enum ModelType {pq,ctm,mn,micro,none}
 
     protected final long id;
     public Network network;
@@ -77,10 +77,9 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     public RoadGeometry road_geom;
 
     // road parameters (for the sake of writing again to jaxb)
-    public Long road_param_id;
+    public Roadparam road_param;
 
     // model
-//    public ModelType model_type;
     public AbstractModel model;
 
     // for path travel time output
@@ -97,7 +96,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     // construction
     ///////////////////////////////////////////
 
-    public Link(Network network, Long road_param_id, RoadGeometry rg, Link.RoadType road_type,long id, float length, int full_lanes, Points jpoints, Node start_node, Node end_node) throws OTMException {
+    public Link(Network network, jaxb.Roadparam road_param, RoadGeometry rg, Link.RoadType road_type,long id, float length, int full_lanes, Points jpoints, Node start_node, Node end_node) throws OTMException {
 
         if (start_node == null)
             throw new OTMException("Unknown start node id in link " + id);
@@ -107,7 +106,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
         this.id = id;
         this.road_type = road_type==null ? RoadType.none : road_type;
-        this.road_param_id = road_param_id;
+        this.road_param = road_param;
         this.network = network;
         this.length = length;
         this.full_lanes = full_lanes;
@@ -139,7 +138,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         travel_timers = new HashSet<>();
     }
 
-    public Link(Network network, Long road_param_id, long id, float length, int full_lanes, Node start_node, Node end_node) throws OTMException {
+    public Link(Network network, jaxb.Roadparam road_param, long id, float length, int full_lanes, Node start_node, Node end_node) throws OTMException {
 
         if (start_node == null)
             throw new OTMException("Unknown start node id in link " + id);
@@ -148,7 +147,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
             throw new OTMException("Unknown end node id in link " + id);
 
         this.id = id;
-        this.road_param_id = road_param_id;
+        this.road_param = road_param;
         this.network = network;
         this.length = length;
         this.full_lanes = full_lanes;
@@ -529,7 +528,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         jlink.setFullLanes(this.full_lanes);
         if(this.road_geom!=null)
             jlink.setRoadgeom(this.road_geom.id);
-        jlink.setRoadparam(this.road_param_id);
+        jlink.setRoadparam(this.road_param.getId());
         jlink.setRoadType(this.road_type.toString());
         jaxb.Points jpoints = new jaxb.Points();
         jlink.setPoints(jpoints);

@@ -63,9 +63,6 @@ public class OTM {
          6: duration: [integer] simulation duration in seconds.
   */
 
-
-
-
     public static void main(String[] args) {
 
         if (0 == args.length) {

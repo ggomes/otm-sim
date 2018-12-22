@@ -27,6 +27,8 @@ public class Model_CTM extends AbstractDiscreteTimeModel {
     @Override
     public void set_road_param(Link link,jaxb.Roadparam r) {
 
+        super.set_road_param(link,r);
+
         if(Float.isNaN(dt))
             return;
 

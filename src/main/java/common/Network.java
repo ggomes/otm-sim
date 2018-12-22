@@ -149,7 +149,7 @@ public class Network {
                 throw new OTMException("Tried to add duplicate link id " + id );
 
             Link link = new Link(network,
-                    jl.getRoadparam() ,
+                    network.road_params.get(jl.getRoadparam()),
                     jl.getRoadgeom()==null ? null : network.road_geoms.get(jl.getRoadgeom()),
                     jl.getRoadType()==null ? Link.RoadType.none : Link.RoadType.valueOf(jl.getRoadType()) ,
                     id,
