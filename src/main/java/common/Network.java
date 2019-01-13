@@ -6,6 +6,7 @@
  */
 package common;
 
+import com.sun.javafx.scene.control.skin.IntegerFieldSkin;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.AddLanes;
@@ -87,8 +88,15 @@ public class Network {
         models = generate_models(jaxb_models,links);
 
         // create lane groups .......................................
+
+        // create link to road connections map
+        Map<Long,Set<RoadConnection>> link2outrcs = new HashMap<>();
+        links.keySet().forEach(link_id->link2outrcs.put(link_id,new HashSet<>()));
+        for(RoadConnection rc : road_connections.values())
+            link2outrcs.get(rc.get_start_link_id()).add(rc);
+
         for(Link link : links.values())
-            create_lane_groups(link,road_connections);
+            create_lane_groups(link, link2outrcs.get(link.getId()));
 
         // Lanegroup connections .........................................................
 
@@ -265,25 +273,21 @@ public class Network {
     private static HashMap<Long,RoadConnection> read_road_connections(jaxb.Roadconnections jaxb_conns,Map<Long,Link> links) {
 
         HashMap<Long,RoadConnection> road_connections = new HashMap<>();
+        Set<Long> no_road_connection = new HashSet<>();
+        no_road_connection.addAll(links.values().stream().filter(x->!x.is_sink).map(y->y.getId()).collect(toSet()));
         if (jaxb_conns != null && jaxb_conns.getRoadconnection() != null) {
-            for (jaxb.Roadconnection jaxb_rc : jaxb_conns.getRoadconnection())
-                road_connections.put(jaxb_rc.getId(), new RoadConnection(links, jaxb_rc));
+            for (jaxb.Roadconnection jaxb_rc : jaxb_conns.getRoadconnection()) {
+                RoadConnection rc =  new RoadConnection(links, jaxb_rc);
+                road_connections.put(jaxb_rc.getId(),rc);
+                no_road_connection.remove(rc.get_start_link_id());
+            }
         }
 
         max_rcid = road_connections.isEmpty() ? 0L : road_connections.keySet().stream().max(Long::compareTo).get();
 
         // create absent road connections
-        for(Link link : links.values()) {
-            Set<RoadConnection> out_rcs = road_connections.values().stream()
-                    .filter(x -> x.get_start_link()!=null && x.get_start_link_id()==link.id)
-                    .collect(toSet());
-
-            if (out_rcs.isEmpty() && !link.is_sink) { // sink or single next link
-                Map<Long, RoadConnection> new_rcs = create_missing_road_connections(link);
-                out_rcs.addAll(new_rcs.values());
-                road_connections.putAll(new_rcs);
-            }
-        }
+        for(Long link_id : no_road_connection)
+            road_connections.putAll(create_missing_road_connections(links.get(link_id)));
 
         return road_connections;
     }
@@ -333,12 +337,12 @@ public class Network {
         return new_rcs;
     }
 
-    private static void create_lane_groups(Link link,final Map<Long,RoadConnection> road_connections) throws OTMException {
+    private static void create_lane_groups(Link link,final Set<RoadConnection> out_rcs) throws OTMException {
 
         // get road connections that exit this link
-        Set<RoadConnection> out_rcs = road_connections.values().stream()
-                .filter(x->x.get_start_link()!=null && x.get_start_link_id()==link.id)
-                .collect(toSet());
+//        Set<RoadConnection> out_rcs = road_connections.values().stream()
+//                .filter(x->x.get_start_link()!=null && x.get_start_link_id()==link.id)
+//                .collect(toSet());
 
         // absent road connections: create them, if it is not a sink
         if(out_rcs.isEmpty() && !link.is_sink)
@@ -422,6 +426,7 @@ public class Network {
         }
 
         // create map from lanes to road connection sets
+        boolean lane_one_is_empty = false;
         Map<Integer,Set<RoadConnection>> dnlane2rcs = new HashMap<>();
         for(int lane=1;lane<=link.get_num_dn_lanes();lane++) {
             Set<RoadConnection> myrcs = new HashSet<>();
@@ -429,10 +434,20 @@ public class Network {
                 if (rc.start_link_from_lane <= lane && rc.start_link_to_lane >= lane)
                     myrcs.add(rc);
             }
-            if(myrcs.isEmpty())
-                throw new OTMException(String.format("Lane %d in link %d has no outgoing road connection",lane,link.getId()));
-
+            if(myrcs.isEmpty()) {
+                if(lane>1)
+                    myrcs.addAll(dnlane2rcs.get(lane-1));
+                else
+                    lane_one_is_empty = true;
+            }
             dnlane2rcs.put(lane,myrcs);
+        }
+
+        // case no lane groups for lane 1
+        if(lane_one_is_empty){
+            if(link.get_num_dn_lanes()<2)
+                throw new OTMException(String.format("No outgoing road connection for link %d",link.getId()));
+            dnlane2rcs.get(1).addAll(dnlane2rcs.get(2));
         }
 
         // set of unique road connection sets
