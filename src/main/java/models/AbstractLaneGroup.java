@@ -71,13 +71,18 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public Map<KeyCommPathOrLink,Side> state2lanechangedirection = new HashMap<>();
 
     ///////////////////////////////////////////////////
+    // inter-link dynamics
+    ///////////////////////////////////////////////////
+
+    abstract public double get_supply();
+    abstract public void add_native_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp) throws OTMException;
+
+    ///////////////////////////////////////////////////
     // abstract methods
     ///////////////////////////////////////////////////
 
     abstract public void add_commodity(Commodity commodity);  // TODO CAN THIS BE PUT AT ABSTRACT LEVEL?
 
-    abstract public void add_native_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp) throws OTMException;
-    abstract public double get_supply();
     abstract public void exiting_roadconnection_capacity_has_been_modified(float timestamp);
 
     abstract public void set_max_speed_mps(Float max_speed_mps) throws OTMException;

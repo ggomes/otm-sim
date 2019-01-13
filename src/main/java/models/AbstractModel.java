@@ -44,14 +44,17 @@ public abstract class AbstractModel {
     }
 
     //////////////////////////////////////////////////////////////
-    // link interface methods
+    // inter-link dynamics
+    //////////////////////////////////////////////////////////////
+
+    abstract public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups);
+
+    //////////////////////////////////////////////////////////////
+    // abstract methods
     //////////////////////////////////////////////////////////////
 
     //    abstract public float get_ff_travel_time(); // seconds
 //    abstract public float get_capacity_vps();   // vps
-    abstract public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups);
-
-
     abstract public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time);
 
     // LINK LEVEL INTERFACE
