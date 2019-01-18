@@ -6,7 +6,6 @@
  */
 package common;
 
-import com.sun.javafx.scene.control.skin.IntegerFieldSkin;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.AddLanes;
@@ -40,7 +39,7 @@ public class Network {
     public Map<Long,jaxb.Roadparam> road_params;    // keep this for the sake of the scenario splitter
     public Map<Long,RoadConnection> road_connections = new HashMap<>();
 
-    public Set<AbstractModel> models;
+    public Map<String,AbstractModel> models;
 
     ///////////////////////////////////////////
     // construction
@@ -122,7 +121,7 @@ public class Network {
         }
 
         // models .................................................
-        models.forEach(x->x.build());
+        models.values().forEach(x->x.build());
 
         // assign road params
         assign_road_params(jaxb_links,links,road_params);
@@ -202,12 +201,12 @@ public class Network {
         return road_geoms;
     }
 
-    private static Set<AbstractModel> generate_models(List<jaxb.Model> jaxb_models, Map<Long,Link> links) throws OTMException {
+    private static Map<String,AbstractModel> generate_models(List<jaxb.Model> jaxb_models, Map<Long,Link> links) throws OTMException {
 
         if(jaxb_models==null)
-            return new HashSet<>();
+            return new HashMap<>();
 
-        Set<AbstractModel> models = new HashSet<>();
+        Map<String,AbstractModel> models = new HashMap<>();
         Map<String,Set<Link>> model2links = new HashMap<>();
         Set<Link> all_links = new HashSet<>();
 
@@ -234,7 +233,7 @@ public class Network {
                 default:
                     continue;
             }
-            models.add(model);
+            models.put(jaxb_model.getName(),model);
 
             // save the links for this model
             Set<Link> my_links = new HashSet<>();
@@ -258,16 +257,15 @@ public class Network {
         }
 
         // set link models (links will choose new over default, so this determines the link list for each model)
-        for( AbstractModel model : models)
+        for( AbstractModel model : models.values())
             for (Link link : model2links.get(model.name))
                 link.set_model(model);
 
         // Set links for each model
-        for( AbstractModel model : models)
+        for( AbstractModel model : models.values())
             model.set_links( all_links.stream().filter(link->link.model==model).collect(toSet()) );
 
         return models;
-
     }
 
     private static HashMap<Long,RoadConnection> read_road_connections(jaxb.Roadconnections jaxb_conns,Map<Long,Link> links) {
@@ -538,7 +536,7 @@ public class Network {
         for(Node node: nodes.values())
             node.initialize(scenario,runParams);
 
-        for(AbstractModel model : models)
+        for(AbstractModel model : models.values())
             model.initialize(scenario);
 
     }

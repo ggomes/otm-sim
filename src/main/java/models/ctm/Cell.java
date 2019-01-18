@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class Cell {
 
-    private LaneGroup laneGroup;
+    public LaneGroup laneGroup;
 
     public boolean am_upstrm;
     public boolean am_dnstrm;

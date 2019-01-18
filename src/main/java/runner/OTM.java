@@ -14,6 +14,7 @@ import dispatch.EventStopSimulation;
 import error.OTMException;
 import jaxb.OutputRequests;
 
+import models.AbstractModel;
 import output.AbstractOutput;
 import output.EventsActuator;
 import output.EventsController;
@@ -204,7 +205,7 @@ public class OTM {
         dispatcher.register_event(new EventStopSimulation(scenario,dispatcher,now+duration));
 
         // register initial events for each model
-        scenario.network.models.forEach(m->m.register_first_events(scenario, dispatcher,now));
+        scenario.network.models.values().forEach(m->m.register_first_events(scenario, dispatcher,now));
 
         // process all events
         dispatcher.dispatch_events_to_stop();
@@ -283,47 +284,60 @@ public class OTM {
             Long commodity_id = jaxb_or.getCommodity();
             Float outDt = jaxb_or.getDt();
 
-            switch(jaxb_or.getQuantity()){
-                case "lanegroups":
-                    output = new LaneGroups(scenario,prefix,output_folder);
-                    break;
-                case "link_flw":
-                    output = new LinkFlow(scenario,prefix,output_folder,commodity_id,null,outDt);
-                    break;
-                case "link_veh":
-                    output = new LinkVehicles(scenario,prefix,output_folder,commodity_id,null,outDt);
-                    break;
-                case "lanegroup_flw":
-                    output = new LaneGroupFlow(scenario,prefix,output_folder,commodity_id,null,outDt);
-                    break;
-                case "lanegroup_veh":
-                    output = new LaneGroupVehicles(scenario,prefix,output_folder,commodity_id,null,outDt);
-                    break;
-                case "link_vht":
-                    output = new LinkVHT(scenario,prefix,output_folder,commodity_id,null,outDt);
-                    break;
-                case "vehicle_events":
-                    output = new EventsVehicle(scenario,prefix,output_folder,commodity_id);
-                    break;
-                case "vehicle_class":
-                    output = new VehicleClass(scenario,prefix,output_folder);
-                    break;
-                case "vehicle_travel_time":
-                    output = new VehicleTravelTime(scenario,prefix,output_folder);
-                    break;
-                case "controller":
-                    output = new EventsController(scenario,prefix,output_folder,jaxb_or.getController());
-                    break;
-                case "actuator":
-                    output = new EventsActuator(scenario,prefix,output_folder,jaxb_or.getActuator());
-                    break;
-                case "path_travel_time":
-                    output = new PathTravelTime(scenario,prefix,output_folder,null,outDt);
-                    break;
-                default:
-                    output = null;
+            if(jaxb_or.getModel()!=null){
+                if(!scenario.network.models.containsKey(jaxb_or.getModel()))
+                    throw new OTMException("Bad model name in output : " + jaxb_or.getModel());
+                AbstractModel model = scenario.network.models.get(jaxb_or.getModel());
+                output = model.create_output_object(scenario,prefix,output_folder,jaxb_or);
             }
-            outputs.add(output);
+
+            else {
+
+                switch (jaxb_or.getQuantity()) {
+                    case "lanegroups":
+                        output = new LaneGroups(scenario, prefix, output_folder);
+                        break;
+                    case "link_flw":
+                        output = new LinkFlow(scenario, prefix, output_folder, commodity_id, null, outDt);
+                        break;
+                    case "link_veh":
+                        output = new LinkVehicles(scenario, prefix, output_folder, commodity_id, null, outDt);
+                        break;
+                    case "lanegroup_flw":
+                        output = new LaneGroupFlow(scenario, prefix, output_folder, commodity_id, null, outDt);
+                        break;
+                    case "lanegroup_veh":
+                        output = new LaneGroupVehicles(scenario, prefix, output_folder, commodity_id, null, outDt);
+                        break;
+                    case "link_vht":
+                        output = new LinkVHT(scenario, prefix, output_folder, commodity_id, null, outDt);
+                        break;
+                    case "vehicle_events":
+                        output = new EventsVehicle(scenario, prefix, output_folder, commodity_id);
+                        break;
+                    case "vehicle_class":
+                        output = new VehicleClass(scenario, prefix, output_folder);
+                        break;
+                    case "vehicle_travel_time":
+                        output = new VehicleTravelTime(scenario, prefix, output_folder);
+                        break;
+                    case "controller":
+                        output = new EventsController(scenario, prefix, output_folder, jaxb_or.getController());
+                        break;
+                    case "actuator":
+                        output = new EventsActuator(scenario, prefix, output_folder, jaxb_or.getActuator());
+                        break;
+                    case "path_travel_time":
+                        output = new PathTravelTime(scenario, prefix, output_folder, null, outDt);
+                        break;
+                    default:
+                        throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
+                }
+
+            }
+
+            if(output!=null)
+                outputs.add(output);
         }
         return outputs;
     }

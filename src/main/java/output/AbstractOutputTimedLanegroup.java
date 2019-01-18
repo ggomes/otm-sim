@@ -18,7 +18,7 @@ import java.util.*;
 
 public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
 
-    public List<Long> ordered_ids;
+    public ArrayList<AbstractLaneGroup> ordered_lgs;
     public Map<Long, LaneGroupProfile> lgprofiles;
 
     //////////////////////////////////////////////////////
@@ -32,14 +32,14 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
         if(link_ids==null)
             link_ids = new ArrayList<>(scenario.network.links.keySet());
 
-        ordered_ids = new ArrayList<>();
+        ordered_lgs = new ArrayList<>();
         lgprofiles = new HashMap<>();
         for(Long link_id : link_ids){
             if(!scenario.network.links.containsKey(link_id))
                 continue;
             Link link = scenario.network.links.get(link_id);
             for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()){
-                ordered_ids.add(lg.id);
+                ordered_lgs.add(lg);
                 lgprofiles.put(lg.id, new LaneGroupProfile(lg));
             }
         }
@@ -86,7 +86,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
     // get / plot
     //////////////////////////////////////////////////////
 
-    abstract protected double get_value_for_lanegroup(Long lg_id);
+    abstract protected double get_value_for_lanegroup(AbstractLaneGroup lg);
 
     public Map<Long,Profile1D> get_profiles_for_linkid(Long link_id){
 
@@ -113,20 +113,20 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
             super.write(timestamp,null);
             try {
                 boolean isfirst=true;
-                for(Long lg_id : ordered_ids){
+                for(AbstractLaneGroup lg : ordered_lgs){
                     if(!isfirst)
                         writer.write(AbstractOutputTimed.delim);
                     isfirst = false;
-                    writer.write(String.format("%f",get_value_for_lanegroup(lg_id)));
+                    writer.write(String.format("%f",get_value_for_lanegroup(lg)));
                 }
                 writer.write("\n");
             } catch (IOException e) {
                 throw new OTMException(e);
             }
         } else {
-            for(Long lg_id : ordered_ids){
-                LaneGroupProfile lgProfile = lgprofiles.get(lg_id);
-                lgProfile.add_value(get_value_for_lanegroup(lg_id));
+            for(AbstractLaneGroup lg : ordered_lgs){
+                LaneGroupProfile lgProfile = lgprofiles.get(lg.id);
+                lgProfile.add_value(get_value_for_lanegroup(lg));
             }
         }
     }

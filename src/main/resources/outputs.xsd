@@ -11,13 +11,15 @@
 
 	<xs:element name="output_request">
 		<xs:complexType>
-			<xs:attribute name="quantity" use="required">
-				<xs:simpleType>
-					<xs:restriction base="xs:string">
-						<xs:pattern value="lanegroups|lanegroup_flw|lanegroup_veh|link_flw|link_veh|link_vht|vehicle_events|vehicle_class|vehicle_travel_time|controller|actuator|path_travel_time"/>
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
+			<xs:attribute name="quantity" type="xs:string" use="required" />
+				<!--<xs:simpleType>-->
+					<!--<xs:restriction base="xs:string">-->
+						<!--<xs:pattern value="lanegroups|lanegroup_flw|lanegroup_veh|link_flw|link_veh|link_vht|vehicle_events|vehicle_class|vehicle_travel_time|controller|actuator|path_travel_time"/>-->
+					<!--</xs:restriction>-->
+				<!--</xs:simpleType>-->
+			<!--</xs:attribute>-->
+
+			<xs:attribute name="model" type="xs:string" use="optional" />
 			<xs:attribute name="commodity" type="xs:long" use="optional" />
 			<xs:attribute name="controller" type="xs:long" use="optional" />
 			<xs:attribute name="actuator" type="xs:long" use="optional" />

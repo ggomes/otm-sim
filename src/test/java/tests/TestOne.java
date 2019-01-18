@@ -215,14 +215,14 @@ public class TestOne extends AbstractTest {
         //    5 start_time
         //    6 duration
 
-        String [] args = new String[9];
+        String [] args = new String[7];
         args[0] = "-run";
-        args[1] = "C:\\Users\\gomes\\code\\otm\\otm-base\\src\\main\\resources\\test_configs\\line.xml";
-        args[2] = "plugin";
-        args[3] = "C:\\Users\\gomes\\code\\otm\\otm-plugin\\config\\output_request.xml";
-        args[4] = "C:\\Users\\gomes\\code\\otm\\otm-sim\\temp";
+        args[1] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\exp_ctm.xml";
+        args[2] = "ctm";
+        args[3] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output.xml";
+        args[4] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output";
         args[5] = "0";
-        args[6] = "3600";
+        args[6] = "100";
 
         OTM.main(args);
 

@@ -26,11 +26,10 @@ public class LaneGroupVehicles extends AbstractOutputTimedLanegroup {
     }
 
     @Override
-    protected double get_value_for_lanegroup(Long lg_id){
-        if(!lgprofiles.containsKey(lg_id))
+    protected double get_value_for_lanegroup(AbstractLaneGroup lg){
+        if(!lgprofiles.containsKey(lg.id))
             return Double.NaN;
         else {
-            AbstractLaneGroup lg = lgprofiles.get(lg_id).lg;
             return lg.vehs_dwn_for_comm(commodity == null ? null : commodity.getId());
         }
     }

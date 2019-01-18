@@ -158,7 +158,7 @@ public class API {
 
     public Set<ModelInfo> get_models(){
         Set<ModelInfo> x = new HashSet<>();
-        for(AbstractModel model : scenario.network.models) {
+        for(AbstractModel model : scenario.network.models.values()) {
             switch(model.model_type){
                 case discrete_event:
                     x.add(new ModelDiscreteEventInfo((AbstractDiscreteEventModel)model));
@@ -172,7 +172,7 @@ public class API {
     }
 
     public Float get_unique_dt_sec(){
-        Set<Float> dts = scenario.network.models.stream()
+        Set<Float> dts = scenario.network.models.values().stream()
                 .filter(model->model.model_type== AbstractModel.ModelType.discrete_time)
                 .map(model->((AbstractDiscreteTimeModel)model).dt)
                 .collect(Collectors.toSet());

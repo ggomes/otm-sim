@@ -12,6 +12,8 @@ import error.OTMErrorLog;
 import error.OTMException;
 import geometry.FlowDirection;
 import geometry.Side;
+import jaxb.OutputRequest;
+import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import packet.AbstractPacketLaneGroup;
 import packet.PacketLink;
@@ -52,6 +54,8 @@ public abstract class AbstractModel {
     //////////////////////////////////////////////////////////////
     // abstract methods
     //////////////////////////////////////////////////////////////
+
+    abstract public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException;
 
     //    abstract public float get_ff_travel_time(); // seconds
 //    abstract public float get_capacity_vps();   // vps

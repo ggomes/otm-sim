@@ -7,12 +7,14 @@ import common.AbstractSource;
 import common.RoadConnection;
 import geometry.FlowDirection;
 import geometry.Side;
+import jaxb.OutputRequest;
 import models.AbstractLaneGroup;
 import common.Link;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import models.AbstractDiscreteEventModel;
+import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
 import runner.Scenario;
@@ -78,6 +80,11 @@ public class Model_PQ extends AbstractDiscreteEventModel {
             return A;
         } else
             return null;
+    }
+
+    @Override
+    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or) throws OTMException {
+        return null;
     }
 
     @Override

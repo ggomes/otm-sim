@@ -4,15 +4,19 @@ import commodity.Commodity;
 import commodity.Path;
 import common.AbstractSource;
 import common.RoadConnection;
+import error.OTMException;
 import geometry.FlowDirection;
+import jaxb.OutputRequest;
 import models.AbstractLaneGroup;
 import common.Link;
 import error.OTMErrorLog;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import models.AbstractDiscreteTimeModel;
+import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
+import runner.Scenario;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -76,6 +80,21 @@ public class Model_CTM extends AbstractDiscreteTimeModel {
         for(AbstractLaneGroup laneGroup : candidate_lanegroups)
             A.put(laneGroup , laneGroup.get_supply() / total_supply);
         return A;
+    }
+
+    @Override
+    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
+        AbstractOutput output = null;
+        switch (jaxb_or.getQuantity()) {
+            case "cell_veh":
+                Long commodity_id = jaxb_or.getCommodity();
+                Float outDt = jaxb_or.getDt();
+                output = new OutputCellVehicles(scenario, this,prefix, output_folder, commodity_id, outDt);
+                break;
+            default:
+                throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
+        }
+        return output;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package output;
 
 import error.OTMException;
+import models.AbstractLaneGroup;
 import runner.Scenario;
 import common.FlowAccumulator;
 
@@ -39,13 +40,13 @@ public class LaneGroupFlow extends AbstractOutputTimedLanegroup  {
     }
 
     @Override
-    protected double get_value_for_lanegroup(Long lg_id){
-        if(!lgprofiles.containsKey(lg_id))
+    protected double get_value_for_lanegroup(AbstractLaneGroup lg){
+        if(!lgprofiles.containsKey(lg.id))
             return Double.NaN;
         if(commodity==null)
-            return flw_accs.get(lg_id).get_total_count();
+            return flw_accs.get(lg.id).get_total_count();
         else
-            return flw_accs.get(lg_id).get_count_for_commodity(commodity.getId());
+            return flw_accs.get(lg.id).get_count_for_commodity(commodity.getId());
     }
 
 }
