@@ -8,7 +8,7 @@ package models;
 
 import actuator.AbstractActuator;
 import commodity.Commodity;
-import common.FlowAccumulator;
+import common.FlowAccumulatorState;
 import common.Link;
 import common.RoadConnection;
 import error.OTMErrorLog;
@@ -53,7 +53,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public AbstractActuator actuator;
 
     // flow accumulator
-    public FlowAccumulator flw_acc;
+    public FlowAccumulatorState flw_acc;
 
     // map from outlink to road-connection. For one-to-one links with no road connection defined,
     // this returns a null.
@@ -162,25 +162,25 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         max_vehicles = r.getJamDensity()*length*num_lanes/1000f;
     }
 
-    public FlowAccumulator request_flow_accumulator(KeyCommPathOrLink key){
+    public FlowAccumulatorState request_flow_accumulator(KeyCommPathOrLink key){
         if(flw_acc==null)
-            flw_acc = new FlowAccumulator();
+            flw_acc = new FlowAccumulatorState();
         flw_acc.add_key(key);
         return flw_acc;
     }
 
-    public FlowAccumulator request_flow_accumulator(Long comm_id){
+    public FlowAccumulatorState request_flow_accumulator(Long comm_id){
         if(flw_acc==null)
-            flw_acc = new FlowAccumulator();
+            flw_acc = new FlowAccumulatorState();
         for(KeyCommPathOrLink key : states)
             if(key.commodity_id==comm_id)
                 flw_acc.add_key(key);
         return flw_acc;
     }
 
-    public FlowAccumulator request_flow_accumulator(){
+    public FlowAccumulatorState request_flow_accumulator(){
         if(flw_acc==null)
-            flw_acc = new FlowAccumulator();
+            flw_acc = new FlowAccumulatorState();
         for(KeyCommPathOrLink key : states)
             flw_acc.add_key(key);
         return flw_acc;

@@ -1,7 +1,7 @@
 package sensor;
 
+import common.FlowAccumulatorState;
 import models.AbstractLaneGroup;
-import common.FlowAccumulator;
 import common.Link;
 import dispatch.Dispatcher;
 import error.OTMException;
@@ -9,25 +9,23 @@ import jaxb.Sensor;
 import runner.RunParameters;
 import runner.Scenario;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-public class FixedSensor extends AbstractSensor {
+public class CommoditySensor extends AbstractSensor {
 
     private Link link;
     private float position;
     public int start_lane;
     public int end_lane;
     private Map<AbstractLaneGroup,SubSensor> subsensors;  // because a fixed sensor may span several lanegroups
-    private Measurement measurement;
+
+    private Map<Long,Measurement> measurements; // comm_id -> measurement
 
     /////////////////////////////////////////////////////////////////
     // construction
     /////////////////////////////////////////////////////////////////
 
-    public FixedSensor(Scenario scenario, Sensor jaxb_sensor) {
+    public CommoditySensor(Scenario scenario, Sensor jaxb_sensor) {
         super(scenario, jaxb_sensor);
 
         this.link = scenario.network.links.containsKey((jaxb_sensor.getLinkId())) ?
@@ -61,25 +59,19 @@ public class FixedSensor extends AbstractSensor {
             if(subsensors.containsKey(lg)){
                 subsensor = subsensors.get(lg);
             } else {
-                subsensor = new SubSensor();
+                subsensor = new SubSensor(lg);
                 subsensors.put(lg,subsensor);
             }
             subsensor.lanes.add(lane);
-        }
-
-        // register flow accumulators
-        for(Map.Entry<AbstractLaneGroup, SubSensor> e : subsensors.entrySet() ){
-            AbstractLaneGroup lg = e.getKey();
-            SubSensor subsensor = e.getValue();
-            subsensor.flow_accumulator = lg.request_flow_accumulator();
         }
 
     }
 
     @Override
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
-        subsensors.values().forEach(x->x.initialize());
-        measurement = new Measurement();
+        this.measurements = null;
+        measurements = new HashMap<>();
+        scenario.commodities.keySet().forEach(c->measurements.put(c,new Measurement()));
     }
 
     /////////////////////////////////////////////////////////////////
@@ -88,18 +80,24 @@ public class FixedSensor extends AbstractSensor {
 
     @Override
     public void take_measurement(Dispatcher dispatcher, float timestamp) {
-        double total_count = 0d;
-        double total_vehicles = 0d;
-        for(Map.Entry<AbstractLaneGroup, SubSensor> e :  subsensors.entrySet()){
-            AbstractLaneGroup lg = e.getKey();
-            SubSensor subsensor = e.getValue();
-            double sub_count = subsensor.flow_accumulator.get_total_count();
-            total_count += sub_count - subsensor.prev_count;
-            subsensor.prev_count = sub_count;
-            total_vehicles += lg.get_total_vehicles();
+
+        for(Map.Entry<Long,Measurement> e : measurements.entrySet()){
+            Long comm_id = e.getKey();
+            Measurement m = e.getValue();
+
+            double total_count = 0d;
+            double total_vehicles = 0d;
+            for(Map.Entry<AbstractLaneGroup, SubSensor> e2 :  subsensors.entrySet()){
+                AbstractLaneGroup lg = e2.getKey();
+                SubSensor subsensor = e2.getValue();
+                total_count += subsensor.flow_accumulator.get_count_for_commodity(comm_id);
+                total_vehicles += lg.get_total_vehicles();
+            }
+
+            m.flow_vph = (total_count-m.prev_count)*dt_inv;
+            m.prev_count = total_count;
+            m.vehicles = total_vehicles;
         }
-        measurement.flow_vph = total_count*dt_inv;
-        measurement.vehicles = total_vehicles;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -107,11 +105,23 @@ public class FixedSensor extends AbstractSensor {
     /////////////////////////////////////////////////////////////////
 
     public double get_flow_vph(){
-        return measurement.flow_vph;
+        return measurements.values().stream().mapToDouble(m->m.flow_vph).sum();
+    }
+
+    public double get_flow_vph(long comm_id){
+        if(!measurements.containsKey(comm_id))
+            return -1d;
+        return measurements.get(comm_id).flow_vph;
     }
 
     public double get_vehicles(){
-        return measurement.vehicles;
+        return measurements.values().stream().mapToDouble(m->m.vehicles).sum();
+    }
+
+    public double get_vehicles(long comm_id){
+        if(!measurements.containsKey(comm_id))
+            return -1d;
+        return measurements.get(comm_id).vehicles;
     }
 
     public Link get_link(){
@@ -127,16 +137,16 @@ public class FixedSensor extends AbstractSensor {
     /////////////////////////////////////////////////////////////////
 
     public class SubSensor {
-        public Set<Integer> lanes = new HashSet<>();
-        public FlowAccumulator flow_accumulator;
-        public double prev_count;
-        public void initialize(){
-            flow_accumulator.reset();
-            prev_count = 0d;
+        public Set<Integer> lanes;
+        public FlowAccumulatorState flow_accumulator; // commodity->fa
+        public SubSensor(AbstractLaneGroup lg){
+            lanes = new HashSet<>();
+            flow_accumulator = lg.request_flow_accumulator();
         }
     }
 
     public class Measurement {
+        public double prev_count = 0d;
         public double flow_vph = 0d;
         public double vehicles = 0d;
     }

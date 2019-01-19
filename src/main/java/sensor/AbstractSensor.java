@@ -21,6 +21,7 @@ public abstract class AbstractSensor implements InterfacePokable, InterfaceScena
 
     public enum Type {
         fixed,
+        commodity,
         plugin
     }
 

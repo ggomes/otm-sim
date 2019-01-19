@@ -18,8 +18,6 @@ import control.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
-import common.*;
-import jaxb.*;
 import keys.DemandType;
 import keys.KeyCommodityDemandTypeId;
 import keys.KeyCommodityLink;
@@ -27,12 +25,11 @@ import packet.PacketSplitter;
 import plugin.PluginLoader;
 import profiles.*;
 import sensor.AbstractSensor;
+import sensor.CommoditySensor;
 import sensor.FixedSensor;
 import utils.OTMUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -251,6 +248,9 @@ public class ScenarioFactory {
             switch(jaxb_sensor.getType()){
                 case "fixed":
                     sensor = new FixedSensor(scenario,jaxb_sensor);
+                    break;
+                case "commodity":
+                    sensor = new CommoditySensor(scenario,jaxb_sensor);
                     break;
                 default:
                     sensor = null;

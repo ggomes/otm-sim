@@ -2,7 +2,7 @@ package output;
 
 import error.OTMException;
 import runner.Scenario;
-import common.FlowAccumulator;
+import common.FlowAccumulatorState;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LaneGroupFlow extends AbstractOutputTimedLanegroup  {
 
-    public Map<Long,FlowAccumulator> flw_accs;
+    public Map<Long, FlowAccumulatorState> flw_accs;
 
     //////////////////////////////////////////////////////
     // construction

@@ -327,7 +327,7 @@ public class MacroNodeModel {
 //            Long lg_id = ulg.lg.id;
 //
 //            // iterate through the flow accumulators for this lanegroup
-//            for(Map.Entry<Long,FlowAccumulator> e : ulg.lg.commodity_flow_accumulators.entrySet()) {
+//            for(Map.Entry<Long,FlowAccumulatorState> e : ulg.lg.commodity_flow_accumulators.entrySet()) {
 //
 //                // compute flow for this commodity
 //                Long comm_id = e.getKey();
@@ -340,7 +340,7 @@ public class MacroNodeModel {
 //                        : 0d;
 //
 //                // increment the accumulators
-//                FlowAccumulator fac = e.getValue();
+//                FlowAccumulatorState fac = e.getValue();
 //                fac.increment(flow_comm);
 //                if (ulg.lg.global_flow_accumulator != null)
 //                    ulg.lg.global_flow_accumulator.increment(flow_comm);
@@ -352,10 +352,10 @@ public class MacroNodeModel {
 //        for(UpLaneGroup ulg : ulgs){
 //            if(ulg.lg.commodity_flow_accumulators==null)
 //                continue;
-//            for(Map.Entry<Long,FlowAccumulator> e : ulg.lg.commodity_flow_accumulators.entrySet()){
+//            for(Map.Entry<Long,FlowAccumulatorState> e : ulg.lg.commodity_flow_accumulators.entrySet()){
 //                Long comm_id = e.getKey();
 //                double flow = ulg.get_flow_for_commodity(comm_id);
-//                FlowAccumulator fac = e.getValue();
+//                FlowAccumulatorState fac = e.getValue();
 //                fac.increment(flow);
 //                if(ulg.lg.global_flow_accumulator!=null)
 //                    ulg.lg.global_flow_accumulator.increment(flow);
