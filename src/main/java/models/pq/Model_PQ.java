@@ -14,6 +14,7 @@ import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import models.AbstractDiscreteEventModel;
+import models.ctm.OutputCellVehicles;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
@@ -83,8 +84,18 @@ public class Model_PQ extends AbstractDiscreteEventModel {
     }
 
     @Override
-    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or) throws OTMException {
-        return null;
+    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
+        AbstractOutput output = null;
+        switch (jaxb_or.getQuantity()) {
+            case "queues":
+                Long commodity_id = jaxb_or.getCommodity();
+                Float outDt = jaxb_or.getDt();
+                output = new OutputQueues(scenario, this,prefix, output_folder, commodity_id, outDt);
+                break;
+            default:
+                throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
+        }
+        return output;
     }
 
     @Override

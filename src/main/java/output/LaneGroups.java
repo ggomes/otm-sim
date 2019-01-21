@@ -26,7 +26,6 @@ public class LaneGroups extends AbstractOutput {
         return super.get_output_file() + "_lanegroups.txt";
     }
 
-
     @Override
     public void write(float timestamp, Object obj) {
         System.out.println("this should not happen");
