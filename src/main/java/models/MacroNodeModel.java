@@ -89,7 +89,7 @@ public class MacroNodeModel {
         for (common.RoadConnection xrc : node.road_connections) {
 
             // skip road connections starting in discrete event links
-            if( xrc.get_start_link()==null || xrc.get_start_link().model.model_type== AbstractModel.ModelType.discrete_event )
+            if( xrc.get_start_link()==null ) //|| xrc.get_start_link().model.model_type== AbstractModel.ModelType.discrete_event )
                 continue;
 
             // skip if it is disconnected

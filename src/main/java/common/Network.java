@@ -16,6 +16,7 @@ import jaxb.Roadparam;
 import models.AbstractLaneGroup;
 import models.AbstractModel;
 import models.ctm.Model_CTM;
+import models.micro.Model_Micro;
 import models.pq.Model_PQ;
 import runner.RunParameters;
 import runner.Scenario;
@@ -227,9 +228,18 @@ public class Network {
                                         jaxb_model.getModelParams().getSimDt(),
                                         jaxb_model.getModelParams().getMaxCellLength());
                     break;
+
                 case "point_queue":
-                    model = new Model_PQ(jaxb_model.getName(),jaxb_model.isIsDefault());
+                    model = new Model_PQ(jaxb_model.getName(),
+                                        jaxb_model.isIsDefault());
                     break;
+
+                case "micro":
+                    model = new Model_Micro(jaxb_model.getName(),
+                                        jaxb_model.isIsDefault(),
+                                        jaxb_model.getModelParams().getSimDt());
+                    break;
+
                 default:
                     continue;
             }

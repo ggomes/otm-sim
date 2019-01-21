@@ -27,10 +27,10 @@ import java.util.Set;
 
 public abstract class AbstractModel {
 
-    public enum ModelType {discrete_time,discrete_event};
+//    public enum ModelType {discrete_time,discrete_event};
 
     public Class myPacketClass;
-    public ModelType model_type;
+//    public ModelType model_type;
 
     public Set<Link> links;
     public String name;
@@ -41,29 +41,16 @@ public abstract class AbstractModel {
         this.is_default = is_default;
     }
 
-    public void set_links(Set<Link> links){
-        this.links = links;
-    }
-
-    //////////////////////////////////////////////////////////////
-    // inter-link dynamics
-    //////////////////////////////////////////////////////////////
-
-    abstract public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups);
-
     //////////////////////////////////////////////////////////////
     // abstract methods
     //////////////////////////////////////////////////////////////
 
+    abstract public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups);
     abstract public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException;
-
-    //    abstract public float get_ff_travel_time(); // seconds
-//    abstract public float get_capacity_vps();   // vps
     abstract public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time);
 
     // LINK LEVEL INTERFACE
     abstract public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException;
-//    abstract public void set_road_param(Link link, jaxb.Roadparam r);
     abstract public void validate(Link link, OTMErrorLog errorLog);
     abstract public void reset(Link link);
     abstract public void build(Link link);
@@ -74,9 +61,8 @@ public abstract class AbstractModel {
 
     //////////////////////////////////////////////////
 
-    final public void build(){
-        for(Link link : links)
-            build(link);
+    public void set_links(Set<Link> links){
+        this.links = links;
     }
 
     public void initialize(Scenario scenario) throws OTMException {
@@ -85,6 +71,31 @@ public abstract class AbstractModel {
             for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() )
                 lg.allocate_state();
         }
+    }
+
+//    public float get_max_vehicles(Link link){
+//        return (float) link.lanegroups_flwdn.values().stream().map(x->x.max_vehicles).mapToDouble(i->i).sum();
+//    }
+
+    public void set_road_param(Link link, jaxb.Roadparam r){
+        link.road_param = r;
+    }
+
+    //////////////////////////////////////////////////
+    // Final
+    //////////////////////////////////////////////////
+
+    final public void build(){
+        for(Link link : links)
+            build(link);
+    }
+
+    final public void set_road_param(Link link, ActuatorFD.FDCommand fd_comm){
+        jaxb.Roadparam r = new jaxb.Roadparam();
+        r.setJamDensity(fd_comm.jam_density_vpkpl);      //roadparam.jam_density 	... veh/km/lane
+        r.setCapacity(fd_comm.capacity_vphpl);        //roadparam.capacity 		... veh/hr/lane
+        r.setSpeed(fd_comm.max_speed_kph);           //roadparam.speed 		... km/hr
+        set_road_param(link,r);
     }
 
     public void add_vehicle_packet(Link link,float timestamp, PacketLink vp) throws OTMException {
@@ -167,22 +178,4 @@ public abstract class AbstractModel {
         }
 
     }
-
-    public float get_max_vehicles(Link link){
-        return (float) link.lanegroups_flwdn.values().stream().map(x->x.max_vehicles).mapToDouble(i->i).sum();
-    }
-
-    public void set_road_param(Link link, jaxb.Roadparam r){
-        link.road_param = r;
-    }
-
-
-    final public void set_road_param(Link link, ActuatorFD.FDCommand fd_comm){
-        jaxb.Roadparam r = new jaxb.Roadparam();
-        r.setJamDensity(fd_comm.jam_density_vpkpl);      //roadparam.jam_density 	... veh/km/lane
-        r.setCapacity(fd_comm.capacity_vphpl);        //roadparam.capacity 		... veh/hr/lane
-        r.setSpeed(fd_comm.max_speed_kph);           //roadparam.speed 		... km/hr
-        set_road_param(link,r);
-    }
-
 }

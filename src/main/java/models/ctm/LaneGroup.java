@@ -14,7 +14,6 @@ import error.OTMException;
 import geometry.FlowDirection;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import models.AbstractDiscreteTimeModel;
 import models.AbstractLaneGroup;
 import packet.AbstractPacketLaneGroup;
 import runner.RunParameters;
@@ -183,7 +182,7 @@ public class LaneGroup extends AbstractLaneGroup {
     public float get_current_travel_time() {
 
         double travel_time;
-        double sim_dt = ((AbstractDiscreteTimeModel)link.model).dt;
+        double sim_dt = ((models.ctm.Model_CTM)link.model).dt;
         float sum = 0f;
         for(int i=0;i<cells.size();i++){
             Cell cell = cells.get(i);

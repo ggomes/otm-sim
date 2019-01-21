@@ -7,7 +7,6 @@
 package models.ctm;
 
 import keys.KeyCommPathOrLink;
-import models.AbstractDiscreteTimeModel;
 import models.MacroNodeModel;
 
 import java.util.HashMap;
@@ -103,7 +102,7 @@ public class RoadConnection {
         else if(rc.external_max_flow_vps< MacroNodeModel.eps)
             fbar = 0d;
         else {
-            float dt = ((AbstractDiscreteTimeModel)this.rc.get_start_link().model).dt;
+            float dt = ((models.ctm.Model_CTM)this.rc.get_start_link().model).dt;
             fbar = rc.external_max_flow_vps * dt;
         }
     }

@@ -4,7 +4,7 @@
  * This source code is licensed under the standard 3-clause BSD license found
  * in the LICENSE file in the root directory of this source tree.
  */
-package models.pq;
+package models;
 
 import commodity.Commodity;
 import commodity.Path;
@@ -13,17 +13,18 @@ import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import dispatch.EventTransitToWaiting;
 import error.OTMException;
-import models.AbstractLaneGroup;
+import models.pq.LaneGroup;
+import models.pq.Vehicle;
 import profiles.DemandProfile;
 import runner.Scenario;
 
 import java.util.Collection;
 
-public class Source extends common.AbstractSource {
+public class VehicleSource extends common.AbstractSource {
 
     EventCreateVehicle scheduled_vehicle_event;
 
-    public Source(Link link, DemandProfile profile, Commodity commodity, Path path) {
+    public VehicleSource(Link link, DemandProfile profile, Commodity commodity, Path path) {
         super(link,profile,commodity,path);
     }
 

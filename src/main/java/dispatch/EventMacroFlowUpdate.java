@@ -7,8 +7,6 @@
 package dispatch;
 
 import error.OTMException;
-import common.Network;
-import models.AbstractDiscreteTimeModel;
 
 public class EventMacroFlowUpdate extends AbstractEvent {
 
@@ -21,7 +19,7 @@ public class EventMacroFlowUpdate extends AbstractEvent {
 
         super.action(verbose);
 
-        AbstractDiscreteTimeModel model = (AbstractDiscreteTimeModel)recipient;
+        models.ctm.Model_CTM model = (models.ctm.Model_CTM)recipient;
 
         // update the models.ctm state
         model.update_macro_flow(timestamp);

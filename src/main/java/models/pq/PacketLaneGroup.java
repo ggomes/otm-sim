@@ -22,7 +22,6 @@ public class PacketLaneGroup extends AbstractPacketLaneGroup {
     public PartialVehicleMemory pvm = new PartialVehicleMemory();
 
     // TODO: THis should also carry the partial vehicle memory, which should be accounted for in add_vehicles
-    // TODO: The partial vehicle memory should live in the pq LaneGroup
 
     // used by newInstance (dont delete)
     public PacketLaneGroup(){}

@@ -8,7 +8,7 @@ package dispatch;
 
 import common.AbstractSource;
 import error.OTMException;
-import models.pq.Source;
+import models.VehicleSource;
 
 public class EventCreateVehicle extends AbstractEvent {
 
@@ -19,7 +19,7 @@ public class EventCreateVehicle extends AbstractEvent {
     @Override
     public void action(boolean verbose) throws OTMException {
         super.action(verbose);
-        Source source = (Source)recipient;
+        VehicleSource source = (VehicleSource)recipient;
         source.insert_vehicle(timestamp);
         source.schedule_next_vehicle(dispatcher,timestamp);
     }

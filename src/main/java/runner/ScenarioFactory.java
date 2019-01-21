@@ -113,8 +113,8 @@ public class ScenarioFactory {
 //        scenario.network.macro_sources = new HashSet<>();
 //        scenario.network.macro_sources.addAll( scenario.data_demands.values().stream()
 //                .map(d->d.source)
-//                .filter(s->s instanceof models.ctm.Source)
-//                .map (x -> (models.ctm.Source) x)
+//                .filter(s->s instanceof models.ctm.VehicleSource)
+//                .map (x -> (models.ctm.VehicleSource) x)
 //                .collect(Collectors.toSet()) );
 
 //        // register vehicle events requests with commodities

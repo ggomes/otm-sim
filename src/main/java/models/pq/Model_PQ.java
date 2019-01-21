@@ -13,8 +13,8 @@ import common.Link;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import models.AbstractDiscreteEventModel;
-import models.ctm.OutputCellVehicles;
+import models.AbstractModel;
+import models.VehicleSource;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
@@ -22,51 +22,16 @@ import runner.Scenario;
 
 import java.util.*;
 
-public class Model_PQ extends AbstractDiscreteEventModel {
+public class Model_PQ extends AbstractModel {
 
     public Model_PQ(String name,boolean is_default) {
         super(name,is_default);
         myPacketClass = models.pq.PacketLaneGroup.class;
     }
 
-    @Override
-    public void build(Link link) {
-
-    }
-
-    @Override
-    public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
-        return new models.pq.Source(origin,demand_profile,commodity,path);
-    }
-
-    @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        return new models.pq.LaneGroup(link,side,flowdir,length,num_lanes,start_lane,out_rcs);
-    }
-
-    @Override
-    public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time) {
-    }
-
-    @Override
-    public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException {
-    }
-
-    @Override
-    public void set_road_param(Link link, jaxb.Roadparam r) {
-        super.set_road_param(link,r);
-        // send parameters to lane groups
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-            lg.set_road_params(r);
-    }
-
-    @Override
-    public void validate(Link link,OTMErrorLog errorLog) {
-    }
-
-    @Override
-    public void reset(Link link) {
-    }
+    //////////////////////////////////////////////////////////////
+    // AbstractModel -- abstract methods
+    //////////////////////////////////////////////////////////////
 
     @Override
     public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
@@ -99,9 +64,56 @@ public class Model_PQ extends AbstractDiscreteEventModel {
     }
 
     @Override
+    public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time) {
+    }
+
+    @Override
+    public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException {
+    }
+
+    @Override
+    public void validate(Link link,OTMErrorLog errorLog) {
+    }
+
+    @Override
+    public void reset(Link link) {
+    }
+
+    @Override
+    public void build(Link link) {
+
+    }
+
+    @Override
+    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        return new models.pq.LaneGroup(link,side,flowdir,length,num_lanes,start_lane,out_rcs);
+    }
+
+    @Override
     public AbstractLinkInfo get_link_info(Link link) {
         return new output.animation.meso.LinkInfo(link);
     }
+
+    @Override
+    public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
+        return new VehicleSource(origin,demand_profile,commodity,path);
+    }
+
+    //////////////////////////////////////////////////////////////
+    // AbstractModel -- method completion
+    //////////////////////////////////////////////////////////////
+
+    @Override
+    public void set_road_param(Link link, jaxb.Roadparam r) {
+        super.set_road_param(link,r);
+        // send parameters to lane groups
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+            lg.set_road_params(r);
+    }
+
+    //////////////////////////////////////////////////////////////
+    // protected
+    //////////////////////////////////////////////////////////////
 
     protected void process_lane_change_request(Link link,float timestamp,LaneChangeRequest x) throws OTMException {
 
@@ -126,6 +138,5 @@ public class Model_PQ extends AbstractDiscreteEventModel {
         x.requester.waiting_for_lane_change = false;
 
     }
-
 
 }

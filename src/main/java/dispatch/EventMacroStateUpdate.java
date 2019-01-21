@@ -7,7 +7,6 @@
 package dispatch;
 
 import error.OTMException;
-import models.AbstractDiscreteTimeModel;
 
 public class EventMacroStateUpdate extends AbstractEvent  {
 
@@ -20,7 +19,7 @@ public class EventMacroStateUpdate extends AbstractEvent  {
 
         super.action(verbose);
 
-        AbstractDiscreteTimeModel model = (AbstractDiscreteTimeModel)recipient;
+        models.ctm.Model_CTM model = (models.ctm.Model_CTM)recipient;
 
         // update the models.ctm state
         model.update_macro_state(timestamp);
