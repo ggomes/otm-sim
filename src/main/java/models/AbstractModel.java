@@ -27,10 +27,7 @@ import java.util.Set;
 
 public abstract class AbstractModel {
 
-//    public enum ModelType {discrete_time,discrete_event};
-
     public Class myPacketClass;
-//    public ModelType model_type;
 
     public Set<Link> links;
     public String name;
@@ -41,24 +38,30 @@ public abstract class AbstractModel {
         this.is_default = is_default;
     }
 
-    //////////////////////////////////////////////////////////////
-    // abstract methods
-    //////////////////////////////////////////////////////////////
-
-    abstract public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups);
-    abstract public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException;
-    abstract public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time);
-
-    // LINK LEVEL INTERFACE
+    //////////////////////////////////////////////////
+    // load
+    //////////////////////////////////////////////////
     abstract public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException;
     abstract public void validate(Link link, OTMErrorLog errorLog);
     abstract public void reset(Link link);
     abstract public void build(Link link);
 
+    //////////////////////////////////////////////////
+    // factory
+    //////////////////////////////////////////////////
+    abstract public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException;
     abstract public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes,int start_lane,Set<RoadConnection> out_rcs);
-    abstract public AbstractLinkInfo get_link_info(Link link);
     abstract public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path);
+    abstract public AbstractLinkInfo get_link_info(Link link);
 
+    //////////////////////////////////////////////////
+    // run
+    //////////////////////////////////////////////////
+    abstract public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time);
+    abstract public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups);
+
+    //////////////////////////////////////////////////
+    // partial implementation
     //////////////////////////////////////////////////
 
     public void set_links(Set<Link> links){
@@ -82,7 +85,7 @@ public abstract class AbstractModel {
     }
 
     //////////////////////////////////////////////////
-    // Final
+    // final
     //////////////////////////////////////////////////
 
     final public void build(){
@@ -98,7 +101,7 @@ public abstract class AbstractModel {
         set_road_param(link,r);
     }
 
-    public void add_vehicle_packet(Link link,float timestamp, PacketLink vp) throws OTMException {
+    final public void add_vehicle_packet(Link link,float timestamp, PacketLink vp) throws OTMException {
 
         if(vp.isEmpty())
             return;
@@ -178,4 +181,5 @@ public abstract class AbstractModel {
         }
 
     }
+
 }

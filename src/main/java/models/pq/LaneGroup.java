@@ -18,6 +18,7 @@ import geometry.FlowDirection;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
+import models.VehiclePacket;
 import output.InterfaceVehicleListener;
 import packet.AbstractPacketLaneGroup;
 import packet.PacketLink;
@@ -117,7 +118,7 @@ public class LaneGroup extends AbstractLaneGroup {
     @Override
     public void add_native_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp) throws OTMException {
 
-        models.pq.PacketLaneGroup vp = (models.pq.PacketLaneGroup) avp;
+        VehiclePacket vp = (VehiclePacket) avp;
 
         // add to what is in the pvm
         vp.vehicles.addAll( pvm.process_packet(vp.pvm) );

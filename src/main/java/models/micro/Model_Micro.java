@@ -4,6 +4,7 @@ import commodity.Commodity;
 import commodity.Path;
 import commodity.Subnetwork;
 import common.AbstractSource;
+import common.AbstractVehicle;
 import common.Link;
 import common.RoadConnection;
 import dispatch.Dispatcher;
@@ -12,18 +13,19 @@ import error.OTMException;
 import geometry.FlowDirection;
 import geometry.Side;
 import jaxb.OutputRequest;
+import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
-import models.AbstractModel;
+import models.AbstractVehicleModel;
+import models.VehicleSource;
 import output.AbstractOutput;
+import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
 import runner.Scenario;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-public class Model_Micro extends AbstractModel {
+public class Model_Micro extends AbstractVehicleModel {
 
     public float dt;
 
@@ -31,17 +33,39 @@ public class Model_Micro extends AbstractModel {
         super(name, is_default);
         this.dt = dt==null ? -1 : dt;
         myPacketClass = models.micro.PacketLaneGroup.class;
-        System.out.println("MICRO constructor");
     }
 
-    //////////////////////////
-    // keep
-    //////////////////////////
+    //////////////////////////////////////////////////
+    // load
+    //////////////////////////////////////////////////
 
     @Override
-    public Map<AbstractLaneGroup, Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
-        System.out.println("MICRO lanegroup_proportions");
-        return null;
+    public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException {
+        System.out.println("MICRO register_commodity");
+    }
+
+    @Override
+    public void validate(Link link, OTMErrorLog errorLog) {
+        System.out.println("MICRO validate");
+    }
+
+    @Override
+    public void reset(Link link) {
+        System.out.println("MICRO reset");
+    }
+
+    @Override
+    public void build(Link link) {
+        System.out.println("MICRO build");
+    }
+
+    //////////////////////////////////////////////////
+    // factory
+    //////////////////////////////////////////////////
+
+    @Override
+    public AbstractVehicle create_vehicle(KeyCommPathOrLink key, Set<InterfaceVehicleListener> vehicle_event_listeners) {
+        return new models.micro.Vehicle(key,vehicle_event_listeners);
     }
 
     @Override
@@ -50,40 +74,10 @@ public class Model_Micro extends AbstractModel {
         return null;
     }
 
-    @Override
-    public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time) {
-        System.out.println("MICRO register_first_events");
-
-    }
-
-    @Override
-    public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException {
-        System.out.println("MICRO register_commodity");
-
-    }
-
-    @Override
-    public void validate(Link link, OTMErrorLog errorLog) {
-        System.out.println("MICRO validate");
-
-    }
-
-    @Override
-    public void reset(Link link) {
-        System.out.println("MICRO reset");
-
-    }
-
-    @Override
-    public void build(Link link) {
-        System.out.println("MICRO build");
-
-    }
-
+    // SIMILAR AS PQ
     @Override
     public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        System.out.println("MICRO create_lane_group");
-        return null;
+        return new models.micro.LaneGroup(link,side,flowdir,length,num_lanes,start_lane,out_rcs);
     }
 
     @Override
@@ -92,10 +86,29 @@ public class Model_Micro extends AbstractModel {
         return null;
     }
 
-    @Override
-    public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
+    //////////////////////////////////////////////////
+    // run
+    //////////////////////////////////////////////////
 
-        System.out.println("MICRO create_source");
-        return null;
+    // SAME AS PQ
+    @Override
+    public Map<AbstractLaneGroup, Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
+        // put the whole packet i the lanegroup with the most space.
+        Optional<? extends AbstractLaneGroup> best_lanegroup = candidate_lanegroups.stream()
+                .max(Comparator.comparing(AbstractLaneGroup::get_space_per_lane));
+
+        if(best_lanegroup.isPresent()) {
+            Map<AbstractLaneGroup,Double> A = new HashMap<>();
+            A.put(best_lanegroup.get(),1d);
+            return A;
+        } else
+            return null;
     }
+
+    @Override
+    public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time) {
+        System.out.println("MICRO register_first_events");
+
+    }
+
 }

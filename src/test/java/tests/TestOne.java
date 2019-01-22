@@ -233,6 +233,15 @@ public class TestOne extends AbstractTest {
 //        args[5] = "0";
 //        args[6] = "100";
 
+//        String [] args = new String[7];
+//        args[0] = "-run";
+//        args[1] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\exp_pq.xml";
+//        args[2] = "pq";
+//        args[3] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output_pq.xml";
+//        args[4] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output";
+//        args[5] = "0";
+//        args[6] = "100";
+
         OTM.main(args);
 
     }

@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class Vehicle extends AbstractVehicle {
 
-    public AbstractLaneGroup lg;
+//    public AbstractLaneGroup lg;
     public double position;
 
     ///////////////////////////////////////////////////
@@ -18,9 +18,9 @@ public class Vehicle extends AbstractVehicle {
 
     public Vehicle(){}
 
-    public Vehicle(KeyCommPathOrLink key, Set<InterfaceVehicleListener> vehicle_event_listeners,AbstractLaneGroup lg) {
+    public Vehicle(KeyCommPathOrLink key, Set<InterfaceVehicleListener> vehicle_event_listeners) {
         super(key,vehicle_event_listeners);
-        this.lg = lg;
+//        this.lg = lg;
         this.position = 0d;
     }
 

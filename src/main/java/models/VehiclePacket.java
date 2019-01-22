@@ -4,19 +4,19 @@
  * This source code is licensed under the standard 3-clause BSD license found
  * in the LICENSE file in the root directory of this source tree.
  */
-package models.pq;
+package models;
 
-import models.AbstractLaneGroup;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
 import packet.AbstractPacketLaneGroup;
 import packet.PacketLink;
 import packet.PartialVehicleMemory;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PacketLaneGroup extends AbstractPacketLaneGroup {
+public class VehiclePacket extends AbstractPacketLaneGroup {
 
     public Set<AbstractVehicle> vehicles=new HashSet<>();
     public PartialVehicleMemory pvm = new PartialVehicleMemory();
@@ -24,10 +24,16 @@ public class PacketLaneGroup extends AbstractPacketLaneGroup {
     // TODO: THis should also carry the partial vehicle memory, which should be accounted for in add_vehicles
 
     // used by newInstance (dont delete)
-    public PacketLaneGroup(){}
+    public VehiclePacket(){}
 
-    public PacketLaneGroup(Set<AbstractLaneGroup> target_lanegroups){
+    public VehiclePacket(Set<AbstractVehicle> vehicles,Set<AbstractLaneGroup> target_lanegroups){
         super(target_lanegroups);
+        this.vehicles = vehicles;
+    }
+
+    public VehiclePacket(AbstractVehicle vehicle, Set<AbstractLaneGroup> target_lanegroups){
+        super(target_lanegroups);
+        this.vehicles.add(vehicle);
     }
 
     @Override
@@ -46,15 +52,19 @@ public class PacketLaneGroup extends AbstractPacketLaneGroup {
     @Override
     public void add_macro(KeyCommPathOrLink key, Double value) {
 
-        double add_value = pvm.get_value(key) + value;
-        int veh = (int) add_value;
 
-        // create vehicles
-        for(int i=0;i<veh;i++)
-            vehicles.add(new Vehicle(key,null));
 
-        // update pvm
-        pvm.set_value(key,add_value - veh);
+        // TODO UNCOMMOENT THIS
+
+//        double add_value = pvm.get_value(key) + value;
+//        int veh = (int) add_value;
+//
+//        // create vehicles
+//        for(int i=0;i<veh;i++)
+//            vehicles.add(new Vehicle(key,null));
+//
+//        // update pvm
+//        pvm.set_value(key,add_value - veh);
     }
 
     @Override

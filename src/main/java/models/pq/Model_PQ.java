@@ -4,49 +4,55 @@ import commodity.Commodity;
 import commodity.Path;
 import commodity.Subnetwork;
 import common.AbstractSource;
+import common.AbstractVehicle;
 import common.RoadConnection;
+import dispatch.Dispatcher;
+import error.OTMErrorLog;
 import geometry.FlowDirection;
 import geometry.Side;
 import jaxb.OutputRequest;
-import models.AbstractLaneGroup;
+import keys.KeyCommPathOrLink;
+import models.*;
 import common.Link;
-import dispatch.Dispatcher;
-import error.OTMErrorLog;
 import error.OTMException;
-import models.AbstractModel;
-import models.VehicleSource;
 import output.AbstractOutput;
+import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
 import runner.Scenario;
 
 import java.util.*;
 
-public class Model_PQ extends AbstractModel {
+public class Model_PQ extends AbstractVehicleModel {
 
     public Model_PQ(String name,boolean is_default) {
         super(name,is_default);
-        myPacketClass = models.pq.PacketLaneGroup.class;
+        myPacketClass = VehiclePacket.class;
     }
 
-    //////////////////////////////////////////////////////////////
-    // AbstractModel -- abstract methods
-    //////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////
+    // load
+    //////////////////////////////////////////////////
 
     @Override
-    public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
-
-        // put the whole packet i the lanegroup with the most space.
-        Optional<? extends AbstractLaneGroup> best_lanegroup = candidate_lanegroups.stream()
-                .max(Comparator.comparing(AbstractLaneGroup::get_space_per_lane));
-
-        if(best_lanegroup.isPresent()) {
-            Map<AbstractLaneGroup,Double> A = new HashMap<>();
-            A.put(best_lanegroup.get(),1d);
-            return A;
-        } else
-            return null;
+    public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException {
     }
+
+    @Override
+    public void validate(Link link, OTMErrorLog errorLog) {
+    }
+
+    @Override
+    public void reset(Link link) {
+    }
+
+    @Override
+    public void build(Link link) {
+    }
+
+    //////////////////////////////////////////////////
+    // factory
+    //////////////////////////////////////////////////
 
     @Override
     public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
@@ -64,29 +70,22 @@ public class Model_PQ extends AbstractModel {
     }
 
     @Override
-    public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time) {
-    }
-
-    @Override
-    public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException {
-    }
-
-    @Override
-    public void validate(Link link,OTMErrorLog errorLog) {
-    }
-
-    @Override
-    public void reset(Link link) {
-    }
-
-    @Override
-    public void build(Link link) {
-
-    }
-
-    @Override
     public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         return new models.pq.LaneGroup(link,side,flowdir,length,num_lanes,start_lane,out_rcs);
+    }
+
+
+    @Override
+    public AbstractVehicle create_vehicle(KeyCommPathOrLink key, Set<InterfaceVehicleListener> vehicle_event_listeners) {
+        return new models.pq.Vehicle(key,vehicle_event_listeners);
+    }
+
+    //////////////////////////////////////////////////
+    // run
+    //////////////////////////////////////////////////
+
+    @Override
+    public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time) {
     }
 
     @Override
@@ -94,22 +93,6 @@ public class Model_PQ extends AbstractModel {
         return new output.animation.meso.LinkInfo(link);
     }
 
-    @Override
-    public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
-        return new VehicleSource(origin,demand_profile,commodity,path);
-    }
-
-    //////////////////////////////////////////////////////////////
-    // AbstractModel -- method completion
-    //////////////////////////////////////////////////////////////
-
-    @Override
-    public void set_road_param(Link link, jaxb.Roadparam r) {
-        super.set_road_param(link,r);
-        // send parameters to lane groups
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-            lg.set_road_params(r);
-    }
 
     //////////////////////////////////////////////////////////////
     // protected

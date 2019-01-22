@@ -12,12 +12,12 @@ import dispatch.EventMacroStateUpdate;
 import error.OTMException;
 import geometry.FlowDirection;
 import jaxb.OutputRequest;
+import models.AbstractFluidModel;
 import models.AbstractLaneGroup;
 import common.Link;
 import error.OTMErrorLog;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import models.AbstractModel;
 import models.MacroNodeModel;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
@@ -30,7 +30,7 @@ import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 
-public class Model_CTM extends AbstractModel {
+public class Model_CTM extends AbstractFluidModel {
 
     public float dt;
     public float max_cell_length;

@@ -8,21 +8,20 @@ package models;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.*;
+import common.AbstractVehicle;
+import common.Link;
 import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
-import dispatch.EventTransitToWaiting;
 import error.OTMException;
-import models.pq.LaneGroup;
-import models.pq.Vehicle;
 import profiles.DemandProfile;
 import runner.Scenario;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 public class VehicleSource extends common.AbstractSource {
 
-    EventCreateVehicle scheduled_vehicle_event;
+    private EventCreateVehicle scheduled_vehicle_event;
 
     public VehicleSource(Link link, DemandProfile profile, Commodity commodity, Path path) {
         super(link,profile,commodity,path);
@@ -49,11 +48,13 @@ public class VehicleSource extends common.AbstractSource {
 
     public void insert_vehicle(float timestamp) throws OTMException {
 
+        AbstractVehicleModel model = (AbstractVehicleModel) link.model;
+
         // this scheduled vehicle has been created
         scheduled_vehicle_event = null;
 
         // create a vehicle
-        Vehicle vehicle= new Vehicle(key,commodity.vehicle_event_listeners);
+        AbstractVehicle vehicle = model.create_vehicle(key,commodity.vehicle_event_listeners);
 
         // sample its next link according to commodity
         Collection<AbstractLaneGroup> target_lanegroups;
@@ -75,17 +76,20 @@ public class VehicleSource extends common.AbstractSource {
             return;
 
         // this map will have a single entry
-        LaneGroup joinlanegroup = (LaneGroup) link.model.lanegroup_proportions(target_lanegroups).keySet().iterator().next();
+        AbstractLaneGroup joinlanegroup = link.model.lanegroup_proportions(target_lanegroups).keySet().iterator().next();
 
-        // move the vehicle
-        vehicle.move_to_queue(timestamp,joinlanegroup.transit_queue);
+        VehiclePacket vp = new VehiclePacket(vehicle,new HashSet(target_lanegroups));
+        joinlanegroup.add_native_vehicle_packet(timestamp,vp);
 
-        // register_initial_events dispatch to go to waiting queue
-        Dispatcher dispatcher = link.network.scenario.dispatcher;
-        dispatcher.register_event(new EventTransitToWaiting(dispatcher,timestamp + joinlanegroup.transit_time_sec,vehicle));
-
-        // inform the travel timers
-        link.travel_timers.forEach(z->z.vehicle_enter(timestamp,vehicle));
+//        // move the vehicle
+//        vehicle.move_to_queue(timestamp,joinlanegroup.transit_queue);
+//
+//        // register_initial_events dispatch to go to waiting queue
+//        Dispatcher dispatcher = link.network.scenario.dispatcher;
+//        dispatcher.register_event(new EventTransitToWaiting(dispatcher,timestamp + joinlanegroup.transit_time_sec,vehicle));
+//
+//        // inform the travel timers
+//        link.travel_timers.forEach(z->z.vehicle_enter(timestamp,vehicle));
 
     }
 
