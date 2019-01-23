@@ -2,7 +2,6 @@ package models.ctm;
 
 import commodity.Commodity;
 import commodity.Path;
-import commodity.Subnetwork;
 import common.AbstractSource;
 import common.Node;
 import common.RoadConnection;
@@ -112,7 +111,7 @@ public class Model_CTM extends AbstractFluidModel {
 
     @Override
     public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
-        return new models.ctm.Source(origin,demand_profile,commodity,path);
+        return new SourceFluid(origin,demand_profile,commodity,path);
     }
 
     //////////////////////////////////////////////////////////////

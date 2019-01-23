@@ -5,7 +5,6 @@ import commodity.Path;
 import common.AbstractSource;
 import common.AbstractVehicle;
 import common.Link;
-import keys.KeyCommPathOrLink;
 import profiles.DemandProfile;
 
 import java.util.*;
@@ -23,7 +22,7 @@ public abstract class AbstractVehicleModel extends AbstractModel {
 
     @Override
     public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
-        return new VehicleSource(origin,demand_profile,commodity,path);
+        return new SourceVehicle(origin,demand_profile,commodity,path);
     }
 
     //////////////////////////////////////////////////

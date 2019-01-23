@@ -20,12 +20,13 @@ import runner.Scenario;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class VehicleSource extends common.AbstractSource {
+public class SourceVehicle extends common.AbstractSource {
 
-    private EventCreateVehicle scheduled_vehicle_event;
+    private boolean vehicle_scheduled;
 
-    public VehicleSource(Link link, DemandProfile profile, Commodity commodity, Path path) {
+    public SourceVehicle(Link link, DemandProfile profile, Commodity commodity, Path path) {
         super(link,profile,commodity,path);
+        vehicle_scheduled = false;
     }
 
     @Override
@@ -36,14 +37,14 @@ public class VehicleSource extends common.AbstractSource {
     }
 
     public void schedule_next_vehicle(Dispatcher dispatcher, float timestamp){
-        if(!link.is_source)
+        if(vehicle_scheduled)
             return;
         Scenario scenario = link.network.scenario;
         Float wait_time = scenario.get_waiting_time_sec(source_demand_vps);
-        if(wait_time!=null && scheduled_vehicle_event ==null) {
+        if(wait_time!=null) {
             EventCreateVehicle new_event = new EventCreateVehicle(dispatcher, timestamp + wait_time, this);
             dispatcher.register_event(new_event);
-            scheduled_vehicle_event = new_event;
+            vehicle_scheduled = true;
         }
     }
 
@@ -51,13 +52,10 @@ public class VehicleSource extends common.AbstractSource {
 
         AbstractVehicleModel model = (AbstractVehicleModel) link.model;
 
-        // this scheduled vehicle has been created
-        scheduled_vehicle_event = null;
-
         // create a vehicle
         AbstractVehicle vehicle = model.create_vehicle(commodity);
 
-        // sample a key
+        // sample next link and key
         Long outlink_id;
         KeyCommPathOrLink key;
         if(commodity.pathfull){
@@ -83,6 +81,8 @@ public class VehicleSource extends common.AbstractSource {
         // package and add to joinlanegroup
         joinlanegroup.add_native_vehicle_packet(timestamp,new VehiclePacket(vehicle,new HashSet(target_lanegroups)));
 
+        // this scheduled vehicle has been created
+        vehicle_scheduled = false;
     }
 
 }

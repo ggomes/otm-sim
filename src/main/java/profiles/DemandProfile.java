@@ -17,7 +17,7 @@ import dispatch.EventDemandChange;
 import common.Link;
 import keys.DemandType;
 import keys.KeyCommodityDemandTypeId;
-import models.VehicleSource;
+import models.SourceVehicle;
 import runner.Scenario;
 import utils.OTMUtils;
 
@@ -160,8 +160,8 @@ public class DemandProfile extends AbstractDemandProfile {
             dispatcher.register_event(new EventDemandChange(dispatcher, time_value.time, this, time_value.value));
 
             // schedule next vehicle
-            if(source instanceof VehicleSource)
-                ((VehicleSource)source).schedule_next_vehicle(dispatcher,timestamp);
+            if(source instanceof SourceVehicle)
+                ((SourceVehicle)source).schedule_next_vehicle(dispatcher,timestamp);
         }
     }
 

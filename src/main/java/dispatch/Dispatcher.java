@@ -27,7 +27,7 @@ public  class Dispatcher {
     // used by disable_future_vehicle_release_events
 //    public Map<Long,Set<EventReleaseVehicleFromLaneGroup>> vehicle_release_events;
 
-    public boolean verbose = false;
+    public boolean verbose = true;
 
     ///////////////////////////////////////////////////
     // construction

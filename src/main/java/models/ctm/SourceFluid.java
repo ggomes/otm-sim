@@ -21,14 +21,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class Source extends common.AbstractSource {
+public class SourceFluid extends common.AbstractSource {
 
     public Map<Long,Map<KeyCommPathOrLink,Double>> source_flows;   // lgid->(commid,path|link-->value)
 
     // for pathfull
     Set<AbstractLaneGroup> candidate_lanegroups;
 
-    public Source(Link link, DemandProfile profile, Commodity commodity, Path path) {
+    public SourceFluid(Link link, DemandProfile profile, Commodity commodity, Path path) {
         super(link, profile, commodity, path);
 
         if(commodity.pathfull) {
