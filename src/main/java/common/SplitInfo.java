@@ -11,12 +11,12 @@ import utils.OTMUtils;
 import java.util.*;
 
 /**
- * Each link model holds a map from each commodity (that uses the link)
+ * Each link holds a map from each commodity (that uses the link)
  * to one of these. When the commodity enters the link it uses this object
  * to split itself by next link (according to the split ratio). The next link
  * determines a set of "target lanegroups". The (now subdivided) commodity
  * navigates the link to its target lanegroups. How it does this depends on whether
- * it is a models.ctm.pq or models.ctm model. When it reaches the end of the link, it proceeds
+ * its model. When it reaches the end of the link, it proceeds
  * to the next link according to its next link tag.
  */
 public class SplitInfo {

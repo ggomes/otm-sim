@@ -6,7 +6,6 @@ import common.AbstractSource;
 import common.AbstractVehicle;
 import common.Link;
 import keys.KeyCommPathOrLink;
-import output.InterfaceVehicleListener;
 import profiles.DemandProfile;
 
 import java.util.*;
@@ -20,7 +19,7 @@ public abstract class AbstractVehicleModel extends AbstractModel {
     //////////////////////////////////////////////////
     // factory
     //////////////////////////////////////////////////
-    abstract public AbstractVehicle create_vehicle(KeyCommPathOrLink key, Set<InterfaceVehicleListener> vehicle_event_listeners);
+    abstract public AbstractVehicle create_vehicle(Commodity comm);
 
     @Override
     public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {

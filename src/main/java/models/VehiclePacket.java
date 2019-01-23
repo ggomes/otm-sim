@@ -19,7 +19,7 @@ import java.util.Set;
 public class VehiclePacket extends AbstractPacketLaneGroup {
 
     public Set<AbstractVehicle> vehicles=new HashSet<>();
-    public PartialVehicleMemory pvm = new PartialVehicleMemory();
+//    public PartialVehicleMemory pvm = new PartialVehicleMemory();
 
     // TODO: THis should also carry the partial vehicle memory, which should be accounted for in add_vehicles
 
@@ -54,8 +54,8 @@ public class VehiclePacket extends AbstractPacketLaneGroup {
 
 
 
-        // TODO UNCOMMOENT THIS
-
+//        // TODO UNCOMMOENT THIS
+//
 //        double add_value = pvm.get_value(key) + value;
 //        int veh = (int) add_value;
 //

@@ -6,7 +6,6 @@
  */
 package models.pq;
 
-import commodity.Commodity;
 import commodity.Path;
 import common.*;
 import dispatch.EventTransitToWaiting;
@@ -68,8 +67,8 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     // construct downstream_candidate_lanegroups
-    @Override
-    public void add_commodity(Commodity commodity) {
+//    @Override
+//    public void add_commodity(Commodity commodity) {
 
 //        if(link.end_node.is_many2one){
 //            Link outlink = link.end_node.out_links.values().iterator().next();
@@ -87,7 +86,7 @@ public class LaneGroup extends AbstractLaneGroup {
 //                    downstream_candidate_lanegroups.put(new KeyCommodityLink(commodity.getId(),outlink_id),out_lanegroups);
 //            }
 //        }
-    }
+//    }
 
     @Override
     public void validate(OTMErrorLog errorLog) {
@@ -99,7 +98,7 @@ public class LaneGroup extends AbstractLaneGroup {
     @Override
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
         super.initialize(scenario,runParams);
-        this.pvm = new PartialVehicleMemory();
+        this.pvm = new PartialVehicleMemory(scenario.commodities);
         transit_queue.initialize();
         waiting_queue.initialize();
         current_max_flow_rate_vps = saturation_flow_rate_vps;
@@ -120,8 +119,9 @@ public class LaneGroup extends AbstractLaneGroup {
 
         VehiclePacket vp = (VehiclePacket) avp;
 
-        // add to what is in the pvm
-        vp.vehicles.addAll( pvm.process_packet(vp.pvm) );
+        // TODO UNCOMMENT THIS
+//        // add to what is in the pvm
+//        vp.vehicles.addAll( pvm.process_packet(vp.pvm) );
 
         // for each vehicle
         Dispatcher dispatcher = link.network.scenario.dispatcher;

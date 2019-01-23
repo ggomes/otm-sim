@@ -18,8 +18,8 @@ public abstract class AbstractSource {
 
     public Link link;
     public DemandProfile profile;   // profile that created this source
-    public KeyCommPathOrLink key;
-    protected Commodity commodity;
+    public Path path;
+    public Commodity commodity;
 
     // demand value
     protected double source_demand_vps;    // vps
@@ -28,7 +28,7 @@ public abstract class AbstractSource {
         this.link = link;
         this.profile = profile;
         this.commodity = commodity;
-        this.key = new KeyCommPathOrLink(commodity,path,link);
+        this.path = path;
         this.source_demand_vps = 0f;
     }
 
@@ -36,7 +36,7 @@ public abstract class AbstractSource {
         link = null;
         profile = null;
         profile = null;
-        key = null;
+//        key = null;
     }
 
     public void validate(OTMErrorLog errorLog) {

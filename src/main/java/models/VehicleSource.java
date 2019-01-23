@@ -13,6 +13,7 @@ import common.Link;
 import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import error.OTMException;
+import keys.KeyCommPathOrLink;
 import profiles.DemandProfile;
 import runner.Scenario;
 
@@ -54,22 +55,23 @@ public class VehicleSource extends common.AbstractSource {
         scheduled_vehicle_event = null;
 
         // create a vehicle
-        AbstractVehicle vehicle = model.create_vehicle(key,commodity.vehicle_event_listeners);
+        AbstractVehicle vehicle = model.create_vehicle(commodity);
 
-        // sample its next link according to commodity
-        Collection<AbstractLaneGroup> target_lanegroups;
-        Long next_link_id;
-        if(link.packet_splitter==null){
-            next_link_id = link.end_node.out_links.values().iterator().next().getId();
-            target_lanegroups = link.lanegroups_flwdn.values();
+        // sample a key
+        Long outlink_id;
+        KeyCommPathOrLink key;
+        if(commodity.pathfull){
+            outlink_id = link.path2outlink.get(path.getId());
+            key = new KeyCommPathOrLink(commodity.getId(),path.getId(),true);
         } else {
-            next_link_id = link.packet_splitter.get_nextlink_for_key(vehicle.get_key());
-            target_lanegroups = next_link_id==null ? link.lanegroups_flwdn.values() :
-                    link.packet_splitter.outputlink_targetlanegroups.get(next_link_id);
+            outlink_id = link.sample_nextlink_for_commodity(commodity);
+            key = new KeyCommPathOrLink(commodity.getId(),outlink_id,false);
         }
+        vehicle.set_key(key);
 
-        // change the state of a pathless vehicle
-        vehicle.set_next_link_id(next_link_id);
+        // target lane groups
+        assert(link.outlink2lanegroups.containsKey(outlink_id));
+        Collection<AbstractLaneGroup> target_lanegroups = link.outlink2lanegroups.get(outlink_id);
 
         // choose best one from target lanegroups
         if(target_lanegroups.isEmpty())
@@ -78,18 +80,8 @@ public class VehicleSource extends common.AbstractSource {
         // this map will have a single entry
         AbstractLaneGroup joinlanegroup = link.model.lanegroup_proportions(target_lanegroups).keySet().iterator().next();
 
-        VehiclePacket vp = new VehiclePacket(vehicle,new HashSet(target_lanegroups));
-        joinlanegroup.add_native_vehicle_packet(timestamp,vp);
-
-//        // move the vehicle
-//        vehicle.move_to_queue(timestamp,joinlanegroup.transit_queue);
-//
-//        // register_initial_events dispatch to go to waiting queue
-//        Dispatcher dispatcher = link.network.scenario.dispatcher;
-//        dispatcher.register_event(new EventTransitToWaiting(dispatcher,timestamp + joinlanegroup.transit_time_sec,vehicle));
-//
-//        // inform the travel timers
-//        link.travel_timers.forEach(z->z.vehicle_enter(timestamp,vehicle));
+        // package and add to joinlanegroup
+        joinlanegroup.add_native_vehicle_packet(timestamp,new VehiclePacket(vehicle,new HashSet(target_lanegroups)));
 
     }
 

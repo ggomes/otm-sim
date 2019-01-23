@@ -3,7 +3,6 @@ package models;
 import actuator.ActuatorFD;
 import commodity.Commodity;
 import commodity.Path;
-import commodity.Subnetwork;
 import common.AbstractSource;
 import common.Link;
 import common.RoadConnection;
@@ -17,7 +16,6 @@ import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import packet.AbstractPacketLaneGroup;
 import packet.PacketLink;
-import packet.PacketSplitter;
 import profiles.DemandProfile;
 import runner.Scenario;
 
@@ -41,10 +39,14 @@ public abstract class AbstractModel {
     //////////////////////////////////////////////////
     // load
     //////////////////////////////////////////////////
-    abstract public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException;
-    abstract public void validate(Link link, OTMErrorLog errorLog);
+
+    // called Link.validate
+    abstract public void validate(OTMErrorLog errorLog);
+
+    // NOT USED
     abstract public void reset(Link link);
-    abstract public void build(Link link);
+
+    abstract public void build();
 
     //////////////////////////////////////////////////
     // factory
@@ -57,7 +59,11 @@ public abstract class AbstractModel {
     //////////////////////////////////////////////////
     // run
     //////////////////////////////////////////////////
+
+    // called by OTM.advance
     abstract public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time);
+
+    // called by AbstractModel.add_vehicle_packet
     abstract public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups);
 
     //////////////////////////////////////////////////
@@ -80,6 +86,7 @@ public abstract class AbstractModel {
 //        return (float) link.lanegroups_flwdn.values().stream().map(x->x.max_vehicles).mapToDouble(i->i).sum();
 //    }
 
+    // called by Network constructor
     public void set_road_param(Link link, jaxb.Roadparam r){
         link.road_param = r;
     }
@@ -88,11 +95,7 @@ public abstract class AbstractModel {
     // final
     //////////////////////////////////////////////////
 
-    final public void build(){
-        for(Link link : links)
-            build(link);
-    }
-
+    // called by ActuatorFD
     final public void set_road_param(Link link, ActuatorFD.FDCommand fd_comm){
         jaxb.Roadparam r = new jaxb.Roadparam();
         r.setJamDensity(fd_comm.jam_density_vpkpl);      //roadparam.jam_density 	... veh/km/lane
@@ -109,17 +112,17 @@ public abstract class AbstractModel {
         // sink or many-to-one
         // this implies that next-link is trivial
         // and (for now) target_lanegroup is trivial
-        if(link.packet_splitter==null){
+        if(link.outlink2lanegroups.size()<2){
             // if sink, encode by using current link id as nextlink.
             Long outlink_id = link.is_sink ? link.getId() : link.end_node.out_links.values().iterator().next().getId();
-            AbstractPacketLaneGroup packet = PacketSplitter.cast_packet_null_splitter(myPacketClass,vp,outlink_id);
+            AbstractPacketLaneGroup packet = Link.cast_packet_null_splitter(myPacketClass,vp,outlink_id);
             AbstractLaneGroup join_lanegroup = vp.arrive_to_lanegroups.iterator().next();
             join_lanegroup.add_native_vehicle_packet(timestamp,packet);
             return;
         }
 
         // tag the packet with next_link and target_lanegroups
-        Map<Long, AbstractPacketLaneGroup> split_packets = link.packet_splitter.split_packet(myPacketClass,vp);
+        Map<Long, AbstractPacketLaneGroup> split_packets = link.split_packet(myPacketClass,vp);
 
         // process each split packet
         for(Map.Entry<Long, AbstractPacketLaneGroup> e : split_packets.entrySet()){

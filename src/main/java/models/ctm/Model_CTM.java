@@ -79,38 +79,7 @@ public class Model_CTM extends AbstractFluidModel {
     }
 
     @Override
-    public void register_commodity(Link link,Commodity comm, Subnetwork subnet) throws OTMException {
-
-        if(comm.pathfull) {
-            Link next_link = ((Path) subnet).get_link_following(link);
-            Long next_link_id = next_link==null ? null : next_link.getId();
-            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                lg.add_state(comm.getId(), subnet.getId(),next_link_id, true);
-        }
-
-        else {
-
-            // for pathless/sink, next link id is same as this id
-            if (link.is_sink) {
-                for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                    lg.add_state(comm.getId(), null,link.getId(), false);
-
-            } else {
-
-                // for pathless non-sink, add a state for each next link in the subnetwork
-                for( Long next_link_id : link.outlink2lanegroups.keySet()  ){
-                    if (!subnet.has_link_id(next_link_id))
-                        continue;
-                    for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                        lg.add_state(comm.getId(), null,next_link_id, false);
-                }
-            }
-        }
-
-    }
-
-    @Override
-    public void validate(Link link,OTMErrorLog errorLog) {
+    public void validate(OTMErrorLog errorLog) {
     }
 
     @Override
@@ -122,13 +91,13 @@ public class Model_CTM extends AbstractFluidModel {
     }
 
     @Override
-    public void build(Link link) {
+    public void build() {
 
         // build node models
         node_models.forEach(m->m.build());
 
         // create cells
-        create_cells(link,max_cell_length);
+        links.forEach(link->create_cells(link,max_cell_length));
     }
 
     @Override
@@ -407,7 +376,6 @@ public class Model_CTM extends AbstractFluidModel {
         links.forEach(link -> update_dwn_flow(link));
 
     }
-
 
     ///////////////////////////////////////////
     // private

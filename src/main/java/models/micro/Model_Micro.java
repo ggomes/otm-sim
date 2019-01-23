@@ -1,13 +1,12 @@
 package models.micro;
 
 import commodity.Commodity;
-import commodity.Path;
-import commodity.Subnetwork;
-import common.AbstractSource;
 import common.AbstractVehicle;
 import common.Link;
 import common.RoadConnection;
 import dispatch.Dispatcher;
+import dispatch.EventPoke;
+import dispatch.InterfacePokable;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.FlowDirection;
@@ -16,16 +15,13 @@ import jaxb.OutputRequest;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import models.AbstractVehicleModel;
-import models.VehicleSource;
 import output.AbstractOutput;
-import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
-import profiles.DemandProfile;
 import runner.Scenario;
 
 import java.util.*;
 
-public class Model_Micro extends AbstractVehicleModel {
+public class Model_Micro extends AbstractVehicleModel implements InterfacePokable {
 
     public float dt;
 
@@ -40,12 +36,7 @@ public class Model_Micro extends AbstractVehicleModel {
     //////////////////////////////////////////////////
 
     @Override
-    public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException {
-        System.out.println("MICRO register_commodity");
-    }
-
-    @Override
-    public void validate(Link link, OTMErrorLog errorLog) {
+    public void validate(OTMErrorLog errorLog) {
         System.out.println("MICRO validate");
     }
 
@@ -55,7 +46,7 @@ public class Model_Micro extends AbstractVehicleModel {
     }
 
     @Override
-    public void build(Link link) {
+    public void build() {
         System.out.println("MICRO build");
     }
 
@@ -64,8 +55,8 @@ public class Model_Micro extends AbstractVehicleModel {
     //////////////////////////////////////////////////
 
     @Override
-    public AbstractVehicle create_vehicle(KeyCommPathOrLink key, Set<InterfaceVehicleListener> vehicle_event_listeners) {
-        return new models.micro.Vehicle(key,vehicle_event_listeners);
+    public AbstractVehicle create_vehicle(Commodity comm) {
+        return new models.micro.Vehicle(comm);
     }
 
     @Override
@@ -107,8 +98,45 @@ public class Model_Micro extends AbstractVehicleModel {
 
     @Override
     public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time) {
-        System.out.println("MICRO register_first_events");
+        System.out.println("MICRO register_first_events ");
+        dispatcher.register_event(new EventPoke(dispatcher, 6,start_time + dt, this));
+    }
 
+    @Override
+    public void poke(Dispatcher dispatcher, float timestamp) throws OTMException {
+        update_state();
+        dispatcher.register_event(new EventPoke(dispatcher, 6,timestamp + dt, this));
+    }
+
+    private void update_state(){
+        for(Link link : links) {
+            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+                List<models.micro.Vehicle> vhs = ((LaneGroup) lg).vehicles;
+
+                // compute acceleration
+                double [] acc = new double[vhs.size()];
+                for(int i=0;i<vhs.size();i++) {
+                    Vehicle v = vhs.get(i);
+                    acc[i] = i == 0 ? leader_law(v) : follower_law(v);
+                }
+
+                // update position
+                for(int i=0;i<vhs.size();i++){
+                    Vehicle v = vhs.get(i);
+                    v.speed += acc[i]*dt;
+                    v.pos += v.speed*dt;
+                }
+
+            }
+        }
+    }
+
+    private double leader_law(Vehicle v){
+        return Double.NaN;
+    }
+
+    private double follower_law(Vehicle v){
+        return Double.NaN;
     }
 
 }

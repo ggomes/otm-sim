@@ -79,11 +79,13 @@ public class Source extends common.AbstractSource {
 
     private Map<Long,Map<KeyCommPathOrLink,Double>> split_demand(double flow_veh_per_timestep){
 
+        Long comm_id = commodity.getId();
+
         // for each lanegroup, a map from key to value.
         Map<Long,Map<KeyCommPathOrLink,Double>> source_flows = new HashMap<>();
 
-        if(key.isPath){
-            // assign flows to candidate lanegroups
+        if(commodity.pathfull){
+            KeyCommPathOrLink key = new KeyCommPathOrLink(comm_id,path.getId(),true);
             double demand_for_each_lg = flow_veh_per_timestep / candidate_lanegroups.size();
             for(AbstractLaneGroup lg : candidate_lanegroups) {
                 Map<KeyCommPathOrLink,Double> x = new HashMap<>();
@@ -94,15 +96,15 @@ public class Source extends common.AbstractSource {
 
         // source of pathless commodity
         else {
-            long comm_id = key.commodity_id;
+
             // Case no packet_splitter; ie there is no downstream split.
-            if(link.packet_splitter ==null){
+            if(link.outlink2lanegroups.size()<2){
 
                 assert(link.lanegroups_flwdn.size()==1);
                 assert(link.end_node.is_many2one);
 
-                Link next_link = link.end_node.out_links.values().iterator().next();
-                KeyCommPathOrLink key = new KeyCommPathOrLink(comm_id,next_link.getId(),false);
+                Long nextlink_id = link.outlink2lanegroups.keySet().iterator().next();
+                KeyCommPathOrLink key = new KeyCommPathOrLink(comm_id,nextlink_id,false);
 
                 AbstractLaneGroup lg = link.lanegroups_flwdn.values().iterator().next();
                 Map<KeyCommPathOrLink,Double> x = new HashMap<>();
@@ -111,8 +113,9 @@ public class Source extends common.AbstractSource {
                 return source_flows;
             }
 
+
             // Otherwise...
-            Map<Long,Double> outlink2split = link.packet_splitter.get_splits_for_commodity(comm_id);
+            Map<Long,Double> outlink2split = link.get_splits_for_commodity(comm_id);
 
             // for each out link in the spit ratio matrix, assign a portion of
             // the source flow to the appropriate lane groups.

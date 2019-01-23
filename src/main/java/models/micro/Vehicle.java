@@ -1,31 +1,21 @@
 package models.micro;
 
+import commodity.Commodity;
 import common.AbstractVehicle;
-import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
-import output.InterfaceVehicleListener;
-
-import java.util.Set;
 
 public class Vehicle extends AbstractVehicle {
 
-//    public AbstractLaneGroup lg;
-    public double position;
+    public double pos;          // meters
+    public double speed;        // meters per second
 
     ///////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////
 
-    public Vehicle(){}
-
-    public Vehicle(KeyCommPathOrLink key, Set<InterfaceVehicleListener> vehicle_event_listeners) {
-        super(key,vehicle_event_listeners);
-//        this.lg = lg;
-        this.position = 0d;
+    public Vehicle(Commodity comm){
+        super(comm);
+        this.pos = 0d;
+        this.speed = 0d;
     }
-
-    ///////////////////////////////////////////////////
-    // update
-    ///////////////////////////////////////////////////
 
 }

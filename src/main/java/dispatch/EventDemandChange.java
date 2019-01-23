@@ -25,7 +25,7 @@ public class EventDemandChange extends AbstractEvent {
         DemandProfile demand_profile = (DemandProfile) recipient;
         AbstractSource source = demand_profile.source;
         if(verbose)
-            System.out.println("time=" + timestamp + "\tcommodity_id = " + source.key.commodity_id + " value = " + demand_vps);
+            System.out.println("time=" + timestamp + "\tcommodity_id = " + source.commodity.getId() + " value = " + demand_vps);
         source.set_demand_vps(dispatcher,timestamp,demand_vps);
         demand_profile.register_next_change(dispatcher,timestamp);
     }

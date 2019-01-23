@@ -6,26 +6,22 @@
  */
 package models.pq;
 
+import commodity.Commodity;
 import error.OTMException;
 import common.AbstractVehicle;
-import keys.KeyCommPathOrLink;
 import output.InterfaceVehicleListener;
-
-import java.util.Set;
 
 public class Vehicle extends AbstractVehicle {
 
     public Queue my_queue;
-    public boolean waiting_for_lane_change = true;
+    public boolean waiting_for_lane_change;
 
     ///////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////
 
-    public Vehicle(){}
-
-    public Vehicle(KeyCommPathOrLink key, Set<InterfaceVehicleListener> vehicle_event_listeners) {
-        super(key,vehicle_event_listeners);
+    public Vehicle(Commodity comm){
+        super(comm);
         this.waiting_for_lane_change = false;
     }
 
@@ -60,7 +56,7 @@ public class Vehicle extends AbstractVehicle {
 //        // update vehicle queue reference
 //        Queue from_queue = my_queue;
 //        my_queue = to_queue;
-//        in_lanegroup = my_lanegroup;
+//        in_lanegroup = lg;
 //
 //        // inform listener
 //        if(get_event_listener()!=null)
@@ -90,7 +86,7 @@ public class Vehicle extends AbstractVehicle {
 
         // update vehicle queue reference
         my_queue = to_queue;
-        my_lanegroup = to_queue.lanegroup;
+        lg = to_queue.lanegroup;
 
         // inform listeners
         if(get_event_listeners()!=null)

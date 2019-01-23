@@ -12,6 +12,7 @@ import geometry.AddLanes;
 import geometry.FlowDirection;
 import geometry.RoadGeometry;
 import geometry.Side;
+import jaxb.Points;
 import jaxb.Roadparam;
 import models.AbstractLaneGroup;
 import models.AbstractModel;
@@ -64,7 +65,7 @@ public class Network {
 
         nodes.values().stream().forEach(node -> node.is_many2one = node.out_links.size()==1);
 
-        // set sources and sinks according to incoming and outgoing links
+        // is_source and is_sink
         for(Link link : links.values()){
             link.is_source = link.start_node.in_links.isEmpty();
             link.is_sink = link.end_node.out_links.isEmpty();
@@ -95,6 +96,7 @@ public class Network {
         for(RoadConnection rc : road_connections.values())
             link2outrcs.get(rc.get_start_link_id()).add(rc);
 
+        // call create_lane_groups
         for(Link link : links.values())
             create_lane_groups(link, link2outrcs.get(link.getId()));
 
@@ -104,22 +106,7 @@ public class Network {
         road_connections.values().forEach(rc->set_rc_in_out_lanegroups(rc));
 
         // populate link.outlink2lanegroups
-        for(Link link : links.values()){
-
-            // case sink
-            if(link.is_sink)
-                continue;
-
-            // for each outlink, add all lanegroups from which outlink is reachable
-            link.outlink2lanegroups = new HashMap<>();
-            for(Long outlink_id : link.end_node.out_links.keySet()) {
-                // lane groups that connect to outlink_id
-                Set<AbstractLaneGroup> connected_lgs = link.lanegroups_flwdn.values().stream()
-                                                           .filter(lg -> lg.link_is_link_reachable(outlink_id)).collect(toSet());
-                if(!connected_lgs.isEmpty())
-                    link.outlink2lanegroups.put(outlink_id,connected_lgs);
-            }
-        }
+        links.values().forEach(link->link.populate_outlink2lanegroups());
 
         // models .................................................
         models.values().forEach(x->x.build());
@@ -158,14 +145,14 @@ public class Network {
 
             Link link = new Link(network,
                     network.road_params.get(jl.getRoadparam()),
-                    jl.getRoadgeom()==null ? null : network.road_geoms.get(jl.getRoadgeom()),
-                    jl.getRoadType()==null ? Link.RoadType.none : Link.RoadType.valueOf(jl.getRoadType()) ,
                     id,
                     jl.getLength(),
                     jl.getFullLanes(),
-                    jl.getPoints()==null ? null : jl.getPoints(),
                     nodes.get(jl.getStartNodeId()),
-                    nodes.get(jl.getEndNodeId()) );
+                    nodes.get(jl.getEndNodeId()) ,
+                    jl.getRoadgeom()==null ? null : network.road_geoms.get(jl.getRoadgeom()),
+                    jl.getRoadType()==null ? Link.RoadType.none : Link.RoadType.valueOf(jl.getRoadType()) ,
+                    jl.getPoints()==null ? null : jl.getPoints() );
 
             links.put(id,link);
         }
@@ -346,11 +333,6 @@ public class Network {
     }
 
     private static void create_lane_groups(Link link,final Set<RoadConnection> out_rcs) throws OTMException {
-
-        // get road connections that exit this link
-//        Set<RoadConnection> out_rcs = road_connections.values().stream()
-//                .filter(x->x.get_start_link()!=null && x.get_start_link_id()==link.id)
-//                .collect(toSet());
 
         // absent road connections: create them, if it is not a sink
         if(out_rcs.isEmpty() && !link.is_sink)
@@ -536,6 +518,7 @@ public class Network {
         links.values().forEach(x->x.validate(errorLog));
         road_geoms.values().forEach(x->x.validate(errorLog));
         road_connections.values().forEach(x->x.validate(errorLog));
+        models.values().forEach(x->x.validate(errorLog));
     }
 
     public void initialize(Scenario scenario,RunParameters runParams) throws OTMException {

@@ -6,7 +6,6 @@
  */
 package models.none;
 
-import commodity.Commodity;
 import common.*;
 import error.OTMException;
 import geometry.FlowDirection;
@@ -20,11 +19,6 @@ public class LaneGroup extends AbstractLaneGroup {
 
     public LaneGroup(Link link, Side side, FlowDirection flwdir, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side,flwdir,length, num_lanes, start_lane, out_rcs);
-    }
-
-    @Override
-    public void add_commodity(Commodity commodity) {
-
     }
 
     @Override

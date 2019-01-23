@@ -209,7 +209,7 @@ public class DemandProfile extends AbstractDemandProfile {
         // create a source and add it to the origin
         Link origin = get_origin();
         source = origin.model.create_source(origin,this,commodity,null);
-        origin.add_source(source);
+        origin.sources.add(source);
 
         // assume the content to be given in veh/hr
         profile = new Profile1D(start_time,dt,values);
@@ -224,9 +224,7 @@ public class DemandProfile extends AbstractDemandProfile {
         // create a source and add it to the origin
         Link origin = get_origin();
         source = origin.model.create_source(origin,this,commodity,path);
-
-
-        origin.add_source(source);
+        origin.sources.add(source);
 
         // assume the content to be given in veh/hr
         profile = new Profile1D(start_time,dt,values);

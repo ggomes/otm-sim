@@ -6,8 +6,10 @@
  */
 package packet;
 
+import commodity.Commodity;
 import keys.KeyCommPathOrLink;
 import models.pq.Vehicle;
+import runner.Scenario;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,25 +18,27 @@ import java.util.Set;
 
 public class PartialVehicleMemory {
 
+    private Map<Long, Commodity> commodities;
     public Map<KeyCommPathOrLink,Double> remainder;
 
     ////////////////////////////////////////////////////////////
     // construction
     ////////////////////////////////////////////////////////////
 
-    public PartialVehicleMemory(){
+    public PartialVehicleMemory(Map<Long, Commodity> commodities){
         this.remainder = new HashMap<>();
+        this.commodities = commodities;
     }
 
     ////////////////////////////////////////////////////////////
     // public
     ////////////////////////////////////////////////////////////
 
-    public Set<Vehicle> process_packet(PartialVehicleMemory packet_pvm){
+    public Set<Vehicle> process_packet(PartialVehicleMemory packet){
 
         Set<Vehicle> vehicles = new HashSet<>();
 
-        for(Map.Entry<KeyCommPathOrLink,Double> e : packet_pvm.remainder.entrySet()){
+        for(Map.Entry<KeyCommPathOrLink,Double> e : packet.remainder.entrySet()){
             KeyCommPathOrLink key = e.getKey();
             double value = remainder.containsKey(key) ? remainder.get(key) + e.getValue() : e.getValue();
 
@@ -42,11 +46,10 @@ public class PartialVehicleMemory {
                 int num_veh = (int) value;
                 remainder.put(key,value - num_veh);
                 for(int i=0;i<num_veh;i++)
-                    vehicles.add(new Vehicle(key,null));
+                    vehicles.add(new Vehicle(commodities.get(key.commodity_id)));
             }
             else
                 remainder.put(key,value);
-
         }
 
         return vehicles;

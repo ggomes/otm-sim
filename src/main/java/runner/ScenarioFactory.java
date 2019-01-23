@@ -18,12 +18,9 @@ import control.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
-import common.*;
-import jaxb.*;
 import keys.DemandType;
 import keys.KeyCommodityDemandTypeId;
 import keys.KeyCommodityLink;
-import packet.PacketSplitter;
 import plugin.PluginLoader;
 import profiles.*;
 import sensor.AbstractSensor;
@@ -31,8 +28,6 @@ import sensor.FixedSensor;
 import utils.OTMUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -71,16 +66,19 @@ public class ScenarioFactory {
                 js.getCommodities());
 
         // tell links about commodities ...................................
-        for(Commodity c : scenario.commodities.values())
-            for (Subnetwork subnet : c.subnetworks )
-                for (Link link : subnet.links)
-                    link.add_commodity(c);
+//        for(Commodity c : scenario.commodities.values())
+//            for (Subnetwork subnet : c.subnetworks )
+//                for (Link link : subnet.links)
+//                    link.add_commodity(c);
 
-        // tell nodes about commodities ....................................
-        for (Node node : scenario.network.nodes.values())
-            node.set_commodities();
+//        // tell nodes about commodities ....................................
+//        for (Node node : scenario.network.nodes.values())
+//            node.set_commodities();
 
-        // populate link.path2outlink and lanegroup.path2roadconnections
+        // link.commodity2split
+        scenario.network.links.values().forEach(link->link.populate_commodity2split(scenario.commodities.values()));
+
+        // populate link.path2outlink
         Set<Subnetwork> used_paths = scenario.commodities.values().stream()
                 .filter(c->c.pathfull)
                 .map(c->c.subnetworks)
@@ -88,20 +86,14 @@ public class ScenarioFactory {
                 .collect(toSet());
 
         for(Subnetwork subnet : used_paths){
-            if(!subnet.is_path)
-                continue; // this should not happen. They should all be paths
+            assert(subnet.is_path);
             Path path = (Path) subnet;
-            for(Link link : path.links){
-                Link next_link = path.get_link_following(link);
-                link.path2outlink.put(path.getId(),next_link==null?null:next_link.getId());
+            for(int i=0;i<path.ordered_links.size()-1;i++){
+                Link link = path.ordered_links.get(i);
+                Link next_link = path.ordered_links.get(i+1);
+                link.path2outlink.put(path.getId(),next_link.getId());
             }
         }
-
-        // branders ........................................................
-        // build branders for non-sink non-one2one links
-        scenario.network.links.values().stream()
-                .filter(link -> !link.is_sink && !link.end_node.is_many2one)
-                .forEach(link -> link.packet_splitter = new PacketSplitter(link));
 
         // splits ...........................................................
         ScenarioFactory.create_splits_from_jaxb(scenario.network, js.getSplits());
@@ -109,28 +101,15 @@ public class ScenarioFactory {
         // demands ..........................................................
         scenario.data_demands = ScenarioFactory.create_demands_from_jaxb(scenario.network, js.getDemands());
 
-        // tell the network about macro sources
-//        scenario.network.macro_sources = new HashSet<>();
-//        scenario.network.macro_sources.addAll( scenario.data_demands.values().stream()
-//                .map(d->d.source)
-//                .filter(s->s instanceof models.ctm.VehicleSource)
-//                .map (x -> (models.ctm.VehicleSource) x)
-//                .collect(Collectors.toSet()) );
 
-//        // register vehicle events requests with commodities
-//        for(AbstractOutput or : scenario.outputs){
-//            if(or.type== AbstractOutput.Type.vehicle){
-//                EventsVehicle ev = (EventsVehicle)or;
-//                if(ev.commodity_id!=null) {
-//                    Commodity commodity = scenario.commodities.get(ev.commodity_id);
-//                    if(commodity==null)
-//                        throw new OTMException("Bad commodity id");
-//                    commodity.set_vehicle_event_listener(ev);
-//                } else
-//                    for(Commodity c : scenario.commodities.values())
-//                        c.set_vehicle_event_listener(ev);
-//            }
-//        }
+
+//        // ........................................................
+//        // build packet splitter for non-sink non-one2one links
+//        scenario.network.links.values().stream()
+//                .filter(link -> !link.is_sink && !link.end_node.is_many2one)
+//                .forEach(link -> link.packet_splitter = new PacketSplitter(link));
+
+
 
         // validate ................................................
         if(validate) {
@@ -191,44 +170,6 @@ public class ScenarioFactory {
     ///////////////////////////////////////////
     // private static
     ///////////////////////////////////////////
-
-//    private static void set_global_model(jaxb.Scenario js,String global_model) throws OTMException {
-//        if(global_model==null)
-//            return;
-//
-//        Model model = new Model();
-//
-//        // all link ids
-//        List<Long> link_ids = js.getNetwork().getLinks().getLink().stream().map(link->link.getId()).collect(Collectors.toList());
-//        String all_links = OTMUtils.comma_format(link_ids);
-//
-//        switch(global_model){
-//            case "pq":
-//                PointQueue pq = new PointQueue();
-//                pq.setContent(all_links);
-//                model.setPointQueue(pq);
-//                break;
-//            case "ctm":
-//                Ctm ctm = new Ctm();
-//                ctm.setContent(all_links);
-//                ctm.setMaxCellLength(100f);     // default to 100 meters
-//                model.setCtm(ctm);
-//                break;
-//            case "mn":
-//                Mn mn = new Mn();
-//                mn.setContent(all_links);
-//                mn.setMaxCellLength(100f);     // default to 100 meters
-//                model.setMn(mn);
-//                break;
-//            default:
-//                throw new OTMException("Bad global model: " + global_model);
-//        }
-//
-////        System.out.println("Warning: Overwriting the link model. Setting all to " + global_model);
-//
-//        js.setModel(model);
-//
-//    }
 
     private static common.Network create_network_from_jaxb(Scenario scenario, jaxb.Models jaxb_models,jaxb.Network jaxb_network) throws OTMException {
         common.Network network = new common.Network(

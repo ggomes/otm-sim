@@ -97,7 +97,7 @@ public class Commodity implements InterfaceScenarioElement {
     public void initialize() throws OTMException {
         for(Subnetwork subnetwork : subnetworks)
             for(Link link : subnetwork.links)
-                link.model.register_commodity(link,this,subnetwork);
+                register_commodity(link,this,subnetwork);
     }
 
     ///////////////////////////////////////////////////
@@ -173,6 +173,36 @@ public class Commodity implements InterfaceScenarioElement {
     @Override
     public ScenarioElementType getScenarioElementType() {
         return ScenarioElementType.commodity;
+    }
+
+    private static void register_commodity(Link link,Commodity comm, Subnetwork subnet) throws OTMException {
+
+        if(comm.pathfull) {
+            Link next_link = ((Path) subnet).get_link_following(link);
+            Long next_link_id = next_link==null ? null : next_link.getId();
+            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                lg.add_state(comm.getId(), subnet.getId(),next_link_id, true);
+        }
+
+        else {
+
+            // for pathless/sink, next link id is same as this id
+            if (link.is_sink) {
+                for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                    lg.add_state(comm.getId(), null,link.getId(), false);
+
+            } else {
+
+                // for pathless non-sink, add a state for each next link in the subnetwork
+                for( Long next_link_id : link.outlink2lanegroups.keySet()  ){
+                    if (!subnet.has_link_id(next_link_id))
+                        continue;
+                    for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                        lg.add_state(comm.getId(), null,next_link_id, false);
+                }
+            }
+        }
+
     }
 
 }

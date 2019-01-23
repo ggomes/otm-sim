@@ -12,7 +12,6 @@ import java.util.Set;
 public class PacketLaneGroup extends AbstractPacketLaneGroup {
 
     public Set<AbstractVehicle> vehicles=new HashSet<>();
-    public PartialVehicleMemory pvm = new PartialVehicleMemory();
 
     @Override
     public boolean isEmpty() {

@@ -1,9 +1,7 @@
 package models.pq;
 
 import commodity.Commodity;
-import commodity.Path;
 import commodity.Subnetwork;
-import common.AbstractSource;
 import common.AbstractVehicle;
 import common.RoadConnection;
 import dispatch.Dispatcher;
@@ -18,7 +16,6 @@ import error.OTMException;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
-import profiles.DemandProfile;
 import runner.Scenario;
 
 import java.util.*;
@@ -35,11 +32,7 @@ public class Model_PQ extends AbstractVehicleModel {
     //////////////////////////////////////////////////
 
     @Override
-    public void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException {
-    }
-
-    @Override
-    public void validate(Link link, OTMErrorLog errorLog) {
+    public void validate(OTMErrorLog errorLog) {
     }
 
     @Override
@@ -47,7 +40,7 @@ public class Model_PQ extends AbstractVehicleModel {
     }
 
     @Override
-    public void build(Link link) {
+    public void build() {
     }
 
     //////////////////////////////////////////////////
@@ -74,10 +67,9 @@ public class Model_PQ extends AbstractVehicleModel {
         return new models.pq.LaneGroup(link,side,flowdir,length,num_lanes,start_lane,out_rcs);
     }
 
-
     @Override
-    public AbstractVehicle create_vehicle(KeyCommPathOrLink key, Set<InterfaceVehicleListener> vehicle_event_listeners) {
-        return new models.pq.Vehicle(key,vehicle_event_listeners);
+    public AbstractVehicle create_vehicle(Commodity comm) {
+        return new models.pq.Vehicle(comm);
     }
 
     //////////////////////////////////////////////////

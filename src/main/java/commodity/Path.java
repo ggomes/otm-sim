@@ -46,7 +46,7 @@ public class Path extends Subnetwork {
         ordered_links.add(current);
 
         while(true){
-            Set<Link> next_links = current.get_next_links();
+            Collection<Link> next_links = current.end_node.out_links.values();
             Set<Link> next_link = OTMUtils.intersect(next_links,links);
 
             if(next_link.size()>1) {

@@ -9,22 +9,26 @@ package common;
 import actuator.AbstractActuator;
 import actuator.InterfaceActuatorTarget;
 import commodity.Commodity;
+import commodity.Path;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.RoadGeometry;
 import geometry.Side;
 import jaxb.Points;
 import jaxb.Roadparam;
+import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import models.AbstractModel;
 import output.PathTravelTime;
-import packet.PacketSplitter;
+import packet.AbstractPacketLaneGroup;
+import packet.PacketLink;
 import runner.InterfaceScenarioElement;
 import runner.RunParameters;
 import runner.Scenario;
 import runner.ScenarioElementType;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -32,19 +36,26 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
     public enum RoadType {none,onramp,offramp,freeway,arterial,hov,interconnect,source,sink,lightrail}
 
+    // basics ........................................
     protected final long id;
     public Network network;
-
-    // common parameters
     public final float length;          // meters
     public final int full_lanes;
     public common.Node start_node;
     public common.Node end_node;
-
     public boolean is_source;
     public boolean is_sink;
 
-    // lanegroups
+    // parameters .........................................
+    public RoadType road_type;
+    public RoadGeometry road_geom;
+    public Roadparam road_param;        // for the sake of writing again to jaxb
+    public List<Point> shape;           // not used by otm-sim
+
+    // model .............................................
+    public AbstractModel model;
+
+    // lanegroups ......................................
 
     // Longitudinal lanegroups: flow exits from the bottom edge.
     // There are full lanegroups and downstream addlanes
@@ -57,46 +68,36 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     // downstream lane count -> lane group
     public Map<Integer, AbstractLaneGroup> dnlane2lanegroup;
 
+    // routing information ...............................
+
     // map from path id (uses this link) to next link id (exits this link)
+    // populated by ScenarioFactory.create_scenario
     public Map<Long,Long> path2outlink;
 
-    // map from downstream link to candidate lanegroups
-    public Map<Long, Set<AbstractLaneGroup>> outlink2lanegroups;
+    // outlink -> lanegroups from which outlink is reachable
+    // built by Network contstructor.
+    public Map<Long,Set<AbstractLaneGroup>> outlink2lanegroups;
 
-    public PacketSplitter packet_splitter;
+    // splits
+    // populated by ScenarioFactory.create_scenario
+    public Map<Long, SplitInfo> commodity2split;
 
+    // demands ............................................
+    // populated by DemandProfile constructor
     public Set<AbstractSource> sources;
 
-    // commodities
-    public Set<Commodity> commodities;
-
-    // road type
-    public RoadType road_type;
-
-    // geometry
-    public RoadGeometry road_geom;
-
-    // road parameters (for the sake of writing again to jaxb)
-    public Roadparam road_param;
-
-    // model
-    public AbstractModel model;
-
-    // for path travel time output
-    public Set<PathTravelTime> travel_timers;
-
-    // shape (not used by otm)
-    public List<Point> shape;
-
-    // actuators
+    // actuators .........................................
     public actuator.ActuatorRampMeter ramp_meter;
     public actuator.ActuatorFD actuator_fd;
+
+    // output ...........................................
+    public Set<PathTravelTime> travel_timers;
 
     ///////////////////////////////////////////
     // construction
     ///////////////////////////////////////////
 
-    public Link(Network network, jaxb.Roadparam road_param, RoadGeometry rg, Link.RoadType road_type,long id, float length, int full_lanes, Points jpoints, Node start_node, Node end_node) throws OTMException {
+    public Link(Network network, jaxb.Roadparam rp, long id, float length, int full_lanes, Node start_node, Node end_node) throws OTMException {
 
         if (start_node == null)
             throw new OTMException("Unknown start node id in link " + id);
@@ -104,15 +105,13 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         if (end_node == null)
             throw new OTMException("Unknown end node id in link " + id);
 
+        // basics ..............................
         this.id = id;
-        this.road_type = road_type==null ? RoadType.none : road_type;
-        this.road_param = road_param;
         this.network = network;
         this.length = length;
         this.full_lanes = full_lanes;
         this.start_node = start_node;
         this.end_node = end_node;
-        this.road_geom = rg;
 
         // source and sink. this is set later by the network
         this.is_source = true;
@@ -122,10 +121,38 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         this.start_node.add_output_link(this);
         this.end_node.add_input_link(this);
 
-        this.path2outlink = new HashMap<>();
+        // parameters .........................................
+        this.road_param = rp;
 
         // shape
         this.shape = new ArrayList<>();
+
+        // lanegroups ......................................
+        lanegroups_flwdn = new HashMap<>();
+        dnlane2lanegroup = new HashMap<>();
+
+        // routing ............................................
+        path2outlink = new HashMap<>();
+        outlink2lanegroups = new HashMap<>();
+        commodity2split = new HashMap<>();
+
+        // demands ............................................
+        sources = new HashSet<>();
+
+        // output ...........................................
+        travel_timers = new HashSet<>();
+
+    }
+
+    public Link(Network network, jaxb.Roadparam rp, long id, float length, int full_lanes, Node start_node, Node end_node, RoadGeometry rg, Link.RoadType rt,Points jpoints) throws OTMException {
+
+        this(network,rp,id,length,full_lanes,start_node,end_node);
+
+        // parameters .........................................
+        this.road_type = rt==null ? RoadType.none : rt;
+        this.road_geom = rg;
+
+        // shape
         if (jpoints != null && jpoints.getPoint() != null)
             for (jaxb.Point jpoint : jpoints.getPoint())
                 shape.add(new Point(jpoint.getX(), jpoint.getY()));
@@ -134,30 +161,6 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
             shape.add(new Point(end_node.xcoord, end_node.ycoord));
         }
 
-        this.commodities = new HashSet<>();
-        travel_timers = new HashSet<>();
-    }
-
-    public Link(Network network, jaxb.Roadparam road_param, long id, float length, int full_lanes, Node start_node, Node end_node) throws OTMException {
-
-        if (start_node == null)
-            throw new OTMException("Unknown start node id in link " + id);
-
-        if (end_node == null)
-            throw new OTMException("Unknown end node id in link " + id);
-
-        this.id = id;
-        this.road_param = road_param;
-        this.network = network;
-        this.length = length;
-        this.full_lanes = full_lanes;
-        this.start_node = start_node;
-        this.end_node = end_node;
-
-        // node io
-        this.start_node.add_output_link(this);
-        this.end_node.add_input_link(this);
-        this.path2outlink = new HashMap<>();
     }
 
     public void delete(){
@@ -174,25 +177,15 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         dnlane2lanegroup = null;
         path2outlink = null;
         outlink2lanegroups = null;
-        packet_splitter = null;
+        commodity2split = null;
         if(sources!=null)
             sources.forEach(s->s.delete());
         sources = null;
-        commodities = null;
         road_type = null;
         road_geom = null;
         model = null;
         travel_timers = null;
         shape = null;
-    }
-
-    public void add_commodity(Commodity commodity) {
-        commodities.add(commodity);
-        lanegroups_flwdn.values().forEach(x -> x.add_commodity(commodity));
-        if(lanegroup_flwside_in !=null)
-            lanegroup_flwside_in.add_commodity(commodity);
-        if(lanegroup_flwside_out !=null)
-            lanegroup_flwside_out.add_commodity(commodity);
     }
 
     public void add_travel_timer(PathTravelTime x){
@@ -217,6 +210,25 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
                 dnlane2lanegroup.put(lane, lg);
     }
 
+    public void populate_outlink2lanegroups(){
+
+        if(is_sink)
+            return;
+
+        outlink2lanegroups = new HashMap<>();
+        for(Long outlink_id : outlink2lanegroups.keySet())
+            outlink2lanegroups.put(outlink_id,
+                    lanegroups_flwdn.values().stream().collect(Collectors.toSet()) );
+    }
+
+    public void populate_commodity2split(Collection<Commodity> commodities){
+        commodity2split = new HashMap<>();
+        for(Commodity c : commodities) {
+            Long trivial_next_link = outlink2lanegroups.size() == 1 ? outlink2lanegroups.keySet().iterator().next() : null;
+            commodity2split.put(c.getId(), new SplitInfo(trivial_next_link));
+        }
+    }
+
 //    public void set_lat_lanegroups(Collection<AbstractLaneGroupLateral> lgs) {
 //        lat_lanegroups = new HashMap<>();
 //        if(lgs==null || lgs.isEmpty())
@@ -224,6 +236,12 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 //        for(AbstractLaneGroupLateral lg : lgs)
 //            lat_lanegroups.put(lg.id,lg);
 //    }
+
+    // called from EventSplitChange cascade, during initialization
+    public void set_splits(long commodity_id,Map<Long,Double> outlink2value){
+        if(commodity2split.containsKey(commodity_id))
+            commodity2split.get(commodity_id).set_splits(outlink2value);
+    }
 
     public void set_model(AbstractModel newmodel) throws OTMException {
 
@@ -242,12 +260,6 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
         if(!model.is_default && !newmodel.is_default)
             throw new OTMException("ModelType multiply assigned for link " + this.id);
-    }
-
-    public void add_source(AbstractSource source) {
-        if(sources==null)
-            sources =new HashSet<>();
-        sources.add(source);
     }
 
 //    public FlowAccumulatorSet request_flow_accumulator_set(Long commodity_id){
@@ -320,19 +332,221 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 //                if(!dnlane2lanegroup.containsKey(lane))
 //                    errorLog.addError("link " + id + ": !dnlane2lanegroup.containsKey(lane)");
 
-        // model
-        if(model!=null)
-            model.validate(this,errorLog);
+//        // packet_splitter
+//        if(packet_splitter !=null)
+//            packet_splitter.validate(errorLog);
 
-        // packet_splitter
-        if(packet_splitter !=null)
-            packet_splitter.validate(errorLog);
+        /////////////////////////////////////////////////////////////////
+        // BROUGHT OVER FROM PACKETSPLITTER VALIDATION
+        /////////////////////////////////////////////////////////////////
+
+//        // split info has information for downstream links for each commodity
+//        Collection<Link> next_links = link.get_next_links();
+//        for(Commodity commodity : link.commodities){
+//            Collection<Link> comm_next_links = OTMUtils.intersect(commodity.all_links(),next_links);
+
+        // there should be information available if there is a split for this commodity
+        // NOTE: CANT DO THIS BEFORE INITIALIZATION!!
+//            if(comm_next_links.size()>1){
+//                if(!commodity2split.containsKey(commodity.getId())) {
+//                    scenario.error_log.addError("link " + link.id + ": !target_lanegroup_splits.containsKey(commodity_id)");
+//                } else {
+//                    SplitInfo splitInfo = commodity2split.get(commodity.getId());
+//                    if (splitInfo == null || splitInfo.link_cumsplit == null)
+//                        scenario.error_log.addError("missing splits on link " + link.getId() + " for commodity " + commodity.getId());
+//                    else {
+//                        Set<Long> info_links = splitInfo.link_cumsplit.stream().map(x -> x.link_id).collect(toSet());
+//                        Set<Long> next_link_ids = comm_next_links.stream().map(x -> x.getId()).collect(toSet());
+//                        if (!info_links.equals(next_link_ids))
+//                            scenario.error_log.addError("!info_links.equals(next_link_ids)");
+//                    }
+//                }
+//            }
+
+//        }
+
+        // check that all commodities have splitinfo
+//        if(link.lanegroups.size()>1)
+//            for(Commodity commodity : link.commodities)
+//                if(!commodity2split.containsKey(commodity.getId()))
+//                    scenario.error_log.addError("link " + link.id + ": !target_lanegroup_splits.containsKey(commodity_id)");
+
+        // check that all output links in subnetwork are represented
+//        for(Map.Entry e : commodity2split.entrySet()){
+//            long commodity_id = (Long) e.getKey();
+//            SplitInfo splitinfo = (SplitInfo) e.getValue();
+//            Commodity commodity = scenario.commodities.get(commodity_id);
+//            if(commodity==null)
+//                scenario.error_log.addError("commodity==null");
+
+//            // all links immediately downstream of this link
+//            Set<Long> dwn_links_ids = this.link.end_node.outputs.values()
+//                    .stream()
+//                    .map(x->x.id)
+//                    .collect(Collectors.toSet());
+
+//            // subnetwork links
+//            Set<Long> subnet_ids = commodity.all_links().stream().map(x->x.getId()).collect(Collectors.toSet());
+//
+//            // keep only those downstream links that are also in the subnetwork
+//            dwn_links_ids.retainAll(subnet_ids);
+//
+//            // all split outlinks must be down links
+//            Set<Long> split_outlinks = outputlink_targetlanegroups.keySet();
+//            if(!dwn_links_ids.containsAll(split_outlinks))
+//                scenario.error_log.addError("!dwn_links_ids.containsAll(split_outlinks)");
+//        }
+
+
+
 
     }
 
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
         for(AbstractLaneGroup lg : lanegroups_flwdn.values())
             lg.initialize(scenario,runParams);
+    }
+
+    ////////////////////////////////////////////
+    // inter-link dynamics
+    ///////////////////////////////////////////
+
+    public boolean has_lessthantwo_downstream_links(){
+        return outlink2lanegroups.size()<2;
+    }
+
+    // split a packet according to downstream link.
+    // for pathfull commodities, the next link is trivial. For pathless, it is sampled from the split ratios
+    public Map<Long, AbstractPacketLaneGroup> split_packet(Class packet_class, PacketLink vp){
+
+        // initialize lanegroup_packets
+        Map<Long, AbstractPacketLaneGroup> lanegroup_packets = new HashMap<>();
+
+        boolean has_macro = !vp.no_macro();
+        boolean has_micro = !vp.no_micro();
+
+        // process the macro state
+        if(has_macro) {
+
+            for (Map.Entry<KeyCommPathOrLink, Double> e : vp.state2vehicles.entrySet()) {
+
+                KeyCommPathOrLink key = e.getKey();
+                Double vehicles = e.getValue();
+
+                // pathfull case
+                if (key.isPath) {
+
+                    // TODO: Cache this
+                    Path path = (Path) network.scenario.subnetworks.get(key.pathOrlink_id);
+                    Long outlink_id = path.get_link_following(this).getId();
+                    add_to_lanegroup_packets(packet_class,lanegroup_packets,outlink_id,key,vehicles);
+                }
+
+                // pathless case
+                else {
+
+                    SplitInfo splitinfo = commodity2split.get(key.commodity_id);
+
+                    if(splitinfo.sole_downstream_link!=null){
+                        Long outlink_id = splitinfo.sole_downstream_link;
+                        add_to_lanegroup_packets(packet_class, lanegroup_packets, outlink_id,
+                                new KeyCommPathOrLink(key.commodity_id, outlink_id, false),
+                                vehicles );
+                    }
+
+                    else {
+                        for (Map.Entry<Long, Double> e2 : splitinfo.outlink2split.entrySet()) {
+                            Long outlink_id = e2.getKey();
+                            Double split = e2.getValue();
+                            add_to_lanegroup_packets(packet_class, lanegroup_packets, outlink_id,
+                                    new KeyCommPathOrLink(key.commodity_id, outlink_id, false),
+                                    vehicles * split);
+                        }
+                    }
+                }
+            }
+        }
+
+        // process the micro state
+        if(has_micro){
+            for(AbstractVehicle vehicle : vp.vehicles){
+
+                KeyCommPathOrLink key = vehicle.get_key();
+
+                // pathfull case
+                Long outlink_id;
+                if(key.isPath){
+                    // TODO: Cache this
+                    Path path = (Path) network.scenario.subnetworks.get(key.pathOrlink_id);
+                    outlink_id = path.get_link_following(this).getId();
+                    add_to_lanegroup_packets(packet_class,lanegroup_packets,outlink_id,key,vehicle);
+                }
+
+                // pathless case
+                else {
+                    outlink_id = commodity2split.get(key.commodity_id).sample_output_link();
+                    vehicle.set_next_link_id(outlink_id);
+                    add_to_lanegroup_packets(packet_class,lanegroup_packets,outlink_id ,
+                            new KeyCommPathOrLink(key.commodity_id, outlink_id, false),
+                            vehicle);
+                }
+            }
+        }
+
+        return lanegroup_packets;
+    }
+
+    public static AbstractPacketLaneGroup cast_packet_null_splitter(Class packet_class,PacketLink vp,Long outlink_id){
+
+        AbstractPacketLaneGroup split_packet;
+        try {
+            split_packet = (AbstractPacketLaneGroup) packet_class.newInstance();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        boolean has_macro = !vp.no_macro();
+        boolean has_micro = !vp.no_micro();
+
+        // process the macro state
+        if(has_macro) {
+            for (Map.Entry<KeyCommPathOrLink, Double> e : vp.state2vehicles.entrySet()) {
+                KeyCommPathOrLink key = e.getKey();
+                Double vehicles = e.getValue();
+                if (key.isPath || outlink_id==null)  // null occurs for sinks
+                    split_packet.add_macro(key,vehicles);
+                else
+                    split_packet.add_macro(new KeyCommPathOrLink(key.commodity_id, outlink_id, false),vehicles);
+            }
+        }
+
+        // process the micro state
+        if(has_micro){
+            for(AbstractVehicle vehicle : vp.vehicles){
+                KeyCommPathOrLink key = vehicle.get_key();
+                // NOTE: We do not update the next link id when it is null. This happens in
+                // sinks. This means that the state in a sink needs to be interpreted
+                // differently, which must be accounted for everywhere.
+                if(key.isPath || outlink_id==null)
+                    split_packet.add_micro(key,vehicle);
+                else {
+                    vehicle.set_next_link_id(outlink_id);
+                    split_packet.add_micro(new KeyCommPathOrLink(key.commodity_id, outlink_id, false),vehicle);
+                }
+            }
+        }
+
+        return split_packet;
+    }
+
+    public Long sample_nextlink_for_commodity(Commodity commodity){
+        return commodity.pathfull ?
+                path2outlink.get(commodity.getId()) :
+                commodity2split.get(commodity.getId()).sample_output_link();
     }
 
     ////////////////////////////////////////////
@@ -357,22 +571,60 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     }
 
     ////////////////////////////////////////////
-    // get
+    // routing getters
     ///////////////////////////////////////////
 
-//    // WARNING: possible inefficiency if this is called a lot
-//    public List<Integer> get_up_lanes(){
-//        // find first lane
-//        int first_lane = road_geom==null ? 1 : 1 + Math.max(0,road_geom.dn_in.lanes-road_geom.up_in.lanes);
-//        int last_lane = road_geom==null ? full_lanes : first_lane + road_geom.up_in.lanes + full_lanes + road_geom.up_out.lanes -1;
-//
-//
-//
-//        List<Integer> lanes = new ArrayList<>();
-//        for(int lane=first_lane;lane<=last_lane;lane++)
-//            lanes.add(lane);
-//        return lanes;
-//    }
+    // return outlink to split
+    public Map<Long,Double> get_splits_for_commodity(Long comm_id){
+        if(!commodity2split.containsKey(comm_id))
+            return null;
+        return commodity2split.get(comm_id).outlink2split;
+    }
+
+    public Long get_nextlink_for_key(KeyCommPathOrLink key){
+
+        // this is a sink, no next link
+        if(is_sink)
+            return null;
+
+        // get next link id
+        Long outlink_id;
+        if(key.isPath) {
+            // TODO: Cache this
+            Path path = (Path) network.scenario.subnetworks.get(key.pathOrlink_id);
+            outlink_id = path.get_link_following(this).getId();
+        }
+        // otherwise use split ratios
+        else {
+            outlink_id = commodity2split.get(key.commodity_id).sample_output_link();
+        }
+        return outlink_id;
+    }
+
+    public Collection<Link> get_previous_links(){
+        return start_node.in_links.values();
+    }
+
+    public Set<RoadConnection> get_roadconnections_leaving(){
+        Set<RoadConnection> rcs = new HashSet<>();
+        for(AbstractLaneGroup lg : lanegroups_flwdn.values())
+            rcs.addAll(lg.outlink2roadconnection.values());
+        return rcs;
+    }
+
+    public Set<RoadConnection> get_roadconnections_entering(){
+        Set<RoadConnection> rcs = new HashSet<>();
+        for(Link uplink : start_node.in_links.values())
+            if(uplink.outlink2lanegroups.containsKey(getId()))
+                for(AbstractLaneGroup lg : uplink.outlink2lanegroups.get(id) )
+                    if(lg.outlink2roadconnection.containsKey(getId()))
+                        rcs.add(lg.outlink2roadconnection.get(getId()));
+        return rcs;
+    }
+
+    ////////////////////////////////////////////
+    // configuration getters
+    ///////////////////////////////////////////
 
     public int get_num_dn_lanes(){
         return full_lanes +
@@ -461,11 +713,19 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         return dnlane2lanegroup.get( road_geom==null || road_geom.dn_in==null ? full_lanes : road_geom.dn_in.lanes+full_lanes );
     }
 
+    ////////////////////////////////////////////
+    // parameter getters
+    ///////////////////////////////////////////
+
     public float get_max_vehicles(){
         return lanegroups_flwdn.values().stream().
                 map(x->x.max_vehicles).
                 reduce(0f,(i,j)->i+j);
     }
+
+    ////////////////////////////////////////////
+    // state and performance getters
+    ///////////////////////////////////////////
 
     public double get_veh() {
         return lanegroups_flwdn.values().stream()
@@ -479,39 +739,63 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
                 .sum();
     }
 
-    // links reached downstream by road connection
-    public Set<Link> get_next_links(){
-        if(outlink2lanegroups==null)
-            return new HashSet<>();
-        return outlink2lanegroups.keySet().stream().map(x->network.links.get(x)).collect(toSet());
-    }
-
-    public Collection<Link> get_previous_links(){
-        return start_node.in_links.values();
-    }
-
-    public Set<RoadConnection> get_roadconnections_leaving(){
-        Set<RoadConnection> rcs = new HashSet<>();
-        for(AbstractLaneGroup lg : lanegroups_flwdn.values())
-            rcs.addAll(lg.outlink2roadconnection.values());
-        return rcs;
-    }
-
-    public Set<RoadConnection> get_roadconnections_entering(){
-        Set<RoadConnection> rcs = new HashSet<>();
-        for(Link uplink : start_node.in_links.values())
-            if(uplink.outlink2lanegroups.containsKey(getId()))
-                for(AbstractLaneGroup lg : uplink.outlink2lanegroups.get(id) )
-                    if(lg.outlink2roadconnection.containsKey(getId()))
-                        rcs.add(lg.outlink2roadconnection.get(getId()));
-        return rcs;
-    }
-
     // return the instantaneous travel time averaged over the lane groups
     // This is used by the path travel timer.
     // It should be improved to measure travel times on the lanegroups used by the path.
     public double get_current_average_travel_time(){
         return lanegroups_flwdn.values().stream().mapToDouble(lg->lg.get_current_travel_time()).average().getAsDouble();
+    }
+
+    ////////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public ScenarioElementType getScenarioElementType() {
+        return ScenarioElementType.link;
+    }
+
+    ////////////////////////////////////////////
+    // private and other
+    ///////////////////////////////////////////
+
+    private static void add_to_lanegroup_packets(Class packet_class,Map<Long, AbstractPacketLaneGroup> lanegroup_packets,Long outlink_id,KeyCommPathOrLink key,Double vehicles){
+        try {
+            AbstractPacketLaneGroup split_packet;
+            if(lanegroup_packets.containsKey(outlink_id)){
+                split_packet = lanegroup_packets.get(outlink_id);
+            } else {
+                split_packet = (AbstractPacketLaneGroup) packet_class.newInstance();
+                lanegroup_packets.put(outlink_id,split_packet);
+            }
+            split_packet.add_macro(key,vehicles);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void add_to_lanegroup_packets(Class packet_class,Map<Long, AbstractPacketLaneGroup> lanegroup_packets,Long outlink_id,KeyCommPathOrLink key,AbstractVehicle vehicle){
+        try {
+            AbstractPacketLaneGroup split_packet;
+            if(lanegroup_packets.containsKey(outlink_id)){
+                split_packet = lanegroup_packets.get(outlink_id);
+            } else {
+                split_packet = (AbstractPacketLaneGroup) packet_class.newInstance();
+                lanegroup_packets.put(outlink_id,split_packet);
+            }
+            split_packet.add_micro(key,vehicle);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -541,18 +825,5 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         return jlink;
     }
 
-    ////////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public ScenarioElementType getScenarioElementType() {
-        return ScenarioElementType.link;
-    }
 
 }

@@ -13,6 +13,7 @@ import common.Network;
 import utils.OTMUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -23,7 +24,6 @@ public class Subnetwork {
     public boolean is_global;
     public Set<Link> links;
     public Set<Commodity> used_by_comm;
-//    public Set<AbstractLaneGroup> lanegroups;
     public boolean is_path;
 
     ///////////////////////////////////////////////////
@@ -130,7 +130,7 @@ public class Subnetwork {
         Link current = sources.get(0);
         int num_checked = 1;
         while(true){
-            Set<Link> next_links = current.get_next_links();
+            Collection<Link> next_links = current.end_node.out_links.values();
             Set<Link> next_link = OTMUtils.intersect(next_links,this.links);
             if(next_link.size()!=1)
                 return false;

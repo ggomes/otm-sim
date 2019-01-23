@@ -28,7 +28,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     protected final long id;
     public Map<Long,Link> in_links;
     public Map<Long,Link> out_links;
-    public Set<Commodity> commodities;
+//    public Set<Commodity> commodities;
     public Set<RoadConnection> road_connections;
 
     public boolean is_source;
@@ -79,7 +79,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
         network = null;
         in_links = null;
         out_links = null;
-        commodities = null;
+//        commodities = null;
         road_connections = null;
 //        node_model = null;
         splits = null;
@@ -107,13 +107,13 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
             splits.put(key,smp);
     }
 
-    public void set_commodities(){
-        commodities = new HashSet<>();
-        for(Link link : in_links.values())
-            commodities.addAll(link.commodities);
-        for(Link link : out_links.values())
-            commodities.addAll(link.commodities);
-    }
+//    public void set_commodities(){
+//        commodities = new HashSet<>();
+//        for(Link link : in_links.values())
+//            commodities.addAll(link.commodities);
+//        for(Link link : out_links.values())
+//            commodities.addAll(link.commodities);
+//    }
 
 //    public void set_macro_model(NodeModel model){
 //        this.is_macro_node = true;
@@ -152,12 +152,12 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
 
     public void set_node_split(long commodity_id, long linkinid, Map<Long,Double> outlink2value) throws OTMException {
 
-        if(!commodities.stream().map(x->x.getId()).collect(toSet()).contains(commodity_id))
-            throw new OTMException("Node " + getId() + "  does not support this commodity " + commodity_id);
+//        if(!commodities.stream().map(x->x.getId()).collect(toSet()).contains(commodity_id))
+//            throw new OTMException("Node " + getId() + "  does not support this commodity " + commodity_id);
 
         Link linkin = in_links.get(linkinid);
-        if(linkin!=null && linkin.packet_splitter!=null)
-           linkin.packet_splitter.set_splits(commodity_id,outlink2value);
+        if(linkin!=null)
+           linkin.set_splits(commodity_id,outlink2value);
     }
 
     public int num_inputs(){

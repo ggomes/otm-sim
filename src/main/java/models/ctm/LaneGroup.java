@@ -71,10 +71,10 @@ public class LaneGroup extends AbstractLaneGroup {
     // implementation
     ////////////////////////////////////////////
 
-    @Override
-    public void add_commodity(Commodity commodity) {
-        // currently doing nothing here
-    }
+//    @Override
+//    public void add_commodity(Commodity commodity) {
+//        // currently doing nothing here
+//    }
 
     @Override
     public void validate(OTMErrorLog errorLog) {
