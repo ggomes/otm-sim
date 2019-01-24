@@ -216,9 +216,10 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
             return;
 
         outlink2lanegroups = new HashMap<>();
-        for(Long outlink_id : outlink2lanegroups.keySet())
-            outlink2lanegroups.put(outlink_id,
-                    lanegroups_flwdn.values().stream().collect(Collectors.toSet()) );
+        for(Link outlink : end_node.out_links.values())
+            outlink2lanegroups.put(outlink.getId(),lanegroups_flwdn.values().stream()
+                    .filter(lg->lg.link_is_link_reachable(outlink.getId()))
+                    .collect(Collectors.toSet()) );
     }
 
     public void populate_commodity2split(Collection<Commodity> commodities){

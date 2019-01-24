@@ -25,7 +25,7 @@ public abstract class AbstractEvent implements InterfaceEvent {
     @Override
     public void action(boolean verbose) throws OTMException {
         if(verbose)
-            System.out.println(timestamp + "\t" + dispatch_order + "\t" + getClass().getName() + "\t" + recipient.getClass().getName());
+            System.out.println(String.format("%.2f\t%d\t%s\t%s",timestamp,dispatch_order,getClass().getName(),recipient.getClass().getName()));
     }
 
     @Override

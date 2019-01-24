@@ -6,14 +6,12 @@
  */
 package models.ctm;
 
-import commodity.Commodity;
 import common.*;
 import common.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.FlowDirection;
 import geometry.Side;
-import jaxb.Roadparam;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import packet.AbstractPacketLaneGroup;

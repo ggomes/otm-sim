@@ -1,7 +1,6 @@
 package models.pq;
 
 import commodity.Commodity;
-import commodity.Subnetwork;
 import common.AbstractVehicle;
 import common.RoadConnection;
 import dispatch.Dispatcher;
@@ -9,12 +8,10 @@ import error.OTMErrorLog;
 import geometry.FlowDirection;
 import geometry.Side;
 import jaxb.OutputRequest;
-import keys.KeyCommPathOrLink;
 import models.*;
 import common.Link;
 import error.OTMException;
 import output.AbstractOutput;
-import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
 import runner.Scenario;
 

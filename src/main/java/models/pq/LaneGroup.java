@@ -17,17 +17,17 @@ import geometry.FlowDirection;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
+import models.AbstractLaneGroupVehicles;
 import models.VehiclePacket;
 import output.InterfaceVehicleListener;
 import packet.AbstractPacketLaneGroup;
 import packet.PacketLink;
-import packet.PartialVehicleMemory;
 import runner.RunParameters;
 import runner.Scenario;
 
 import java.util.*;
 
-public class LaneGroup extends AbstractLaneGroup {
+public class LaneGroup extends AbstractLaneGroupVehicles {
 
     public models.pq.Queue transit_queue;
     public models.pq.Queue waiting_queue;
@@ -42,8 +42,6 @@ public class LaneGroup extends AbstractLaneGroup {
     // b) lanegroups that connect only to links not within the commoditie's subnetwork
     // c) any explicitly prohibitted lanegroups (not implemented)
 //    public Map<KeyCommodityLink,Set<AbstractLaneGroup>> downstream_candidate_lanegroups;
-
-    public PartialVehicleMemory pvm;
 
     ////////////////////////////////////////////
     // construction
@@ -66,28 +64,6 @@ public class LaneGroup extends AbstractLaneGroup {
         saturation_flow_rate_vps = r.getCapacity()*num_lanes/3600f;
     }
 
-    // construct downstream_candidate_lanegroups
-//    @Override
-//    public void add_commodity(Commodity commodity) {
-
-//        if(link.end_node.is_many2one){
-//            Link outlink = link.end_node.out_links.values().iterator().next();
-//            downstream_candidate_lanegroups.put(
-//                    new KeyCommodityLink(commodity.getId(),outlink.getId()),
-//                    new HashSet<>(outlink.lanegroups_flwdn.values()));
-//            return;
-//        }
-//
-//        for(Long outlink_id : get_dwn_links()){
-//            RoadConnection rc = get_roadconnection_for_outlink(outlink_id);
-//            if(rc!=null){
-//                Set<AbstractLaneGroup> out_lanegroups = OTMUtils.intersect(rc.out_lanegroups,commodity.all_lanegroups);
-//                if(!out_lanegroups.isEmpty())
-//                    downstream_candidate_lanegroups.put(new KeyCommodityLink(commodity.getId(),outlink_id),out_lanegroups);
-//            }
-//        }
-//    }
-
     @Override
     public void validate(OTMErrorLog errorLog) {
         super.validate(errorLog);
@@ -98,7 +74,6 @@ public class LaneGroup extends AbstractLaneGroup {
     @Override
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
         super.initialize(scenario,runParams);
-        this.pvm = new PartialVehicleMemory(scenario.commodities);
         transit_queue.initialize();
         waiting_queue.initialize();
         current_max_flow_rate_vps = saturation_flow_rate_vps;
@@ -119,6 +94,7 @@ public class LaneGroup extends AbstractLaneGroup {
 
         VehiclePacket vp = (VehiclePacket) avp;
 
+        System.out.println("TODO: -0i3j4go[iwq");
         // TODO UNCOMMENT THIS
 //        // add to what is in the pvm
 //        vp.vehicles.addAll( pvm.process_packet(vp.pvm) );
@@ -162,21 +138,6 @@ public class LaneGroup extends AbstractLaneGroup {
         // schedule a release for now+ half wait time
         schedule_release_vehicle(timestamp,current_max_flow_rate_vps*2);
 
-    }
-
-    @Override
-    public void set_max_speed_mps(Float max_speed_mps) throws OTMException {
-        throw new OTMException("NOT IMPLEMENTED");
-    }
-
-    @Override
-    public void set_max_flow_vpspl(Float max_flow_vpspl) throws OTMException {
-        throw new OTMException("NOT IMPLEMENTED");
-    }
-
-    @Override
-    public void set_max_density_vpkpl(Float max_density_vpkpl) throws OTMException {
-        throw new OTMException("NOT IMPLEMENTED");
     }
 
     /**
@@ -278,26 +239,6 @@ public class LaneGroup extends AbstractLaneGroup {
     @Override
     public float vehs_dwn_for_comm(Long c){
         return (float) (transit_queue.num_vehicles_for_commodity(c) + waiting_queue.num_vehicles_for_commodity(c));
-    }
-
-    @Override
-    public float vehs_in_for_comm(Long comm_id) {
-        return 0;
-    }
-
-    @Override
-    public float vehs_out_for_comm(Long comm_id) {
-        return 0;
-    }
-
-    @Override
-    public float get_current_travel_time() {
-        return Float.NaN;
-    }
-
-    @Override
-    public double get_supply() {
-        return get_space();
     }
 
     ///////////////////////////////////////////////////

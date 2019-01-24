@@ -215,7 +215,7 @@ public class TestOne extends AbstractTest {
         //    5 start_time
         //    6 duration
 
-        String [] args = new String[7];
+        String[] args = new String[7];
         args[0] = "-run";
         args[1] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\exp_micro.xml";
         args[2] = "micro";
@@ -224,26 +224,47 @@ public class TestOne extends AbstractTest {
         args[5] = "0";
         args[6] = "100";
 
-//        String [] args = new String[7];
-//        args[0] = "-run";
-//        args[1] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\exp_ctm.xml";
-//        args[2] = "ctm";
-//        args[3] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output_ctm.xml";
-//        args[4] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output";
-//        args[5] = "0";
-//        args[6] = "100";
-
-//        String [] args = new String[7];
-//        args[0] = "-run";
-//        args[1] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\exp_pq.xml";
-//        args[2] = "pq";
-//        args[3] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output_pq.xml";
-//        args[4] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output";
-//        args[5] = "0";
-//        args[6] = "100";
-
         OTM.main(args);
 
+    }
+
+    @Test
+    public void run_macro(){
+        String [] args = new String[7];
+        args[0] = "-run";
+        args[1] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\exp_ctm.xml";
+        args[2] = "ctm";
+        args[3] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output_ctm.xml";
+        args[4] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output";
+        args[5] = "0";
+        args[6] = "100";
+        OTM.main(args);
+    }
+
+    @Test
+    public void run_meso(){
+        String [] args = new String[7];
+        args[0] = "-run";
+        args[1] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\exp_pq.xml";
+        args[2] = "pq";
+        args[3] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output_pq.xml";
+        args[4] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output";
+        args[5] = "0";
+        args[6] = "100";
+        OTM.main(args);
+    }
+
+    @Test
+    public void run_micro(){
+        String[] args = new String[7];
+        args[0] = "-run";
+        args[1] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\exp_micro.xml";
+        args[2] = "micro";
+        args[3] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output_micro.xml";
+        args[4] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output";
+        args[5] = "0";
+        args[6] = "100";
+        OTM.main(args);
     }
 
 }
