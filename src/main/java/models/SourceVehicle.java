@@ -14,6 +14,7 @@ import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import error.OTMException;
 import keys.KeyCommPathOrLink;
+import packet.VehicleLaneGroupPacket;
 import profiles.DemandProfile;
 import runner.Scenario;
 
@@ -59,7 +60,8 @@ public class SourceVehicle extends common.AbstractSource {
         Long outlink_id;
         KeyCommPathOrLink key;
         if(commodity.pathfull){
-            outlink_id = link.path2outlink.get(path.getId());
+            Link outlink = link.path2outlink.get(path.getId());
+            outlink_id = outlink.getId();
             key = new KeyCommPathOrLink(commodity.getId(),path.getId(),true);
         } else {
             outlink_id = link.sample_nextlink_for_commodity(commodity);
@@ -79,7 +81,7 @@ public class SourceVehicle extends common.AbstractSource {
         AbstractLaneGroup joinlanegroup = link.model.lanegroup_proportions(target_lanegroups).keySet().iterator().next();
 
         // package and add to joinlanegroup
-        joinlanegroup.add_native_vehicle_packet(timestamp,new VehiclePacket(vehicle,new HashSet(target_lanegroups)));
+        joinlanegroup.add_vehicle_packet(timestamp,new VehicleLaneGroupPacket(vehicle,new HashSet(target_lanegroups)));
 
         // this scheduled vehicle has been created
         vehicle_scheduled = false;

@@ -28,7 +28,6 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
     public Model_Micro(String name, boolean is_default, Float dt) {
         super(name, is_default);
         this.dt = dt==null ? -1 : dt;
-        myPacketClass = models.micro.PacketLaneGroup.class;
     }
 
     //////////////////////////////////////////////////

@@ -75,7 +75,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     ///////////////////////////////////////////////////
 
     abstract public double get_supply();
-    abstract public void add_native_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp) throws OTMException;
+    abstract public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp, Long nextlink_id) throws OTMException;
     abstract public void exiting_roadconnection_capacity_has_been_modified(float timestamp);
     abstract public void set_max_speed_mps(Float max_speed_mps) throws OTMException;
     abstract public void set_max_flow_vpspl(Float max_flow_vpspl) throws OTMException;
@@ -96,7 +96,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
      *    road connections.
      * 2. check what portion of each of these packets will be accepted. Reduce the packets
      *    if necessary.
-     * 3. call next_link.add_native_vehicle_packet for each reduces packet.
+     * 3. call next_link.add_vehicle_packet for each reduces packet.
      * 4. remove the vehicle packets from this lanegroup.
      */
     abstract public void release_vehicle_packets(float timestamp) throws OTMException;
@@ -187,12 +187,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
         // add all states
         for (KeyCommPathOrLink key : states) {
-            Long outlink_id = key.isPath ? link.path2outlink.get(key.pathOrlink_id) :
-                    key.pathOrlink_id;
-
-            common.RoadConnection rc = get_roadconnection_for_outlink(outlink_id);
-            if (rc!=null && roadconnection2states.containsKey(rc.getId()))
-                roadconnection2states.get(rc.getId()).add(key);
+            RoadConnection rc = get_target_road_connection_for_state(key);
+            roadconnection2states.get(rc.getId()).add(key);
         }
 
     }
@@ -277,28 +273,23 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return link.end_node.is_many2one ? 0 : roadconnection2states.size();
     }
 
-    public Set<AbstractLaneGroup> get_accessible_lgs_in_outlink(Link out_link){
-
-        // if the end node is one to one, then all lanegroups in the next link are equally accessible
-        if(link.end_node.is_many2one) {
-            if (link.outlink2lanegroups.containsKey(out_link.getId()))
-                return new HashSet<>(out_link.lanegroups_flwdn.values());     // all downstream lanegroups are accessible
-            else
-                return null;
-        }
-
-        // otherwise, get the road connection connecting this lg to out_link
-        RoadConnection rc = outlink2roadconnection.get(out_link.getId());
-
-        // return lanegroups connected to by this road connection
-        return out_link.get_unique_lanegroups_for_up_lanes(rc.end_link_from_lane,rc.end_link_to_lane);
-
-    }
-
-    // returns null if either the outlink is unknown or the lanegroup is one-to-one
-    public RoadConnection get_roadconnection_for_outlink(Long link_id){
-        return link_id==null? null : outlink2roadconnection.get(link_id);
-    }
+//    public Set<AbstractLaneGroup> get_accessible_lgs_in_outlink(Link out_link){
+//
+//        // if the end node is one to one, then all lanegroups in the next link are equally accessible
+//        if(link.end_node.is_many2one) {
+//            if (link.outlink2lanegroups.containsKey(out_link.getId()))
+//                return new HashSet<>(out_link.lanegroups_flwdn.values());     // all downstream lanegroups are accessible
+//            else
+//                return null;
+//        }
+//
+//        // otherwise, get the road connection connecting this lg to out_link
+//        RoadConnection rc = outlink2roadconnection.get(out_link.getId());
+//
+//        // return lanegroups connected to by this road connection
+//        return out_link.get_unique_lanegroups_for_up_lanes(rc.end_link_from_lane,rc.end_link_to_lane);
+//
+//    }
 
     ///////////////////////////////////////////////////
     // update
@@ -312,6 +303,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     ///////////////////////////////////////////////////
     // other
     ///////////////////////////////////////////////////
+
+    public RoadConnection get_target_road_connection_for_state(KeyCommPathOrLink key){
+        Long outlink_id = key.isPath ? link.path2outlink.get(key.pathOrlink_id).getId() : key.pathOrlink_id;
+        return outlink2roadconnection.get(outlink_id);
+    }
 
     @Override
     public String toString() {

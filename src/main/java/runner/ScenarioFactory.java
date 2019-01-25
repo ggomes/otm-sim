@@ -91,7 +91,7 @@ public class ScenarioFactory {
             for(int i=0;i<path.ordered_links.size()-1;i++){
                 Link link = path.ordered_links.get(i);
                 Link next_link = path.ordered_links.get(i+1);
-                link.path2outlink.put(path.getId(),next_link.getId());
+                link.path2outlink.put(path.getId(),next_link);
             }
         }
 

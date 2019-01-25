@@ -4,28 +4,26 @@
  * This source code is licensed under the standard 3-clause BSD license found
  * in the LICENSE file in the root directory of this source tree.
  */
-package models.ctm;
+package packet;
 
-import models.AbstractLaneGroup;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
-import packet.AbstractPacketLaneGroup;
-import packet.PacketLink;
+import models.AbstractLaneGroup;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class PacketLaneGroup extends AbstractPacketLaneGroup {
+public class FluidLaneGroupPacket extends AbstractPacketLaneGroup {
 
     public Map<KeyCommPathOrLink,Double> state2vehicles = new HashMap<>();
 
     // used by newInstance
-    public PacketLaneGroup(){
+    public FluidLaneGroupPacket(){
         super();
     }
 
-    public PacketLaneGroup(Set<AbstractLaneGroup> target_lanegroups){
+    public FluidLaneGroupPacket(Set<AbstractLaneGroup> target_lanegroups){
         super(target_lanegroups);
     }
 
@@ -72,7 +70,7 @@ public class PacketLaneGroup extends AbstractPacketLaneGroup {
 
     @Override
     public AbstractPacketLaneGroup times(double x) {
-        PacketLaneGroup z = new models.ctm.PacketLaneGroup(this.target_lanegroups);
+        FluidLaneGroupPacket z = new FluidLaneGroupPacket(this.target_lanegroups);
         for(Map.Entry<KeyCommPathOrLink,Double> e : state2vehicles.entrySet())
             z.state2vehicles.put(e.getKey(),e.getValue()*x);
         return z;

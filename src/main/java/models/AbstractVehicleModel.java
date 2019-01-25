@@ -5,6 +5,8 @@ import commodity.Path;
 import common.AbstractSource;
 import common.AbstractVehicle;
 import common.Link;
+import packet.AbstractPacketLaneGroup;
+import packet.VehicleLaneGroupPacket;
 import profiles.DemandProfile;
 
 import java.util.*;
@@ -23,6 +25,11 @@ public abstract class AbstractVehicleModel extends AbstractModel {
     @Override
     public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
         return new SourceVehicle(origin,demand_profile,commodity,path);
+    }
+
+    @Override
+    public AbstractPacketLaneGroup create_lanegroup_packet(){
+        return new VehicleLaneGroupPacket();
     }
 
     //////////////////////////////////////////////////

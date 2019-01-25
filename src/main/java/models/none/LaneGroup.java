@@ -22,7 +22,7 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public void add_native_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp) throws OTMException {
+    public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp) throws OTMException {
 
     }
 

@@ -17,6 +17,7 @@ import common.Link;
 import error.OTMErrorLog;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
+import packet.FluidLaneGroupPacket;
 import models.MacroNodeModel;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
@@ -37,10 +38,8 @@ public class Model_CTM extends AbstractFluidModel {
 
     public Model_CTM(String name,boolean is_default, Float dt, Float max_cell_length) {
         super(name,is_default);
-//        this.model_type = ModelType.discrete_time;
         this.dt = dt==null ? -1 : dt;
         this.max_cell_length = max_cell_length==null ? -1 : max_cell_length;
-        myPacketClass = models.ctm.PacketLaneGroup.class;
     }
 
     //////////////////////////////////////////////////////////////
@@ -363,7 +362,7 @@ public class Model_CTM extends AbstractFluidModel {
             // convert to packets and send
             for(models.ctm.RoadConnection rc : node_model.rcs.values()) {
                 Link link = rc.rc.get_end_link();
-                link.model.add_vehicle_packet(link,timestamp, new PacketLink(rc.f_rs, rc.rc.out_lanegroups));
+                link.model.add_vehicle_packet(link,timestamp, new PacketLink(rc.f_rs, rc.rc));
             }
 
             // set exit flows on non-sink lanegroups

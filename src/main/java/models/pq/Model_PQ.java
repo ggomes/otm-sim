@@ -21,7 +21,7 @@ public class Model_PQ extends AbstractVehicleModel {
 
     public Model_PQ(String name,boolean is_default) {
         super(name,is_default);
-        myPacketClass = VehiclePacket.class;
+//        myPacketClass = VehicleLaneGroupPacket.class;
     }
 
     //////////////////////////////////////////////////

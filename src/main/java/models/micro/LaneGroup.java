@@ -7,7 +7,6 @@ import error.OTMException;
 import geometry.FlowDirection;
 import geometry.Side;
 import models.AbstractLaneGroupVehicles;
-import models.VehiclePacket;
 import packet.AbstractPacketLaneGroup;
 
 import java.util.ArrayList;
@@ -29,10 +28,19 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
     ///////////////////////////////////////////////////
 
     @Override
-    public void add_native_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp) throws OTMException {
-        Set<AbstractVehicle> vs = ((VehiclePacket)vp).vehicles;
-        assert(vs.size()==1);
-        vehicles.add((models.micro.Vehicle)vs.iterator().next());
+    public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp, Long next_link_id) throws OTMException {
+
+        for(AbstractVehicle vehicle : create_vehicles_from_packet(avp)){
+
+            vehicles.add((models.micro.Vehicle)vehicle);
+
+            System.out.println(String.format("%.2f %d %d ",timestamp,id,vehicle.getId()));
+
+            // inform the travel timers
+            link.travel_timers.forEach(x->x.vehicle_enter(timestamp,vehicle));
+        }
+
     }
+
 
 }

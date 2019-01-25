@@ -18,7 +18,6 @@ import geometry.Side;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import models.AbstractLaneGroupVehicles;
-import models.VehiclePacket;
 import output.InterfaceVehicleListener;
 import packet.AbstractPacketLaneGroup;
 import packet.PacketLink;
@@ -90,21 +89,11 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
      * 3. add the packet to this lanegroup.
      */
     @Override
-    public void add_native_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp) throws OTMException {
-
-        VehiclePacket vp = (VehiclePacket) avp;
-
-        System.out.println("TODO: -0i3j4go[iwq");
-        // TODO UNCOMMENT THIS
-//        // add to what is in the pvm
-//        vp.vehicles.addAll( pvm.process_packet(vp.pvm) );
+    public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp, Long next_link_id) throws OTMException {
 
         // for each vehicle
         Dispatcher dispatcher = link.network.scenario.dispatcher;
-        for(AbstractVehicle vehicle : vp.vehicles){
-
-            if(!(vehicle instanceof Vehicle))
-                continue;
+        for(AbstractVehicle vehicle : create_vehicles_from_packet(avp,next_link_id)){
 
             // tell the vehicle it has moved
             ((Vehicle)vehicle).move_to_queue(timestamp,transit_queue);
@@ -146,7 +135,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
      *    road connections.
      * 2. check what portion of each of these packets will be accepted. Reduce the packets
      *    if necessary.
-     * 3. call add_native_vehicle_packet for each reduces packet.
+     * 3. call add_vehicle_packet for each reduces packet.
      * 4. remove the vehicle packets from this lanegroup.
      */
     @Override
@@ -184,21 +173,16 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
             // get next link
             KeyCommPathOrLink state = vehicle.get_key();
-            Link next_link;
-            if(state.isPath ) {
+            Link next_link = state.isPath ? link.path2outlink.get(state.pathOrlink_id) : state.pathOrlink_id;
 
-                // TODO CHACHE THIS
-                Path path = (Path) link.network.scenario.subnetworks.get(state.pathOrlink_id);
-                next_link = path.get_link_following(link);
-            } else {
-                next_link = link.network.links.get(state.pathOrlink_id);
-            }
+            // vehicle should be in a target lane group
+            assert(outlink2roadconnection.containsKey(next_link));
 
-            Set<AbstractLaneGroup> dwn_lanegroups = get_accessible_lgs_in_outlink(next_link);
+            RoadConnection rc = outlink2roadconnection.get(next_link);
 
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
-            OptionalDouble max_space = dwn_lanegroups.stream()
+            OptionalDouble max_space = rc.out_lanegroups.stream()
                     .mapToDouble(AbstractLaneGroup::get_space)
                     .max();
 
@@ -210,11 +194,8 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                 // inform the travel timers
                 link.travel_timers.forEach(x->x.vehicle_exit(timestamp,vehicle,link.getId(),next_link));
 
-                // construct the vehicle packet
-                PacketLink vp = new PacketLink(vehicle,dwn_lanegroups);
-
-                // add vehicle to next link
-                next_link.model.add_vehicle_packet(next_link,timestamp,vp);
+                // send vehicle packet to next link
+                next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
 
             } else { // all targets are blocked
                 return;

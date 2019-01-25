@@ -14,6 +14,7 @@ import geometry.FlowDirection;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
+import packet.FluidLaneGroupPacket;
 import packet.AbstractPacketLaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
@@ -105,9 +106,9 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public void add_native_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp) {
+    public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp) {
 
-        models.ctm.PacketLaneGroup vp = (models.ctm.PacketLaneGroup) avp;
+        FluidLaneGroupPacket vp = (FluidLaneGroupPacket) avp;
 
         Map<KeyCommPathOrLink,Double> bf_dwn = flow_dwn.get(0);
         Map<KeyCommPathOrLink,Double> bf_in = flow_in==null ? null : flow_in.get(0);

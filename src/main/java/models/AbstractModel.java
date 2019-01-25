@@ -4,6 +4,7 @@ import actuator.ActuatorFD;
 import commodity.Commodity;
 import commodity.Path;
 import common.AbstractSource;
+import common.AbstractVehicle;
 import common.Link;
 import common.RoadConnection;
 import dispatch.Dispatcher;
@@ -12,6 +13,7 @@ import error.OTMException;
 import geometry.FlowDirection;
 import geometry.Side;
 import jaxb.OutputRequest;
+import keys.KeyCommPathOrLink;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import packet.AbstractPacketLaneGroup;
@@ -24,8 +26,6 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class AbstractModel {
-
-    public Class myPacketClass;
 
     public Set<Link> links;
     public String name;
@@ -55,6 +55,7 @@ public abstract class AbstractModel {
     abstract public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes,int start_lane,Set<RoadConnection> out_rcs);
     abstract public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path);
     abstract public AbstractLinkInfo get_link_info(Link link);
+    abstract public AbstractPacketLaneGroup create_lanegroup_packet();
 
     //////////////////////////////////////////////////
     // run
@@ -104,85 +105,90 @@ public abstract class AbstractModel {
         set_road_param(link,r);
     }
 
+    // add a vehicle packet that is already known to fit.
     final public void add_vehicle_packet(Link link,float timestamp, PacketLink vp) throws OTMException {
 
         if(vp.isEmpty())
             return;
 
-        // sink or many-to-one
-        // this implies that next-link is trivial
-        // and (for now) target_lanegroup is trivial
-        if(link.outlink2lanegroups.size()<2){
-            // if sink, encode by using current link id as nextlink.
-            Long outlink_id = link.is_sink ? link.getId() : link.end_node.out_links.values().iterator().next().getId();
-            AbstractPacketLaneGroup packet = Link.cast_packet_null_splitter(myPacketClass,vp,outlink_id);
-            AbstractLaneGroup join_lanegroup = vp.arrive_to_lanegroups.iterator().next();
-            join_lanegroup.add_native_vehicle_packet(timestamp,packet);
-            return;
-        }
+        // 1. split arriving packet into subpackets per downstream link.
+        // This assigns states to the packets, but
+        // This does not set AbstractPacketLaneGroup.target_road_connection
+        Map<Long, AbstractPacketLaneGroup> split_packets = link.split_packet(vp);
 
-        // tag the packet with next_link and target_lanegroups
-        Map<Long, AbstractPacketLaneGroup> split_packets = link.split_packet(myPacketClass,vp);
+        // 2. Compute the proportions to apply to the split packets to distribute
+        // amongst lane groups
+        Map<AbstractLaneGroup,Double> lg_prop = lanegroup_proportions(vp.road_connection.out_lanegroups);
 
-        // process each split packet
-        for(Map.Entry<Long, AbstractPacketLaneGroup> e : split_packets.entrySet()){
+        // 3. distribute the packets
+        for(Map.Entry<Long, AbstractPacketLaneGroup> e1 : split_packets.entrySet()){
+            Long next_link_id = e1.getKey();
+            AbstractPacketLaneGroup packet = e1.getValue();
 
-            Long outlink_id = e.getKey();
-            AbstractPacketLaneGroup split_packet = e.getValue();
-
-            if(split_packet.isEmpty())
+            if(packet.isEmpty())
                 continue;
 
-            // TODO: THIS IS NO LONGER NEEDED
-            split_packet.target_lanegroups = link.outlink2lanegroups.get(outlink_id);
-
-            if(split_packet.target_lanegroups==null) {
-
-                // In MPI, the link may not be present, so don't throw and exception.
-                continue;
-
-//                throw new OTMException(String.format("target_lanegroups==null.\nThis may be an error in split ratios. " +
-//                        "There is no access from link " + link.getId() + " to " +
-//                        "link " + outlink_id + ". A possible cause is that there is " +
-//                        "a positive split ratio between these two links."));
+            for(Map.Entry<AbstractLaneGroup,Double> e2 : lg_prop.entrySet()){
+                AbstractLaneGroup join_lg = e2.getKey();
+                Double prop = e2.getValue();
+                if (prop <= 0d)
+                    continue;
+                if (prop==1d)
+                    join_lg.add_vehicle_packet(timestamp, packet, next_link_id );
+                else
+                    join_lg.add_vehicle_packet(timestamp, packet.times(prop), next_link_id);
             }
-
-            Set<AbstractLaneGroup> candidate_lanegroups = vp.arrive_to_lanegroups;
-
-            // split the split_packet amongst the candidate lane groups.
-            // then add them
-            if(candidate_lanegroups.size()==1) {
-                AbstractLaneGroup laneGroup = candidate_lanegroups.iterator().next();
-                laneGroup.add_native_vehicle_packet(timestamp, split_packet);
-            } else {
-                for (Map.Entry<AbstractLaneGroup, Double> ee : lanegroup_proportions(candidate_lanegroups).entrySet()) {
-                    AbstractLaneGroup laneGroup = ee.getKey();
-                    Double prop = ee.getValue();
-                    if (prop <= 0d)
-                        continue;
-                    if (prop==1d)
-                        laneGroup.add_native_vehicle_packet(timestamp, split_packet );
-                    else
-                        laneGroup.add_native_vehicle_packet(timestamp, split_packet.times(prop));
-                }
-            }
-
-//            // TODO: FOR MESO and MICRO MODELS, CHECK THAT THERE IS AT LEAST 1 VEHICLE WORTH OF SUPPLY.
-//
-//            // if all candidates are full, then choose one that is closest and not full
-//            if(join_lanegroup==null) {
-//
-//                join_lanegroup = choose_closest_that_is_not_full(vp.arrive_to_lanegroups,candidate_lanegroups,split_packet.target_lanegroups);
-//
-//                // put lane change requests on the target lane groups
-//                // TODO: REDO THIS
-////                add_lane_change_request(timestamp,lanegroup_packet,join_lanegroup,lanegroup_packet.target_lanegroups,Queue.Type.transit);
-//            }
-
-            // add the packet to it
-
         }
 
     }
+
+//    private AbstractPacketLaneGroup cast_to_single_lanegroup(PacketLink vp, Long outlink_id){
+//
+//        // create a lane group packet of appropriate type
+//        AbstractPacketLaneGroup split_packet = null; XXXXXXXXXXXXXx
+////        try {
+////            split_packet = (AbstractPacketLaneGroup) packet_class.newInstance();
+////        } catch (InstantiationException e) {
+////            e.printStackTrace();
+////            return null;
+////        } catch (IllegalAccessException e) {
+////            e.printStackTrace();
+////            return null;
+////        }
+//
+//        boolean has_macro = !vp.no_macro();
+//        boolean has_micro = !vp.no_micro();
+//
+//        // process the fluid state
+//        if(has_macro) {
+//            for (Map.Entry<KeyCommPathOrLink, Double> e : vp.state2vehicles.entrySet()) {
+//                KeyCommPathOrLink key = e.getKey();
+//                Double vehicles = e.getValue();
+//                if (key.isPath || outlink_id==null)  // null occurs for sinks
+//                    split_packet.add_macro(key,vehicles);
+//                else
+//                    split_packet.add_macro(new KeyCommPathOrLink(key.commodity_id, outlink_id, false),vehicles);
+//            }
+//        }
+//
+//        // process the vehicle state
+//        if(has_micro){
+//            for(AbstractVehicle vehicle : vp.vehicles){
+//                KeyCommPathOrLink key = vehicle.get_key();
+//                // NOTE: We do not update the next link id when it is null. This happens in
+//                // sinks. This means that the state in a sink needs to be interpreted
+//                // differently, which must be accounted for everywhere.
+//                if(key.isPath || outlink_id==null)
+//                    split_packet.add_micro(key,vehicle);
+//                else {
+//                    vehicle.set_next_link_id(outlink_id);
+//                    split_packet.add_micro(new KeyCommPathOrLink(key.commodity_id, outlink_id, false),vehicle);
+//                }
+//            }
+//        }
+//
+//        return split_packet;
+//    }
+
 
 }

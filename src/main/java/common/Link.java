@@ -72,11 +72,11 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
     // map from path id (uses this link) to next link id (exits this link)
     // populated by ScenarioFactory.create_scenario
-    public Map<Long,Long> path2outlink;
+    public Map<Long,Link> path2outlink;
 
     // outlink -> lanegroups from which outlink is reachable
     // built by Network contstructor.
-    public Map<Long,Set<AbstractLaneGroup>> outlink2lanegroups;
+//    public Map<Long,Set<AbstractLaneGroup>> outlink2lanegroups;
 
     // splits
     // populated by ScenarioFactory.create_scenario
@@ -398,9 +398,6 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 //                scenario.error_log.addError("!dwn_links_ids.containsAll(split_outlinks)");
 //        }
 
-
-
-
     }
 
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
@@ -412,16 +409,17 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     // inter-link dynamics
     ///////////////////////////////////////////
 
-    public boolean has_lessthantwo_downstream_links(){
-        return outlink2lanegroups.size()<2;
-    }
-
-    // split a packet according to downstream link.
-    // for pathfull commodities, the next link is trivial. For pathless, it is sampled from the split ratios
-    public Map<Long, AbstractPacketLaneGroup> split_packet(Class packet_class, PacketLink vp){
+    // split a packet according to next links.
+    // for pathfull commodities, the next link is the next in the path.
+    // For pathless, it is sampled from the split ratios
+    // this assigns the state for the split packet but does not yet assign
+    // the target road connection. This is done after joining the lane group.
+    // This DOES NOT update the keys within the AbstractPacketLaneGroup's
+    // and hence they are out of sync with the next link ids (keys in the map)
+    public Map<Long, AbstractPacketLaneGroup> split_packet(PacketLink vp){
 
         // initialize lanegroup_packets
-        Map<Long, AbstractPacketLaneGroup> lanegroup_packets = new HashMap<>();
+        Map<Long, AbstractPacketLaneGroup> split_packets = new HashMap<>();
 
         boolean has_macro = !vp.no_macro();
         boolean has_micro = !vp.no_micro();
@@ -434,23 +432,20 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
                 KeyCommPathOrLink key = e.getKey();
                 Double vehicles = e.getValue();
 
-                // pathfull case
+                // pathfull
                 if (key.isPath) {
-
-                    // TODO: Cache this
-                    Path path = (Path) network.scenario.subnetworks.get(key.pathOrlink_id);
-                    Long outlink_id = path.get_link_following(this).getId();
-                    add_to_lanegroup_packets(packet_class,lanegroup_packets,outlink_id,key,vehicles);
+                    Link next_link = path2outlink.get(key.pathOrlink_id);
+                    add_to_lanegroup_packets(split_packets,next_link.getId(),key,vehicles);
                 }
 
-                // pathless case
+                // pathless
                 else {
 
                     SplitInfo splitinfo = commodity2split.get(key.commodity_id);
 
                     if(splitinfo.sole_downstream_link!=null){
                         Long outlink_id = splitinfo.sole_downstream_link;
-                        add_to_lanegroup_packets(packet_class, lanegroup_packets, outlink_id,
+                        add_to_lanegroup_packets(split_packets, outlink_id,
                                 new KeyCommPathOrLink(key.commodity_id, outlink_id, false),
                                 vehicles );
                     }
@@ -459,7 +454,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
                         for (Map.Entry<Long, Double> e2 : splitinfo.outlink2split.entrySet()) {
                             Long outlink_id = e2.getKey();
                             Double split = e2.getValue();
-                            add_to_lanegroup_packets(packet_class, lanegroup_packets, outlink_id,
+                            add_to_lanegroup_packets(split_packets, outlink_id,
                                     new KeyCommPathOrLink(key.commodity_id, outlink_id, false),
                                     vehicles * split);
                         }
@@ -477,77 +472,22 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
                 // pathfull case
                 Long outlink_id;
                 if(key.isPath){
-                    // TODO: Cache this
-                    Path path = (Path) network.scenario.subnetworks.get(key.pathOrlink_id);
-                    outlink_id = path.get_link_following(this).getId();
-                    add_to_lanegroup_packets(packet_class,lanegroup_packets,outlink_id,key,vehicle);
+                    Link outlink = path2outlink.get(key.pathOrlink_id);
+                    add_to_lanegroup_packets(split_packets,outlink.getId(),key,vehicle);
                 }
 
                 // pathless case
                 else {
                     outlink_id = commodity2split.get(key.commodity_id).sample_output_link();
                     vehicle.set_next_link_id(outlink_id);
-                    add_to_lanegroup_packets(packet_class,lanegroup_packets,outlink_id ,
+                    add_to_lanegroup_packets(split_packets,outlink_id ,
                             new KeyCommPathOrLink(key.commodity_id, outlink_id, false),
                             vehicle);
                 }
             }
         }
 
-        return lanegroup_packets;
-    }
-
-    public static AbstractPacketLaneGroup cast_packet_null_splitter(Class packet_class,PacketLink vp,Long outlink_id){
-
-        AbstractPacketLaneGroup split_packet;
-        try {
-            split_packet = (AbstractPacketLaneGroup) packet_class.newInstance();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-            return null;
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        boolean has_macro = !vp.no_macro();
-        boolean has_micro = !vp.no_micro();
-
-        // process the macro state
-        if(has_macro) {
-            for (Map.Entry<KeyCommPathOrLink, Double> e : vp.state2vehicles.entrySet()) {
-                KeyCommPathOrLink key = e.getKey();
-                Double vehicles = e.getValue();
-                if (key.isPath || outlink_id==null)  // null occurs for sinks
-                    split_packet.add_macro(key,vehicles);
-                else
-                    split_packet.add_macro(new KeyCommPathOrLink(key.commodity_id, outlink_id, false),vehicles);
-            }
-        }
-
-        // process the micro state
-        if(has_micro){
-            for(AbstractVehicle vehicle : vp.vehicles){
-                KeyCommPathOrLink key = vehicle.get_key();
-                // NOTE: We do not update the next link id when it is null. This happens in
-                // sinks. This means that the state in a sink needs to be interpreted
-                // differently, which must be accounted for everywhere.
-                if(key.isPath || outlink_id==null)
-                    split_packet.add_micro(key,vehicle);
-                else {
-                    vehicle.set_next_link_id(outlink_id);
-                    split_packet.add_micro(new KeyCommPathOrLink(key.commodity_id, outlink_id, false),vehicle);
-                }
-            }
-        }
-
-        return split_packet;
-    }
-
-    public Long sample_nextlink_for_commodity(Commodity commodity){
-        return commodity.pathfull ?
-                path2outlink.get(commodity.getId()) :
-                commodity2split.get(commodity.getId()).sample_output_link();
+        return split_packets;
     }
 
     ////////////////////////////////////////////
@@ -765,38 +705,26 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     // private and other
     ///////////////////////////////////////////
 
-    private static void add_to_lanegroup_packets(Class packet_class,Map<Long, AbstractPacketLaneGroup> lanegroup_packets,Long outlink_id,KeyCommPathOrLink key,Double vehicles){
-        try {
-            AbstractPacketLaneGroup split_packet;
-            if(lanegroup_packets.containsKey(outlink_id)){
-                split_packet = lanegroup_packets.get(outlink_id);
-            } else {
-                split_packet = (AbstractPacketLaneGroup) packet_class.newInstance();
-                lanegroup_packets.put(outlink_id,split_packet);
-            }
-            split_packet.add_macro(key,vehicles);
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+    private void add_to_lanegroup_packets(Map<Long, AbstractPacketLaneGroup> split_packets,Long nextlink_id,KeyCommPathOrLink key,Double vehicles){
+        AbstractPacketLaneGroup new_packet;
+        if(split_packets.containsKey(nextlink_id)){
+            new_packet = split_packets.get(nextlink_id);
+        } else {
+            new_packet = model.create_lanegroup_packet();
+            split_packets.put(nextlink_id,new_packet);
         }
+        new_packet.add_macro(key,vehicles);
     }
 
-    private static void add_to_lanegroup_packets(Class packet_class,Map<Long, AbstractPacketLaneGroup> lanegroup_packets,Long outlink_id,KeyCommPathOrLink key,AbstractVehicle vehicle){
-        try {
-            AbstractPacketLaneGroup split_packet;
-            if(lanegroup_packets.containsKey(outlink_id)){
-                split_packet = lanegroup_packets.get(outlink_id);
-            } else {
-                split_packet = (AbstractPacketLaneGroup) packet_class.newInstance();
-                lanegroup_packets.put(outlink_id,split_packet);
-            }
-            split_packet.add_micro(key,vehicle);
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+    private void add_to_lanegroup_packets(Map<Long, AbstractPacketLaneGroup> split_packets,Long outlink_id,KeyCommPathOrLink key,AbstractVehicle vehicle){
+        AbstractPacketLaneGroup new_packet;
+        if(split_packets.containsKey(outlink_id)){
+            new_packet = split_packets.get(outlink_id);
+        } else {
+            new_packet = model.create_lanegroup_packet();
+            split_packets.put(outlink_id,new_packet);
         }
+        new_packet.add_micro(key,vehicle);
     }
 
     @Override

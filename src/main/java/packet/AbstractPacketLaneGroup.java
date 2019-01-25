@@ -6,21 +6,29 @@
  */
 package packet;
 
+import common.AbstractVehicle;
+import common.RoadConnection;
+import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 
 import java.util.Set;
 
 /** Packets of vehicles (micro, meso, and/or macro) passed to a lane group **/
 
-public abstract class AbstractPacketLaneGroup implements InterfacePacketLaneGroup {
+public abstract class AbstractPacketLaneGroup {
 
-    // Vehicles should change lanes into one of these lanegroups
-    public Set<AbstractLaneGroup> target_lanegroups;
+    public RoadConnection target_road_connection;
 
     public AbstractPacketLaneGroup(){}
 
-    public AbstractPacketLaneGroup(Set<AbstractLaneGroup> target_lanegroups){
-        this.target_lanegroups = target_lanegroups;
+    public AbstractPacketLaneGroup(RoadConnection target_road_connection){
+        this.target_road_connection = target_road_connection;
     }
+
+    abstract public boolean isEmpty();
+    abstract public void add_link_packet(PacketLink vp);
+    abstract public void add_macro(KeyCommPathOrLink key, Double vehicles);
+    abstract public void add_micro(KeyCommPathOrLink key, AbstractVehicle vehicle);
+    abstract public AbstractPacketLaneGroup times(double x);
 
 }

@@ -7,9 +7,9 @@
 package packet;
 
 import commodity.Commodity;
+import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
-import models.pq.Vehicle;
-import runner.Scenario;
+import models.AbstractVehicleModel;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,7 +18,7 @@ import java.util.Set;
 
 public class PartialVehicleMemory {
 
-    private Map<Long, Commodity> commodities;
+    private Map<Long, Commodity> commodities;       // TODO: Find a way to remove this
     public Map<KeyCommPathOrLink,Double> remainder;
 
     ////////////////////////////////////////////////////////////
@@ -34,11 +34,15 @@ public class PartialVehicleMemory {
     // public
     ////////////////////////////////////////////////////////////
 
-    public Set<Vehicle> process_packet(PartialVehicleMemory packet){
+    public Set<AbstractVehicle> process_fluid_packet(FluidLaneGroupPacket packet){
 
-        Set<Vehicle> vehicles = new HashSet<>();
+        // TODO fix this
+        AbstractVehicleModel model = null;
 
-        for(Map.Entry<KeyCommPathOrLink,Double> e : packet.remainder.entrySet()){
+        Set<AbstractVehicle> vehicles = new HashSet<>();
+
+        // iterate through all keys ion the packet
+        for(Map.Entry<KeyCommPathOrLink,Double> e : packet.state2vehicles.entrySet()){
             KeyCommPathOrLink key = e.getKey();
             double value = remainder.containsKey(key) ? remainder.get(key) + e.getValue() : e.getValue();
 
@@ -46,7 +50,7 @@ public class PartialVehicleMemory {
                 int num_veh = (int) value;
                 remainder.put(key,value - num_veh);
                 for(int i=0;i<num_veh;i++)
-                    vehicles.add(new Vehicle(commodities.get(key.commodity_id)));
+                    vehicles.add(model.create_vehicle(commodities.get(key.commodity_id)));
             }
             else
                 remainder.put(key,value);

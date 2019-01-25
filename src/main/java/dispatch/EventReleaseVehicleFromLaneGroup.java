@@ -7,10 +7,10 @@
 package dispatch;
 
 import error.OTMException;
+import models.AbstractLaneGroupVehicles;
 import models.pq.LaneGroup;
 
 public class EventReleaseVehicleFromLaneGroup extends AbstractEvent {
-
 
     public EventReleaseVehicleFromLaneGroup(Dispatcher dispatcher,float timestamp, Object obj) {
         super(dispatcher,4,timestamp,obj);
@@ -35,7 +35,7 @@ public class EventReleaseVehicleFromLaneGroup extends AbstractEvent {
     @Override
     public void action(boolean verbose) throws OTMException {
         super.action(verbose);
-        ((LaneGroup) recipient).release_vehicle_packets(timestamp);
+        ((AbstractLaneGroupVehicles) recipient).release_vehicle_packets(timestamp);
     }
 
 }
