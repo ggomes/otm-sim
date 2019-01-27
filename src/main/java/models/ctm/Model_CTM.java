@@ -6,8 +6,8 @@ import common.AbstractSource;
 import common.Node;
 import common.RoadConnection;
 import dispatch.Dispatcher;
-import dispatch.EventMacroFlowUpdate;
-import dispatch.EventMacroStateUpdate;
+import dispatch.EventFluidFluxUpdate;
+import dispatch.EventFluidStateUpdate;
 import error.OTMException;
 import geometry.FlowDirection;
 import jaxb.OutputRequest;
@@ -21,6 +21,7 @@ import models.MacroNodeModel;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import packet.AbstractPacketLaneGroup;
+import packet.FluidLaneGroupPacket;
 import packet.PacketLink;
 import profiles.DemandProfile;
 import runner.Scenario;
@@ -32,94 +33,16 @@ import static java.util.stream.Collectors.toSet;
 
 public class Model_CTM extends AbstractFluidModel {
 
-    public float dt;
     public float max_cell_length;
     public Set<MacroNodeModel> node_models;
 
     public Model_CTM(String name,boolean is_default, Float dt, Float max_cell_length) {
-        super(name,is_default);
-        this.dt = dt==null ? -1 : dt;
+        super(name,is_default,dt==null ? -1 : dt);
         this.max_cell_length = max_cell_length==null ? -1 : max_cell_length;
     }
 
     //////////////////////////////////////////////////////////////
-    // AbstractModel -- abstract methods
-    //////////////////////////////////////////////////////////////
-
-    @Override
-    public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
-        Map<AbstractLaneGroup,Double> A = new HashMap<>();
-        double total_supply = candidate_lanegroups.stream().mapToDouble(x->x.get_supply()).sum();
-        for(AbstractLaneGroup laneGroup : candidate_lanegroups)
-            A.put(laneGroup , laneGroup.get_supply() / total_supply);
-        return A;
-    }
-
-    @Override
-    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
-        AbstractOutput output = null;
-        switch (jaxb_or.getQuantity()) {
-            case "cell_veh":
-                Long commodity_id = jaxb_or.getCommodity();
-                Float outDt = jaxb_or.getDt();
-                output = new OutputCellVehicles(scenario, this,prefix, output_folder, commodity_id, outDt);
-                break;
-            default:
-                throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
-        }
-        return output;
-    }
-
-    @Override
-    public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time) {
-        dispatcher.register_event(new EventMacroFlowUpdate(dispatcher, start_time + dt, this));
-        dispatcher.register_event(new EventMacroStateUpdate(dispatcher, start_time + dt, this));
-    }
-
-    @Override
-    public void validate(OTMErrorLog errorLog) {
-    }
-
-    @Override
-    public void reset(Link link) {
-        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
-            LaneGroup lg = (LaneGroup) alg;
-            lg.cells.forEach(x->x.reset());
-        }
-    }
-
-    @Override
-    public void build() {
-
-        // build node models
-        node_models.forEach(m->m.build());
-
-        // create cells
-        links.forEach(link->create_cells(link,max_cell_length));
-    }
-
-    @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        return new models.ctm.LaneGroup(link,side,flowdir,length,num_lanes,start_lane,out_rcs);
-    }
-
-    @Override
-    public AbstractLinkInfo get_link_info(Link link) {
-        return new output.animation.macro.LinkInfo(link);
-    }
-
-    @Override
-    public AbstractPacketLaneGroup create_lanegroup_packet() {
-        return null;
-    }
-
-    @Override
-    public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
-        return new SourceFluid(origin,demand_profile,commodity,path);
-    }
-
-    //////////////////////////////////////////////////////////////
-    // AbstractModel -- method completion
+    // load
     //////////////////////////////////////////////////////////////
 
     @Override
@@ -141,14 +64,6 @@ public class Model_CTM extends AbstractFluidModel {
         node_models = new HashSet<>();
         for(Node node : all_nodes)
             node_models.add( new MacroNodeModel(node) );
-    }
-
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
-
-        for(MacroNodeModel node_model : node_models)
-            node_model.initialize(scenario);
     }
 
     @Override
@@ -179,25 +94,143 @@ public class Model_CTM extends AbstractFluidModel {
         }
     }
 
-    ///////////////////////////////////////////
-    // update
-    ///////////////////////////////////////////
+    @Override
+    public void validate(OTMErrorLog errorLog) {
 
-    public void update_macro_flow(float timestamp) throws OTMException {
-
-        update_macro_flow_part_I(timestamp);
-
-        // -- MPI communication (in otm-mpi) -- //
-
-        update_macro_flow_part_II(timestamp);
     }
 
-    public void update_macro_state(float timestamp) {
-        for(Link link : links)
-            update_state(timestamp,link);
+    @Override
+    public void reset(Link link) {
+        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
+            LaneGroup lg = (LaneGroup) alg;
+            lg.cells.forEach(x->x.reset());
+        }
     }
 
-    public void perform_lane_changes(Link link,float timestamp) {
+    @Override
+    public void build() {
+
+        // build node models
+        node_models.forEach(m->m.build());
+
+        // create cells
+        links.forEach(link->create_cells(link,max_cell_length));
+    }
+
+    @Override
+    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        return new models.ctm.LaneGroup(link,side,flowdir,length,num_lanes,start_lane,out_rcs);
+    }
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+
+        for(MacroNodeModel node_model : node_models)
+            node_model.initialize(scenario);
+    }
+
+    //////////////////////////////////////////////////////////////
+    // factory
+    //////////////////////////////////////////////////////////////
+
+    @Override
+    public AbstractPacketLaneGroup create_lanegroup_packet() {
+        return new FluidLaneGroupPacket();
+    }
+
+    @Override
+    public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
+        return new SourceFluid(origin,demand_profile,commodity,path);
+    }
+
+    @Override
+    public AbstractLinkInfo get_link_info(Link link) {
+        return new output.animation.macro.LinkInfo(link);
+    }
+
+    @Override
+    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
+        AbstractOutput output = null;
+        switch (jaxb_or.getQuantity()) {
+            case "cell_veh":
+                Long commodity_id = jaxb_or.getCommodity();
+                Float outDt = jaxb_or.getDt();
+                output = new OutputCellVehicles(scenario, this,prefix, output_folder, commodity_id, outDt);
+                break;
+            default:
+                throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
+        }
+        return output;
+    }
+
+    //////////////////////////////////////////////////////////////
+    // run
+    //////////////////////////////////////////////////////////////
+
+    @Override
+    public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
+        Map<AbstractLaneGroup,Double> A = new HashMap<>();
+        double total_supply = candidate_lanegroups.stream().mapToDouble(x->x.get_supply()).sum();
+        for(AbstractLaneGroup laneGroup : candidate_lanegroups)
+            A.put(laneGroup , laneGroup.get_supply() / total_supply);
+        return A;
+    }
+
+    @Override
+    public void update_flux_I(float timestamp) throws OTMException {
+
+        // TODO cache this?
+        // lane changing -> intermediate state
+        links.stream()
+                .filter(link -> link.lanegroups_flwdn.size()>=2)
+                .forEach(link -> perform_lane_changes(link,timestamp));
+
+        // update demand and supply
+        // (cell.veh_dwn,cell.veh_out -> cell.demand_dwn , cell.demand_out)
+        // (cell.veh_dwn,cell.veh_out -> cell.supply)
+        links.forEach(link -> update_supply_demand(link));
+
+        // compute node inflow and outflow (all nodes except sources)
+        node_models.forEach(n->n.update_flow(timestamp));
+
+    }
+
+    @Override
+    public void update_flux_II(float timestamp) throws OTMException {
+        // exchange packets
+        for(MacroNodeModel node_model : node_models) {
+
+            System.out.println(node_model.node.getId());
+
+            // flows on road connections arrive to links on give lanes
+            // convert to packets and send
+            for(models.ctm.RoadConnection rc : node_model.rcs.values()) {
+                Link link = rc.rc.get_end_link();
+                link.model.add_vehicle_packet(link,timestamp, new PacketLink(rc.f_rs, rc.rc));
+            }
+
+            // set exit flows on non-sink lanegroups
+            for(UpLaneGroup ulg : node_model.ulgs.values())
+                ulg.lg.release_vehicles(ulg.f_is);
+        }
+
+        // update cell boundary flows
+        links.forEach(link -> update_dwn_flow(link));
+
+    }
+
+    @Override
+    public void update_link_state(Float timestamp,Link link) {
+            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                ((LaneGroup) lg).update_state(timestamp);
+    }
+
+    ///////////////////////////////////////////
+    // private
+    ///////////////////////////////////////////
+
+    private void perform_lane_changes(Link link,float timestamp) {
 
         // WARNING: THIS ASSUMES NO ADDLANES (lanegroups_flwdn=all lanegroups)
 
@@ -324,7 +357,7 @@ public class Model_CTM extends AbstractFluidModel {
     }
 
     // call update_supply_demand on each cell
-    public void update_supply_demand(Link link) {
+    private void update_supply_demand(Link link) {
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
             LaneGroup ctmlg = (LaneGroup) lg;
             if(!ctmlg.states.isEmpty())
@@ -332,57 +365,10 @@ public class Model_CTM extends AbstractFluidModel {
         }
     }
 
-    public void update_dwn_flow(Link link) {
+    private void update_dwn_flow(Link link) {
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
             ((LaneGroup) lg).update_dwn_flow();
     }
-
-    public void update_state(float timestamp,Link link) {
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-            ((LaneGroup) lg).update_state(timestamp);
-    }
-
-    public void update_macro_flow_part_I(float timestamp){
-
-        // lane changing -> intermediate state
-        links.stream()
-                .filter(link -> link.lanegroups_flwdn.size()>=2)
-                .forEach(link -> perform_lane_changes(link,timestamp));
-
-        // update demand and supply
-        // (cell.veh_dwn,cell.veh_out -> cell.demand_dwn , cell.demand_out)
-        // (cell.veh_dwn,cell.veh_out -> cell.supply)
-        links.forEach(link -> update_supply_demand(link));
-
-        // compute node inflow and outflow (all nodes except sources)
-        node_models.forEach(n->n.update_flow(timestamp));
-
-    }
-
-    public void update_macro_flow_part_II(float timestamp) throws OTMException {
-        // exchange packets
-        for(MacroNodeModel node_model : node_models) {
-
-            // flows on road connections arrive to links on give lanes
-            // convert to packets and send
-            for(models.ctm.RoadConnection rc : node_model.rcs.values()) {
-                Link link = rc.rc.get_end_link();
-                link.model.add_vehicle_packet(link,timestamp, new PacketLink(rc.f_rs, rc.rc));
-            }
-
-            // set exit flows on non-sink lanegroups
-            for(UpLaneGroup ulg : node_model.ulgs.values())
-                ulg.lg.release_vehicles(ulg.f_is);
-        }
-
-        // update cell boundary flows
-        links.forEach(link -> update_dwn_flow(link));
-
-    }
-
-    ///////////////////////////////////////////
-    // private
-    ///////////////////////////////////////////
 
     private void create_cells(Link link,float max_cell_length){
 

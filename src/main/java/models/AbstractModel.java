@@ -62,7 +62,7 @@ public abstract class AbstractModel {
     //////////////////////////////////////////////////
 
     // called by OTM.advance
-    abstract public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time);
+    abstract public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time);
 
     // called by AbstractModel.add_vehicle_packet
     abstract public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups);
@@ -76,6 +76,11 @@ public abstract class AbstractModel {
     }
 
     public void initialize(Scenario scenario) throws OTMException {
+
+        for(Link link : links){
+            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                lg.allocate_state();
+        }
     }
 
 //    public float get_max_vehicles(Link link){

@@ -139,7 +139,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
 
     abstract public void initialize(Scenario scenario,float now) throws OTMException;
 
-    public void register_initial_events(Dispatcher dispatcher){
+    public void register_with_dispatcher(Dispatcher dispatcher){
         dispatcher.register_event(new EventPoke(dispatcher,2,dispatcher.current_time,this));
     }
 

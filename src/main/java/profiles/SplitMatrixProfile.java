@@ -98,7 +98,7 @@ public class SplitMatrixProfile {
         splits.add_entry(link_outid,value);
     }
 
-    public void register_initial_event(Dispatcher dispatcher) {
+    public void register_with_dispatcher(Dispatcher dispatcher) {
         Map<Long,Double> time_splits = splits.get_value_for_time(dispatcher.current_time);
         dispatcher.register_event(new EventSplitChange(dispatcher,dispatcher.current_time, this, time_splits));
     }

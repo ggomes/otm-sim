@@ -11,7 +11,6 @@ import commodity.Commodity;
 import commodity.Subnetwork;
 import common.Link;
 import control.AbstractController;
-import dispatch.EventPoke;
 import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
@@ -113,7 +112,7 @@ public class Scenario {
         for(AbstractOutput x : outputs)
             x.initialize(this);
 
-        // register_initial_events timed writer events
+        // register_with_dispatcher timed writer events
         for(AbstractOutput output : outputs)
             output.register(runParams,dispatcher);
 
@@ -138,15 +137,15 @@ public class Scenario {
             x.initialize(this,now);
 
         // register initial events ......................................
-        data_demands.values().forEach(x -> x.register_initial_events(dispatcher));
+        data_demands.values().forEach(x -> x.register_with_dispatcher(dispatcher));
         network.nodes.values().stream()
                 .filter(node->node.splits!=null)
                 .flatMap(node->node.splits.values().stream())
-                .forEach(x->x.register_initial_event(dispatcher));
+                .forEach(x->x.register_with_dispatcher(dispatcher));
 
-        controllers.values().forEach(x->x.register_initial_events(dispatcher));
-        actuators.values().forEach(x->x.register_initial_events(dispatcher));
-        sensors.values().forEach(x->x.register_initial_events(dispatcher));
+        controllers.values().forEach(x->x.register_with_dispatcher(dispatcher));
+        actuators.values().forEach(x->x.register_with_dispatcher(dispatcher));
+        sensors.values().forEach(x->x.register_with_dispatcher(dispatcher));
 
         is_initialized = true;
     }

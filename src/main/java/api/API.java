@@ -488,7 +488,7 @@ public class API {
             dp.initialize(scenario);
 
             // send to dispatcher
-            dp.register_initial_events(scenario.dispatcher);
+            dp.register_with_dispatcher(scenario.dispatcher);
         }
 
     }

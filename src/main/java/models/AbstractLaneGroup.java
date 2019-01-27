@@ -59,12 +59,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // this returns a null.
     public Map<Long, RoadConnection> outlink2roadconnection;
 
-    // exiting road connection to the states that use it (should be avoided in the one-to-one case)
-//    // TODO MOVE THIS TO fluid MODEL OR REMOVE
-//    public Map<Long, Set<KeyCommPathOrLink>> roadconnection2states;
-
     // state to the road connection it must use (should be avoided in the one-to-one case)
-    // TODO MOVE THIS TO fluid MODEL
     public Map<KeyCommPathOrLink,Long> state2roadconnection;
 
     // target lane group to direction
@@ -189,22 +184,23 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
         if(link.is_sink){
             state2roadconnection.put(state,null);
+            state2lanechangedirection.put(state, Side.stay);
         } else {
 
             // store in map
             RoadConnection rc = outlink2roadconnection.get(next_link_id);
-            if(rc!=null)
-                state2roadconnection.put(state,rc.getId());
+            if(rc!=null) {
 
-            // keep lane change side
-            if(rc==null){
+                // state2roadconnection
+                state2roadconnection.put(state, rc.getId());
+
+                // state2lanechangedirection
                 Set<AbstractLaneGroup> target_lgs = rc.in_lanegroups;
-                Set<Side> sides = target_lgs.stream().map(x->x.get_side_with_respect_to_lg(this)).collect(Collectors.toSet());
-                if(sides.size()!=1)
+                Set<Side> sides = target_lgs.stream().map(x -> x.get_side_with_respect_to_lg(this)).collect(Collectors.toSet());
+                if (sides.size() != 1)
                     throw new OTMException("asd;liqwr g-q4iwq jg");
-                state2lanechangedirection.put(state,sides.iterator().next());
+                state2lanechangedirection.put(state, sides.iterator().next());
             }
-
         }
 
     }
@@ -234,12 +230,16 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     }
 
     public final Side get_side_with_respect_to_lg(AbstractLaneGroup lg){
-        if(this.link.getId()!=lg.link.getId())
-            return null;
 
         // This is more complicated with up addlanes
         assert(lg.flwdir==FlowDirection.dn);
         assert(this.flwdir==FlowDirection.dn);
+
+        if(this.link.getId()!=lg.link.getId())
+            return null;
+
+        if(this==lg)
+            return Side.stay;
 
         if (this.start_lane_dn < lg.start_lane_dn)
             return Side.in;

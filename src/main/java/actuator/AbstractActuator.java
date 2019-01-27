@@ -59,7 +59,7 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
 
     abstract public void initialize(Scenario scenario) throws OTMException;
 
-    public void register_initial_events(Dispatcher dispatcher){
+    public void register_with_dispatcher(Dispatcher dispatcher){
         dispatcher.register_event(new EventPoke(dispatcher,3,dispatcher.current_time,this));
     }
 
@@ -99,7 +99,7 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
 //            return;
 //        node.register_actuator(this);
 //        for(_SignalPhaseNEMA sp : signal_phases.values())
-//            sp.register_initial_events(this);
+//            sp.register_with_dispatcher(this);
 //    }
 
 

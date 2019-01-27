@@ -53,7 +53,7 @@ public abstract class AbstractSensor implements InterfacePokable, InterfaceScena
 
     }
 
-    public void register_initial_events(Dispatcher dispatcher){
+    public void register_with_dispatcher(Dispatcher dispatcher){
         dispatcher.register_event(new EventPoke(dispatcher,1,dispatcher.current_time,this));
     }
 

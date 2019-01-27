@@ -7,10 +7,11 @@
 package dispatch;
 
 import error.OTMException;
+import models.AbstractFluidModel;
 
-public class EventMacroStateUpdate extends AbstractEvent  {
+public class EventFluidStateUpdate extends AbstractEvent  {
 
-    public EventMacroStateUpdate(Dispatcher dispatcher, float timestamp, Object model){
+    public EventFluidStateUpdate(Dispatcher dispatcher, float timestamp, Object model){
         super(dispatcher,6,timestamp,model);
     }
 
@@ -19,7 +20,7 @@ public class EventMacroStateUpdate extends AbstractEvent  {
 
         super.action(verbose);
 
-        models.ctm.Model_CTM model = (models.ctm.Model_CTM)recipient;
+        AbstractFluidModel model = (AbstractFluidModel)recipient;
 
         // update the models.ctm state
         model.update_macro_state(timestamp);
@@ -27,7 +28,7 @@ public class EventMacroStateUpdate extends AbstractEvent  {
         // register next clock tick
         float next_timestamp = timestamp + model.dt;
         if(next_timestamp<=dispatcher.stop_time)
-            dispatcher.register_event(new EventMacroStateUpdate(dispatcher,next_timestamp,model));
+            dispatcher.register_event(new EventFluidStateUpdate(dispatcher,next_timestamp,model));
     }
 
 }

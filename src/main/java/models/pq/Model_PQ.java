@@ -80,7 +80,7 @@ public class Model_PQ extends AbstractVehicleModel {
     //////////////////////////////////////////////////
 
     @Override
-    public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time) {
+    public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time) {
     }
 
     @Override

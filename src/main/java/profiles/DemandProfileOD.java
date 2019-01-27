@@ -47,7 +47,7 @@ public class DemandProfileOD extends AbstractDemandProfile {
     }
 
     @Override
-    public void register_initial_events(Dispatcher dispatcher){
+    public void register_with_dispatcher(Dispatcher dispatcher){
     }
 
     @Override

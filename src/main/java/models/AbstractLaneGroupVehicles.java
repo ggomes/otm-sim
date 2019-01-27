@@ -13,6 +13,7 @@ import packet.VehicleLaneGroupPacket;
 import runner.RunParameters;
 import runner.Scenario;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
@@ -45,11 +46,12 @@ public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
         // + The packet received here can be fluid or vehicle based. It will not be both
         // because LaneGroupPackets are already model specific, in the sense of either
         // fluid or vehicle based
-        // + All of the keys in the pacjet should be updated using next_link_id.
+        // + All of the keys in the packet should be updated using next_link_id.
 
         Set<AbstractVehicle> vehicles = null;
         AbstractVehicleModel model = (AbstractVehicleModel) link.model;
         if (avp instanceof VehicleLaneGroupPacket) {
+            vehicles = new HashSet<>();
             for(AbstractVehicle abs_veh : ((VehicleLaneGroupPacket) avp).vehicles)
                 vehicles.add(model.translate_vehicle(abs_veh));
         }

@@ -83,7 +83,7 @@ public class ControllerSignalPretimed extends AbstractController {
     }
 
     @Override
-    public void register_initial_events(Dispatcher dispatcher) {
+    public void register_with_dispatcher(Dispatcher dispatcher) {
         // register next schedule item change
         register_next_poke(dispatcher);
 

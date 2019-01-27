@@ -102,8 +102,8 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
     }
 
     @Override
-    public void register_first_events(Scenario scenario, Dispatcher dispatcher, float start_time) {
-        System.out.println("MICRO register_first_events ");
+    public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time) {
+        System.out.println("MICRO register_with_dispatcher ");
         dispatcher.register_event(new EventPoke(dispatcher, 6,start_time + dt, this));
     }
 

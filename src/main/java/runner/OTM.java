@@ -8,8 +8,6 @@ package runner;
 
 import api.API;
 import dispatch.Dispatcher;
-import dispatch.EventMacroFlowUpdate;
-import dispatch.EventMacroStateUpdate;
 import dispatch.EventStopSimulation;
 import error.OTMException;
 import jaxb.OutputRequests;
@@ -205,7 +203,7 @@ public class OTM {
         dispatcher.register_event(new EventStopSimulation(scenario,dispatcher,now+duration));
 
         // register initial events for each model
-        scenario.network.models.values().forEach(m->m.register_first_events(scenario, dispatcher,now));
+        scenario.network.models.values().forEach(m->m.register_with_dispatcher(scenario, dispatcher,now));
 
         // process all events
         dispatcher.dispatch_events_to_stop();

@@ -135,7 +135,7 @@ public class DemandProfile extends AbstractDemandProfile {
     }
 
     @Override
-    public void register_initial_events(Dispatcher dispatcher) {
+    public void register_with_dispatcher(Dispatcher dispatcher) {
         double value = profile.get_value_for_time(dispatcher.current_time);
         dispatcher.register_event(new EventDemandChange(dispatcher,dispatcher.current_time,this,value));
     }

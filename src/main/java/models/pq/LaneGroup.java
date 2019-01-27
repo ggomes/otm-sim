@@ -101,7 +101,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
             // tell the vehicle it has moved
             ((Vehicle)vehicle).move_to_queue(timestamp,transit_queue);
 
-            // register_initial_events dispatch to go to waiting queue
+            // register_with_dispatcher dispatch to go to waiting queue
             dispatcher.register_event(new EventTransitToWaiting(dispatcher,timestamp + transit_time_sec,vehicle));
 
             // inform the travel timers
