@@ -24,6 +24,7 @@ import keys.KeyCommodityLink;
 import plugin.PluginLoader;
 import profiles.*;
 import sensor.AbstractSensor;
+import sensor.CommoditySensor;
 import sensor.FixedSensor;
 import utils.OTMUtils;
 
@@ -192,6 +193,9 @@ public class ScenarioFactory {
             switch(jaxb_sensor.getType()){
                 case "fixed":
                     sensor = new FixedSensor(scenario,jaxb_sensor);
+                    break;
+                case "commodity":
+                    sensor = new CommoditySensor(scenario,jaxb_sensor);
                     break;
                 default:
                     sensor = null;

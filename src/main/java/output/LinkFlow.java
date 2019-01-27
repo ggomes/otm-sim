@@ -1,16 +1,16 @@
 package output;
 
+import common.FlowAccumulatorState;
 import models.AbstractLaneGroup;
 import error.OTMException;
 import profiles.Profile1D;
 import runner.Scenario;
-import common.FlowAccumulator;
 
 import java.util.*;
 
 public class LinkFlow extends AbstractOutputTimedLink {
 
-    private Map<Long, Set<FlowAccumulator>> flw_acc_sets; // link_id -> flow accumulator set (over lgs)
+    private Map<Long, Set<FlowAccumulatorState>> flw_acc_sets; // link_id -> flow accumulator set (over lgs)
 
     //////////////////////////////////////////////////////
     // construction
@@ -26,7 +26,7 @@ public class LinkFlow extends AbstractOutputTimedLink {
         super.initialize(scenario);
         flw_acc_sets = new HashMap<>();
         for(LinkProfile linkProfile : linkprofiles.values()) {
-            Set<FlowAccumulator> flw_acc_set = new HashSet<>();
+            Set<FlowAccumulatorState> flw_acc_set = new HashSet<>();
             flw_acc_sets.put(linkProfile.link.getId(),flw_acc_set);
             for(AbstractLaneGroup lg : linkProfile.link.lanegroups_flwdn.values())
                 flw_acc_set.add(lg.request_flow_accumulator());
@@ -49,7 +49,7 @@ public class LinkFlow extends AbstractOutputTimedLink {
 
     @Override
     public double get_value_for_link(Long link_id) {
-        Set<FlowAccumulator> fas = flw_acc_sets.get(link_id);
+        Set<FlowAccumulatorState> fas = flw_acc_sets.get(link_id);
         return fas.stream().mapToDouble(x->x.get_total_count()).sum();
     }
 
