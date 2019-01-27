@@ -28,6 +28,11 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
     ///////////////////////////////////////////////////
 
     @Override
+    public void allocate_state() {
+
+    }
+
+    @Override
     public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp, Long next_link_id) throws OTMException {
 
         for(AbstractVehicle vehicle : create_vehicles_from_packet(avp,next_link_id)){

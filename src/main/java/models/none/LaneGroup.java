@@ -52,6 +52,11 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     @Override
+    public void allocate_state() {
+
+    }
+
+    @Override
     public double get_supply() {
         return 0;
     }

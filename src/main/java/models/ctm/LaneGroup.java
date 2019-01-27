@@ -62,7 +62,6 @@ public class LaneGroup extends AbstractLaneGroup {
 
     @Override
     public void allocate_state() {
-        super.allocate_state();
         cells.forEach(c -> c.allocate_state());
     }
 

@@ -34,13 +34,12 @@ public class Network {
     public static Long max_rcid;
 
     public Scenario scenario;
+    public Map<String,AbstractModel> models;
     public Map<Long,Node> nodes;
     public Map<Long,Link> links;
     public Map<Long, RoadGeometry> road_geoms;
     public Map<Long,jaxb.Roadparam> road_params;    // keep this for the sake of the scenario splitter
-    public Map<Long,RoadConnection> road_connections = new HashMap<>();
-
-    public Map<String,AbstractModel> models;
+    public Map<Long,RoadConnection> road_connections;
 
     ///////////////////////////////////////////
     // construction
@@ -133,6 +132,8 @@ public class Network {
     /////////////////////////////////////////////////
 
     private static HashMap<Long,Link> create_links(List<jaxb.Link> jaxb_links,Network network,Map<Long,Node> nodes) throws OTMException {
+
+        System.out.println("\tcreate links");
 
         HashMap<Long,Link> links = new HashMap<>();
         for( jaxb.Link jl : jaxb_links ) {

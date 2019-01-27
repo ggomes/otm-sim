@@ -66,20 +66,10 @@ public class ScenarioFactory {
                 scenario.subnetworks,
                 js.getCommodities());
 
-        // tell links about commodities ...................................
-//        for(Commodity c : scenario.commodities.values())
-//            for (Subnetwork subnet : c.subnetworks )
-//                for (Link link : subnet.links)
-//                    link.add_commodity(c);
-
-//        // tell nodes about commodities ....................................
-//        for (Node node : scenario.network.nodes.values())
-//            node.set_commodities();
-
-        // link.commodity2split
+        // link.commodity2split (requires link.outlink2lanegroups and commodities)
         scenario.network.links.values().forEach(link->link.populate_commodity2split(scenario.commodities.values()));
 
-        // populate link.path2outlink
+        // populate link.path2outlink (requires commodities)
         Set<Subnetwork> used_paths = scenario.commodities.values().stream()
                 .filter(c->c.pathfull)
                 .map(c->c.subnetworks)
@@ -101,16 +91,6 @@ public class ScenarioFactory {
 
         // demands ..........................................................
         scenario.data_demands = ScenarioFactory.create_demands_from_jaxb(scenario.network, js.getDemands());
-
-
-
-//        // ........................................................
-//        // build packet splitter for non-sink non-one2one links
-//        scenario.network.links.values().stream()
-//                .filter(link -> !link.is_sink && !link.end_node.is_many2one)
-//                .forEach(link -> link.packet_splitter = new PacketSplitter(link));
-
-
 
         // validate ................................................
         if(validate) {

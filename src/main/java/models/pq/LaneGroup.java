@@ -80,6 +80,10 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
         schedule_release_vehicle(runParams.start_time,current_max_flow_rate_vps);
     }
 
+    @Override
+    public void allocate_state() {
+    }
+
     /**
      * A packet arrives at this lanegroup.
      * Vehicles do not know their next_link. It is assumed that the packet fits in this lanegroup.

@@ -76,11 +76,6 @@ public abstract class AbstractModel {
     }
 
     public void initialize(Scenario scenario) throws OTMException {
-        for(Link link : links){
-            // allocate state for each lanegroup in this link
-            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() )
-                lg.allocate_state();
-        }
     }
 
 //    public float get_max_vehicles(Link link){

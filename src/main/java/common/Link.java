@@ -222,11 +222,10 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     }
 
     public void populate_commodity2split(Collection<Commodity> commodities){
+        Long trivial_next_link = outlink2lanegroups.size() == 1 ? outlink2lanegroups.keySet().iterator().next() : null;
         commodity2split = new HashMap<>();
-        for(Commodity c : commodities) {
-            Long trivial_next_link = outlink2lanegroups.size() == 1 ? outlink2lanegroups.keySet().iterator().next() : null;
+        for(Commodity c : commodities)
             commodity2split.put(c.getId(), new SplitInfo(trivial_next_link));
-        }
     }
 
 //    public void set_lat_lanegroups(Collection<AbstractLaneGroupLateral> lgs) {
