@@ -31,7 +31,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public final long id;
     public Link link;
-    public final Side side;               // inner, full, or outer
+    public final Side side;               // inner, stay, or outer
     public final FlowDirection flwdir;
     public int start_lane_up;       // counted with respect to upstream boundary
     public int start_lane_dn;       // counted with respect to downstream boundary
@@ -39,8 +39,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public AbstractLaneGroup neighbor_in;       // lanegroup down and in
     public AbstractLaneGroup neighbor_out;      // lanegroup down and out
-    public AbstractLaneGroup neighbor_up_in;    // lanegroup up and in (full lanes only)
-    public AbstractLaneGroup neighbor_up_out;   // lanegroup up and out (full lanes only)
+    public AbstractLaneGroup neighbor_up_in;    // lanegroup up and in (stay lanes only)
+    public AbstractLaneGroup neighbor_up_out;   // lanegroup up and out (stay lanes only)
 
     // set of keys for states in this lanegroup
     public Set<KeyCommPathOrLink> states;   // TODO MOVE THIS TO DISCRETE TIME ONLY?
@@ -206,14 +206,14 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         } else {
 
             // store in map
-            RoadConnection rc = get_roadconnection_for_outlink(next_link_id);
+            RoadConnection rc = outlink2roadconnection.get(next_link_id);
             if(rc!=null)
                 state2roadconnection.put(state,rc.getId());
 
             // keep lane change side
             if(rc==null){
-                Set<AbstractLaneGroup> next_link_lgs = link.outlink2lanegroups.get(next_link_id);
-                Set<Side> sides = next_link_lgs.stream().map(x->x.get_side_with_respect_to_lg(this)).collect(Collectors.toSet());
+                Set<AbstractLaneGroup> target_lgs = rc.in_lanegroups;
+                Set<Side> sides = target_lgs.stream().map(x->x.get_side_with_respect_to_lg(this)).collect(Collectors.toSet());
                 if(sides.size()!=1)
                     throw new OTMException("asd;liqwr g-q4iwq jg");
                 state2lanechangedirection.put(state,sides.iterator().next());

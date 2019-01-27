@@ -97,16 +97,16 @@ public class Path extends Subnetwork {
         return ind>ordered_links.size()-1 ? null : ordered_links.get(ind);
     }
 
-    // Returns null if it is a sink or a x-to-one case with no road connections defined
-    public RoadConnection get_roadconn_following(AbstractLaneGroup lg){
-        if(lg==null)
-            return null;
-        Link next_link = get_link_following(lg.link);
-        if(next_link!=null)
-            return lg.get_roadconnection_for_outlink(next_link.getId());
-        else
-            return null;
-    }
+//    // Returns null if it is a sink or a x-to-one case with no road connections defined
+//    public RoadConnection get_roadconn_following(AbstractLaneGroup lg){
+//        if(lg==null)
+//            return null;
+//        Link next_link = get_link_following(lg.link);
+//        if(next_link!=null)
+//            return lg.get_roadconnection_for_outlink(next_link.getId());
+//        else
+//            return null;
+//    }
 
     public boolean has(Link link){
         return this.ordered_links.contains(link);

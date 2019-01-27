@@ -1,7 +1,9 @@
 package models.micro;
 
-import commodity.Commodity;
 import common.AbstractVehicle;
+import output.InterfaceVehicleListener;
+
+import java.util.Set;
 
 public class Vehicle extends AbstractVehicle {
 
@@ -12,8 +14,8 @@ public class Vehicle extends AbstractVehicle {
     // construction
     ///////////////////////////////////////////////////
 
-    public Vehicle(Commodity comm){
-        super(comm);
+    public Vehicle(Long comm_id, Set<InterfaceVehicleListener> event_listeners){
+        super(comm_id,event_listeners);
         this.pos = 0d;
         this.speed = 0d;
     }

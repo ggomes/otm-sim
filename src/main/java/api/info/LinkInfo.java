@@ -18,7 +18,7 @@ public class LinkInfo {
     /** The length of the link in meters. */
     public double full_length;
 
-    /** The number of lanes that extend the full length of the link. */
+    /** The number of lanes that extend the stay length of the link. */
     public double full_lanes;
 
     /** Id for the upstream node. */

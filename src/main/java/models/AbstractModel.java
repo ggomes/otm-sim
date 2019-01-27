@@ -165,9 +165,9 @@ public abstract class AbstractModel {
 //                KeyCommPathOrLink key = e.getKey();
 //                Double vehicles = e.getValue();
 //                if (key.isPath || outlink_id==null)  // null occurs for sinks
-//                    split_packet.add_macro(key,vehicles);
+//                    split_packet.add_fluid(key,vehicles);
 //                else
-//                    split_packet.add_macro(new KeyCommPathOrLink(key.commodity_id, outlink_id, false),vehicles);
+//                    split_packet.add_fluid(new KeyCommPathOrLink(key.commodity_id, outlink_id, false),vehicles);
 //            }
 //        }
 //
@@ -179,10 +179,10 @@ public abstract class AbstractModel {
 //                // sinks. This means that the state in a sink needs to be interpreted
 //                // differently, which must be accounted for everywhere.
 //                if(key.isPath || outlink_id==null)
-//                    split_packet.add_micro(key,vehicle);
+//                    split_packet.add_vehicle(key,vehicle);
 //                else {
 //                    vehicle.set_next_link_id(outlink_id);
-//                    split_packet.add_micro(new KeyCommPathOrLink(key.commodity_id, outlink_id, false),vehicle);
+//                    split_packet.add_vehicle(new KeyCommPathOrLink(key.commodity_id, outlink_id, false),vehicle);
 //                }
 //            }
 //        }

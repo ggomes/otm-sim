@@ -30,7 +30,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
     @Override
     public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp, Long next_link_id) throws OTMException {
 
-        for(AbstractVehicle vehicle : create_vehicles_from_packet(avp)){
+        for(AbstractVehicle vehicle : create_vehicles_from_packet(avp,next_link_id)){
 
             vehicles.add((models.micro.Vehicle)vehicle);
 
@@ -42,5 +42,9 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
     }
 
+    @Override
+    public void release_vehicle_packets(float timestamp) throws OTMException {
+        throw new OTMException("NOT IMPLEMENTED awpirg -jqig");
+    }
 
 }

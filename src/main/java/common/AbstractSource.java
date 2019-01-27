@@ -16,6 +16,11 @@ import profiles.DemandProfile;
 
 public abstract class AbstractSource {
 
+
+    // TODO: The child classes for this class are Fluid vs. Vehicle, but could also be
+    // Pathfull vs. Pathless. Pathfull can be speeded up by caching the candidate lane groups,
+    // which do not change. This is already done in the fluid source.
+
     public Link link;
     public DemandProfile profile;   // profile that created this source
     public Path path;
@@ -36,20 +41,24 @@ public abstract class AbstractSource {
         link = null;
         profile = null;
         profile = null;
-//        key = null;
     }
 
     public void validate(OTMErrorLog errorLog) {
-//        if(link.is_sink)
-//            errorLog.addError("source cannot be placed on a sink link.");
+        if(link.is_sink)
+            errorLog.addError("source cannot be placed on a sink link.");
     }
 
     public void set_demand_vps(Dispatcher dispatcher, float time, double vps) throws OTMException {
         source_demand_vps = vps;
     }
 
-//    public double get_value_in_veh_per_timestep(){
-//        return source_demand_vps;
-//    }
+    public final KeyCommPathOrLink sample_key(){
+        if(commodity.pathfull){
+            return new KeyCommPathOrLink(commodity.getId(),path.getId(),true);
+        } else {
+            Long next_link_id = link.commodity2split.get(commodity.getId()).sample_output_link();
+            return new KeyCommPathOrLink(commodity.getId(),next_link_id,false);
+        }
+    }
 
 }

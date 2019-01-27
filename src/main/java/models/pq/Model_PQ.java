@@ -12,6 +12,7 @@ import models.*;
 import common.Link;
 import error.OTMException;
 import output.AbstractOutput;
+import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
 import runner.Scenario;
 
@@ -65,8 +66,13 @@ public class Model_PQ extends AbstractVehicleModel {
     }
 
     @Override
-    public AbstractVehicle create_vehicle(Commodity comm) {
-        return new models.pq.Vehicle(comm);
+    public AbstractVehicle create_vehicle(Long comm_id,Set<InterfaceVehicleListener> event_listeners) {
+        return new models.pq.Vehicle(comm_id,event_listeners);
+    }
+
+    @Override
+    public AbstractVehicle translate_vehicle(AbstractVehicle that){
+        return new models.pq.Vehicle(that);
     }
 
     //////////////////////////////////////////////////

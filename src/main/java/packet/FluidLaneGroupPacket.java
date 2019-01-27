@@ -7,6 +7,7 @@
 package packet;
 
 import common.AbstractVehicle;
+import common.RoadConnection;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 
@@ -21,10 +22,6 @@ public class FluidLaneGroupPacket extends AbstractPacketLaneGroup {
     // used by newInstance
     public FluidLaneGroupPacket(){
         super();
-    }
-
-    public FluidLaneGroupPacket(Set<AbstractLaneGroup> target_lanegroups){
-        super(target_lanegroups);
     }
 
     @Override
@@ -53,7 +50,7 @@ public class FluidLaneGroupPacket extends AbstractPacketLaneGroup {
     }
 
     @Override
-    public void add_macro(KeyCommPathOrLink key,Double vehicles){
+    public void add_fluid(KeyCommPathOrLink key, Double vehicles){
         if(state2vehicles.containsKey(key))
             state2vehicles.put(key,state2vehicles.get(key)+vehicles);
         else
@@ -61,7 +58,7 @@ public class FluidLaneGroupPacket extends AbstractPacketLaneGroup {
     }
 
     @Override
-    public void add_micro(KeyCommPathOrLink key, AbstractVehicle vehicle) {
+    public void add_vehicle(KeyCommPathOrLink key, AbstractVehicle vehicle) {
         if(state2vehicles.containsKey(key))
             state2vehicles.put(key,state2vehicles.get(key)+1d);
         else
@@ -70,7 +67,7 @@ public class FluidLaneGroupPacket extends AbstractPacketLaneGroup {
 
     @Override
     public AbstractPacketLaneGroup times(double x) {
-        FluidLaneGroupPacket z = new FluidLaneGroupPacket(this.target_lanegroups);
+        FluidLaneGroupPacket z = new FluidLaneGroupPacket();
         for(Map.Entry<KeyCommPathOrLink,Double> e : state2vehicles.entrySet())
             z.state2vehicles.put(e.getKey(),e.getValue()*x);
         return z;

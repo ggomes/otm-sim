@@ -8,7 +8,7 @@ import geometry.FlowDirection;
 import geometry.Side;
 import packet.AbstractPacketLaneGroup;
 import packet.FluidLaneGroupPacket;
-import packet.PartialVehicleMemory;
+import packet.FluidStateContainer;
 import packet.VehicleLaneGroupPacket;
 import runner.RunParameters;
 import runner.Scenario;
@@ -17,7 +17,7 @@ import java.util.Set;
 
 public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
 
-    protected PartialVehicleMemory partial_veh_mem;
+    protected FluidStateContainer container;
 
     public AbstractLaneGroupVehicles(Link link, Side side, FlowDirection flwdir, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side, flwdir, length, num_lanes, start_lane, out_rcs);
@@ -26,7 +26,7 @@ public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
     @Override
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
         super.initialize(scenario, runParams);
-        this.partial_veh_mem = new PartialVehicleMemory(scenario.commodities);
+        this.container = new FluidStateContainer(this);
     }
 
     @Override
@@ -52,12 +52,16 @@ public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
         if (avp instanceof VehicleLaneGroupPacket) {
             for(AbstractVehicle abs_veh : ((VehicleLaneGroupPacket) avp).vehicles)
                 vehicles.add(model.translate_vehicle(abs_veh));
-            return vehicles;
         }
 
         if (avp instanceof FluidLaneGroupPacket) {
-            return partial_veh_mem.process_fluid_packet((FluidLaneGroupPacket) avp);
+            vehicles = container.process_fluid_packet((FluidLaneGroupPacket) avp);
         }
+
+        // set next link id
+        vehicles.forEach(v->v.set_next_link_id(next_link_id));
+
+        return vehicles;
     }
 
     @Override
@@ -90,11 +94,13 @@ public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
     @Override
     public float vehs_dwn_for_comm(Long comm_id) {
         System.err.println("NOT IMPLEMENTED");
+        return Float.NaN;
     }
 
     @Override
     public float vehs_in_for_comm(Long comm_id) {
         System.err.println("NOT IMPLEMENTED");
+        return Float.NaN;
     }
 
 }

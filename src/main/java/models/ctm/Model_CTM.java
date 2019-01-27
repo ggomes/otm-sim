@@ -17,10 +17,10 @@ import common.Link;
 import error.OTMErrorLog;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import packet.FluidLaneGroupPacket;
 import models.MacroNodeModel;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
+import packet.AbstractPacketLaneGroup;
 import packet.PacketLink;
 import profiles.DemandProfile;
 import runner.Scenario;
@@ -106,6 +106,11 @@ public class Model_CTM extends AbstractFluidModel {
     @Override
     public AbstractLinkInfo get_link_info(Link link) {
         return new output.animation.macro.LinkInfo(link);
+    }
+
+    @Override
+    public AbstractPacketLaneGroup create_lanegroup_packet() {
+        return null;
     }
 
     @Override
@@ -249,13 +254,13 @@ public class Model_CTM extends AbstractFluidModel {
                             // add to side cell
                             Side newside = lg.state2lanechangedirection.containsKey(state) ?
                                     lg.state2lanechangedirection.get(state) :
-                                    Side.full;
+                                    Side.stay;
                             switch (newside) {
                                 case in:
                                     to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);
                                     to_cell.total_vehs_in += flw;
                                     break;
-                                case full:
+                                case stay:
                                     to_cell.veh_dwn.put(state, to_cell.veh_dwn.get(state) + flw);
                                     to_cell.total_vehs_dwn += flw;
                                     break;
@@ -292,13 +297,13 @@ public class Model_CTM extends AbstractFluidModel {
                             // add to side cell
                             Side newside = lg.state2lanechangedirection.containsKey(state) ?
                                     lg.state2lanechangedirection.get(state) :
-                                    Side.full;
+                                    Side.stay;
                             switch (newside) {
                                 case in:
                                     to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);
                                     to_cell.total_vehs_in += flw;
                                     break;
-                                case full:
+                                case stay:
                                     to_cell.veh_dwn.put(state, to_cell.veh_dwn.get(state) + flw);
                                     to_cell.total_vehs_dwn += flw;
                                     break;

@@ -6,7 +6,6 @@
  */
 package models.pq;
 
-import commodity.Path;
 import common.*;
 import dispatch.EventTransitToWaiting;
 import error.OTMErrorLog;
@@ -82,7 +81,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
     }
 
     /**
-     * A packet arrives at this lanegroup. The packet contains models.ctm/models.ctm.pq/models.ctm.micro vehicles.
+     * A packet arrives at this lanegroup.
      * Vehicles do not know their next_link. It is assumed that the packet fits in this lanegroup.
      * 1. convert the packet to models.ctm.micro, models.ctm.pq, or models.ctm. This involves memory kept in the lanegroup.
      * 2. tag it with next_link and target lanegroups.
@@ -172,13 +171,14 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
         else{
 
             // get next link
-            KeyCommPathOrLink state = vehicle.get_key();
-            Link next_link = state.isPath ? link.path2outlink.get(state.pathOrlink_id) : state.pathOrlink_id;
+            KeyCommPathOrLink key = vehicle.get_key();
+            Long next_link_id = key.isPath ? link.path2outlink.get(key.pathOrlink_id).getId() : key.pathOrlink_id;
 
             // vehicle should be in a target lane group
-            assert(outlink2roadconnection.containsKey(next_link));
+            assert(outlink2roadconnection.containsKey(next_link_id));
 
-            RoadConnection rc = outlink2roadconnection.get(next_link);
+            RoadConnection rc = outlink2roadconnection.get(next_link_id);
+            Link next_link = rc.end_link;
 
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.

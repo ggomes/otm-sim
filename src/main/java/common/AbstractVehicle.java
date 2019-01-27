@@ -6,7 +6,6 @@
  */
 package common;
 
-import commodity.Commodity;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import output.InterfaceVehicleListener;
@@ -18,7 +17,7 @@ import java.util.Set;
 public abstract class AbstractVehicle {
 
     private long id;
-    private Commodity comm;
+    private Long comm_id;
     private KeyCommPathOrLink key;
     protected AbstractLaneGroup lg;
 
@@ -30,21 +29,22 @@ public abstract class AbstractVehicle {
     public AbstractVehicle(AbstractVehicle that){
         this.id = that.getId();
         this.key = that.key;
-        this.comm = that.comm;
+        this.comm_id = that.comm_id;
         this.event_listeners = that.event_listeners;
     }
 
-    public AbstractVehicle(Commodity comm){
+    public AbstractVehicle(Long comm_id,Set<InterfaceVehicleListener> event_listeners){
         this.id = OTMUtils.get_vehicle_id();
-        this.comm = comm;
+        this.comm_id = comm_id;
         this.event_listeners = new HashSet<>();
-        this.event_listeners.addAll(comm.vehicle_event_listeners);
+        this.event_listeners.addAll(event_listeners);
         this.lg = null;
     }
 
     public void set_next_link_id(Long nextlink_id){
-        assert(!comm.pathfull);
-        key = new KeyCommPathOrLink(comm.getId(),nextlink_id,false);
+        if(key.isPath)
+            return;
+        key = new KeyCommPathOrLink(comm_id,nextlink_id,false);
     }
 
     ////////////////////////////////////////////////
@@ -56,7 +56,7 @@ public abstract class AbstractVehicle {
     }
 
     public long get_commodity_id(){
-        return comm.getId();
+        return comm_id;
     }
 
     public AbstractLaneGroup get_lanegroup(){
@@ -85,7 +85,7 @@ public abstract class AbstractVehicle {
     ////////////////////////////////////////////
 
     public void set_key(KeyCommPathOrLink key){
-        assert(key.commodity_id==this.comm.getId());
+        assert(key.commodity_id==this.comm_id);
         this.key = key;
     }
 
@@ -106,7 +106,7 @@ public abstract class AbstractVehicle {
     public String toString() {
         String str = "";
         str += "id " + id + "\n";
-        str += "commodity_id " + comm.getId() + "\n";
+        str += "commodity_id " + comm_id + "\n";
         str += "in lanegroup " + (lg ==null?"none": lg.id) + "\n";
         return str;
     }

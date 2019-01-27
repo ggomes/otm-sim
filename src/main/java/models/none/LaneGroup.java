@@ -22,11 +22,6 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp) throws OTMException {
-
-    }
-
-    @Override
     public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
 
     }
@@ -59,6 +54,11 @@ public class LaneGroup extends AbstractLaneGroup {
     @Override
     public double get_supply() {
         return 0;
+    }
+
+    @Override
+    public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp, Long nextlink_id) throws OTMException {
+
     }
 
 

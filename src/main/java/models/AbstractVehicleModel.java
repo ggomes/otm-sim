@@ -5,6 +5,7 @@ import commodity.Path;
 import common.AbstractSource;
 import common.AbstractVehicle;
 import common.Link;
+import output.InterfaceVehicleListener;
 import packet.AbstractPacketLaneGroup;
 import packet.VehicleLaneGroupPacket;
 import profiles.DemandProfile;
@@ -20,7 +21,9 @@ public abstract class AbstractVehicleModel extends AbstractModel {
     //////////////////////////////////////////////////
     // factory
     //////////////////////////////////////////////////
-    abstract public AbstractVehicle create_vehicle(Commodity comm);
+
+    abstract public AbstractVehicle translate_vehicle(AbstractVehicle that);
+    abstract public AbstractVehicle create_vehicle(Long comm_id,Set<InterfaceVehicleListener> event_listeners);
 
     @Override
     public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {

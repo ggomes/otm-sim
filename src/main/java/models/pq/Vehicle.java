@@ -11,6 +11,8 @@ import error.OTMException;
 import common.AbstractVehicle;
 import output.InterfaceVehicleListener;
 
+import java.util.Set;
+
 public class Vehicle extends AbstractVehicle {
 
     public Queue my_queue;
@@ -20,8 +22,13 @@ public class Vehicle extends AbstractVehicle {
     // construction
     ///////////////////////////////////////////////////
 
-    public Vehicle(Commodity comm){
-        super(comm);
+    public Vehicle(AbstractVehicle that){
+        super(that);
+        this.waiting_for_lane_change = false;
+    }
+
+    public Vehicle(Long comm_id, Set<InterfaceVehicleListener> event_listeners){
+        super(comm_id,event_listeners);
         this.waiting_for_lane_change = false;
     }
 

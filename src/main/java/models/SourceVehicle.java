@@ -10,6 +10,7 @@ import commodity.Commodity;
 import commodity.Path;
 import common.AbstractVehicle;
 import common.Link;
+import common.RoadConnection;
 import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import error.OTMException;
@@ -20,6 +21,7 @@ import runner.Scenario;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 public class SourceVehicle extends common.AbstractSource {
 
@@ -54,34 +56,23 @@ public class SourceVehicle extends common.AbstractSource {
         AbstractVehicleModel model = (AbstractVehicleModel) link.model;
 
         // create a vehicle
-        AbstractVehicle vehicle = model.create_vehicle(commodity);
+        AbstractVehicle vehicle = model.create_vehicle(commodity.getId(),commodity.vehicle_event_listeners);
 
-        // sample next link and key
-        Long outlink_id;
-        KeyCommPathOrLink key;
-        if(commodity.pathfull){
-            Link outlink = link.path2outlink.get(path.getId());
-            outlink_id = outlink.getId();
-            key = new KeyCommPathOrLink(commodity.getId(),path.getId(),true);
-        } else {
-            outlink_id = link.sample_nextlink_for_commodity(commodity);
-            key = new KeyCommPathOrLink(commodity.getId(),outlink_id,false);
-        }
+        // sample key
+        KeyCommPathOrLink key = sample_key();
         vehicle.set_key(key);
 
-        // target lane groups
-        assert(link.outlink2lanegroups.containsKey(outlink_id));
-        Collection<AbstractLaneGroup> target_lanegroups = link.outlink2lanegroups.get(outlink_id);
+        // extract next link
+        Long next_link = commodity.pathfull ? link.path2outlink.get(path.getId()).getId() : key.pathOrlink_id;
 
-        // choose best one from target lanegroups
-        if(target_lanegroups.isEmpty())
-            return;
+        // candidate lane groups
+        Set<AbstractLaneGroup> candidate_lane_groups = link.outlink2lanegroups.get(next_link);
 
-        // this map will have a single entry
-        AbstractLaneGroup joinlanegroup = link.model.lanegroup_proportions(target_lanegroups).keySet().iterator().next();
+        // pick from among the eligible lane groups
+        AbstractLaneGroup join_lanegroup = link.model.lanegroup_proportions(candidate_lane_groups).keySet().iterator().next();
 
         // package and add to joinlanegroup
-        joinlanegroup.add_vehicle_packet(timestamp,new VehicleLaneGroupPacket(vehicle,new HashSet(target_lanegroups)));
+        join_lanegroup.add_vehicle_packet(timestamp,new VehicleLaneGroupPacket(vehicle),next_link);
 
         // this scheduled vehicle has been created
         vehicle_scheduled = false;

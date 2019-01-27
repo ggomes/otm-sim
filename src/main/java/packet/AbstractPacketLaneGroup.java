@@ -13,22 +13,17 @@ import models.AbstractLaneGroup;
 
 import java.util.Set;
 
-/** Packets of vehicles (micro, meso, and/or macro) passed to a lane group **/
+/** Flux packet passed to a lane group **/
 
 public abstract class AbstractPacketLaneGroup {
 
-    public RoadConnection target_road_connection;
 
     public AbstractPacketLaneGroup(){}
 
-    public AbstractPacketLaneGroup(RoadConnection target_road_connection){
-        this.target_road_connection = target_road_connection;
-    }
-
     abstract public boolean isEmpty();
     abstract public void add_link_packet(PacketLink vp);
-    abstract public void add_macro(KeyCommPathOrLink key, Double vehicles);
-    abstract public void add_micro(KeyCommPathOrLink key, AbstractVehicle vehicle);
+    abstract public void add_fluid(KeyCommPathOrLink key, Double vehicles);
+    abstract public void add_vehicle(KeyCommPathOrLink key, AbstractVehicle vehicle);
     abstract public AbstractPacketLaneGroup times(double x);
 
 }

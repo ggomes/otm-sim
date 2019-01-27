@@ -12,7 +12,6 @@ import geometry.AddLanes;
 import geometry.FlowDirection;
 import geometry.RoadGeometry;
 import geometry.Side;
-import jaxb.Points;
 import jaxb.Roadparam;
 import models.AbstractLaneGroup;
 import models.AbstractModel;
@@ -315,7 +314,7 @@ public class Network {
             start_lane += lanes;
         }
 
-        // full rc
+        // stay rc
         rc_id = ++max_rcid;
         lanes = link.full_lanes;
         newrc = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
@@ -347,7 +346,7 @@ public class Network {
         int dn_in_lanes = link.road_geom!=null && link.road_geom.dn_in!=null ? link.road_geom.dn_in.lanes : 0;
         int offset = dn_in_lanes-up_in_lanes;
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-            if(lg.side==Side.full)
+            if(lg.side==Side.stay)
                 lg.start_lane_up = lg.start_lane_dn - offset;
 
         // set neighbors
@@ -365,7 +364,7 @@ public class Network {
             outer_full.neighbor_up_out = link.lanegroup_flwside_out;
         }
 
-        // ................... long lanegroups = {dn addlane, full lgs}
+        // ................... long lanegroups = {dn addlane, stay lgs}
         int num_dn_lanes = link.get_num_dn_lanes();
         if(num_dn_lanes>1) {
             List<AbstractLaneGroup> long_lgs = IntStream.rangeClosed(1, link.get_num_dn_lanes())
@@ -460,13 +459,13 @@ public class Network {
 
     private static AbstractLaneGroup create_dnflw_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
 
-        // Determine whether it is an addlane lanegroup or a full lane group.
+        // Determine whether it is an addlane lanegroup or a stay lane group.
         Set<Side> sides = new HashSet<>();
         for(int lane=dn_start_lane;lane<dn_start_lane+num_lanes;lane++)
             sides.add(link.get_side_for_dn_lane(lane));
 
         if(sides.size()!=1)
-            throw new OTMException(String.format("Rule broken: Lane groups must be contained in addlanes or full lanes. Check link %d",link.getId()));
+            throw new OTMException(String.format("Rule broken: Lane groups must be contained in addlanes or stay lanes. Check link %d",link.getId()));
 
         float length = 0f;
         Side side = sides.iterator().next();
@@ -474,7 +473,7 @@ public class Network {
             case in:
                 length = link.road_geom.dn_in.length;
                 break;
-            case full:
+            case stay:
                 length = link.length;
                 break;
             case out:

@@ -30,12 +30,12 @@ public class LaneGroup extends AbstractLaneGroup {
 
     // transversal flow of vehicles already in their target lanegroup
     // size = numcells + 1
-    public List<Map<KeyCommPathOrLink,Double>> flow_dwn;
+    public List<Map<KeyCommPathOrLink,Double>> flow_stay;
 
-    // transversal flow of vehicles not in their target lanegroup
+    // flow of vehicles changing lanes in the inner and outer directions
     // size = numcells (downstream boundary is always 0)
-    public List<Map<KeyCommPathOrLink,Double>> flow_in;
-    public List<Map<KeyCommPathOrLink,Double>> flow_out;
+    public List<Map<KeyCommPathOrLink,Double>> flow_lc_in;
+    public List<Map<KeyCommPathOrLink,Double>> flow_lc_out;
 
     ////////////////////////////////////////////
     // construction
@@ -86,47 +86,47 @@ public class LaneGroup extends AbstractLaneGroup {
         super.initialize(scenario,runParams);
 
         // populate in target boundary flows
-        flow_dwn = new ArrayList<>();
+        flow_stay = new ArrayList<>();
         for(int i=0;i<cells.size()+1;i++)
-            flow_dwn.add(new HashMap<>());
+            flow_stay.add(new HashMap<>());
 
         // Configuration for lane changing
         if(neighbor_in!=null){
-            this.flow_in = new ArrayList<>();
+            this.flow_lc_in = new ArrayList<>();
             for(int i=0;i<cells.size();i++)
-                flow_in.add(new HashMap<>());
+                flow_lc_in.add(new HashMap<>());
         }
 
         if(neighbor_out!=null){
-            this.flow_out = new ArrayList<>();
+            this.flow_lc_out = new ArrayList<>();
             for(int i=0;i<cells.size()+1;i++)
-                flow_out.add(new HashMap<>());
+                flow_lc_out.add(new HashMap<>());
         }
 
     }
 
     @Override
-    public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp) {
+    public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp, Long nextlink_id) {
 
         FluidLaneGroupPacket vp = (FluidLaneGroupPacket) avp;
 
-        Map<KeyCommPathOrLink,Double> bf_dwn = flow_dwn.get(0);
-        Map<KeyCommPathOrLink,Double> bf_in = flow_in==null ? null : flow_in.get(0);
-        Map<KeyCommPathOrLink,Double> bf_out = flow_out==null ? null : flow_out.get(0);
+        Map<KeyCommPathOrLink,Double> bf_dwn = flow_stay.get(0);
+        Map<KeyCommPathOrLink,Double> bf_in = flow_lc_in ==null ? null : flow_lc_in.get(0);
+        Map<KeyCommPathOrLink,Double> bf_out = flow_lc_out ==null ? null : flow_lc_out.get(0);
 
         for(Map.Entry<KeyCommPathOrLink,Double> e : vp.state2vehicles.entrySet()) {
             KeyCommPathOrLink state = e.getKey();
             Double val = e.getValue();
 
-            if(vp.target_lanegroups==null || vp.target_lanegroups.contains(this)){
-                if(bf_dwn==null) {
-                    bf_dwn = new HashMap<>();
-                    bf_dwn.put(state, val);
-                }
-                else
-                    bf_dwn.put(state, bf_dwn.containsKey(state) ? bf_dwn.get(state)+val : val);
-                continue;
-            }
+//            if(vp.target_lanegroups==null || vp.target_lanegroups.contains(this)){
+//                if(bf_dwn==null) {
+//                    bf_dwn = new HashMap<>();
+//                    bf_dwn.put(state, val);
+//                }
+//                else
+//                    bf_dwn.put(state, bf_dwn.containsKey(state) ? bf_dwn.get(state)+val : val);
+//                continue;
+//            }
 
             Side flw_direction = this.state2lanechangedirection.get(state);
             switch(flw_direction){
@@ -146,7 +146,7 @@ public class LaneGroup extends AbstractLaneGroup {
                     else
                         bf_out.put(state, bf_out.containsKey(state) ? bf_out.get(state)+val : val);
                     break;
-                case full:
+                case stay:
                     if(bf_dwn==null) {
                         bf_dwn = new HashMap<>();
                         bf_dwn.put(state, val);
@@ -159,13 +159,13 @@ public class LaneGroup extends AbstractLaneGroup {
         }
 
         if(bf_dwn!=null)
-            flow_dwn.set(0,bf_dwn);
+            flow_stay.set(0,bf_dwn);
 
         if(bf_in!=null)
-            flow_in.set(0,bf_in);
+            flow_lc_in.set(0,bf_in);
 
         if(bf_out!=null)
-            flow_out.set(0,bf_out);
+            flow_lc_out.set(0,bf_out);
     }
 
     @Override
@@ -191,7 +191,7 @@ public class LaneGroup extends AbstractLaneGroup {
 
             if(veh>0) {
 
-                Map<KeyCommPathOrLink,Double> bf = flow_dwn.get(i+1);
+                Map<KeyCommPathOrLink,Double> bf = flow_stay.get(i+1);
                 double out_flow = bf==null ? 0d : bf.values().stream().mapToDouble(x->x).sum();
 
                 if(out_flow==0)
@@ -230,6 +230,7 @@ public class LaneGroup extends AbstractLaneGroup {
                 upcell.wspeed_norm * (upcell.jam_density_veh - upcell.get_vehicles());
     }
 
+
     @Override
     public void set_max_speed_mps(Float max_speed_mps) throws OTMException {
         throw new OTMException("NOT IMPLEMENTED");
@@ -250,7 +251,7 @@ public class LaneGroup extends AbstractLaneGroup {
     ////////////////////////////////////////////
 
     protected void update_dwn_flow(){
-        // set flow_dwn and flot_notin_target for internal boundaries and
+        // set flow_stay and flot_notin_target for internal boundaries and
         // downstream boundary for sinks
 
         if(states.isEmpty())
@@ -276,28 +277,28 @@ public class LaneGroup extends AbstractLaneGroup {
                 double total_flow = Math.min( total_demand , cells.get(i+1).supply );
                 double gamma = total_flow / total_demand;
 
-                flow_dwn.set(i+1,OTMUtils.times(dem_dwn,gamma));
-                if(flow_in!=null)
-                    flow_in.set(i+1,OTMUtils.times(dem_in,gamma));
+                flow_stay.set(i+1,OTMUtils.times(dem_dwn,gamma));
+                if(flow_lc_in !=null)
+                    flow_lc_in.set(i+1,OTMUtils.times(dem_in,gamma));
 
-                if(flow_out!=null)
-                    flow_out.set(i+1,OTMUtils.times(dem_out,gamma));
+                if(flow_lc_out !=null)
+                    flow_lc_out.set(i+1,OTMUtils.times(dem_out,gamma));
             }
             else {
-                flow_dwn.set(i+1, null);
-                if(flow_in!=null)
-                    flow_in.set(i+1, null);
-                if(flow_out!=null)
-                    flow_out.set(i+1, null);
+                flow_stay.set(i+1, null);
+                if(flow_lc_in !=null)
+                    flow_lc_in.set(i+1, null);
+                if(flow_lc_out !=null)
+                    flow_lc_out.set(i+1, null);
             }
         }
 
         if(link.end_node.is_sink)
-            flow_dwn.set(cells.size(), cells.get(cells.size()-1).demand_dwn);
+            flow_stay.set(cells.size(), cells.get(cells.size()-1).demand_dwn);
 
         // send lanegroup exit flow to flow accumulator
         // TODO : NOT IN TARGET VEHICLES ARE NOT BEING COUNTED!!!
-        for(Map.Entry<KeyCommPathOrLink,Double> e : flow_dwn.get(cells.size()).entrySet())
+        for(Map.Entry<KeyCommPathOrLink,Double> e : flow_stay.get(cells.size()).entrySet())
             if(e.getValue()>0)
                 update_flow_accummulators(e.getKey(),e.getValue());
     }
@@ -309,29 +310,29 @@ public class LaneGroup extends AbstractLaneGroup {
 
         for(int i=0;i<cells.size();i++) {
             Cell cell = cells.get(i);
-            cell.update_dwn_state(flow_dwn.get(i), flow_dwn.get(i + 1));
-            if(flow_in!=null)
-                cell.update_in_state(flow_in.get(i), i==cells.size()-1 ? null : flow_in.get(i+1));
-            if(flow_out!=null)
-                cell.update_out_state(flow_out.get(i), i==cells.size()-1 ? null : flow_out.get(i+1));
+            cell.update_dwn_state(flow_stay.get(i), flow_stay.get(i + 1));
+            if(flow_lc_in !=null)
+                cell.update_in_state(flow_lc_in.get(i), i==cells.size()-1 ? null : flow_lc_in.get(i+1));
+            if(flow_lc_out !=null)
+                cell.update_out_state(flow_lc_out.get(i), i==cells.size()-1 ? null : flow_lc_out.get(i+1));
         }
 
         // clear boundary flows
         // TODO: IS THIS A GOOD IDEA?
         for(int i=link.is_source?1:0;i<=cells.size();i++)
-            flow_dwn.set(i,null);
+            flow_stay.set(i,null);
 
-        if(flow_in!=null)
+        if(flow_lc_in !=null)
             for(int i=0;i<cells.size();i++)
-                flow_in.set(i,null);
-        if(flow_out!=null)
+                flow_lc_in.set(i,null);
+        if(flow_lc_out !=null)
             for(int i=0;i<cells.size();i++)
-                flow_out.set(i,null);
+                flow_lc_out.set(i,null);
     }
 
     // not called for sinks
     public void release_vehicles(Map<KeyCommPathOrLink,Double> X){
-        flow_dwn.set(cells.size(),X);
+        flow_stay.set(cells.size(),X);
     }
 
     ////////////////////////////////////////////
@@ -351,17 +352,17 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     public double get_total_outgoing_flow(){
-        return flow_dwn==null || flow_dwn.size()<cells.size()+1 || flow_dwn.get(cells.size())==null ? 0d : OTMUtils.sum(flow_dwn.get(cells.size()));
+        return flow_stay ==null || flow_stay.size()<cells.size()+1 || flow_stay.get(cells.size())==null ? 0d : OTMUtils.sum(flow_stay.get(cells.size()));
     }
 
     public double get_total_incoming_flow(){
         double flow = 0d;
-        if(flow_dwn!=null && flow_dwn.get(0)!=null)
-            flow += OTMUtils.sum(flow_dwn.get(0));
-        if(flow_in!=null && flow_in.get(0)!=null)
-            flow += OTMUtils.sum(flow_in.get(0));
-        if(flow_out!=null && flow_out.get(0)!=null)
-            flow += OTMUtils.sum(flow_out.get(0));
+        if(flow_stay !=null && flow_stay.get(0)!=null)
+            flow += OTMUtils.sum(flow_stay.get(0));
+        if(flow_lc_in !=null && flow_lc_in.get(0)!=null)
+            flow += OTMUtils.sum(flow_lc_in.get(0));
+        if(flow_lc_out !=null && flow_lc_out.get(0)!=null)
+            flow += OTMUtils.sum(flow_lc_out.get(0));
         return flow;
     }
 

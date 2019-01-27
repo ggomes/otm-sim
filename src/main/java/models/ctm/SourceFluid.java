@@ -52,7 +52,7 @@ public class SourceFluid extends common.AbstractSource {
         double source_demand_veh_per_timestep = source_demand_vps*((models.ctm.Model_CTM)link.model).dt;
         Map<Long,Map<KeyCommPathOrLink,Double>> new_source_flows = split_demand(source_demand_veh_per_timestep);
 
-        // update the lanegroup's flow_in
+        // update the lanegroup's flow_lc_in
         for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
 
             if(!new_source_flows.containsKey(alg.id))
@@ -62,7 +62,7 @@ public class SourceFluid extends common.AbstractSource {
 
             LaneGroup lg = (LaneGroup) alg;
             Map<KeyCommPathOrLink,Double> old_values = source_flows==null ? null : source_flows.get(alg.id);
-            Map<KeyCommPathOrLink,Double> lg_values = lg.flow_dwn.get(0);
+            Map<KeyCommPathOrLink,Double> lg_values = lg.flow_stay.get(0);
 
             // iterate through new values
             for(Map.Entry<KeyCommPathOrLink,Double> e : new_values.entrySet()){

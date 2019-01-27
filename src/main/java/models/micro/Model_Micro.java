@@ -16,6 +16,7 @@ import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import models.AbstractVehicleModel;
 import output.AbstractOutput;
+import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
 import runner.Scenario;
 
@@ -54,8 +55,8 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
     //////////////////////////////////////////////////
 
     @Override
-    public AbstractVehicle create_vehicle(Commodity comm) {
-        return new models.micro.Vehicle(comm);
+    public AbstractVehicle create_vehicle(Long comm_id,Set<InterfaceVehicleListener> event_listeners) {
+        return new models.micro.Vehicle(comm_id,event_listeners);
     }
 
     @Override
@@ -73,6 +74,11 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
     @Override
     public AbstractLinkInfo get_link_info(Link link) {
         System.out.println("MICRO get_link_info");
+        return null;
+    }
+
+    @Override
+    public AbstractVehicle translate_vehicle(AbstractVehicle that){
         return null;
     }
 
