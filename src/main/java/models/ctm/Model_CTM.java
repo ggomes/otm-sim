@@ -5,9 +5,6 @@ import commodity.Path;
 import common.AbstractSource;
 import common.Node;
 import common.RoadConnection;
-import dispatch.Dispatcher;
-import dispatch.EventFluidFluxUpdate;
-import dispatch.EventFluidStateUpdate;
 import error.OTMException;
 import geometry.FlowDirection;
 import jaxb.OutputRequest;
@@ -200,8 +197,6 @@ public class Model_CTM extends AbstractFluidModel {
     public void update_flux_II(float timestamp) throws OTMException {
         // exchange packets
         for(MacroNodeModel node_model : node_models) {
-
-            System.out.println(node_model.node.getId());
 
             // flows on road connections arrive to links on give lanes
             // convert to packets and send

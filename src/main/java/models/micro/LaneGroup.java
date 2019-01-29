@@ -19,18 +19,21 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
     public LaneGroup(Link link, Side side, FlowDirection flwdir, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side, flwdir, length, num_lanes, start_lane, out_rcs);
-
         vehicles = new ArrayList<>();
     }
 
     ///////////////////////////////////////////////////
-    // AbstractLaneGroup : abstract methods
+    // load
     ///////////////////////////////////////////////////
 
     @Override
     public void allocate_state() {
 
     }
+
+    ///////////////////////////////////////////////////
+    // run
+    ///////////////////////////////////////////////////
 
     @Override
     public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp, Long next_link_id) throws OTMException {

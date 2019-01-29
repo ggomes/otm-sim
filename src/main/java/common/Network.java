@@ -259,8 +259,12 @@ public class Network {
                 link.set_model(model);
 
         // Set links for each model
+//        for( AbstractModel model : models.values())
+//            model.set_links( all_links.stream().filter(link->link.model==model).collect(toSet()) );
+
         for( AbstractModel model : models.values())
-            model.set_links( all_links.stream().filter(link->link.model==model).collect(toSet()) );
+            model.set_links(model2links.get(model.name));
+
 
         return models;
     }
@@ -333,6 +337,9 @@ public class Network {
     }
 
     private static void create_lane_groups(Link link,final Set<RoadConnection> out_rcs) throws OTMException {
+
+        if(link.model==null)
+            throw new OTMException("Not all links have a model.");
 
         // absent road connections: create them, if it is not a sink
         if(out_rcs.isEmpty() && !link.is_sink)

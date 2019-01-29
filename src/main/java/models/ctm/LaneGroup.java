@@ -229,7 +229,6 @@ public class LaneGroup extends AbstractLaneGroup {
                 upcell.wspeed_norm * (upcell.jam_density_veh - upcell.get_vehicles());
     }
 
-
     @Override
     public void set_max_speed_mps(Float max_speed_mps) throws OTMException {
         throw new OTMException("NOT IMPLEMENTED");

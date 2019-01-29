@@ -1,6 +1,5 @@
 package models.pq;
 
-import commodity.Commodity;
 import common.AbstractVehicle;
 import common.RoadConnection;
 import dispatch.Dispatcher;
@@ -22,12 +21,18 @@ public class Model_PQ extends AbstractVehicleModel {
 
     public Model_PQ(String name,boolean is_default) {
         super(name,is_default);
-//        myPacketClass = VehicleLaneGroupPacket.class;
     }
 
     //////////////////////////////////////////////////
     // load
     //////////////////////////////////////////////////
+
+    @Override
+    public void set_road_param(Link link,jaxb.Roadparam r) {
+        super.set_road_param(link,r);
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+            lg.set_road_params(r);
+    }
 
     @Override
     public void validate(OTMErrorLog errorLog) {
@@ -72,7 +77,10 @@ public class Model_PQ extends AbstractVehicleModel {
 
     @Override
     public AbstractVehicle translate_vehicle(AbstractVehicle that){
-        return new models.pq.Vehicle(that);
+        if(that instanceof models.pq.Vehicle)
+            return that;
+        else
+            return new models.pq.Vehicle(that);
     }
 
     //////////////////////////////////////////////////
@@ -87,7 +95,6 @@ public class Model_PQ extends AbstractVehicleModel {
     public AbstractLinkInfo get_link_info(Link link) {
         return new output.animation.meso.LinkInfo(link);
     }
-
 
     //////////////////////////////////////////////////////////////
     // protected

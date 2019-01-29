@@ -441,7 +441,14 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
                     SplitInfo splitinfo = commodity2split.get(key.commodity_id);
 
-                    if(splitinfo.sole_downstream_link!=null){
+                    if( is_sink ){
+                        add_to_lanegroup_packets(split_packets, id,
+                                new KeyCommPathOrLink(key.commodity_id, id, false),
+                                vehicles );
+
+                    }
+
+                    else if(splitinfo.sole_downstream_link!=null){
                         Long next_link_id = splitinfo.sole_downstream_link;
                         add_to_lanegroup_packets(split_packets, next_link_id,
                                 new KeyCommPathOrLink(key.commodity_id, next_link_id, false),
@@ -475,11 +482,22 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
                 // pathless case
                 else {
-                    Long next_link_id = commodity2split.get(key.commodity_id).sample_output_link();
-                    vehicle.set_next_link_id(next_link_id);
-                    add_to_lanegroup_packets(split_packets,next_link_id ,
-                            new KeyCommPathOrLink(key.commodity_id, next_link_id, false),
-                            vehicle);
+
+                    if(is_sink){
+                        vehicle.set_next_link_id(id);
+                        add_to_lanegroup_packets(split_packets,id ,
+                                new KeyCommPathOrLink(key.commodity_id, id, false),
+                                vehicle);
+
+                    } else {
+                        Long next_link_id = commodity2split.get(key.commodity_id).sample_output_link();
+                        vehicle.set_next_link_id(next_link_id);
+                        add_to_lanegroup_packets(split_packets,next_link_id ,
+                                new KeyCommPathOrLink(key.commodity_id, next_link_id, false),
+                                vehicle);
+
+                    }
+
                 }
             }
         }

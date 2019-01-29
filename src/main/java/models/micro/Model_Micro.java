@@ -1,6 +1,5 @@
 package models.micro;
 
-import commodity.Commodity;
 import common.AbstractVehicle;
 import common.Link;
 import common.RoadConnection;
@@ -12,7 +11,6 @@ import error.OTMException;
 import geometry.FlowDirection;
 import geometry.Side;
 import jaxb.OutputRequest;
-import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import models.AbstractVehicleModel;
 import output.AbstractOutput;
@@ -79,31 +77,18 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
 
     @Override
     public AbstractVehicle translate_vehicle(AbstractVehicle that){
-        return null;
+        if(that instanceof models.micro.Vehicle)
+            return that;
+        else
+            return new models.micro.Vehicle(that);
     }
 
     //////////////////////////////////////////////////
     // run
     //////////////////////////////////////////////////
 
-    // SAME AS PQ
-    @Override
-    public Map<AbstractLaneGroup, Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
-        // put the whole packet i the lanegroup with the most space.
-        Optional<? extends AbstractLaneGroup> best_lanegroup = candidate_lanegroups.stream()
-                .max(Comparator.comparing(AbstractLaneGroup::get_space_per_lane));
-
-        if(best_lanegroup.isPresent()) {
-            Map<AbstractLaneGroup,Double> A = new HashMap<>();
-            A.put(best_lanegroup.get(),1d);
-            return A;
-        } else
-            return null;
-    }
-
     @Override
     public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time) {
-        System.out.println("MICRO register_with_dispatcher ");
         dispatcher.register_event(new EventPoke(dispatcher, 6,start_time + dt, this));
     }
 
@@ -122,7 +107,7 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
                 double [] acc = new double[vhs.size()];
                 for(int i=0;i<vhs.size();i++) {
                     Vehicle v = vhs.get(i);
-                    acc[i] = i == 0 ? leader_law(v) : follower_law(v);
+                    acc[i] = i == 0 ? leader_law(v) : follower_law(v,vhs.get(i-1));
                 }
 
                 // update position
@@ -140,7 +125,7 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
         return Double.NaN;
     }
 
-    private double follower_law(Vehicle v){
+    private double follower_law(Vehicle v,Vehicle lead){
         return Double.NaN;
     }
 

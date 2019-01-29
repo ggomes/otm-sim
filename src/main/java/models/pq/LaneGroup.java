@@ -34,17 +34,6 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
     public float saturation_flow_rate_vps;
     public float transit_time_sec;
 
-    // given a downstream link and a commodity, these are the lanegroups in the link that
-    // are available to the commodity. these are all lanegroups in the link minus
-    // a) lanegroups not reached by the road connection between the two
-    // b) lanegroups that connect only to links not within the commoditie's subnetwork
-    // c) any explicitly prohibitted lanegroups (not implemented)
-//    public Map<KeyCommodityLink,Set<AbstractLaneGroup>> downstream_candidate_lanegroups;
-
-    ////////////////////////////////////////////
-    // construction
-    ///////////////////////////////////////////
-
     public LaneGroup(Link link, Side side, FlowDirection flwdir, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
         super(link, side,flwdir,length, num_lanes, start_lane, out_rcs);
         this.transit_queue = new models.pq.Queue(this, models.pq.Queue.Type.transit);
@@ -52,7 +41,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
     }
 
     ////////////////////////////////////////////
-    // implementation
+    // load
     ///////////////////////////////////////////
 
     @Override
@@ -83,6 +72,10 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
     @Override
     public void allocate_state() {
     }
+
+    ////////////////////////////////////////////
+    // run
+    ///////////////////////////////////////////
 
     /**
      * A packet arrives at this lanegroup.
