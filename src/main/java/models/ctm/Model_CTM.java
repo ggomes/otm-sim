@@ -3,7 +3,6 @@ package models.ctm;
 import commodity.Commodity;
 import commodity.Path;
 import common.AbstractSource;
-import common.Node;
 import common.RoadConnection;
 import error.OTMException;
 import geometry.FlowDirection;
@@ -26,41 +25,13 @@ import utils.OTMUtils;
 
 import java.util.*;
 
-import static java.util.stream.Collectors.toSet;
-
 public class Model_CTM extends AbstractFluidModel {
 
     public float max_cell_length;
-    public Set<NodeModel> node_models;
 
     public Model_CTM(String name,boolean is_default, Float dt, Float max_cell_length) {
         super(name,is_default,dt==null ? -1 : dt);
         this.max_cell_length = max_cell_length==null ? -1 : max_cell_length;
-    }
-
-    //////////////////////////////////////////////////////////////
-    // load
-    //////////////////////////////////////////////////////////////
-
-    @Override
-    public void set_links(Set<Link> links) {
-        super.set_links(links);
-
-        // populate macro_internal_nodes: connected in any way to ctm models, minus sources and sinks
-        Set<Node> all_nodes = links.stream()
-                .map(link->link.start_node)
-                .filter(node->!node.is_source)
-                .collect(toSet());
-
-        all_nodes.addAll(links.stream()
-                .map(link->link.end_node)
-                .filter(node->!node.is_sink)
-                .collect(toSet()));
-
-        // give them models.ctm node models
-        node_models = new HashSet<>();
-        for(Node node : all_nodes)
-            node_models.add( new NodeModel(node) );
     }
 
     @Override
@@ -106,9 +77,7 @@ public class Model_CTM extends AbstractFluidModel {
 
     @Override
     public void build() {
-
-        // build node models
-        node_models.forEach(m->m.build());
+        super.build();
 
         // create cells
         links.forEach(link->create_cells(link,max_cell_length));
@@ -117,14 +86,6 @@ public class Model_CTM extends AbstractFluidModel {
     @Override
     public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         return new models.ctm.LaneGroup(link,side,flowdir,length,num_lanes,start_lane,out_rcs);
-    }
-
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
-
-        for(NodeModel node_model : node_models)
-            node_model.initialize(scenario);
     }
 
     //////////////////////////////////////////////////////////////
@@ -188,27 +149,10 @@ public class Model_CTM extends AbstractFluidModel {
         // (cell.veh_dwn,cell.veh_out -> cell.supply)
         links.forEach(link -> update_supply_demand(link));
 
-        // compute node inflow and outflow (all nodes except sources)
-        node_models.forEach(n->n.update_flow(timestamp));
-
     }
 
     @Override
     public void update_flux_II(float timestamp) throws OTMException {
-        // exchange packets
-        for(NodeModel node_model : node_models) {
-
-            // flows on road connections arrive to links on give lanes
-            // convert to packets and send
-            for(models.ctm.RoadConnection rc : node_model.rcs.values()) {
-                Link link = rc.rc.get_end_link();
-                link.model.add_vehicle_packet(link,timestamp, new PacketLink(rc.f_rs, rc.rc));
-            }
-
-            // set exit flows on non-sink lanegroups
-            for(UpLaneGroup ulg : node_model.ulgs.values())
-                ulg.lg.release_vehicles(ulg.f_is);
-        }
 
         // update cell boundary flows
         links.forEach(link -> update_dwn_flow(link));
