@@ -9,6 +9,8 @@ import runner.Scenario;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class NodeModel {
 
@@ -36,7 +38,6 @@ public class NodeModel {
 
             // this should not happen because we are completing road connections
             assert(false);
-
             assert(!node.is_sink && !node.is_source);
             assert(node.is_many2one);
 
@@ -89,18 +90,27 @@ public class NodeModel {
         for (common.RoadConnection xrc : node.road_connections) {
 
             // skip road connections starting in discrete event links
-            if( xrc.get_start_link()==null ) //|| xrc.get_start_link().model.model_type== AbstractModel.ModelType.discrete_event )
+            if( xrc.get_start_link()==null )
                 continue;
 
             // skip if it is disconnected
             if( xrc.in_lanegroups.isEmpty() || xrc.out_lanegroups.isEmpty())
                 continue;
 
+            // incoming fluid lane groups
+            Set<AbstractLaneGroup> in_fluid_lgs = xrc.in_lanegroups.stream()
+                    .filter(x -> x.link.model instanceof AbstractFluidModel)
+                    .collect(Collectors.toSet());
+
+            if( in_fluid_lgs.isEmpty() )
+                continue;
+
             RoadConnection rc = new RoadConnection(xrc.getId(),xrc);
             rcs.put(xrc.getId(),rc);
 
             // go through its upstream lanegroups
-            for (AbstractLaneGroup xup_lg : xrc.in_lanegroups) {
+            for (AbstractLaneGroup xup_lg : in_fluid_lgs) {
+
                 UpLaneGroup ulg;
                 if (!up_lgs_map.containsKey(xup_lg.id)) {
                     ulg = new UpLaneGroup((LaneGroup) xup_lg);
@@ -109,6 +119,7 @@ public class NodeModel {
                     ulg = up_lgs_map.get(xup_lg.id);
                 ulg.add_road_connection(rc);
                 rc.add_up_lanegroup(ulg);
+
             }
 
             // go through its downstream lanegroups

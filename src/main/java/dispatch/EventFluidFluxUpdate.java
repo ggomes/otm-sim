@@ -23,7 +23,7 @@ public class EventFluidFluxUpdate extends AbstractEvent {
         AbstractFluidModel model = (AbstractFluidModel)recipient;
 
         // update the models.ctm state
-        model.update_macro_flow(timestamp);
+        model.update_fluid_flux(timestamp);
 
         // register next clock tick
         float next_timestamp = timestamp + model.dt;
