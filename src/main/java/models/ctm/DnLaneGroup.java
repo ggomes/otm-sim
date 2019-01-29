@@ -2,7 +2,7 @@ package models.ctm;
 
 import models.AbstractLaneGroup;
 import keys.KeyCommPathOrLink;
-import models.MacroNodeModel;
+import models.NodeModel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +57,7 @@ public class DnLaneGroup {
 
     public void update_is_blocked(){
         if(!is_blocked)
-            is_blocked = s_j < MacroNodeModel.eps;
+            is_blocked = s_j < NodeModel.eps;
     }
 
 }

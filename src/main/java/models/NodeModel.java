@@ -10,7 +10,7 @@ import runner.Scenario;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MacroNodeModel {
+public class NodeModel {
 
     private static int MAX_ITERATIONS = 10;
     public static double eps = 1e-3;
@@ -21,7 +21,7 @@ public class MacroNodeModel {
     public Map<Long, RoadConnection> rcs;  // road connections.
     public Map<Long, DnLaneGroup> dlgs; /// dnstrm lane groups.
 
-    public MacroNodeModel(Node node) {
+    public NodeModel(Node node) {
         this.node = node;
     }
 
@@ -201,9 +201,8 @@ public class MacroNodeModel {
             rc.d_r = rc.is_blocked ? 0d : rc.ulgs.stream()
                     .mapToDouble(x -> x.rc_infos.get(rc.id).d_ir).sum();
 
-            if(rc.d_r< MacroNodeModel.eps)
+            if(rc.d_r< NodeModel.eps)
                 continue;
-
 
             boolean any_is_infinite = rc.dnlg_infos.values().stream().anyMatch(x-> Double.isInfinite(x.dlg.s_j));
 
@@ -224,8 +223,6 @@ public class MacroNodeModel {
                 // alpha_rj: distribution amongst downstream lanegroups
                 rc.dnlg_infos.values().forEach( x -> x.alpha_rj = s_r==0d ? 0d : x.lambda_rj * x.dlg.s_j / s_r);
             }
-
-
         }
 
     }

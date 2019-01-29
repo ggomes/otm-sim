@@ -14,7 +14,7 @@ import common.Link;
 import error.OTMErrorLog;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import models.MacroNodeModel;
+import models.NodeModel;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import packet.AbstractPacketLaneGroup;
@@ -31,7 +31,7 @@ import static java.util.stream.Collectors.toSet;
 public class Model_CTM extends AbstractFluidModel {
 
     public float max_cell_length;
-    public Set<MacroNodeModel> node_models;
+    public Set<NodeModel> node_models;
 
     public Model_CTM(String name,boolean is_default, Float dt, Float max_cell_length) {
         super(name,is_default,dt==null ? -1 : dt);
@@ -60,7 +60,7 @@ public class Model_CTM extends AbstractFluidModel {
         // give them models.ctm node models
         node_models = new HashSet<>();
         for(Node node : all_nodes)
-            node_models.add( new MacroNodeModel(node) );
+            node_models.add( new NodeModel(node) );
     }
 
     @Override
@@ -123,7 +123,7 @@ public class Model_CTM extends AbstractFluidModel {
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
 
-        for(MacroNodeModel node_model : node_models)
+        for(NodeModel node_model : node_models)
             node_model.initialize(scenario);
     }
 
@@ -196,7 +196,7 @@ public class Model_CTM extends AbstractFluidModel {
     @Override
     public void update_flux_II(float timestamp) throws OTMException {
         // exchange packets
-        for(MacroNodeModel node_model : node_models) {
+        for(NodeModel node_model : node_models) {
 
             // flows on road connections arrive to links on give lanes
             // convert to packets and send

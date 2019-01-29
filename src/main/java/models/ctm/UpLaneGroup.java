@@ -7,7 +7,7 @@
 package models.ctm;
 
 import keys.KeyCommPathOrLink;
-import models.MacroNodeModel;
+import models.NodeModel;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,7 +100,7 @@ public class UpLaneGroup {
     public void update_is_empty_or_blocked(){
         if(!is_empty_or_blocked) {
             is_empty_or_blocked =
-                    total_demand() < MacroNodeModel.eps ||
+                    total_demand() < NodeModel.eps ||
                             rc_infos.values().stream().anyMatch(x->x.rc.is_blocked);
         }
     }

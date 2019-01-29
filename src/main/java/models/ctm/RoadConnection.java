@@ -7,7 +7,7 @@
 package models.ctm;
 
 import keys.KeyCommPathOrLink;
-import models.MacroNodeModel;
+import models.NodeModel;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -99,7 +99,7 @@ public class RoadConnection {
         // fbar
         if(Double.isInfinite(rc.external_max_flow_vps))
             fbar = Double.POSITIVE_INFINITY;
-        else if(rc.external_max_flow_vps< MacroNodeModel.eps)
+        else if(rc.external_max_flow_vps< NodeModel.eps)
             fbar = 0d;
         else {
             float dt = ((models.ctm.Model_CTM)this.rc.get_start_link().model).dt;
@@ -110,7 +110,7 @@ public class RoadConnection {
     public void update_is_blocked(){
         if(!is_blocked)
             is_blocked = dnlg_infos.values().stream().allMatch(x->x.dlg.is_blocked) ||
-                         fbar<MacroNodeModel.eps;
+                         fbar< NodeModel.eps;
     }
 
 }
