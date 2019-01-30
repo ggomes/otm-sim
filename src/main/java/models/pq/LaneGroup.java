@@ -73,6 +73,11 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
     public void allocate_state() {
     }
 
+    @Override
+    public void update_supply() {
+        supply =  max_vehicles - get_total_vehicles();
+    }
+
     ////////////////////////////////////////////
     // run
     ///////////////////////////////////////////
@@ -101,6 +106,8 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
             link.travel_timers.forEach(x->x.vehicle_enter(timestamp,vehicle));
 
         }
+
+        update_supply();
 
     }
 
@@ -180,7 +187,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
             OptionalDouble max_space = rc.out_lanegroups.stream()
-                    .mapToDouble(AbstractLaneGroup::get_space)
+                    .mapToDouble(AbstractLaneGroup::get_supply)
                     .max();
 
             if(max_space.isPresent() && max_space.getAsDouble()>1.0){
@@ -194,6 +201,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                 // send vehicle packet to next link
                 next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
 
+
             } else { // all targets are blocked
                 return;
             }
@@ -202,6 +210,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
         // tell the flow accumulators
         update_flow_accummulators(vehicle.get_key(),1f);
+        update_supply();
 
         /** NOTE RESOLVE THIS. NEED TO CHECK
          * a) WHETHER THE NEXT LANE GROUP IS MACRO OR MESO.

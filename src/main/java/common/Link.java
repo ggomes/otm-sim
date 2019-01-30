@@ -672,11 +672,11 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     // parameter getters
     ///////////////////////////////////////////
 
-    public float get_max_vehicles(){
-        return lanegroups_flwdn.values().stream().
-                map(x->x.max_vehicles).
-                reduce(0f,(i,j)->i+j);
-    }
+//    public float get_max_vehicles(){
+//        return lanegroups_flwdn.values().stream().
+//                map(x->x.max_vehicles).
+//                reduce(0f,(i,j)->i+j);
+//    }
 
     ////////////////////////////////////////////
     // state and performance getters

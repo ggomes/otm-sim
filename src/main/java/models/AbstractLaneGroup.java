@@ -36,6 +36,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public int start_lane_up;       // counted with respect to upstream boundary
     public int start_lane_dn;       // counted with respect to downstream boundary
     public final int num_lanes;
+    public float length;
+
+    public double max_vehicles;
+    public double max_speed_kph;
+    public double max_flow_vph;
 
     public AbstractLaneGroup neighbor_in;       // lanegroup down and in
     public AbstractLaneGroup neighbor_out;      // lanegroup down and out
@@ -45,10 +50,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // set of keys for states in this lanegroup
     public Set<KeyCommPathOrLink> states;   // TODO MOVE THIS TO DISCRETE TIME ONLY?
 
-    public float length;
-
-    // parameters
-    public float max_vehicles;      // largest number of vehicles that fit in this lane group
+    protected double supply;       // [veh]
 
     public AbstractActuator actuator;
 
@@ -70,12 +72,9 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     ///////////////////////////////////////////////////
 
     abstract public void allocate_state();
-    abstract public double get_supply();
+    abstract public void update_supply();
     abstract public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp, Long nextlink_id) throws OTMException;
     abstract public void exiting_roadconnection_capacity_has_been_modified(float timestamp);
-    abstract public void set_max_speed_mps(Float max_speed_mps) throws OTMException;
-    abstract public void set_max_flow_vpspl(Float max_flow_vpspl) throws OTMException;
-    abstract public void set_max_density_vpkpl(Float max_density_vpkpl) throws OTMException;
 
     /** Return the total number of vehicles in this lane group with the
      * given commodity id. commodity_id==null means return total over all
@@ -143,34 +142,22 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
         if(flw_acc!=null)
             flw_acc.reset();
+
+        update_supply();
     }
 
     public void set_road_params(jaxb.Roadparam r){
-        // all lanes in the lanegroup are expected to have the same length
-        max_vehicles = r.getJamDensity()*length*num_lanes/1000f;
-    }
-
-    public FlowAccumulatorState request_flow_accumulator(KeyCommPathOrLink key){
-        if(flw_acc==null)
-            flw_acc = new FlowAccumulatorState();
-        flw_acc.add_key(key);
-        return flw_acc;
+        this.max_vehicles = r.getJamDensity() * length * num_lanes;
+        this.max_speed_kph = r.getSpeed();
+        this.max_flow_vph = r.getCapacity();
     }
 
     public FlowAccumulatorState request_flow_accumulator(Long comm_id){
         if(flw_acc==null)
             flw_acc = new FlowAccumulatorState();
         for(KeyCommPathOrLink key : states)
-            if(key.commodity_id==comm_id)
-                flw_acc.add_key(key);
-        return flw_acc;
-    }
-
-    public FlowAccumulatorState request_flow_accumulator(){
-        if(flw_acc==null)
-            flw_acc = new FlowAccumulatorState();
-        for(KeyCommPathOrLink key : states)
-            flw_acc.add_key(key);
+                if(comm_id==null || key.commodity_id==comm_id)
+                    flw_acc.add_key(key);
         return flw_acc;
     }
 
@@ -213,13 +200,17 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return vehs_dwn_for_comm(null);
     }
 
-    public final double get_space_per_lane() {
-        return get_space()/num_lanes;
+    public final double get_supply(){
+        return supply;
     }
 
-    public final float get_space() {
-        return max_vehicles- vehs_dwn_for_comm(null);
+    public final double get_supply_per_lane() {
+        return supply/num_lanes;
     }
+
+//    public final float get_space() {
+//        return max_vehicles- vehs_dwn_for_comm(null);
+//    }
 
     public final List<Integer> get_dn_lanes(){
         return IntStream.range(start_lane_dn,start_lane_dn+num_lanes).boxed().collect(toList());

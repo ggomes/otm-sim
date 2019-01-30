@@ -31,7 +31,6 @@ public class LaneGroupInfo {
     public LaneGroupInfo(AbstractLaneGroup x){
         this.id = x.id;
         this.length = x.length;
-        this.max_vehicles = x.max_vehicles;
         this.lanes = x.get_dn_lanes();
         this.actuator_id = x.actuator==null ? null : x.actuator.id;
 //        for(Map.Entry e : x.outlink2roadconnection.entrySet()){

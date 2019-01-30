@@ -57,8 +57,7 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public double get_supply() {
-        return 0;
+    public void update_supply() {
     }
 
     @Override
@@ -66,19 +65,4 @@ public class LaneGroup extends AbstractLaneGroup {
 
     }
 
-
-    @Override
-    public void set_max_speed_mps(Float max_speed_mps) throws OTMException {
-        throw new OTMException("NOT IMPLEMENTED");
-    }
-
-    @Override
-    public void set_max_flow_vpspl(Float max_flow_vpspl) throws OTMException {
-        throw new OTMException("NOT IMPLEMENTED");
-    }
-
-    @Override
-    public void set_max_density_vpkpl(Float max_density_vpkpl) throws OTMException {
-        throw new OTMException("NOT IMPLEMENTED");
-    }
 }

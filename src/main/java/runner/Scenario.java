@@ -108,6 +108,9 @@ public class Scenario {
         if(dispatcher!=null)
             dispatcher.initialize(now);
 
+        for(Commodity commodity : commodities.values())
+            commodity.initialize();
+
         // initialize and register outputs
         for(AbstractOutput x : outputs)
             x.initialize(this);
@@ -115,9 +118,6 @@ public class Scenario {
         // register_with_dispatcher timed writer events
         for(AbstractOutput output : outputs)
             output.register(runParams,dispatcher);
-
-        for(Commodity commodity : commodities.values())
-            commodity.initialize();
 
         network.initialize(this,runParams);
 

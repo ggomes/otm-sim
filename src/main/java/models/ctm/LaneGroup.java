@@ -222,27 +222,13 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public double get_supply(){
+    public void update_supply(){
         Cell upcell = get_upstream_cell();
-        return Double.isInfinite(upcell.jam_density_veh) ?
+        supply = Double.isInfinite(upcell.jam_density_veh) ?
                 Double.POSITIVE_INFINITY :
                 upcell.wspeed_norm * (upcell.jam_density_veh - upcell.get_vehicles());
     }
 
-    @Override
-    public void set_max_speed_mps(Float max_speed_mps) throws OTMException {
-        throw new OTMException("NOT IMPLEMENTED");
-    }
-
-    @Override
-    public void set_max_flow_vpspl(Float max_flow_vpspl) throws OTMException {
-        throw new OTMException("NOT IMPLEMENTED");
-    }
-
-    @Override
-    public void set_max_density_vpkpl(Float max_density_vpkpl) throws OTMException {
-        throw new OTMException("NOT IMPLEMENTED");
-    }
 
     ////////////////////////////////////////////
     // update
@@ -305,6 +291,18 @@ public class LaneGroup extends AbstractLaneGroup {
 
         if(states.isEmpty())
             return;
+
+//        if(link.getId()==3L){
+//            Cell cell = cells.get(0);
+//
+//            Map<KeyCommPathOrLink,Double> in = flow_stay.get(0);
+//            Map<KeyCommPathOrLink,Double> out = flow_stay.get(1);
+//
+//            if(in!=null && !in.isEmpty() && out!=null && !out.isEmpty()) {
+//                System.out.println(timestamp + "\t" +  in.values().iterator().next() + "\t" + out.values().iterator().next());
+//            }
+//
+//        }
 
         for(int i=0;i<cells.size();i++) {
             Cell cell = cells.get(i);

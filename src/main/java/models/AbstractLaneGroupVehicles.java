@@ -31,11 +31,6 @@ public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
     }
 
     @Override
-    public double get_supply() {
-        return get_space();
-    }
-
-    @Override
     public float vehs_out_for_comm(Long comm_id) {
         System.err.println("NOT IMPLEMENTED");
         return Float.NaN;
@@ -73,24 +68,8 @@ public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
     }
 
     @Override
-    public void set_max_density_vpkpl(Float max_density_vpkpl) throws OTMException {
-        throw new OTMException("NOT IMPLEMENTED");
-    }
-
-    @Override
-    public void set_max_flow_vpspl(Float max_flow_vpspl) throws OTMException {
-        throw new OTMException("NOT IMPLEMENTED");
-    }
-
-
-    @Override
     public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
         System.err.println("NOT IMPLEMENTED");
-    }
-
-    @Override
-    public void set_max_speed_mps(Float max_speed_mps) throws OTMException {
-        throw new OTMException("NOT IMPLEMENTED");
     }
 
     @Override

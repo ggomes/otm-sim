@@ -128,7 +128,7 @@ public class FixedSensor extends AbstractSensor {
         public FlowAccumulatorState flow_accumulator; // commodity->fa
         public SubSensor(AbstractLaneGroup lg){
             lanes = new HashSet<>();
-            flow_accumulator = lg.request_flow_accumulator();
+            flow_accumulator = lg.request_flow_accumulator(null);
         }
     }
 

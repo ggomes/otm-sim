@@ -31,6 +31,11 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
     }
 
+    @Override
+    public void update_supply() {
+
+    }
+
     ///////////////////////////////////////////////////
     // run
     ///////////////////////////////////////////////////

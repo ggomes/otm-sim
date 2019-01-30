@@ -79,18 +79,17 @@ public class Model_CTM extends AbstractFluidModel {
     public void build() {
         super.build();
 
-        // create cells
         links.forEach(link->create_cells(link,max_cell_length));
-    }
-
-    @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        return new models.ctm.LaneGroup(link,side,flowdir,length,num_lanes,start_lane,out_rcs);
     }
 
     //////////////////////////////////////////////////////////////
     // factory
     //////////////////////////////////////////////////////////////
+
+    @Override
+    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        return new models.ctm.LaneGroup(link,side,flowdir,length,num_lanes,start_lane,out_rcs);
+    }
 
     @Override
     public AbstractPacketLaneGroup create_lanegroup_packet() {
@@ -129,6 +128,8 @@ public class Model_CTM extends AbstractFluidModel {
     @Override
     public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
         Map<AbstractLaneGroup,Double> A = new HashMap<>();
+
+        // TODO : Bad. dont call get_supply, it computes the supply.
         double total_supply = candidate_lanegroups.stream().mapToDouble(x->x.get_supply()).sum();
         for(AbstractLaneGroup laneGroup : candidate_lanegroups)
             A.put(laneGroup , laneGroup.get_supply() / total_supply);
@@ -138,6 +139,9 @@ public class Model_CTM extends AbstractFluidModel {
     @Override
     public void update_flux_I(float timestamp) throws OTMException {
 
+        // TODO: should update_flux I and II be passed the link as in update_state?
+        // TODO What is the point of that?
+
         // TODO cache this?
         // lane changing -> intermediate state
         links.stream()
@@ -145,9 +149,7 @@ public class Model_CTM extends AbstractFluidModel {
                 .forEach(link -> perform_lane_changes(link,timestamp));
 
         // update demand and supply
-        // (cell.veh_dwn,cell.veh_out -> cell.demand_dwn , cell.demand_out)
-        // (cell.veh_dwn,cell.veh_out -> cell.supply)
-        links.forEach(link -> update_supply_demand(link));
+        links.forEach(link -> update_supply_demand(link,timestamp));
 
     }
 
@@ -296,12 +298,20 @@ public class Model_CTM extends AbstractFluidModel {
     }
 
     // call update_supply_demand on each cell
-    private void update_supply_demand(Link link) {
+    private void update_supply_demand(Link link,float timestamp) {
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
             LaneGroup ctmlg = (LaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_supply_demand());
         }
+
+//        if(link.getId()==3L){
+//            LaneGroup lg = (LaneGroup) link.lanegroups_flwdn.values().iterator().next();
+//            System.out.println(timestamp + "\t" + lg.get_supply());
+//
+//        }
+
+
     }
 
     private void update_dwn_flow(Link link) {

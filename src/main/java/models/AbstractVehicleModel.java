@@ -44,7 +44,7 @@ public abstract class AbstractVehicleModel extends AbstractModel {
 
         // put the whole packet i the lanegroup with the most space.
         Optional<? extends AbstractLaneGroup> best_lanegroup = candidate_lanegroups.stream()
-                .max(Comparator.comparing(AbstractLaneGroup::get_space_per_lane));
+                .max(Comparator.comparing(AbstractLaneGroup::get_supply_per_lane));
 
         if(best_lanegroup.isPresent()) {
             Map<AbstractLaneGroup,Double> A = new HashMap<>();
