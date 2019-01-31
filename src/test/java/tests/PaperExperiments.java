@@ -11,7 +11,7 @@ public class PaperExperiments extends AbstractTest {
     static {
         args[0] = "-run";
         args[5] = "0";
-        args[6] = "2000";
+        args[6] = "4000";
     }
 
     static void run(String x){

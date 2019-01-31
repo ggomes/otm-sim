@@ -3,16 +3,13 @@ package models;
 import common.Link;
 import common.Node;
 import error.OTMErrorLog;
-import jaxb.Roadconnection;
 import keys.KeyCommPathOrLink;
 import models.ctm.*;
 import runner.Scenario;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -22,7 +19,6 @@ public class NodeModel {
     public static double eps = 1e-3;
 
     public Node node;
-    public boolean is_trivial;
 
     public Map<Long,UpLaneGroup> ulgs;  // upstrm lane groups.
     public Map<Long, RoadConnection> rcs;  // road connections.

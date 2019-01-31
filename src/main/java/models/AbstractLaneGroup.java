@@ -144,7 +144,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     }
 
     public void set_road_params(jaxb.Roadparam r){
-        this.max_vehicles =  r.getJamDensity() * length * num_lanes;
+        this.max_vehicles =  r.getJamDensity() * (length/1000.0) * num_lanes;
         double critical_density_vpkpl = r.getCapacity() / r.getSpeed();  // vpkpl
         this.max_cong_speed_kph = r.getCapacity() / (r.getJamDensity() - critical_density_vpkpl);
     }

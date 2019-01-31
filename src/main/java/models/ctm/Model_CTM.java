@@ -75,8 +75,6 @@ public class Model_CTM extends AbstractFluidModel {
         }
     }
 
-
-
     @Override
     public void validate(OTMErrorLog errorLog) {
 
@@ -158,7 +156,7 @@ public class Model_CTM extends AbstractFluidModel {
         // TODO cache this?
         for(Link link : links){
 
-            update_supply(link,timestamp);
+            update_supply_for_all_cells(link,timestamp);
 
             if(link.lanegroups_flwdn.size()>=2)
                 perform_lane_changes(link,timestamp);
@@ -179,8 +177,8 @@ public class Model_CTM extends AbstractFluidModel {
 
     @Override
     public void update_link_state(Float timestamp,Link link) {
-            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                ((LaneGroup) lg).update_state(timestamp);
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+            ((LaneGroup) lg).update_state(timestamp);
     }
 
     ///////////////////////////////////////////
@@ -315,7 +313,7 @@ public class Model_CTM extends AbstractFluidModel {
     }
 
     // call update_supply_demand on each cell
-    private void update_supply(Link link,float timestamp) {
+    private void update_supply_for_all_cells(Link link,float timestamp) {
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
             LaneGroup ctmlg = (LaneGroup) lg;
             if(!ctmlg.states.isEmpty())

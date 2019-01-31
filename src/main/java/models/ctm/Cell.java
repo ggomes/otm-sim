@@ -230,16 +230,6 @@ public class Cell {
             return;
 
         // update supply ..............................................
-        supply = laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - get_total_vehicles());
-
-    }
-
-    public void update_supply_ORIGINAL(){
-
-        if(laneGroup.link.is_source)
-            return;
-
-        // update supply ..............................................
         if (laneGroup.link.is_sink)
             supply = laneGroup.capacity_veh_per_dt;
         else {
