@@ -50,7 +50,15 @@ public class DnLaneGroup {
 
     public void reset(){
         this.is_blocked = false;
+        double dt = ((models.ctm.Model_CTM) this.lg.link.model).dt;
         this.s_j = lg.get_supply();
+
+//        This should be multiplied by lg.() -> wnorm
+//                Problem is if dnLaneGroup is a different model,
+//                it does not have wnorm, so one must normalize each time.
+//                This is ok.
+
+
         this.gamma_j = Double.NaN;
         state_infos.values().forEach(x->x.reset());
     }

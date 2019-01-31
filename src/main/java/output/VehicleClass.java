@@ -43,7 +43,7 @@ public class VehicleClass extends AbstractOutputEvent implements InterfaceVehicl
 
     @Override
     public void plot(String filename) throws OTMException {
-        System.out.println("IMPLEMENT THIS");
+        System.err.println("IMPLEMENT THIS");
     }
 
 }

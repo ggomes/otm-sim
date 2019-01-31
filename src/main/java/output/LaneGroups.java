@@ -28,7 +28,7 @@ public class LaneGroups extends AbstractOutput {
 
     @Override
     public void write(float timestamp, Object obj) {
-        System.out.println("this should not happen");
+        System.err.println("this should not happen");
     }
 
     @Override

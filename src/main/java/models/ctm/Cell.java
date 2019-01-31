@@ -21,10 +21,8 @@ public class Cell {
     public boolean am_dnstrm;
 
     // road params
-    public double capacity_veh;         // [veh]
-    public double wspeed_norm;          // [-]
-    public double ffspeed_norm;         // [-]
-    public double jam_density_veh;      // [veh]
+//    public double capacity_veh;         // [veh]
+//    public double jam_density_veh;      // [veh]
 
     // vehicles and demand already in their target lanegroup
     public Map<KeyCommPathOrLink, Double> veh_dwn;      // comm,path|nlink -> number of vehicles
@@ -53,41 +51,16 @@ public class Cell {
         this.laneGroup = laneGroup;
     }
 
-    public void set_road_params(float capacity_vehperlane, float jam_density_vehperlane, float ffspeed_veh) {
-        int lanes = laneGroup.num_lanes;
-        if (laneGroup.link.is_source) {
-            this.capacity_veh = capacity_vehperlane * lanes;
-            this.ffspeed_norm = Double.NaN;
-            this.jam_density_veh = Double.NaN;
-            this.wspeed_norm = Double.NaN;
-        } else {
-            this.capacity_veh = capacity_vehperlane * lanes;
-            this.ffspeed_norm = ffspeed_veh;
-            this.jam_density_veh = jam_density_vehperlane * lanes;
-            double critical_veh = capacity_veh / ffspeed_norm;
-            this.wspeed_norm = capacity_veh / (jam_density_veh - critical_veh);
-        }
-    }
-
-    public void validate(OTMErrorLog errorLog) {
-
-        if (!laneGroup.link.is_source) {
-            if (ffspeed_norm < 0)
-                errorLog.addError("non-negativity");
-            if (jam_density_veh < 0)
-                errorLog.addError("non-negativity");
-            if (wspeed_norm < 0)
-                errorLog.addError("non-negativity");
-            if (wspeed_norm > 1)
-                errorLog.addError("CFL violated: link " + laneGroup.link.getId() + " wspeed_norm = " + wspeed_norm);
-            if (ffspeed_norm > 1)
-                errorLog.addError("CFL violated: link " + laneGroup.link.getId() + " ffspeed_norm = " + ffspeed_norm);
-        }
-
-        // NOTE: THIS IS FAILING BECAUSE LANES HAVE NOT BEEN SET
-//        if(capacity_veh<=0)
-//            scenario.error_log.addError("capacity must be positive");
-    }
+//    public void set_road_params(float capacity_vehperlane, float jam_density_vehperlane, float ffspeed_veh) {
+//        int lanes = laneGroup.num_lanes;
+//        if (laneGroup.link.is_source) {
+//            this.capacity_veh = capacity_vehperlane * lanes;
+//            this.jam_density_veh = Double.NaN;
+//        } else {
+//            this.capacity_veh = capacity_vehperlane * lanes;
+//            this.jam_density_veh = jam_density_vehperlane * lanes;
+//        }
+//    }
 
     public void reset(){
 
@@ -174,90 +147,6 @@ public class Cell {
     // update
     ///////////////////////////////////////////////////
 
-    // compute demand_dwn (demand per commodity and path)
-    // and supply (total supply)
-    public void update_supply_demand() {
-
-        double total_vehicles = total_vehs_dwn + total_vehs_out + total_vehs_in;
-
-        double external_max_speed = Double.POSITIVE_INFINITY;
-        double total_demand;
-
-        // update demand ...................................................
-
-        // case empty link
-        if (total_vehicles < OTMUtils.epsilon) {
-            demand_dwn.keySet().stream().forEach(k -> demand_dwn.put(k, 0d));
-            if(demand_out!=null)
-                demand_out.keySet().stream().forEach(k -> demand_out.put(k, 0d));
-            if(demand_in!=null)
-                demand_in.keySet().stream().forEach(k -> demand_in.put(k, 0d));
-        }
-
-        else {
-
-            // compute total flow leaving the cell in the absence of flow control
-            if (laneGroup.link.is_source)
-                // sources discharge at capacity
-                total_demand = Math.min(total_vehicles, capacity_veh);
-            else {
-                // assume speed control acts equally on all cells in the link
-                double ffspeed = Math.min(ffspeed_norm, external_max_speed);
-                if(am_dnstrm)
-                    total_demand = Math.min(ffspeed * total_vehicles, capacity_veh);
-                else
-                    total_demand = ffspeed * total_vehicles;
-            }
-
-            // downstream cell: flow controller and lane change blocking
-            if (am_dnstrm) {
-
-                if(total_vehs_out+total_vehs_in>OTMUtils.epsilon) {
-//                    double gamma = 0.9d;
-//                    double mulitplier = Math.max(0d,1d-gamma*total_vehs_out);
-//                    total_demand *= mulitplier;
-                    total_demand = 0d;
-                }
-            }
-
-            // split among in|out target, commodities, paths|nextlinks
-            double alpha = total_demand / total_vehicles;
-            for (KeyCommPathOrLink key : demand_dwn.keySet())
-                demand_dwn.put(key, veh_dwn.get(key) * alpha);
-
-            if(demand_out !=null)
-                for (KeyCommPathOrLink key : demand_out.keySet())
-                    demand_out.put(key, veh_out.get(key) * alpha);
-
-            if(demand_in !=null)
-                for (KeyCommPathOrLink key : demand_in.keySet())
-                    demand_in.put(key, veh_in.get(key) * alpha);
-        }
-
-        // update supply ..............................................
-        if (laneGroup.link.is_sink)
-            supply = capacity_veh;
-        else {
-
-            // TODO REIMPLEMENT MN
-
-//            switch (laneGroup.link.model_type) {
-//                case ctm:
-                    if(am_dnstrm)
-                        supply = Math.min(wspeed_norm * (jam_density_veh - total_vehicles), capacity_veh);
-                    else
-                        supply = wspeed_norm * (jam_density_veh - total_vehicles);
-//                    break;
-//                case mn:
-//                    supply = Float.POSITIVE_INFINITY;
-//                    break;
-//                default:
-//                    System.err.println("Wha??");
-//            }
-        }
-
-    }
-
     public void update_dwn_state(Map<KeyCommPathOrLink, Double> inflow, Map<KeyCommPathOrLink, Double> outflow) {
 
         if (inflow != null)
@@ -335,4 +224,106 @@ public class Cell {
 
     }
 
+    public void update_supply(){
+
+        if(laneGroup.link.is_source)
+            return;
+
+        // update supply ..............................................
+        supply = laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - get_total_vehicles());
+
+    }
+
+    public void update_supply_ORIGINAL(){
+
+        if(laneGroup.link.is_source)
+            return;
+
+        // update supply ..............................................
+        if (laneGroup.link.is_sink)
+            supply = laneGroup.capacity_veh_per_dt;
+        else {
+
+
+            // TODO REIMPLEMENT MN
+
+//            switch (laneGroup.link.model_type) {
+//                case ctm:
+            double total_vehicles = get_total_vehicles();
+            if(am_dnstrm)
+                supply = Math.min(laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - total_vehicles), laneGroup.capacity_veh_per_dt);
+            else
+                supply = laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - total_vehicles);
+//                    break;
+//                case mn:
+//                    supply = Float.POSITIVE_INFINITY;
+//                    break;
+//                default:
+//                    System.err.println("Wha??");
+//            }
+        }
+    }
+
+    public void update_demand(){
+
+        double total_vehicles = total_vehs_dwn + total_vehs_out + total_vehs_in;
+
+        double external_max_speed = Double.POSITIVE_INFINITY;
+        double total_demand;
+
+        // update demand ...................................................
+
+        // case empty link
+        if (total_vehicles < OTMUtils.epsilon) {
+            demand_dwn.keySet().stream().forEach(k -> demand_dwn.put(k, 0d));
+            if(demand_out!=null)
+                demand_out.keySet().stream().forEach(k -> demand_out.put(k, 0d));
+            if(demand_in!=null)
+                demand_in.keySet().stream().forEach(k -> demand_in.put(k, 0d));
+        }
+
+        else {
+
+            // compute total flow leaving the cell in the absence of flow control
+            if (laneGroup.link.is_source)
+                // sources discharge at capacity
+                total_demand = Math.min(total_vehicles, laneGroup.capacity_veh_per_dt);
+            else {
+                // assume speed control acts equally on all cells in the link
+                double ffspeed = Math.min(laneGroup.ffspeed_cell_per_dt, external_max_speed);
+                if(am_dnstrm)
+                    total_demand = Math.min(ffspeed * total_vehicles, laneGroup.capacity_veh_per_dt);
+                else
+                    total_demand = ffspeed * total_vehicles;
+            }
+
+            // downstream cell: flow controller and lane change blocking
+            if (am_dnstrm) {
+
+                if(total_vehs_out+total_vehs_in>OTMUtils.epsilon) {
+//                    double gamma = 0.9d;
+//                    double mulitplier = Math.max(0d,1d-gamma*total_vehs_out);
+//                    total_demand *= mulitplier;
+                    total_demand = 0d;
+                }
+            }
+
+            // split among in|out target, commodities, paths|nextlinks
+            double alpha = total_demand / total_vehicles;
+            for (KeyCommPathOrLink key : demand_dwn.keySet())
+                demand_dwn.put(key, veh_dwn.get(key) * alpha);
+
+            if(demand_out !=null)
+                for (KeyCommPathOrLink key : demand_out.keySet())
+                    demand_out.put(key, veh_out.get(key) * alpha);
+
+            if(demand_in !=null)
+                for (KeyCommPathOrLink key : demand_in.keySet())
+                    demand_in.put(key, veh_in.get(key) * alpha);
+        }
+    }
+
+    private double get_total_vehicles(){
+        return total_vehs_dwn + total_vehs_out + total_vehs_in;
+    }
 }

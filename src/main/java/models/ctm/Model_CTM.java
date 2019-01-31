@@ -51,16 +51,31 @@ public class Model_CTM extends AbstractFluidModel {
         float dt_hr = dt/3600f;
         float capacity_vehperlane = r.getCapacity()*dt_hr;
 
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
 
-            float cell_length = lg.length / ((LaneGroup) lg).cells.size() / 1000f;
+            models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
+            float cell_length = lg.length / lg.cells.size() / 1000f;
             float jam_density_vehperlane = r.getJamDensity() * cell_length;
             float ffspeed_veh = r.getSpeed() * dt_hr / cell_length;
 
+            if (link.is_source) {
+                lg.capacity_veh_per_dt = capacity_vehperlane * lg.num_lanes;
+                lg.jam_density_veh_per_cell = Double.NaN;
+                lg.ffspeed_cell_per_dt = Double.NaN;
+                lg.wspeed_cell_per_dt = Double.NaN;
+            } else {
+                lg.capacity_veh_per_dt = capacity_vehperlane * lg.num_lanes;
+                lg.jam_density_veh_per_cell = jam_density_vehperlane * lg.num_lanes;
+                lg.ffspeed_cell_per_dt = ffspeed_veh;
+                double critical_veh = capacity_vehperlane / lg.ffspeed_cell_per_dt;
+                lg.wspeed_cell_per_dt = capacity_vehperlane / (jam_density_vehperlane - critical_veh);
+            }
+
             lg.set_road_params(r);
-            ((LaneGroup) lg).cells.forEach(c -> c.set_road_params(capacity_vehperlane, jam_density_vehperlane, ffspeed_veh));
         }
     }
+
+
 
     @Override
     public void validate(OTMErrorLog errorLog) {
@@ -128,8 +143,6 @@ public class Model_CTM extends AbstractFluidModel {
     @Override
     public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
         Map<AbstractLaneGroup,Double> A = new HashMap<>();
-
-        // TODO : Bad. dont call get_supply, it computes the supply.
         double total_supply = candidate_lanegroups.stream().mapToDouble(x->x.get_supply()).sum();
         for(AbstractLaneGroup laneGroup : candidate_lanegroups)
             A.put(laneGroup , laneGroup.get_supply() / total_supply);
@@ -143,13 +156,16 @@ public class Model_CTM extends AbstractFluidModel {
         // TODO What is the point of that?
 
         // TODO cache this?
-        // lane changing -> intermediate state
-        links.stream()
-                .filter(link -> link.lanegroups_flwdn.size()>=2)
-                .forEach(link -> perform_lane_changes(link,timestamp));
+        for(Link link : links){
 
-        // update demand and supply
-        links.forEach(link -> update_supply_demand(link,timestamp));
+            update_supply(link,timestamp);
+
+            if(link.lanegroups_flwdn.size()>=2)
+                perform_lane_changes(link,timestamp);
+
+            update_demand(link,timestamp);
+
+        }
 
     }
 
@@ -183,8 +199,9 @@ public class Model_CTM extends AbstractFluidModel {
             Map<Long, Double> gamma = new HashMap<>();
 
             // compute total flows reduction for each lane group
-            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
-                Cell cell = ((LaneGroup) lg).cells.get(i);
+            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+                models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
+                Cell cell = lg.cells.get(i);
                 double demand_to_me = 0d;
                 if (lg.neighbor_in != null)
                     demand_to_me += ((LaneGroup) lg.neighbor_in).cells.get(i).total_vehs_out;
@@ -192,7 +209,7 @@ public class Model_CTM extends AbstractFluidModel {
                     demand_to_me += ((LaneGroup) lg.neighbor_out).cells.get(i).total_vehs_in;
 
                 // TODO: extract xi as a parameter
-                double supply = 0.9d * (1d - cell.wspeed_norm) * (cell.jam_density_veh - cell.get_vehicles());
+                double supply = 0.9d * (1d - lg.wspeed_cell_per_dt) * cell.supply;
                 gamma.put(lg.id, demand_to_me > supply ? supply / demand_to_me : 1d);
             }
 
@@ -298,20 +315,20 @@ public class Model_CTM extends AbstractFluidModel {
     }
 
     // call update_supply_demand on each cell
-    private void update_supply_demand(Link link,float timestamp) {
+    private void update_supply(Link link,float timestamp) {
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
             LaneGroup ctmlg = (LaneGroup) lg;
             if(!ctmlg.states.isEmpty())
-                ctmlg.cells.forEach(cell -> cell.update_supply_demand());
+                ctmlg.cells.forEach(cell -> cell.update_supply());
         }
+    }
 
-//        if(link.getId()==3L){
-//            LaneGroup lg = (LaneGroup) link.lanegroups_flwdn.values().iterator().next();
-//            System.out.println(timestamp + "\t" + lg.get_supply());
-//
-//        }
-
-
+    private void update_demand(Link link,float timestamp) {
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+            LaneGroup ctmlg = (LaneGroup) lg;
+            if(!ctmlg.states.isEmpty())
+                ctmlg.cells.forEach(cell -> cell.update_demand());
+        }
     }
 
     private void update_dwn_flow(Link link) {

@@ -210,13 +210,6 @@ public class TestAPI extends AbstractTest {
 
     @Test
     @Ignore
-    public void test_get_sensors(){
-        System.out.println(api.get_sensors());
-
-    }
-
-    @Test
-    @Ignore
     public void test_get_sensor_with_id(){
         System.out.println(api.get_sensor_with_id(1l));
     }

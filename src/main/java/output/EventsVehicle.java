@@ -47,7 +47,7 @@ public class EventsVehicle extends AbstractOutputEvent implements InterfaceVehic
 
     @Override
     public void plot(String filename) throws OTMException {
-        System.out.println("IMPLEMENT THIS");
+        System.err.println("IMPLEMENT THIS");
     }
 
     //////////////////////////////////////////////////////

@@ -47,8 +47,6 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
             vehicles.add((models.micro.Vehicle)vehicle);
 
-            System.out.println(String.format("%.2f %d %d ",timestamp,id,vehicle.getId()));
-
             // inform the travel timers
             link.travel_timers.forEach(x->x.vehicle_enter(timestamp,vehicle));
         }

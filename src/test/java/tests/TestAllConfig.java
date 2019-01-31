@@ -41,7 +41,7 @@ public class TestAllConfig extends AbstractTest {
             API api = OTM.load_test(testname,true);
             assertNotNull(api);
         } catch (OTMException e) {
-            System.out.print(e);
+            System.err.print(e);
             fail();
         }
     }
@@ -80,7 +80,7 @@ public class TestAllConfig extends AbstractTest {
         }
 
         catch (OTMException e) {
-            System.out.print(e);
+            System.err.print(e);
             fail();
         }
 

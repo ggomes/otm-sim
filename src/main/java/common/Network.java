@@ -132,9 +132,6 @@ public class Network {
     /////////////////////////////////////////////////
 
     private static HashMap<Long,Link> create_links(List<jaxb.Link> jaxb_links,Network network,Map<Long,Node> nodes) throws OTMException {
-
-        System.out.println("\tcreate links");
-
         HashMap<Long,Link> links = new HashMap<>();
         for( jaxb.Link jl : jaxb_links ) {
             long id = jl.getId();

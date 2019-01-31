@@ -41,7 +41,7 @@ public class VehicleTravelTime extends AbstractOutputEvent implements InterfaceV
 
     @Override
     public void plot(String filename) throws OTMException {
-        System.out.println("IMPLEMENT THIS");
+        System.err.println("IMPLEMENT THIS");
     }
 
 }

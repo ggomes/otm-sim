@@ -128,11 +128,6 @@ public class SignalPhase {
         set_bulb_color(timestamp, BulbColor.DARK);
     }
 
-    public void print_transitions(float timestamp){
-        for(PhaseTransition pt : transitions.queue)
-            System.out.println(String.format("%.1f\t%d\t%d\t%s",timestamp,my_signal.id,id,pt.toString()));
-    }
-
     ///////////////////////////////////////////////////
     // update
     ///////////////////////////////////////////////////

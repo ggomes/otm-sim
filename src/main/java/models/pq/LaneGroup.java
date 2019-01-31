@@ -67,6 +67,8 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
         // register first vehicle exit
         schedule_release_vehicle(runParams.start_time,current_max_flow_rate_vps);
+
+        update_supply();
     }
 
     @Override

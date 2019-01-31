@@ -26,6 +26,11 @@ public class LaneGroup extends AbstractLaneGroup {
 
     public double cell_length_meters;
 
+    public double wspeed_cell_per_dt;          // [-]
+    public double ffspeed_cell_per_dt;         // [-]
+    public double jam_density_veh_per_cell;
+    public double capacity_veh_per_dt;
+
     public List<Cell> cells;     // sequence of cells
 
     // transversal flow of vehicles already in their target lanegroup
@@ -77,7 +82,21 @@ public class LaneGroup extends AbstractLaneGroup {
     @Override
     public void validate(OTMErrorLog errorLog) {
         super.validate(errorLog);
-        cells.forEach(c->c.validate(errorLog));
+
+        if (jam_density_veh_per_cell < 0)
+            errorLog.addError("non-negativity");
+
+        if (!link.is_source) {
+            if (ffspeed_cell_per_dt < 0)
+                errorLog.addError("non-negativity");
+            if (wspeed_cell_per_dt < 0)
+                errorLog.addError("non-negativity");
+            if (wspeed_cell_per_dt > 1)
+                errorLog.addError("CFL violated: link " + link.getId() + " wspeed_cell_per_dt = " + wspeed_cell_per_dt);
+            if (ffspeed_cell_per_dt > 1)
+                errorLog.addError("CFL violated: link " + link.getId() + " ffspeed_cell_per_dt = " + ffspeed_cell_per_dt);
+        }
+
     }
 
     @Override
@@ -194,12 +213,12 @@ public class LaneGroup extends AbstractLaneGroup {
                 double out_flow = bf==null ? 0d : bf.values().stream().mapToDouble(x->x).sum();
 
                 if(out_flow==0)
-                    travel_time = link.is_source ? sim_dt : sim_dt / cell.ffspeed_norm;
+                    travel_time = link.is_source ? sim_dt : sim_dt / ffspeed_cell_per_dt;
                 else
                     travel_time = sim_dt * veh / out_flow;
 
             } else
-                travel_time = link.is_source ? sim_dt : sim_dt / cell.ffspeed_norm;
+                travel_time = link.is_source ? sim_dt : sim_dt / ffspeed_cell_per_dt;
 
             sum += travel_time;
         }
@@ -224,9 +243,8 @@ public class LaneGroup extends AbstractLaneGroup {
     @Override
     public void update_supply(){
         Cell upcell = get_upstream_cell();
-        supply = Double.isInfinite(upcell.jam_density_veh) ?
-                Double.POSITIVE_INFINITY :
-                upcell.wspeed_norm * (upcell.jam_density_veh - upcell.get_vehicles());
+        upcell.update_supply();
+        supply = upcell.supply;
     }
 
 
@@ -292,17 +310,17 @@ public class LaneGroup extends AbstractLaneGroup {
         if(states.isEmpty())
             return;
 
-//        if(link.getId()==3L){
-//            Cell cell = cells.get(0);
-//
-//            Map<KeyCommPathOrLink,Double> in = flow_stay.get(0);
-//            Map<KeyCommPathOrLink,Double> out = flow_stay.get(1);
-//
-//            if(in!=null && !in.isEmpty() && out!=null && !out.isEmpty()) {
-//                System.out.println(timestamp + "\t" +  in.values().iterator().next() + "\t" + out.values().iterator().next());
-//            }
-//
-//        }
+        if(link.getId()==3L){
+            Cell cell = cells.get(0);
+
+            Map<KeyCommPathOrLink,Double> in = flow_stay.get(0);
+            Map<KeyCommPathOrLink,Double> out = flow_stay.get(1);
+
+            if(in!=null && !in.isEmpty() && out!=null && !out.isEmpty()) {
+                System.out.println(timestamp + "\t" +  in.values().iterator().next() + "\t" + out.values().iterator().next());
+            }
+
+        }
 
         for(int i=0;i<cells.size();i++) {
             Cell cell = cells.get(i);

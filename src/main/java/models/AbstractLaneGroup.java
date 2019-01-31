@@ -36,11 +36,10 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public int start_lane_up;       // counted with respect to upstream boundary
     public int start_lane_dn;       // counted with respect to downstream boundary
     public final int num_lanes;
-    public float length;
+    public float length;        // [m]
 
     public double max_vehicles;
-    public double max_speed_kph;
-    public double max_flow_vph;
+    public double max_cong_speed_kph;
 
     public AbstractLaneGroup neighbor_in;       // lanegroup down and in
     public AbstractLaneGroup neighbor_out;      // lanegroup down and out
@@ -142,14 +141,12 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
         if(flw_acc!=null)
             flw_acc.reset();
-
-        update_supply();
     }
 
     public void set_road_params(jaxb.Roadparam r){
-        this.max_vehicles = r.getJamDensity() * length * num_lanes;
-        this.max_speed_kph = r.getSpeed();
-        this.max_flow_vph = r.getCapacity();
+        this.max_vehicles =  r.getJamDensity() * length * num_lanes;
+        double critical_density_vpkpl = r.getCapacity() / r.getSpeed();  // vpkpl
+        this.max_cong_speed_kph = r.getCapacity() / (r.getJamDensity() - critical_density_vpkpl);
     }
 
     public FlowAccumulatorState request_flow_accumulator(Long comm_id){
@@ -200,7 +197,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return vehs_dwn_for_comm(null);
     }
 
-    public final double get_supply(){
+    public double get_supply(){
         return supply;
     }
 
