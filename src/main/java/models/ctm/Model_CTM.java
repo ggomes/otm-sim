@@ -168,17 +168,45 @@ public class Model_CTM extends AbstractFluidModel {
     }
 
     @Override
-    public void update_flux_II(float timestamp) throws OTMException {
-
-        // update cell boundary flows
-        links.forEach(link -> update_dwn_flow(link));
-
-    }
-
-    @Override
     public void update_link_state(Float timestamp,Link link) {
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-            ((LaneGroup) lg).update_state(timestamp);
+
+        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+
+            models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
+
+            if(lg.states.isEmpty())
+                return;
+
+            for(int i=0;i<lg.cells.size()-1;i++) {
+
+                Cell upcell = lg.cells.get(i);
+                Cell dncell = lg.cells.get(i + 1);
+
+                Map<KeyCommPathOrLink, Double> dem_dwn = upcell.demand_dwn;
+                Map<KeyCommPathOrLink, Double> dem_out = upcell.demand_out;
+                Map<KeyCommPathOrLink, Double> dem_in = upcell.demand_in;
+
+                // total demand
+                double total_demand = OTMUtils.sum(dem_dwn);
+                total_demand += dem_out == null ? 0d : OTMUtils.sum(dem_out);
+                total_demand += dem_in == null ? 0d : OTMUtils.sum(dem_in);
+
+                if (total_demand > OTMUtils.epsilon) {
+                    double total_flow = Math.min(total_demand, dncell.supply);
+                    double gamma = total_flow / total_demand;
+
+                    Map<KeyCommPathOrLink, Double> flow_stay = OTMUtils.times(dem_dwn, gamma);
+                    Map<KeyCommPathOrLink, Double> flow_lc_in = OTMUtils.times(dem_in, gamma);
+                    Map<KeyCommPathOrLink, Double> flow_lc_out = OTMUtils.times(dem_out, gamma);
+
+                    dncell.add_vehicles(flow_stay,flow_lc_in,flow_lc_out);
+                    upcell.subtract_vehicles(flow_stay,flow_lc_in,flow_lc_out);
+                }
+            }
+
+            lg.update_supply();
+
+        }
     }
 
     ///////////////////////////////////////////
@@ -329,10 +357,10 @@ public class Model_CTM extends AbstractFluidModel {
         }
     }
 
-    private void update_dwn_flow(Link link) {
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-            ((LaneGroup) lg).update_dwn_flow();
-    }
+//    private void update_dwn_flow(Link link) {
+//        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+//            ((LaneGroup) lg).update_dwn_flow();
+//    }
 
     private void create_cells(Link link,float max_cell_length){
 

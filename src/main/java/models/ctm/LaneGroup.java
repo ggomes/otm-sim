@@ -35,12 +35,12 @@ public class LaneGroup extends AbstractLaneGroup {
 
     // transversal flow of vehicles already in their target lanegroup
     // size = numcells + 1
-    public List<Map<KeyCommPathOrLink,Double>> flow_stay;
+//    public List<Map<KeyCommPathOrLink,Double>> flow_stay;
 
     // flow of vehicles changing lanes in the inner and outer directions
     // size = numcells (downstream boundary is always 0)
-    public List<Map<KeyCommPathOrLink,Double>> flow_lc_in;
-    public List<Map<KeyCommPathOrLink,Double>> flow_lc_out;
+//    public List<Map<KeyCommPathOrLink,Double>> flow_lc_in;
+//    public List<Map<KeyCommPathOrLink,Double>> flow_lc_out;
 
     ////////////////////////////////////////////
     // load
@@ -94,23 +94,23 @@ public class LaneGroup extends AbstractLaneGroup {
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
         super.initialize(scenario,runParams);
 
-        // populate in target boundary flows
-        flow_stay = new ArrayList<>();
-        for(int i=0;i<cells.size()+1;i++)
-            flow_stay.add(new HashMap<>());
+//        // populate in target boundary flows
+//        flow_stay = new ArrayList<>();
+//        for(int i=0;i<cells.size()+1;i++)
+//            flow_stay.add(new HashMap<>());
 
-        // Configuration for lane changing
-        if(neighbor_in!=null){
-            this.flow_lc_in = new ArrayList<>();
-            for(int i=0;i<cells.size();i++)
-                flow_lc_in.add(new HashMap<>());
-        }
-
-        if(neighbor_out!=null){
-            this.flow_lc_out = new ArrayList<>();
-            for(int i=0;i<cells.size()+1;i++)
-                flow_lc_out.add(new HashMap<>());
-        }
+//        // Configuration for lane changing
+//        if(neighbor_in!=null){
+//            this.flow_lc_in = new ArrayList<>();
+//            for(int i=0;i<cells.size();i++)
+//                flow_lc_in.add(new HashMap<>());
+//        }
+//
+//        if(neighbor_out!=null){
+//            this.flow_lc_out = new ArrayList<>();
+//            for(int i=0;i<cells.size()+1;i++)
+//                flow_lc_out.add(new HashMap<>());
+//        }
 
     }
 
@@ -127,54 +127,17 @@ public class LaneGroup extends AbstractLaneGroup {
     public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp, Long nextlink_id) {
 
         FluidLaneGroupPacket vp = (FluidLaneGroupPacket) avp;
-
-        Map<KeyCommPathOrLink,Double> bf_dwn = flow_stay.get(0);
-        Map<KeyCommPathOrLink,Double> bf_in = flow_lc_in ==null ? null : flow_lc_in.get(0);
-        Map<KeyCommPathOrLink,Double> bf_out = flow_lc_out ==null ? null : flow_lc_out.get(0);
+        Cell cell = cells.get(0);
 
         for(Map.Entry<KeyCommPathOrLink,Double> e : vp.state2vehicles.entrySet()) {
-            KeyCommPathOrLink state = e.getKey();
-            Double val = e.getValue();
+            KeyCommPathOrLink key = e.getKey();
 
-            switch(state2lanechangedirection.get(state)){
-                case in:
-                    if(bf_in==null) {
-                        bf_in = new HashMap<>();
-                        bf_in.put(state, val);
-                    }
-                    else
-                        bf_in.put(state, bf_in.containsKey(state) ? bf_in.get(state)+val : val);
-                    break;
-                case out:
-                    if(bf_out==null) {
-                        bf_out = new HashMap<>();
-                        bf_out.put(state, val);
-                    }
-                    else
-                        bf_out.put(state, bf_out.containsKey(state) ? bf_out.get(state)+val : val);
-                    break;
-                case stay:
-                    if(bf_dwn==null) {
-                        bf_dwn = new HashMap<>();
-                        bf_dwn.put(state, val);
-                    }
-                    else
-                        bf_dwn.put(state, bf_dwn.containsKey(state) ? bf_dwn.get(state)+val : val);
-                    break;
-            }
+            // update state
+            if(!key.isPath)
+                key = new KeyCommPathOrLink(key.commodity_id,nextlink_id,false);
+
+            cell.add_vehicles(key,e.getValue());
         }
-
-        if(bf_dwn!=null)
-            flow_stay.set(0,bf_dwn);
-
-        if(bf_in!=null)
-            flow_lc_in.set(0,bf_in);
-
-        if(bf_out!=null)
-            flow_lc_out.set(0,bf_out);
-
-        update_supply();
-
     }
 
     @Override
@@ -184,88 +147,52 @@ public class LaneGroup extends AbstractLaneGroup {
 
     // not called for sinks
     public void release_vehicles(Map<KeyCommPathOrLink,Double> X){
-        flow_stay.set(cells.size(),X);
+        cells.get(cells.size()-1).subtract_vehicles(X,null,null);
     }
 
-    protected void update_dwn_flow(){
-        // set flow_stay and flot_notin_target for internal boundaries and
-        // downstream boundary for sinks
+//    protected void update_dwn_flow(){
+//        // set flow_stay and flot_notin_target for internal boundaries and
+////        // downstream boundary for sinks
+////
+////        if(states.isEmpty())
+////            return;
+////
+//        if(link.end_node.is_sink)
+//            flow_stay.set(cells.size(), cells.get(cells.size()-1).demand_dwn);
+//
+//        // send lanegroup exit flow to flow accumulator
+//        // TODO : NOT IN TARGET VEHICLES ARE NOT BEING COUNTED!!!
+//        for(Map.Entry<KeyCommPathOrLink,Double> e : flow_stay.get(cells.size()).entrySet())
+//            if(e.getValue()>0)
+//                update_flow_accummulators(e.getKey(),e.getValue());
+//    }
 
-        if(states.isEmpty())
-            return;
-
-        // make a list of flow maps
-        // there are (#cells)+1 boundaries
-        // each map is from comm_path to value
-        for(int i=0;i<cells.size()-1;i++){
-
-            Cell cell = cells.get(i);
-
-            Map<KeyCommPathOrLink,Double> dem_dwn = cell.demand_dwn;
-            Map<KeyCommPathOrLink,Double> dem_out = cell.demand_out;
-            Map<KeyCommPathOrLink,Double> dem_in = cell.demand_in;
-
-            // total demand
-            double total_demand = OTMUtils.sum(dem_dwn);
-            total_demand += dem_out==null ? 0d : OTMUtils.sum(dem_out);
-            total_demand += dem_in==null ? 0d : OTMUtils.sum(dem_in);
-
-            if(total_demand>OTMUtils.epsilon) {
-                double total_flow = Math.min( total_demand , cells.get(i+1).supply );
-                double gamma = total_flow / total_demand;
-
-                flow_stay.set(i+1,OTMUtils.times(dem_dwn,gamma));
-                if(flow_lc_in !=null)
-                    flow_lc_in.set(i+1,OTMUtils.times(dem_in,gamma));
-
-                if(flow_lc_out !=null)
-                    flow_lc_out.set(i+1,OTMUtils.times(dem_out,gamma));
-            }
-            else {
-                flow_stay.set(i+1, null);
-                if(flow_lc_in !=null)
-                    flow_lc_in.set(i+1, null);
-                if(flow_lc_out !=null)
-                    flow_lc_out.set(i+1, null);
-            }
-        }
-
-        if(link.end_node.is_sink)
-            flow_stay.set(cells.size(), cells.get(cells.size()-1).demand_dwn);
-
-        // send lanegroup exit flow to flow accumulator
-        // TODO : NOT IN TARGET VEHICLES ARE NOT BEING COUNTED!!!
-        for(Map.Entry<KeyCommPathOrLink,Double> e : flow_stay.get(cells.size()).entrySet())
-            if(e.getValue()>0)
-                update_flow_accummulators(e.getKey(),e.getValue());
-    }
-
-    protected void update_state(float timestamp){
-
-        if(states.isEmpty())
-            return;
-
-        for(int i=0;i<cells.size();i++) {
-            Cell cell = cells.get(i);
-            cell.update_dwn_state(flow_stay.get(i), flow_stay.get(i + 1));
-            if(flow_lc_in !=null)
-                cell.update_in_state(flow_lc_in.get(i), i==cells.size()-1 ? null : flow_lc_in.get(i+1));
-            if(flow_lc_out !=null)
-                cell.update_out_state(flow_lc_out.get(i), i==cells.size()-1 ? null : flow_lc_out.get(i+1));
-        }
-
-        // clear boundary flows
-        // TODO: IS THIS A GOOD IDEA?
-        for(int i=link.is_source?1:0;i<=cells.size();i++)
-            flow_stay.set(i,null);
-
-        if(flow_lc_in !=null)
-            for(int i=0;i<cells.size();i++)
-                flow_lc_in.set(i,null);
-        if(flow_lc_out !=null)
-            for(int i=0;i<cells.size();i++)
-                flow_lc_out.set(i,null);
-    }
+//    protected void update_state(float timestamp){
+//
+//        if(states.isEmpty())
+//            return;
+//
+////        for(int i=0;i<cells.size();i++) {
+////            Cell cell = cells.get(i);
+////            cell.update_dwn_state(flow_stay.get(i), flow_stay.get(i + 1));
+////            if(flow_lc_in !=null)
+////                cell.update_in_state(flow_lc_in.get(i), i==cells.size()-1 ? null : flow_lc_in.get(i+1));
+////            if(flow_lc_out !=null)
+////                cell.update_out_state(flow_lc_out.get(i), i==cells.size()-1 ? null : flow_lc_out.get(i+1));
+////        }
+//
+////        // clear boundary flows
+////        // TODO: IS THIS A GOOD IDEA?
+////        for(int i=link.is_source?1:0;i<=cells.size();i++)
+////            flow_stay.set(i,null);
+////
+////        if(flow_lc_in !=null)
+////            for(int i=0;i<cells.size();i++)
+////                flow_lc_in.set(i,null);
+////        if(flow_lc_out !=null)
+////            for(int i=0;i<cells.size();i++)
+////                flow_lc_out.set(i,null);
+//    }
 
     @Override
     public void update_supply(){
@@ -311,26 +238,26 @@ public class LaneGroup extends AbstractLaneGroup {
         double travel_time;
         double sim_dt = ((models.ctm.Model_CTM)link.model).dt;
         float sum = 0f;
-        for(int i=0;i<cells.size();i++){
-            Cell cell = cells.get(i);
-
-            double veh = cell.get_vehicles();   // [veh]
-
-            if(veh>0) {
-
-                Map<KeyCommPathOrLink,Double> bf = flow_stay.get(i+1);
-                double out_flow = bf==null ? 0d : bf.values().stream().mapToDouble(x->x).sum();
-
-                if(out_flow==0)
-                    travel_time = link.is_source ? sim_dt : sim_dt / ffspeed_cell_per_dt;
-                else
-                    travel_time = sim_dt * veh / out_flow;
-
-            } else
-                travel_time = link.is_source ? sim_dt : sim_dt / ffspeed_cell_per_dt;
-
-            sum += travel_time;
-        }
+//        for(int i=0;i<cells.size();i++){
+//            Cell cell = cells.get(i);
+//
+//            double veh = cell.get_vehicles();   // [veh]
+//
+//            if(veh>0) {
+//
+//                Map<KeyCommPathOrLink,Double> bf = flow_stay.get(i+1);
+//                double out_flow = bf==null ? 0d : bf.values().stream().mapToDouble(x->x).sum();
+//
+//                if(out_flow==0)
+//                    travel_time = link.is_source ? sim_dt : sim_dt / ffspeed_cell_per_dt;
+//                else
+//                    travel_time = sim_dt * veh / out_flow;
+//
+//            } else
+//                travel_time = link.is_source ? sim_dt : sim_dt / ffspeed_cell_per_dt;
+//
+//            sum += travel_time;
+//        }
         return sum;
     }
 

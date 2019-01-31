@@ -70,21 +70,13 @@ public abstract class AbstractFluidModel extends AbstractModel {
     //////////////////////////////////////////////////////////////
 
     abstract public void update_flux_I(float timestamp) throws OTMException;
-    abstract public void update_flux_II(float timestamp) throws OTMException;
+//    abstract public void update_flux_II(float timestamp) throws OTMException;
     abstract public void update_link_state(Float timestamp,Link link);
 
     @Override
     public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time){
         dispatcher.register_event(new EventFluidFluxUpdate(dispatcher, start_time + dt, this));
         dispatcher.register_event(new EventFluidStateUpdate(dispatcher, start_time + dt, this));
-    }
-
-    public void update_fluid_state(Float timestamp) throws OTMException {
-        for(Link link : links) {
-            update_link_state(timestamp, link);
-            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                lg.update_supply();
-        }
     }
 
     public void update_fluid_flux(Float timestamp) throws OTMException {
@@ -112,7 +104,11 @@ public abstract class AbstractFluidModel extends AbstractModel {
                 ulg.lg.release_vehicles(ulg.f_is);
         }
 
-        update_flux_II(timestamp);
+    }
+
+    public void update_fluid_state(Float timestamp) throws OTMException {
+        for(Link link : links)
+            update_link_state(timestamp, link);
     }
 
 }

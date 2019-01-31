@@ -147,60 +147,21 @@ public class Cell {
     // update
     ///////////////////////////////////////////////////
 
-    public void update_dwn_state(Map<KeyCommPathOrLink, Double> inflow, Map<KeyCommPathOrLink, Double> outflow) {
+    public void add_vehicles(Map<KeyCommPathOrLink, Double> dwn,Map<KeyCommPathOrLink, Double> in,Map<KeyCommPathOrLink, Double> out) {
 
-        if (inflow != null)
-            for (Map.Entry<KeyCommPathOrLink, Double> e : inflow.entrySet()) {
+        if (dwn != null) {
+            for (Map.Entry<KeyCommPathOrLink, Double> e : dwn.entrySet()) {
                 KeyCommPathOrLink state = e.getKey();
                 double value = e.getValue();
-                if(value>0d) {
+                if (value > 0d) {
                     veh_dwn.put(state, veh_dwn.get(state) + value);
                     total_vehs_dwn += value;
                 }
             }
+        }
 
-        if (outflow != null)
-            for (Map.Entry<KeyCommPathOrLink, Double> e : outflow.entrySet()) {
-                KeyCommPathOrLink state = e.getKey();
-                double value = e.getValue();
-                if(value>0d) {
-                    veh_dwn.put(state, veh_dwn.get(state) - value);
-                    total_vehs_dwn -= value;
-                }
-            }
-    }
-
-    public void update_out_state(Map<KeyCommPathOrLink, Double> inflow, Map<KeyCommPathOrLink, Double> outflow) {
-
-        if (inflow != null)
-            for (Map.Entry<KeyCommPathOrLink, Double> e : inflow.entrySet()) {
-                KeyCommPathOrLink state = e.getKey();
-                double value = e.getValue();
-                if(value>0d) {
-                    veh_out.put(state, veh_out.get(state) + value);
-                    total_vehs_out += value;
-                }
-            }
-
-        if (outflow != null)
-            for (Map.Entry<KeyCommPathOrLink, Double> e : outflow.entrySet()) {
-                KeyCommPathOrLink state = e.getKey();
-                double value = e.getValue();
-                if(value>0d) {
-                    veh_out.put(state, veh_out.get(state) - value);
-                    total_vehs_out -= value;
-                }
-            }
-
-         if(veh_out==null)
-             total_vehs_out = 0d;
-
-    }
-
-    public void update_in_state(Map<KeyCommPathOrLink, Double> inflow, Map<KeyCommPathOrLink, Double> outflow) {
-
-        if (inflow != null)
-            for (Map.Entry<KeyCommPathOrLink, Double> e : inflow.entrySet()) {
+        if (in != null) {
+            for (Map.Entry<KeyCommPathOrLink, Double> e : in.entrySet()) {
                 KeyCommPathOrLink state = e.getKey();
                 double value = e.getValue();
                 if(value>0d) {
@@ -208,9 +169,54 @@ public class Cell {
                     total_vehs_in += value;
                 }
             }
+        }
 
-        if (outflow != null)
-            for (Map.Entry<KeyCommPathOrLink, Double> e : outflow.entrySet()) {
+        if (out != null) {
+            for (Map.Entry<KeyCommPathOrLink, Double> e : out.entrySet()) {
+                KeyCommPathOrLink state = e.getKey();
+                double value = e.getValue();
+                if(value>0d) {
+                    veh_out.put(state, veh_out.get(state) + value);
+                    total_vehs_out += value;
+                }
+            }
+        }
+    }
+
+    public void add_vehicles(KeyCommPathOrLink key,Double value){
+        double cur_val;
+        switch(laneGroup.state2lanechangedirection.get(key)){
+            case in:
+                cur_val = veh_in.containsKey(key) ? veh_in.get(key) : 0d;
+                veh_in.put(key,cur_val + value);
+                break;
+            case out:
+                cur_val = veh_out.containsKey(key) ? veh_out.get(key) : 0d;
+                veh_out.put(key,cur_val + value);
+                break;
+            case stay:
+                cur_val = veh_dwn.containsKey(key) ? veh_dwn.get(key) : 0d;
+                veh_dwn.put(key,cur_val + value);
+                break;
+        }
+    }
+
+
+    public void subtract_vehicles(Map<KeyCommPathOrLink, Double> dwn,Map<KeyCommPathOrLink, Double> in,Map<KeyCommPathOrLink, Double> out) {
+
+        if (dwn != null) {
+            for (Map.Entry<KeyCommPathOrLink, Double> e : dwn.entrySet()) {
+                KeyCommPathOrLink state = e.getKey();
+                double value = e.getValue();
+                if (value > 0d) {
+                    veh_dwn.put(state, veh_dwn.get(state) - value);
+                    total_vehs_dwn -= value;
+                }
+            }
+        }
+
+        if (in != null) {
+            for (Map.Entry<KeyCommPathOrLink, Double> e : in.entrySet()) {
                 KeyCommPathOrLink state = e.getKey();
                 double value = e.getValue();
                 if(value>0d) {
@@ -218,10 +224,18 @@ public class Cell {
                     total_vehs_in -= value;
                 }
             }
+        }
 
-        if(veh_in==null)
-            total_vehs_in = 0d;
-
+        if (out != null) {
+            for (Map.Entry<KeyCommPathOrLink, Double> e : out.entrySet()) {
+                KeyCommPathOrLink state = e.getKey();
+                double value = e.getValue();
+                if(value>0d) {
+                    veh_out.put(state, veh_out.get(state) - value);
+                    total_vehs_out -= value;
+                }
+            }
+        }
     }
 
     public void update_supply(){
