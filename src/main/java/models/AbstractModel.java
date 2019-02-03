@@ -4,7 +4,6 @@ import actuator.ActuatorFD;
 import commodity.Commodity;
 import commodity.Path;
 import common.AbstractSource;
-import common.AbstractVehicle;
 import common.Link;
 import common.RoadConnection;
 import dispatch.Dispatcher;
@@ -13,7 +12,6 @@ import error.OTMException;
 import geometry.FlowDirection;
 import geometry.Side;
 import jaxb.OutputRequest;
-import keys.KeyCommPathOrLink;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import packet.AbstractPacketLaneGroup;
@@ -189,6 +187,5 @@ public abstract class AbstractModel {
 //
 //        return split_packet;
 //    }
-
 
 }

@@ -18,7 +18,6 @@ import packet.FluidLaneGroupPacket;
 import packet.AbstractPacketLaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
-import utils.OTMUtils;
 
 import java.util.*;
 
@@ -138,6 +137,16 @@ public class LaneGroup extends AbstractLaneGroup {
 
             cell.add_vehicles(key,e.getValue());
         }
+
+        update_supply();
+
+        if(link.getId()==3L){
+            System.out.println(String.format(
+                    "%.2f\tA\t%.2f",
+                    timestamp,
+                    cell.get_vehicles()
+            ));
+        }
     }
 
     @Override
@@ -145,9 +154,12 @@ public class LaneGroup extends AbstractLaneGroup {
         throw new OTMException("This should not be called.");
     }
 
-    // not called for sinks
     public void release_vehicles(Map<KeyCommPathOrLink,Double> X){
         cells.get(cells.size()-1).subtract_vehicles(X,null,null);
+
+        // if this is a single cell lane group, then releasing a vehicle will affect the supply
+        if(cells.size()==1)
+            update_supply();
     }
 
 //    protected void update_dwn_flow(){

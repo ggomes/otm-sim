@@ -13,12 +13,10 @@ import common.Link;
 import error.OTMErrorLog;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import models.NodeModel;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import packet.AbstractPacketLaneGroup;
 import packet.FluidLaneGroupPacket;
-import packet.PacketLink;
 import profiles.DemandProfile;
 import runner.Scenario;
 import utils.OTMUtils;
@@ -148,27 +146,23 @@ public class Model_CTM extends AbstractFluidModel {
     }
 
     @Override
-    public void update_flux_I(float timestamp) throws OTMException {
+    public void update_link_flux(Link link, float timestamp) throws OTMException {
 
         // TODO: should update_flux I and II be passed the link as in update_state?
         // TODO What is the point of that?
 
         // TODO cache this?
-        for(Link link : links){
+        update_supply_for_all_cells(link,timestamp);
 
-            update_supply_for_all_cells(link,timestamp);
+        if(link.lanegroups_flwdn.size()>=2)
+            perform_lane_changes(link,timestamp);
 
-            if(link.lanegroups_flwdn.size()>=2)
-                perform_lane_changes(link,timestamp);
-
-            update_demand(link,timestamp);
-
-        }
+        update_demand(link,timestamp);
 
     }
 
     @Override
-    public void update_link_state(Float timestamp,Link link) {
+    public void update_link_state(Link link,float timestamp) throws OTMException {
 
         for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
 
@@ -201,6 +195,18 @@ public class Model_CTM extends AbstractFluidModel {
 
                     dncell.add_vehicles(flow_stay,flow_lc_in,flow_lc_out);
                     upcell.subtract_vehicles(flow_stay,flow_lc_in,flow_lc_out);
+
+
+                    if(link.getId()==3L && i==0){
+                        System.out.println(String.format(
+                                "%.2f\tU\t%.2f\t%.2f\t%.2f",
+                                timestamp,
+                                upcell.get_vehicles(),
+                                total_flow,
+                                lg.get_supply()
+                        ));
+                    }
+
                 }
             }
 
@@ -356,11 +362,6 @@ public class Model_CTM extends AbstractFluidModel {
                 ctmlg.cells.forEach(cell -> cell.update_demand());
         }
     }
-
-//    private void update_dwn_flow(Link link) {
-//        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-//            ((LaneGroup) lg).update_dwn_flow();
-//    }
 
     private void create_cells(Link link,float max_cell_length){
 

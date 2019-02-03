@@ -6,7 +6,6 @@
  */
 package models.ctm;
 
-import error.OTMErrorLog;
 import keys.KeyCommPathOrLink;
 import utils.OTMUtils;
 
@@ -186,21 +185,23 @@ public class Cell {
     public void add_vehicles(KeyCommPathOrLink key,Double value){
         double cur_val;
         switch(laneGroup.state2lanechangedirection.get(key)){
+            case stay:
+                cur_val = veh_dwn.containsKey(key) ? veh_dwn.get(key) : 0d;
+                veh_dwn.put(key,cur_val + value);
+                total_vehs_dwn += value;
+                break;
             case in:
                 cur_val = veh_in.containsKey(key) ? veh_in.get(key) : 0d;
                 veh_in.put(key,cur_val + value);
+                total_vehs_in += value;
                 break;
             case out:
                 cur_val = veh_out.containsKey(key) ? veh_out.get(key) : 0d;
                 veh_out.put(key,cur_val + value);
-                break;
-            case stay:
-                cur_val = veh_dwn.containsKey(key) ? veh_dwn.get(key) : 0d;
-                veh_dwn.put(key,cur_val + value);
+                total_vehs_out += value;
                 break;
         }
     }
-
 
     public void subtract_vehicles(Map<KeyCommPathOrLink, Double> dwn,Map<KeyCommPathOrLink, Double> in,Map<KeyCommPathOrLink, Double> out) {
 

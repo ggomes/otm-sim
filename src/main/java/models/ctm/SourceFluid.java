@@ -23,7 +23,7 @@ import java.util.Set;
 
 public class SourceFluid extends common.AbstractSource {
 
-    private Map<Long,Map<KeyCommPathOrLink,Double>> source_flows;   // lgid->(key->value)
+    public Map<Long,Map<KeyCommPathOrLink,Double>> source_flows;   // lgid->(key->value)
 
     // for pathfull
     Set<AbstractLaneGroup> candidate_lanegroups;
@@ -43,39 +43,11 @@ public class SourceFluid extends common.AbstractSource {
     @Override
     public void set_demand_vps(Dispatcher dispatcher, float time, double value) throws OTMException {
         super.set_demand_vps(dispatcher, time, value);
-        update_flow_in(time);
+        source_flows = split_demand(
+                source_demand_vps*((models.ctm.Model_CTM)link.model).dt
+        );
     }
 
-    private void update_flow_in(float time){
-
-//        // split the demand amongst lanegroups and assign keys
-//        double source_demand_veh_per_timestep = source_demand_vps*((models.ctm.Model_CTM)link.model).dt;
-//        Map<Long,Map<KeyCommPathOrLink,Double>> new_source_flows = split_demand(source_demand_veh_per_timestep);
-//
-//        // update the lanegroup's flow_lc_in
-//        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
-//
-//            if(!new_source_flows.containsKey(alg.id))
-//                continue;
-//
-//            Map<KeyCommPathOrLink,Double> new_values = new_source_flows.get(alg.id);
-//
-//            LaneGroup lg = (LaneGroup) alg;
-//            Map<KeyCommPathOrLink,Double> old_values = source_flows==null ? null : source_flows.get(alg.id);
-//            Map<KeyCommPathOrLink,Double> lg_values = lg.flow_stay.get(0);
-//
-//            // iterate through new values
-//            for(Map.Entry<KeyCommPathOrLink,Double> e : new_values.entrySet()){
-//                KeyCommPathOrLink key = e.getKey();
-//                Double new_value = e.getValue();
-//                Double old_value = old_values==null || !old_values.containsKey(key) ? 0d : old_values.get(key);
-//                Double lg_value = lg_values.containsKey(key) ? lg_values.get(key) : 0d;
-//                lg_values.put(key,lg_value-old_value+new_value);
-//            }
-//        }
-//
-//        source_flows = new_source_flows;
-    }
 
     private Map<Long,Map<KeyCommPathOrLink,Double>> split_demand(double flow_veh_per_timestep){
 

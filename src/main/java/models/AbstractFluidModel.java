@@ -1,24 +1,28 @@
 package models;
 
+import common.AbstractSource;
 import common.Link;
 import common.Node;
-import common.RoadConnection;
 import dispatch.*;
 import error.OTMException;
+import keys.KeyCommPathOrLink;
+import models.ctm.Cell;
+import models.ctm.SourceFluid;
 import models.ctm.UpLaneGroup;
 import packet.PacketLink;
 import runner.Scenario;
 
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
 public abstract class AbstractFluidModel extends AbstractModel {
 
     public float dt;
+    private Set<Link> source_links;
+    private Set<Link> sink_links;
     private Set<NodeModel> node_models;
 
     public AbstractFluidModel(String name, boolean is_default, float dt) {
@@ -33,6 +37,9 @@ public abstract class AbstractFluidModel extends AbstractModel {
     @Override
     public void set_links(Set<Link> links) {
         super.set_links(links);
+
+        source_links = links.stream().filter(link->link.is_source).collect(toSet());
+        sink_links = links.stream().filter(link->link.is_sink).collect(toSet());
 
         // create node models for all nodes in this model, except terminal nodes
         Set<Node> all_nodes = links.stream()
@@ -69,9 +76,8 @@ public abstract class AbstractFluidModel extends AbstractModel {
     // run
     //////////////////////////////////////////////////////////////
 
-    abstract public void update_flux_I(float timestamp) throws OTMException;
-//    abstract public void update_flux_II(float timestamp) throws OTMException;
-    abstract public void update_link_state(Float timestamp,Link link);
+    abstract public void update_link_flux(Link link, float timestamp) throws OTMException;
+    abstract public void update_link_state(Link link,float timestamp) throws OTMException;
 
     @Override
     public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time){
@@ -79,15 +85,43 @@ public abstract class AbstractFluidModel extends AbstractModel {
         dispatcher.register_event(new EventFluidStateUpdate(dispatcher, start_time + dt, this));
     }
 
-    public void update_fluid_flux(Float timestamp) throws OTMException {
+    public void update_fluid_flux(float timestamp) throws OTMException {
 
         // lane changes and compute demand and supply
-        update_flux_I(timestamp);
+        for(Link link : links)
+            update_link_flux(link,timestamp);
 
         // compute node inflow and outflow (all nodes except sources)
         node_models.forEach(n->n.update_flow(timestamp));
 
         // -- MPI communication (in otm-mpi) -- //
+
+        // add to source links
+        for(Link link : source_links){
+            for(AbstractSource asource : link.sources){
+                SourceFluid source = (SourceFluid) asource;
+                for(Map.Entry<Long,Map<KeyCommPathOrLink,Double>> e : source.source_flows.entrySet()){
+                    models.ctm.LaneGroup lg = (models.ctm.LaneGroup) link.lanegroups_flwdn.get(e.getKey());
+                    Cell upcell = lg.cells.get(0);
+                    upcell.add_vehicles(e.getValue(),null,null);
+                }
+            }
+        }
+
+        // release from sink links
+        for(Link link : sink_links){
+            for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+                models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
+                Map<KeyCommPathOrLink,Double> flow_dwn = lg.get_dnstream_cell().demand_dwn;
+
+                lg.release_vehicles(flow_dwn);
+
+                for(Map.Entry<KeyCommPathOrLink,Double> e : flow_dwn.entrySet())
+                    if(e.getValue()>0)
+                        lg.update_flow_accummulators(e.getKey(),e.getValue());
+            }
+
+        }
 
         // node models exchange packets
         for(NodeModel node_model : node_models) {
@@ -100,15 +134,21 @@ public abstract class AbstractFluidModel extends AbstractModel {
             }
 
             // set exit flows on non-sink lanegroups
-            for(UpLaneGroup ulg : node_model.ulgs.values())
+            for(UpLaneGroup ulg : node_model.ulgs.values()) {
                 ulg.lg.release_vehicles(ulg.f_is);
+
+                // send lanegroup exit flow to flow accumulator
+                for(Map.Entry<KeyCommPathOrLink,Double> e : ulg.f_is.entrySet())
+                    if(e.getValue()>0)
+                        ulg.lg.update_flow_accummulators(e.getKey(),e.getValue());
+            }
         }
 
     }
 
-    public void update_fluid_state(Float timestamp) throws OTMException {
+    public void update_fluid_state(float timestamp) throws OTMException {
         for(Link link : links)
-            update_link_state(timestamp, link);
+            update_link_state(link,timestamp);
     }
 
 }
