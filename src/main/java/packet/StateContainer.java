@@ -6,9 +6,9 @@
  */
 package packet;
 
-import commodity.Commodity;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
+import models.AbstractLaneGroup;
 import models.AbstractLaneGroupVehicles;
 import models.AbstractVehicleModel;
 
@@ -19,7 +19,7 @@ import java.util.Set;
 
 public class FluidStateContainer {
 
-    public AbstractLaneGroupVehicles lg;
+    public AbstractLaneGroup lg;
     public Map<KeyCommPathOrLink,Double> amount;
 
     ////////////////////////////////////////////////////////////
