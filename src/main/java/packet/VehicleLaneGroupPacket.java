@@ -7,7 +7,6 @@
 package packet;
 
 import common.AbstractVehicle;
-import common.RoadConnection;
 import keys.KeyCommPathOrLink;
 
 import java.util.HashSet;
@@ -19,7 +18,7 @@ public class VehicleLaneGroupPacket extends AbstractPacketLaneGroup {
 
     // this container holds remainders of arriving fluid packets.
     // these remainders are added into the lane group packet
-    public FluidStateContainer container;
+    public StateContainer container;
 
     // used by newInstance (dont delete)
     public VehicleLaneGroupPacket(){}
@@ -27,7 +26,7 @@ public class VehicleLaneGroupPacket extends AbstractPacketLaneGroup {
     public VehicleLaneGroupPacket(Set<AbstractVehicle> vehicles){
         super();
         this.vehicles.addAll(vehicles);
-        this.container = new FluidStateContainer();
+        this.container = new StateContainer();
     }
 
     public VehicleLaneGroupPacket(AbstractVehicle vehicle){

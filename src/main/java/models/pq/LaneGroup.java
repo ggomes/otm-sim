@@ -15,13 +15,16 @@ import dispatch.EventReleaseVehicleFromLaneGroup;
 import geometry.FlowDirection;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
+import models.AbstractFluidModel;
 import models.AbstractLaneGroup;
 import models.AbstractLaneGroupVehicles;
+import models.AbstractVehicleModel;
 import output.InterfaceVehicleListener;
 import packet.AbstractPacketLaneGroup;
 import packet.PacketLink;
 import runner.RunParameters;
 import runner.Scenario;
+import utils.OTMUtils;
 
 import java.util.*;
 
@@ -188,11 +191,20 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
-            OptionalDouble max_space = rc.out_lanegroups.stream()
+            OptionalDouble next_supply_o = rc.out_lanegroups.stream()
                     .mapToDouble(AbstractLaneGroup::get_supply)
                     .max();
 
-            if(max_space.isPresent() && max_space.getAsDouble()>1.0){
+            if(!next_supply_o.isPresent())
+                return;
+
+            double next_supply = next_supply_o.getAsDouble();
+
+            // release the vehicle if
+            // a) connected to a vehicle model and space >= 1
+            // b) connected to a fluid model and space >= 0
+            if(    ((next_link.model instanceof AbstractVehicleModel) && next_supply >= 1d)
+                || ((next_link.model instanceof AbstractFluidModel)   && next_supply > OTMUtils.epsilon ) ) {
 
                 // remove vehicle from this lanegroup
                 waiting_queue.remove_given_vehicle(timestamp,vehicle);
@@ -202,7 +214,6 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
                 // send vehicle packet to next link
                 next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
-
 
             } else { // all targets are blocked
                 return;

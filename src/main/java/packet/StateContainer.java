@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class FluidStateContainer {
+public class StateContainer {
 
     public AbstractLaneGroup lg;
     public Map<KeyCommPathOrLink,Double> amount;
@@ -26,11 +26,11 @@ public class FluidStateContainer {
     // construction
     ////////////////////////////////////////////////////////////
 
-    public FluidStateContainer(){
+    public StateContainer(){
         this.amount = new HashMap<>();
     }
 
-    public FluidStateContainer(AbstractLaneGroupVehicles lg){
+    public StateContainer(AbstractLaneGroupVehicles lg){
         this.amount = new HashMap<>();
         this.lg = lg;
     }

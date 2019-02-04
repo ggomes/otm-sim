@@ -8,7 +8,7 @@ import geometry.FlowDirection;
 import geometry.Side;
 import packet.AbstractPacketLaneGroup;
 import packet.FluidLaneGroupPacket;
-import packet.FluidStateContainer;
+import packet.StateContainer;
 import packet.VehicleLaneGroupPacket;
 import runner.RunParameters;
 import runner.Scenario;
@@ -18,7 +18,7 @@ import java.util.Set;
 
 public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
 
-    protected FluidStateContainer container;
+    protected StateContainer container;
 
     public AbstractLaneGroupVehicles(Link link, Side side, FlowDirection flwdir, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side, flwdir, length, num_lanes, start_lane, out_rcs);
@@ -27,7 +27,7 @@ public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
     @Override
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
         super.initialize(scenario, runParams);
-        this.container = new FluidStateContainer(this);
+        this.container = new StateContainer(this);
     }
 
     @Override

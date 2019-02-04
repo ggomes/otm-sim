@@ -23,6 +23,7 @@ import java.util.*;
 
 public class LaneGroup extends AbstractLaneGroup {
 
+
     public double cell_length_meters;
 
     public double wspeed_cell_per_dt;          // [-]
@@ -31,15 +32,6 @@ public class LaneGroup extends AbstractLaneGroup {
     public double capacity_veh_per_dt;
 
     public List<Cell> cells;     // sequence of cells
-
-    // transversal flow of vehicles already in their target lanegroup
-    // size = numcells + 1
-//    public List<Map<KeyCommPathOrLink,Double>> flow_stay;
-
-    // flow of vehicles changing lanes in the inner and outer directions
-    // size = numcells (downstream boundary is always 0)
-//    public List<Map<KeyCommPathOrLink,Double>> flow_lc_in;
-//    public List<Map<KeyCommPathOrLink,Double>> flow_lc_out;
 
     ////////////////////////////////////////////
     // load
