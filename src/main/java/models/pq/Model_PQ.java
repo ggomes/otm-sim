@@ -30,8 +30,6 @@ public class Model_PQ extends AbstractVehicleModel {
     @Override
     public void set_road_param(Link link,jaxb.Roadparam r) {
         super.set_road_param(link,r);
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-            lg.set_road_params(r);
     }
 
     @Override

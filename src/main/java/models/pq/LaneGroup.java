@@ -87,6 +87,11 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
     // run
     ///////////////////////////////////////////
 
+    @Override
+    public Double get_upstream_vehicle_position(){
+        return supply * length / max_vehicles;
+    }
+
     /**
      * A packet arrives at this lanegroup.
      * Vehicles do not know their next_link. It is assumed that the packet fits in this lanegroup.

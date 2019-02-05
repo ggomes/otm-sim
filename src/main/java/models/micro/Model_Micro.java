@@ -35,17 +35,17 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
 
     @Override
     public void validate(OTMErrorLog errorLog) {
-        System.out.println("MICRO validate");
+        System.err.println("MICRO validate");
     }
 
     @Override
     public void reset(Link link) {
-        System.out.println("MICRO reset");
+        System.err.println("MICRO reset");
     }
 
     @Override
     public void build() {
-        System.out.println("MICRO build");
+        System.err.println("MICRO build");
     }
 
     //////////////////////////////////////////////////
@@ -59,7 +59,7 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
 
     @Override
     public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or) throws OTMException {
-        System.out.println("MICRO create_output_object");
+        System.err.println("MICRO create_output_object");
         return null;
     }
 
@@ -71,7 +71,7 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
 
     @Override
     public AbstractLinkInfo get_link_info(Link link) {
-        System.out.println("MICRO get_link_info");
+        System.err.println("MICRO get_link_info");
         return null;
     }
 
@@ -94,39 +94,55 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
 
     @Override
     public void poke(Dispatcher dispatcher, float timestamp) throws OTMException {
-        update_state();
+        update_state(timestamp);
         dispatcher.register_event(new EventPoke(dispatcher, 6,timestamp + dt, this));
     }
 
-    private void update_state(){
+    private void update_state(float timestamp) throws OTMException{
+
+        // apply Newell's update formula to all vehicles
         for(Link link : links) {
-            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
-                List<models.micro.Vehicle> vhs = ((LaneGroup) lg).vehicles;
-
-                // compute acceleration
-                double [] acc = new double[vhs.size()];
-                for(int i=0;i<vhs.size();i++) {
-                    Vehicle v = vhs.get(i);
-                    acc[i] = i == 0 ? leader_law(v) : follower_law(v,vhs.get(i-1));
-                }
-
-                // update position
-                for(int i=0;i<vhs.size();i++){
-                    Vehicle v = vhs.get(i);
-                    v.speed += acc[i]*dt;
-                    v.pos += v.speed*dt;
-                }
-
+            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+                models.micro.LaneGroup lg = (models.micro.LaneGroup) alg;
+                for( models.micro.Vehicle vehicle : lg.vehicles )
+                    vehicle.pos = vehicle.old_pos + Math.min(lg.dv, vehicle.headway - lg.dw);
             }
         }
+
+        // move vehicles to new link and update their state
+        for(Link link : links) {
+
+            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+
+                models.micro.LaneGroup lg = (models.micro.LaneGroup) alg;
+
+                Iterator<Vehicle> it = lg.vehicles.iterator();
+                while (it.hasNext()) {
+                    Vehicle vehicle = it.next();
+
+                    // possibly release the vehicle from this lanegroup
+                    if (vehicle.pos > lg.length) {
+                        lg.release_vehicle(timestamp, it, vehicle);
+                        vehicle.pos -= lg.length;
+                    }
+                    else {
+
+                        if(vehicle.leader==null)
+                            vehicle.headway = Double.POSITIVE_INFINITY;
+                        else{
+                            if(vehicle.leader.get_lanegroup()==vehicle.get_lanegroup())
+                                vehicle.headway = vehicle.leader.pos - vehicle.pos;
+                            else
+                                vehicle.headway = vehicle.leader.pos - vehicle.pos + vehicle.get_lanegroup().length;
+                        }
+                    }
+                    vehicle.old_pos = vehicle.pos;
+                }
+            }
+        }
+
     }
 
-    private double leader_law(Vehicle v){
-        return Double.NaN;
-    }
 
-    private double follower_law(Vehicle v,Vehicle lead){
-        return Double.NaN;
-    }
 
 }

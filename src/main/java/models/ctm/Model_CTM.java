@@ -68,8 +68,6 @@ public class Model_CTM extends AbstractFluidModel {
                 double critical_veh = capacity_vehperlane / lg.ffspeed_cell_per_dt;
                 lg.wspeed_cell_per_dt = capacity_vehperlane / (jam_density_vehperlane - critical_veh);
             }
-
-            lg.set_road_params(r);
         }
     }
 

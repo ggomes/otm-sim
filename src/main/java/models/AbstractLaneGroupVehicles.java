@@ -73,12 +73,6 @@ public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
     }
 
     @Override
-    public float vehs_dwn_for_comm(Long comm_id) {
-        System.err.println("NOT IMPLEMENTED");
-        return Float.NaN;
-    }
-
-    @Override
     public float vehs_in_for_comm(Long comm_id) {
         System.err.println("NOT IMPLEMENTED");
         return Float.NaN;

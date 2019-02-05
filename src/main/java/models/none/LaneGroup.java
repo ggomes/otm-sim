@@ -65,4 +65,9 @@ public class LaneGroup extends AbstractLaneGroup {
 
     }
 
+    @Override
+    public Double get_upstream_vehicle_position(){
+        return Double.NaN;
+    }
+
 }

@@ -88,6 +88,8 @@ public abstract class AbstractModel {
     // called by Network constructor
     public void set_road_param(Link link, jaxb.Roadparam r){
         link.road_param = r;
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+            lg.set_road_params(r);
     }
 
     //////////////////////////////////////////////////

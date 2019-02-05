@@ -19,7 +19,7 @@ public abstract class AbstractVehicle {
     private long id;
     private Long comm_id;
     private KeyCommPathOrLink key;
-    protected AbstractLaneGroup lg;
+    public AbstractLaneGroup lg;
 
     // dispatch listeners
     private Set<InterfaceVehicleListener> event_listeners;

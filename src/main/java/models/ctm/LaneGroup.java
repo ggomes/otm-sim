@@ -115,6 +115,11 @@ public class LaneGroup extends AbstractLaneGroup {
     ////////////////////////////////////////////
 
     @Override
+    public Double get_upstream_vehicle_position(){
+        return Double.NaN;
+    }
+
+    @Override
     public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp, Long nextlink_id) {
 
         FluidLaneGroupPacket vp = (FluidLaneGroupPacket) avp;

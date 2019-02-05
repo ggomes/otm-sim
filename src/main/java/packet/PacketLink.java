@@ -9,7 +9,6 @@ package packet;
 import common.RoadConnection;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
-import models.pq.Vehicle;
 
 import java.util.*;
 
@@ -36,7 +35,7 @@ public class PacketLink {
     }
 
     // single vehicle constructor
-    public PacketLink(Vehicle vehicle,RoadConnection road_connection){
+    public PacketLink(AbstractVehicle vehicle,RoadConnection road_connection){
         this.road_connection = road_connection;
         this.vehicles = new HashSet<>();
         this.vehicles.add(vehicle);

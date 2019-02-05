@@ -70,6 +70,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // abstract methods
     ///////////////////////////////////////////////////
 
+    abstract public Double get_upstream_vehicle_position();
+
     abstract public void allocate_state();
     abstract public void update_supply();
     abstract public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp, Long nextlink_id) throws OTMException;
