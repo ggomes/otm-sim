@@ -58,9 +58,17 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
     }
 
     @Override
-    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or) throws OTMException {
-        System.err.println("MICRO create_output_object");
-        return null;
+    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
+        AbstractOutput output = null;
+        switch (jaxb_or.getQuantity()) {
+            case "trajectories":
+                Float outDt = jaxb_or.getDt();
+                output = new OutputTrajectories(scenario, this,prefix, output_folder, outDt);
+                break;
+            default:
+                throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
+        }
+        return output;
     }
 
     // SIMILAR AS PQ

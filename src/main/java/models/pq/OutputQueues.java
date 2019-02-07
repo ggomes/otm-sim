@@ -16,7 +16,6 @@ public class OutputQueues extends AbstractOutputTimed {
 
     Model_PQ model;
     public ArrayList<models.pq.LaneGroup> ordered_lgs;               // An ordered map would be really helpful here
-//    public Map<Long, LaneGroupProfile> lgprofiles;
 
     public OutputQueues(Scenario scenario, String prefix, String output_folder, Long commodity_id, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, commodity_id, outDt);
@@ -96,25 +95,5 @@ public class OutputQueues extends AbstractOutputTimed {
             throw new OTMException("Not implemented code: 09242je");
         }
     }
-
-    //////////////////////////////////////////////////////
-    // class
-    //////////////////////////////////////////////////////
-//
-//    public class LaneGroupProfile {
-//        public models.pq.LaneGroup lg;
-//        public ArrayList<Profile1D> cell_profile;
-//        public LaneGroupProfile(models.pq.LaneGroup lg){
-//            this.lg = lg;
-//        }
-//        public void initialize(float outDt){
-//            cell_profile = new ArrayList<>();
-//            lg.cells.forEach(x->cell_profile.add(new Profile1D(null,outDt)));
-//        }
-//        public void add_value(double value){
-////            profile.add(value);
-//        }
-//    }
-
 
 }
