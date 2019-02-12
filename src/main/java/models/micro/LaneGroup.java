@@ -24,8 +24,9 @@ import java.util.*;
 public class LaneGroup extends AbstractLaneGroupVehicles {
 
     public List<models.micro.Vehicle> vehicles;
-    public double dv;   // vf*dt [meters]
-    public double dw;   // w*DT [meters]
+    public double dv;   // vf*dt [meters per dt]
+    public double dw;   // w*dt [meters per dt]
+    public double dc;   // capcity*dt [veh per dt]
 
     public LaneGroup(Link link, Side side, FlowDirection flwdir, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side, flwdir, length, num_lanes, start_lane, out_rcs);
@@ -48,6 +49,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
         super.set_road_params(r);
         dv = r.getSpeed() * ((Model_Micro)link.model).dt / 3.6d;
         dw = max_cong_speed_kph * ((Model_Micro)link.model).dt / 3.6d;
+        dc = r.getCapacity() * num_lanes * ((Model_Micro)link.model).dt / 3600d;
     }
 
     @Override
@@ -76,18 +78,26 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
             models.micro.Vehicle vehicle = (models.micro.Vehicle)aveh;
 
-            Vehicle leader = null;
+            vehicle.lg = this;
 
             if(!vehicles.isEmpty()) {
-                leader = vehicles.get(vehicles.size()-1);
-                vehicle.leader = leader;
+                Vehicle leader = vehicles.get(vehicles.size()-1);
                 leader.follower = vehicle;
+                vehicle.leader = leader;
+
+                vehicle.new_pos = Math.min( vehicle.new_pos , leader.pos - dw);
+                vehicle.new_pos = Math.max( vehicle.new_pos , 0d);
+                vehicle.pos = vehicle.new_pos;
+                vehicle.headway = leader.pos - vehicle.pos;
             }
 
-            vehicle.lg = this;
-            vehicle.headway = Vehicle.initialize_headway(leader,vehicle);
-            vehicles.add(vehicle);
+            else {
+                vehicle.leader = null;
+                vehicle.headway = Double.POSITIVE_INFINITY;
+            }
 
+
+            vehicles.add(vehicle);
 
             // inform the travel timers
             link.travel_timers.forEach(x->x.vehicle_enter(timestamp,vehicle));
@@ -108,10 +118,14 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
         throw new OTMException("NOT IMPLEMENTED awpirg -jqig");
     }
 
-
     public void release_vehicle(float timestamp, Iterator<Vehicle> it,Vehicle vehicle) throws OTMException {
 
         if(link.is_sink) {
+
+            if(vehicle.follower!=null) {
+                vehicle.follower.leader = null;
+                vehicle.follower.headway = Double.POSITIVE_INFINITY;
+            }
 
             it.remove();
 

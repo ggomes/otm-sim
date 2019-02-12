@@ -112,43 +112,61 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
         for(Link link : links) {
             for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
                 models.micro.LaneGroup lg = (models.micro.LaneGroup) alg;
-                for( models.micro.Vehicle vehicle : lg.vehicles )
-                    vehicle.pos = vehicle.old_pos + Math.min(lg.dv, vehicle.headway - lg.dw);
-            }
-        }
-
-        // move vehicles to new link and update their state
-        for(Link link : links) {
-
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-
-                models.micro.LaneGroup lg = (models.micro.LaneGroup) alg;
-
-                Iterator<Vehicle> it = lg.vehicles.iterator();
-                while (it.hasNext()) {
-                    Vehicle vehicle = it.next();
-
-                    // possibly release the vehicle from this lanegroup
-                    if (vehicle.pos > lg.length) {
-                        lg.release_vehicle(timestamp, it, vehicle);
-                        vehicle.pos -= lg.length;
-                    }
-                    else {
-
-                        if(vehicle.leader==null)
-                            vehicle.headway = Double.POSITIVE_INFINITY;
-                        else{
-                            if(vehicle.leader.get_lanegroup()==vehicle.get_lanegroup())
-                                vehicle.headway = vehicle.leader.pos - vehicle.pos;
-                            else
-                                vehicle.headway = vehicle.leader.pos - vehicle.pos + vehicle.get_lanegroup().length;
-                        }
-                    }
-                    vehicle.old_pos = vehicle.pos;
+                for( models.micro.Vehicle vehicle : lg.vehicles ) {
+                    double dx = Math.min(lg.dv, vehicle.headway - lg.dw);
+                    dx = Math.min( dx , vehicle.headway * lg.dc);
+                    dx = Math.max( dx , 0d );
+                    vehicle.new_pos = vehicle.pos + dx;
                 }
             }
         }
 
+        // move vehicles to new link and update their headway
+        for(Link link : links) {
+            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+                models.micro.LaneGroup lg = (models.micro.LaneGroup) alg;
+                Iterator<Vehicle> it = lg.vehicles.iterator();
+                while (it.hasNext()) {
+                    Vehicle vehicle = it.next();
+                    // possibly release the vehicle from this lanegroup
+                    if (vehicle.new_pos > lg.length) {
+                        vehicle.new_pos -= lg.length;
+                        lg.release_vehicle(timestamp, it, vehicle);
+                    }
+                }
+            }
+        }
+
+        // update position
+        for(Link link : links) {
+            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+                models.micro.LaneGroup lg = (models.micro.LaneGroup) alg;
+                Iterator<Vehicle> it = lg.vehicles.iterator();
+                while (it.hasNext()) {
+                    Vehicle vehicle = it.next();
+                    vehicle.pos = vehicle.new_pos;
+                }
+            }
+        }
+
+        // update headway
+        for(Link link : links) {
+            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+                models.micro.LaneGroup lg = (models.micro.LaneGroup) alg;
+                Iterator<Vehicle> it = lg.vehicles.iterator();
+                while (it.hasNext()) {
+                    Vehicle vehicle = it.next();
+                    if(vehicle.leader==null)
+                        vehicle.headway = Double.POSITIVE_INFINITY;
+                    else{
+                        if(vehicle.leader.get_lanegroup()==vehicle.get_lanegroup())
+                            vehicle.headway = vehicle.leader.pos - vehicle.pos;
+                        else
+                            vehicle.headway = vehicle.leader.pos - vehicle.pos + vehicle.get_lanegroup().length;
+                    }
+                }
+            }
+        }
     }
 
 
