@@ -23,7 +23,6 @@ import java.util.*;
 
 public class LaneGroup extends AbstractLaneGroup {
 
-
     public double cell_length_meters;
 
     public double wspeed_cell_per_dt;          // [-]

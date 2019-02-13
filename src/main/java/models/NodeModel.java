@@ -148,6 +148,10 @@ public class NodeModel {
         ulgs.values().forEach( ulg -> ulg.lg.states.forEach( state -> ulg.add_state(state)));
     }
 
+    public Set<KeyCommPathOrLink> get_states_for_road_connection(long rc_id){
+        return rcs.containsKey(rc_id) ? rcs.get(rc_id).get_states() : null;
+    }
+
     public void update_flow(float timestamp) {
 
 

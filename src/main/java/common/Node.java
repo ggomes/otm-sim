@@ -11,6 +11,7 @@ import commodity.Commodity;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.KeyCommodityLink;
+import models.NodeModel;
 import profiles.SplitMatrixProfile;
 import actuator.InterfaceActuatorTarget;
 import runner.InterfaceScenarioElement;
@@ -28,7 +29,6 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     protected final long id;
     public Map<Long,Link> in_links;
     public Map<Long,Link> out_links;
-//    public Set<Commodity> commodities;
     public Set<RoadConnection> road_connections;
 
     public boolean is_source;
@@ -36,9 +36,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
 
     public boolean is_many2one;
 
-    // models.ctm model
-//    public boolean is_macro_node;  //
-//    public NodeModel node_model;
+    private NodeModel node_model;
 
     // split ratio data
     public Map<KeyCommodityLink, SplitMatrixProfile> splits;   // these hold split profiles and issue events when they change
@@ -107,19 +105,14 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
             splits.put(key,smp);
     }
 
-//    public void set_commodities(){
-//        commodities = new HashSet<>();
-//        for(Link link : in_links.values())
-//            commodities.addAll(link.commodities);
-//        for(Link link : out_links.values())
-//            commodities.addAll(link.commodities);
-//    }
+    public void set_node_model(NodeModel model){
+        if( node_model==null )
+            node_model = model;
+    }
 
-//    public void set_macro_model(NodeModel model){
-//        this.is_macro_node = true;
-//        if( node_model==null )
-//            node_model = model;
-//    }
+    public NodeModel get_node_model(){
+        return node_model;
+    }
 
     @Override
     public void register_actuator(AbstractActuator act) throws OTMException {

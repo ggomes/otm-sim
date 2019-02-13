@@ -53,8 +53,11 @@ public abstract class AbstractFluidModel extends AbstractModel {
                 .collect(toSet()));
 
         node_models = new HashSet<>();
-        for(Node node : all_nodes)
-            node_models.add(new NodeModel(node));
+        for(Node node : all_nodes) {
+            NodeModel nm = new NodeModel(node);
+            node_models.add(nm);
+            node.set_node_model(nm);
+        }
     }
 
     @Override
@@ -87,6 +90,16 @@ public abstract class AbstractFluidModel extends AbstractModel {
 
     public void update_fluid_flux(float timestamp) throws OTMException {
 
+        update_fluid_flux_part_I(timestamp);
+
+        // -- MPI communication (in otm-mpi) -- //
+
+        update_fluid_flux_part_II(timestamp);
+
+    }
+
+    public void update_fluid_flux_part_I(float timestamp) throws OTMException {
+
         // lane changes and compute demand and supply
         for(Link link : links)
             update_link_flux(link,timestamp);
@@ -94,7 +107,9 @@ public abstract class AbstractFluidModel extends AbstractModel {
         // compute node inflow and outflow (all nodes except sources)
         node_models.forEach(n->n.update_flow(timestamp));
 
-        // -- MPI communication (in otm-mpi) -- //
+    }
+
+    public void update_fluid_flux_part_II(float timestamp) throws OTMException {
 
         // add to source links
         for(Link link : source_links){
@@ -143,7 +158,6 @@ public abstract class AbstractFluidModel extends AbstractModel {
                         ulg.lg.update_flow_accummulators(e.getKey(),e.getValue());
             }
         }
-
     }
 
     public void update_fluid_state(float timestamp) throws OTMException {
