@@ -92,7 +92,8 @@ public class Network {
         Map<Long,Set<RoadConnection>> link2outrcs = new HashMap<>();
         links.keySet().forEach(link_id->link2outrcs.put(link_id,new HashSet<>()));
         for(RoadConnection rc : road_connections.values())
-            link2outrcs.get(rc.get_start_link_id()).add(rc);
+            if(rc.start_link!=null)
+                link2outrcs.get(rc.start_link.id).add(rc);
 
         // call create_lane_groups
         for(Link link : links.values())
