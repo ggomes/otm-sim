@@ -6,6 +6,7 @@
  */
 package packet;
 
+import commodity.Path;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
@@ -56,8 +57,12 @@ public class StateContainer {
             if(value>=1d){
                 int num_veh = (int) value;
                 amount.put(key,value - num_veh);
-                for(int i=0;i<num_veh;i++)
-                    vehicles.add(model.create_vehicle(key.commodity_id,null));
+                for(int i=0;i<num_veh;i++) {
+                    AbstractVehicle vehicle = model.create_vehicle(key.commodity_id, null);
+                    if(key.isPath)
+                        vehicle.path = (Path) lg.link.network.scenario.subnetworks.get(key.pathOrlink_id);
+                    vehicles.add(vehicle);
+                }
             }
             else
                 amount.put(key,value);

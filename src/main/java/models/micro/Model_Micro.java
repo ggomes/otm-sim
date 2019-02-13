@@ -121,7 +121,7 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
             }
         }
 
-        // move vehicles to new link and update their headway
+        // move vehicles to new link
         for(Link link : links) {
             for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
                 models.micro.LaneGroup lg = (models.micro.LaneGroup) alg;
@@ -156,8 +156,25 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
                 Iterator<Vehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
                     Vehicle vehicle = it.next();
-                    if(vehicle.leader==null)
-                        vehicle.headway = Double.POSITIVE_INFINITY;
+                    if(vehicle.leader==null) {
+
+                        if(vehicle.get_next_link_id()==null)
+                            vehicle.headway = Double.POSITIVE_INFINITY;
+                        else{
+
+                            Collection<AbstractLaneGroup> next_lgs = link.network.links.get(vehicle.get_next_link_id()).lanegroups_flwdn.values();
+                            OptionalDouble next_vehicle_position = next_lgs.stream()
+                                    .mapToDouble(x->x.get_upstream_vehicle_position())
+                                    .min();
+
+                            if( !next_vehicle_position.isPresent() || Double.isNaN(next_vehicle_position.getAsDouble()) ){
+                                vehicle.headway = Double.POSITIVE_INFINITY;
+                            } else {
+                                vehicle.headway = next_vehicle_position.getAsDouble() + vehicle.get_lanegroup().length - vehicle.pos;
+                            }
+
+                        }
+                    }
                     else{
                         if(vehicle.leader.get_lanegroup()==vehicle.get_lanegroup())
                             vehicle.headway = vehicle.leader.pos - vehicle.pos;
@@ -168,7 +185,5 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
             }
         }
     }
-
-
 
 }

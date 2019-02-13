@@ -108,7 +108,6 @@ public class OTM {
                 int duration = Integer.parseInt(arguments[5]);
 
                 API api = OTM.load(configfile,true);
-//                api.set_stochastic_process("deterministic");
                 api.run(prefix,output_requests_file,output_folder,start_time,duration);
 
             } catch (OTMException e) {

@@ -62,6 +62,9 @@ public class SourceVehicle extends common.AbstractSource {
         KeyCommPathOrLink key = sample_key();
         vehicle.set_key(key);
 
+        if(commodity.pathfull)
+            vehicle.path = path;
+
         // extract next link
         Long next_link = commodity.pathfull ? link.path2outlink.get(path.getId()).getId() : key.pathOrlink_id;
 

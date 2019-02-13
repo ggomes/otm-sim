@@ -18,7 +18,7 @@ public class VehicleLaneGroupPacket extends AbstractPacketLaneGroup {
 
     // this container holds remainders of arriving fluid packets.
     // these remainders are added into the lane group packet
-    public StateContainer container;
+    public StateContainer container = new StateContainer();
 
     // used by newInstance (dont delete)
     public VehicleLaneGroupPacket(){}
@@ -26,7 +26,6 @@ public class VehicleLaneGroupPacket extends AbstractPacketLaneGroup {
     public VehicleLaneGroupPacket(Set<AbstractVehicle> vehicles){
         super();
         this.vehicles.addAll(vehicles);
-        this.container = new StateContainer();
     }
 
     public VehicleLaneGroupPacket(AbstractVehicle vehicle){

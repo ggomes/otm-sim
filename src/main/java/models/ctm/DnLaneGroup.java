@@ -50,7 +50,6 @@ public class DnLaneGroup {
 
     public void reset(){
         this.is_blocked = false;
-        double dt = ((models.ctm.Model_CTM) this.lg.link.model).dt;
         this.s_j = lg.get_supply();
 
 //        This should be multiplied by lg.() -> wnorm

@@ -136,14 +136,6 @@ public class LaneGroup extends AbstractLaneGroup {
         }
 
         update_supply();
-
-        if(link.getId()==3L){
-            System.out.println(String.format(
-                    "%.2f\tA\t%.2f",
-                    timestamp,
-                    cell.get_vehicles()
-            ));
-        }
     }
 
     @Override

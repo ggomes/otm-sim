@@ -176,6 +176,10 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                 // send vehicle packet to next link
                 next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
 
+                // possibly disconnect from follower
+                if(!(next_link.model instanceof models.micro.Model_Micro))
+                    vehicle.follower.leader = null;
+
             } else { // all targets are blocked
                 return;
             }

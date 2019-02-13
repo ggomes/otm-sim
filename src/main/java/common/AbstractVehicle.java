@@ -6,6 +6,7 @@
  */
 package common;
 
+import commodity.Path;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import output.InterfaceVehicleListener;
@@ -20,6 +21,7 @@ public abstract class AbstractVehicle {
     private Long comm_id;
     private KeyCommPathOrLink key;
     public AbstractLaneGroup lg;
+    public Path path;
 
     // dispatch listeners
     private Set<InterfaceVehicleListener> event_listeners;
@@ -91,6 +93,12 @@ public abstract class AbstractVehicle {
 
     public KeyCommPathOrLink get_key(){
         return key;
+    }
+
+    public Long get_next_link_id(){
+        if(lg.link.is_sink)
+            return null;
+        return key.isPath ? path.get_link_following(lg.link).getId() : key.pathOrlink_id;
     }
 
     // NOTE: We do not update the next link id when it is null. This happens in

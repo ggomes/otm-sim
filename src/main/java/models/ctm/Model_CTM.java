@@ -193,18 +193,6 @@ public class Model_CTM extends AbstractFluidModel {
 
                     dncell.add_vehicles(flow_stay,flow_lc_in,flow_lc_out);
                     upcell.subtract_vehicles(flow_stay,flow_lc_in,flow_lc_out);
-
-
-                    if(link.getId()==3L && i==0){
-                        System.out.println(String.format(
-                                "%.2f\tU\t%.2f\t%.2f\t%.2f",
-                                timestamp,
-                                upcell.get_vehicles(),
-                                total_flow,
-                                lg.get_supply()
-                        ));
-                    }
-
                 }
             }
 
