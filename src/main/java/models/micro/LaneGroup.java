@@ -12,8 +12,7 @@ import models.AbstractFluidModel;
 import models.AbstractLaneGroup;
 import models.AbstractLaneGroupVehicles;
 import models.AbstractVehicleModel;
-import output.InterfaceVehicleListener;
-import packet.AbstractPacketLaneGroup;
+import packet.PacketLaneGroup;
 import packet.PacketLink;
 import runner.RunParameters;
 import runner.Scenario;
@@ -72,9 +71,9 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
     }
 
     @Override
-    public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp, Long next_link_id) throws OTMException {
+    public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long next_link_id) throws OTMException {
 
-        for(AbstractVehicle aveh : create_vehicles_from_packet(avp,next_link_id)){
+        for(AbstractVehicle aveh : create_vehicles_from_packet(vp,next_link_id)){
 
             models.micro.Vehicle vehicle = (models.micro.Vehicle)aveh;
 

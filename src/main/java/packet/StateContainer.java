@@ -20,7 +20,6 @@ import java.util.Set;
 
 public class StateContainer {
 
-    public AbstractLaneGroup lg;
     public Map<KeyCommPathOrLink,Double> amount;
 
     ////////////////////////////////////////////////////////////
@@ -31,26 +30,24 @@ public class StateContainer {
         this.amount = new HashMap<>();
     }
 
-    public StateContainer(AbstractLaneGroupVehicles lg){
-        this.amount = new HashMap<>();
-        this.lg = lg;
-    }
-
     ////////////////////////////////////////////////////////////
     // public
     ////////////////////////////////////////////////////////////
 
-    public Set<AbstractVehicle> process_fluid_packet(FluidLaneGroupPacket packet){
+    public boolean isEmpty(){
+        if(amount.isEmpty())
+            return true;
+        return amount.values().stream().allMatch(x->x==0d);
+    }
 
-        if(lg==null)
-            return null;
+    public Set<AbstractVehicle> process_fluid_packet(PacketLaneGroup packet,AbstractLaneGroup lg){
 
         AbstractVehicleModel model = (AbstractVehicleModel) lg.link.model;
 
         Set<AbstractVehicle> vehicles = new HashSet<>();
 
         // iterate through all keys ion the packet
-        for(Map.Entry<KeyCommPathOrLink,Double> e : packet.state2vehicles.entrySet()){
+        for(Map.Entry<KeyCommPathOrLink,Double> e : packet.container.amount.entrySet()){
             KeyCommPathOrLink key = e.getKey();
             double value = amount.containsKey(key) ? amount.get(key) + e.getValue() : e.getValue();
 
@@ -59,6 +56,7 @@ public class StateContainer {
                 amount.put(key,value - num_veh);
                 for(int i=0;i<num_veh;i++) {
                     AbstractVehicle vehicle = model.create_vehicle(key.commodity_id, null);
+                    vehicle.set_key(key);
                     if(key.isPath)
                         vehicle.path = (Path) lg.link.network.scenario.subnetworks.get(key.pathOrlink_id);
                     vehicles.add(vehicle);

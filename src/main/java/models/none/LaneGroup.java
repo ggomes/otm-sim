@@ -11,7 +11,7 @@ import error.OTMException;
 import geometry.FlowDirection;
 import geometry.Side;
 import models.AbstractLaneGroup;
-import packet.AbstractPacketLaneGroup;
+import packet.PacketLaneGroup;
 
 import java.util.Set;
 
@@ -61,7 +61,7 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp, Long nextlink_id) throws OTMException {
+    public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) throws OTMException {
 
     }
 

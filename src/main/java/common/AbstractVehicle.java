@@ -39,7 +39,8 @@ public abstract class AbstractVehicle {
         this.id = OTMUtils.get_vehicle_id();
         this.comm_id = comm_id;
         this.event_listeners = new HashSet<>();
-        this.event_listeners.addAll(event_listeners);
+        if(event_listeners!=null)
+            this.event_listeners.addAll(event_listeners);
         this.lg = null;
     }
 

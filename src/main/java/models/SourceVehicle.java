@@ -15,12 +15,10 @@ import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import error.OTMException;
 import keys.KeyCommPathOrLink;
-import packet.VehicleLaneGroupPacket;
+import packet.PacketLaneGroup;
 import profiles.DemandProfile;
 import runner.Scenario;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 public class SourceVehicle extends common.AbstractSource {
@@ -75,7 +73,7 @@ public class SourceVehicle extends common.AbstractSource {
         AbstractLaneGroup join_lanegroup = link.model.lanegroup_proportions(candidate_lane_groups).keySet().iterator().next();
 
         // package and add to joinlanegroup
-        join_lanegroup.add_vehicle_packet(timestamp,new VehicleLaneGroupPacket(vehicle),next_link);
+        join_lanegroup.add_vehicle_packet(timestamp,new PacketLaneGroup(vehicle),next_link);
 
         // this scheduled vehicle has been created
         vehicle_scheduled = false;

@@ -14,7 +14,7 @@ import geometry.Side;
 import jaxb.OutputRequest;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
-import packet.AbstractPacketLaneGroup;
+import packet.PacketLaneGroup;
 import packet.PacketLink;
 import profiles.DemandProfile;
 import runner.Scenario;
@@ -53,7 +53,7 @@ public abstract class AbstractModel {
     abstract public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes,int start_lane,Set<RoadConnection> out_rcs);
     abstract public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path);
     abstract public AbstractLinkInfo get_link_info(Link link);
-    abstract public AbstractPacketLaneGroup create_lanegroup_packet();
+//    abstract public AbstractPacketLaneGroup create_lanegroup_packet();
 
     //////////////////////////////////////////////////
     // run
@@ -114,16 +114,16 @@ public abstract class AbstractModel {
         // 1. split arriving packet into subpackets per downstream link.
         // This assigns states to the packets, but
         // This does not set AbstractPacketLaneGroup.target_road_connection
-        Map<Long, AbstractPacketLaneGroup> split_packets = link.split_packet(vp);
+        Map<Long, PacketLaneGroup> split_packets = link.split_packet(vp);
 
         // 2. Compute the proportions to apply to the split packets to distribute
         // amongst lane groups
         Map<AbstractLaneGroup,Double> lg_prop = lanegroup_proportions(vp.road_connection.out_lanegroups);
 
         // 3. distribute the packets
-        for(Map.Entry<Long, AbstractPacketLaneGroup> e1 : split_packets.entrySet()){
+        for(Map.Entry<Long, PacketLaneGroup> e1 : split_packets.entrySet()){
             Long next_link_id = e1.getKey();
-            AbstractPacketLaneGroup packet = e1.getValue();
+            PacketLaneGroup packet = e1.getValue();
 
             if(packet.isEmpty())
                 continue;
@@ -140,6 +140,10 @@ public abstract class AbstractModel {
             }
         }
 
+    }
+
+    final public PacketLaneGroup create_lanegroup_packet(){
+        return new PacketLaneGroup();
     }
 
 //    private AbstractPacketLaneGroup cast_to_single_lanegroup(PacketLink vp, Long outlink_id){

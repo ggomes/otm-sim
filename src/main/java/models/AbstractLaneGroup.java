@@ -7,7 +7,6 @@
 package models;
 
 import actuator.AbstractActuator;
-import commodity.Commodity;
 import common.FlowAccumulatorState;
 import common.Link;
 import common.RoadConnection;
@@ -16,7 +15,7 @@ import error.OTMException;
 import geometry.FlowDirection;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import packet.AbstractPacketLaneGroup;
+import packet.PacketLaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
 import utils.OTMUtils;
@@ -74,7 +73,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     abstract public void allocate_state();
     abstract public void update_supply();
-    abstract public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup vp, Long nextlink_id) throws OTMException;
+    abstract public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) throws OTMException;
     abstract public void exiting_roadconnection_capacity_has_been_modified(float timestamp);
 
     /** Return the total number of vehicles in this lane group with the

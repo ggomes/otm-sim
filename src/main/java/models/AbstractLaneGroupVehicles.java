@@ -6,10 +6,7 @@ import common.RoadConnection;
 import error.OTMException;
 import geometry.FlowDirection;
 import geometry.Side;
-import packet.AbstractPacketLaneGroup;
-import packet.FluidLaneGroupPacket;
-import packet.StateContainer;
-import packet.VehicleLaneGroupPacket;
+import packet.*;
 import runner.RunParameters;
 import runner.Scenario;
 
@@ -27,7 +24,7 @@ public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
     @Override
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
         super.initialize(scenario, runParams);
-        this.container = new StateContainer(this);
+        this.container = new StateContainer();
     }
 
     @Override
@@ -36,7 +33,7 @@ public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
         return Float.NaN;
     }
 
-    protected Set<AbstractVehicle> create_vehicles_from_packet(AbstractPacketLaneGroup avp,Long next_link_id) {
+    protected Set<AbstractVehicle> create_vehicles_from_packet(PacketLaneGroup vp,Long next_link_id) {
 
         // + The packet received here can be fluid or vehicle based. It will not be both
         // because LaneGroupPackets are already model specific, in the sense of either
@@ -45,15 +42,15 @@ public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
 
         Set<AbstractVehicle> vehicles = null;
         AbstractVehicleModel model = (AbstractVehicleModel) link.model;
-        if (avp instanceof VehicleLaneGroupPacket) {
-            vehicles = new HashSet<>();
-            for(AbstractVehicle abs_veh : ((VehicleLaneGroupPacket) avp).vehicles)
-                vehicles.add(model.translate_vehicle(abs_veh));
-        }
 
-        if (avp instanceof FluidLaneGroupPacket) {
-            vehicles = container.process_fluid_packet((FluidLaneGroupPacket) avp);
-        }
+        // process 'vehicle' part
+            vehicles = new HashSet<>();
+            for(AbstractVehicle abs_veh : vp.vehicles)
+                vehicles.add(model.translate_vehicle(abs_veh));
+
+
+        // process 'fluid' part
+        vehicles.addAll( container.process_fluid_packet(vp,this) );
 
         // set next link id
         vehicles.forEach(v->v.set_next_link_id(next_link_id));

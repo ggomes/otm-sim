@@ -6,8 +6,6 @@ import common.AbstractSource;
 import common.AbstractVehicle;
 import common.Link;
 import output.InterfaceVehicleListener;
-import packet.AbstractPacketLaneGroup;
-import packet.VehicleLaneGroupPacket;
 import profiles.DemandProfile;
 
 import java.util.*;
@@ -30,10 +28,10 @@ public abstract class AbstractVehicleModel extends AbstractModel {
         return new SourceVehicle(origin,demand_profile,commodity,path);
     }
 
-    @Override
-    public AbstractPacketLaneGroup create_lanegroup_packet(){
-        return new VehicleLaneGroupPacket();
-    }
+//    @Override
+//    public AbstractPacketLaneGroup create_lanegroup_packet(){
+//        return new PacketLaneGroup();
+//    }
 
     //////////////////////////////////////////////////
     // run

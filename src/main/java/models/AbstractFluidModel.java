@@ -79,7 +79,7 @@ public abstract class AbstractFluidModel extends AbstractModel {
     // run
     //////////////////////////////////////////////////////////////
 
-    abstract public void update_link_flux(Link link, float timestamp) throws OTMException;
+    abstract public void update_link_flux_part_I(Link link, float timestamp) throws OTMException;
     abstract public void update_link_state(Link link,float timestamp) throws OTMException;
 
     @Override
@@ -102,7 +102,7 @@ public abstract class AbstractFluidModel extends AbstractModel {
 
         // lane changes and compute demand and supply
         for(Link link : links)
-            update_link_flux(link,timestamp);
+            update_link_flux_part_I(link,timestamp);
 
         // compute node inflow and outflow (all nodes except sources)
         node_models.forEach(n->n.update_flow(timestamp));

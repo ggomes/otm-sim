@@ -20,7 +20,7 @@ import models.AbstractLaneGroup;
 import models.AbstractLaneGroupVehicles;
 import models.AbstractVehicleModel;
 import output.InterfaceVehicleListener;
-import packet.AbstractPacketLaneGroup;
+import packet.PacketLaneGroup;
 import packet.PacketLink;
 import runner.RunParameters;
 import runner.Scenario;
@@ -100,11 +100,11 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
      * 3. add the packet to this lanegroup.
      */
     @Override
-    public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp, Long next_link_id) throws OTMException {
+    public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long next_link_id) throws OTMException {
 
         // for each vehicle
         Dispatcher dispatcher = link.network.scenario.dispatcher;
-        for(AbstractVehicle vehicle : create_vehicles_from_packet(avp,next_link_id)){
+        for(AbstractVehicle vehicle : create_vehicles_from_packet(vp,next_link_id)){
 
             // tell the vehicle it has moved
             ((Vehicle)vehicle).move_to_queue(timestamp,transit_queue);

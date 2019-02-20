@@ -19,7 +19,7 @@ import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import models.AbstractModel;
 import output.PathTravelTime;
-import packet.AbstractPacketLaneGroup;
+import packet.PacketLaneGroup;
 import packet.PacketLink;
 import runner.InterfaceScenarioElement;
 import runner.RunParameters;
@@ -412,12 +412,12 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     // For pathless, it is sampled from the split ratios
     // this assigns the state for the split packet but does not yet assign
     // the target road connection. This is done after joining the lane group.
-    // This DOES NOT update the keys within the AbstractPacketLaneGroup's
+    // This DOES NOT update the keys within the PacketLaneGroup's
     // and hence they are out of sync with the next link ids (keys in the map)
-    public Map<Long, AbstractPacketLaneGroup> split_packet(PacketLink vp){
+    public Map<Long, PacketLaneGroup> split_packet(PacketLink vp){
 
         // initialize lanegroup_packets
-        Map<Long, AbstractPacketLaneGroup> split_packets = new HashMap<>();
+        Map<Long, PacketLaneGroup> split_packets = new HashMap<>();
 
         boolean has_macro = !vp.no_macro();
         boolean has_micro = !vp.no_micro();
@@ -719,8 +719,8 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     // private and other
     ///////////////////////////////////////////
 
-    private void add_to_lanegroup_packets(Map<Long, AbstractPacketLaneGroup> split_packets,Long nextlink_id,KeyCommPathOrLink key,Double vehicles){
-        AbstractPacketLaneGroup new_packet;
+    private void add_to_lanegroup_packets(Map<Long, PacketLaneGroup> split_packets,Long nextlink_id,KeyCommPathOrLink key,Double vehicles){
+        PacketLaneGroup new_packet;
         if(split_packets.containsKey(nextlink_id)){
             new_packet = split_packets.get(nextlink_id);
         } else {
@@ -730,8 +730,8 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         new_packet.add_fluid(key,vehicles);
     }
 
-    private void add_to_lanegroup_packets(Map<Long, AbstractPacketLaneGroup> split_packets,Long nextlink_id,KeyCommPathOrLink key,AbstractVehicle vehicle){
-        AbstractPacketLaneGroup new_packet;
+    private void add_to_lanegroup_packets(Map<Long, PacketLaneGroup> split_packets,Long nextlink_id,KeyCommPathOrLink key,AbstractVehicle vehicle){
+        PacketLaneGroup new_packet;
         if(split_packets.containsKey(nextlink_id)){
             new_packet = split_packets.get(nextlink_id);
         } else {

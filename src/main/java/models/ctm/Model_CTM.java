@@ -15,8 +15,6 @@ import geometry.Side;
 import keys.KeyCommPathOrLink;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
-import packet.AbstractPacketLaneGroup;
-import packet.FluidLaneGroupPacket;
 import profiles.DemandProfile;
 import runner.Scenario;
 import utils.OTMUtils;
@@ -100,10 +98,10 @@ public class Model_CTM extends AbstractFluidModel {
         return new models.ctm.LaneGroup(link,side,flowdir,length,num_lanes,start_lane,out_rcs);
     }
 
-    @Override
-    public AbstractPacketLaneGroup create_lanegroup_packet() {
-        return new FluidLaneGroupPacket();
-    }
+//    @Override
+//    public AbstractPacketLaneGroup create_lanegroup_packet() {
+//        return new PacketLaneGroup();
+//    }
 
     @Override
     public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
@@ -144,7 +142,7 @@ public class Model_CTM extends AbstractFluidModel {
     }
 
     @Override
-    public void update_link_flux(Link link, float timestamp) throws OTMException {
+    public void update_link_flux_part_I(Link link, float timestamp) throws OTMException {
 
         // TODO: should update_flux I and II be passed the link as in update_state?
         // TODO What is the point of that?

@@ -14,8 +14,7 @@ import geometry.FlowDirection;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
-import packet.FluidLaneGroupPacket;
-import packet.AbstractPacketLaneGroup;
+import packet.PacketLaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
 
@@ -119,12 +118,25 @@ public class LaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public void add_vehicle_packet(float timestamp, AbstractPacketLaneGroup avp, Long nextlink_id) {
+    public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) {
 
-        FluidLaneGroupPacket vp = (FluidLaneGroupPacket) avp;
         Cell cell = cells.get(0);
 
-        for(Map.Entry<KeyCommPathOrLink,Double> e : vp.state2vehicles.entrySet()) {
+        // add vehicle part
+        if(vp.vehicles!=null && !vp.vehicles.isEmpty()){
+            for(AbstractVehicle v : vp.vehicles){
+                KeyCommPathOrLink key = v.get_key();
+
+                // update state
+                if(!key.isPath)
+                    key = new KeyCommPathOrLink(key.commodity_id,nextlink_id,false);
+
+                cell.add_vehicles(key,1d);
+            }
+        }
+
+        // add fluid part
+        for(Map.Entry<KeyCommPathOrLink,Double> e : vp.container.amount.entrySet()) {
             KeyCommPathOrLink key = e.getKey();
 
             // update state
