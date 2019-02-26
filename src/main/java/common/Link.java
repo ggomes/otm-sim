@@ -77,6 +77,10 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     // built by Network contstructor.
     public Map<Long,Set<AbstractLaneGroup>> outlink2lanegroups;
 
+    // map from outlink to road-connection. For one-to-one links with no road connection defined,
+    // this returns a null.
+    public Map<Long, RoadConnection> outlink2roadconnection;
+
     // splits
     // populated by ScenarioFactory.create_scenario
     public Map<Long, SplitInfo> commodity2split;
@@ -134,6 +138,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         path2outlink = new HashMap<>();
         outlink2lanegroups = new HashMap<>();
         commodity2split = new HashMap<>();
+        this.outlink2roadconnection = new HashMap<>();
 
         // demands ............................................
         sources = new HashSet<>();
@@ -185,6 +190,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         model = null;
         travel_timers = null;
         shape = null;
+        outlink2roadconnection = null;
     }
 
     public void add_travel_timer(PathTravelTime x){
@@ -215,10 +221,11 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
             return;
 
         outlink2lanegroups = new HashMap<>();
-        for(Link outlink : end_node.out_links.values())
-            outlink2lanegroups.put(outlink.getId(),lanegroups_flwdn.values().stream()
-                    .filter(lg->lg.link_is_link_reachable(outlink.getId()))
-                    .collect(Collectors.toSet()) );
+        for(Link outlink : end_node.out_links.values()) {
+            outlink2lanegroups.put(outlink.getId(), lanegroups_flwdn.values().stream()
+                    .filter(lg -> lg.link_is_link_reachable(outlink.getId()))
+                    .collect(Collectors.toSet()));
+        }
     }
 
     public void populate_commodity2split(Collection<Commodity> commodities){
@@ -396,6 +403,13 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 //                scenario.error_log.addError("!dwn_links_ids.containsAll(split_outlinks)");
 //        }
 
+
+
+        // out_road_connections all lead to links that are immediately downstream
+        Set dwn_links = end_node.out_links.values().stream().map(x->x.getId()).collect(Collectors.toSet());
+        if(!dwn_links.containsAll(outlink2roadconnection.keySet()))
+            errorLog.addError("some outlinks are not immediately downstream");
+
     }
 
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
@@ -562,20 +576,19 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
     public Set<RoadConnection> get_roadconnections_leaving(){
         Set<RoadConnection> rcs = new HashSet<>();
-        for(AbstractLaneGroup lg : lanegroups_flwdn.values())
-            rcs.addAll(lg.outlink2roadconnection.values());
+        rcs.addAll(outlink2roadconnection.values());
         return rcs;
     }
 
-    public Set<RoadConnection> get_roadconnections_entering(){
-        Set<RoadConnection> rcs = new HashSet<>();
-        for(Link uplink : start_node.in_links.values())
-            if(uplink.outlink2lanegroups.containsKey(getId()))
-                for(AbstractLaneGroup lg : uplink.outlink2lanegroups.get(id) )
-                    if(lg.outlink2roadconnection.containsKey(getId()))
-                        rcs.add(lg.outlink2roadconnection.get(getId()));
-        return rcs;
-    }
+//    public Set<RoadConnection> get_roadconnections_entering(){
+//        Set<RoadConnection> rcs = new HashSet<>();
+//        for(Link uplink : start_node.in_links.values())
+//            if(uplink.outlink2lanegroups.containsKey(getId()))
+//                for(AbstractLaneGroup lg : uplink.outlink2lanegroups.get(id) )
+//                    if(lg.outlink2roadconnection.containsKey(getId()))
+//                        rcs.add(lg.outlink2roadconnection.get(getId()));
+//        return rcs;
+//    }
 
     ////////////////////////////////////////////
     // configuration getters

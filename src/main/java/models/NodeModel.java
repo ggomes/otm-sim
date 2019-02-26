@@ -300,9 +300,10 @@ public class NodeModel {
                     ulg.f_is.put(state,ulg.f_is.get(state)+stateInfo.delta_is);
 
                     // reduce d_ir
-                    if(ulg.lg.state2roadconnection.containsKey(state)){
+                    if(ulg.lg.state2roadconnection.containsKey(state) ){
                         Long rc_id = ulg.lg.state2roadconnection.get(state);
-                        ulg.rc_infos.get(rc_id).d_ir -= stateInfo.delta_is;
+                        if(ulg.rc_infos.containsKey(rc_id))
+                            ulg.rc_infos.get(rc_id).d_ir -= stateInfo.delta_is;
                     }
                 }
             }

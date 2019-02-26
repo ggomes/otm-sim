@@ -126,7 +126,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
         // set the capacity of this lanegroup to the minimum of the
         // exiting road connections
-        current_max_flow_rate_vps = outlink2roadconnection.values().stream()
+        current_max_flow_rate_vps = link.outlink2roadconnection.values().stream()
                 .map(x->x.external_max_flow_vps)
                 .min(Float::compareTo)
                 .get();
@@ -189,9 +189,9 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
             Long next_link_id = key.isPath ? link.path2outlink.get(key.pathOrlink_id).getId() : key.pathOrlink_id;
 
             // vehicle should be in a target lane group
-            assert(outlink2roadconnection.containsKey(next_link_id));
+            assert(link.outlink2roadconnection.containsKey(next_link_id));
 
-            RoadConnection rc = outlink2roadconnection.get(next_link_id);
+            RoadConnection rc = link.outlink2roadconnection.get(next_link_id);
             Link next_link = rc.end_link;
 
             // at least one candidate lanegroup must have space for one vehicle.

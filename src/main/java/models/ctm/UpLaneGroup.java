@@ -76,7 +76,7 @@ public class UpLaneGroup {
 
         // S_ir
         Long rc_id = lg.state2roadconnection.get(state);
-        if(rc_id!=null)
+        if(rc_id!=null && rc_infos.containsKey(rc_id))
             rc_infos.get(rc_id).add_state(state);
     }
 

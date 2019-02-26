@@ -55,9 +55,9 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // flow accumulator
     public FlowAccumulatorState flw_acc;
 
-    // map from outlink to road-connection. For one-to-one links with no road connection defined,
-    // this returns a null.
-    public Map<Long, RoadConnection> outlink2roadconnection;
+//    // map from outlink to road-connection. For one-to-one links with no road connection defined,
+//    // this returns a null.
+//    public Map<Long, RoadConnection> outlink2roadconnection;
 
     // state to the road connection it must use (should be avoided in the one-to-one case)
     public Map<KeyCommPathOrLink,Long> state2roadconnection;
@@ -116,26 +116,16 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
                 this.start_lane_dn = start_lane;
                 break;
         }
-        this.outlink2roadconnection = new HashMap<>();
         this.state2roadconnection = new HashMap<>();
-        if(out_rcs!=null)
-            for(RoadConnection rc : out_rcs)
-                if(rc.has_end_link())
-                    outlink2roadconnection.put(rc.get_end_link_id(),rc);
     }
 
     public void delete(){
         link = null;
         actuator = null;
         flw_acc = null;
-        outlink2roadconnection = null;
     }
 
     public void validate(OTMErrorLog errorLog) {
-        // out_road_connections all lead to links that are immediately downstream
-        Set dwn_links = link.end_node.out_links.values().stream().map(x->x.getId()).collect(Collectors.toSet());
-        if(!dwn_links.containsAll(outlink2roadconnection.keySet()))
-            errorLog.addError("some outlinks are not immediately downstream");
 
     }
 
@@ -175,7 +165,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         } else {
 
             // store in map
-            RoadConnection rc = outlink2roadconnection.get(next_link_id);
+            RoadConnection rc = link.outlink2roadconnection.get(next_link_id);
             if(rc!=null) {
 
                 // state2roadconnection
@@ -244,11 +234,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     }
 
     public Set<Long> get_dwn_links(){
-        return outlink2roadconnection.keySet();
+        return link.end_node.out_links.keySet();
     }
 
     public boolean link_is_link_reachable(Long link_id){
-        return outlink2roadconnection.containsKey(link_id);
+        return link.outlink2roadconnection.containsKey(link_id);
     }
 
 
@@ -285,7 +275,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public RoadConnection get_target_road_connection_for_state(KeyCommPathOrLink key){
         Long outlink_id = key.isPath ? link.path2outlink.get(key.pathOrlink_id).getId() : key.pathOrlink_id;
-        return outlink2roadconnection.get(outlink_id);
+        return link.outlink2roadconnection.get(outlink_id);
     }
 
     @Override
