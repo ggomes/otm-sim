@@ -155,7 +155,7 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
 
     @Override
     public String toString() {
-        return String.format("%d [%d %d] -> %d [%d %d]",start_link.getId(),start_link_from_lane,start_link_to_lane,end_link.getId(),end_link_from_lane,end_link_to_lane);
+        return String.format("%d: %d [%d %d] -> %d [%d %d]",id,start_link.getId(),start_link_from_lane,start_link_to_lane,end_link.getId(),end_link_from_lane,end_link_to_lane);
     }
 
     public jaxb.Roadconnection to_jaxb(){

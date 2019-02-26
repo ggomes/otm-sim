@@ -167,6 +167,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
         states.add(state);
 
+        // state2roadconnection
+        // state2lanechangedirection
         if(link.is_sink){
             state2roadconnection.put(state,null);
             state2lanechangedirection.put(state, Side.stay);
@@ -182,9 +184,14 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
                 // state2lanechangedirection
                 Set<AbstractLaneGroup> target_lgs = rc.in_lanegroups;
                 Set<Side> sides = target_lgs.stream().map(x -> x.get_side_with_respect_to_lg(this)).collect(Collectors.toSet());
-                if (sides.size() != 1)
-                    throw new OTMException("asd;liqwr g-q4iwq jg");
-                state2lanechangedirection.put(state, sides.iterator().next());
+
+                if(sides.contains(Side.stay))
+                    state2lanechangedirection.put(state, Side.stay );
+                else {
+                    if (sides.size() != 1)
+                        throw new OTMException("asd;liqwr g-q4iwq jg");
+                    state2lanechangedirection.put(state, sides.iterator().next());
+                }
             }
         }
 
