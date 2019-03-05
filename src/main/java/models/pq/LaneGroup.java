@@ -208,8 +208,9 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
             // release the vehicle if
             // a) connected to a vehicle model and space >= 1
             // b) connected to a fluid model and space >= 0
-            if(    ((next_link.model instanceof AbstractVehicleModel) && next_supply >= 1d)
-                || ((next_link.model instanceof AbstractFluidModel)   && next_supply > OTMUtils.epsilon ) ) {
+            if(next_supply > OTMUtils.epsilon){
+//            if(    ((next_link.model instanceof AbstractVehicleModel) && next_supply >= 1d)
+//                || ((next_link.model instanceof AbstractFluidModel)   && next_supply > OTMUtils.epsilon ) ) {
 
                 // remove vehicle from this lanegroup
                 waiting_queue.remove_given_vehicle(timestamp,vehicle);

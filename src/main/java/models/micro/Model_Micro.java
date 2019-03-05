@@ -182,8 +182,11 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
                             vehicle.headway = vehicle.leader.pos - vehicle.pos + vehicle.get_lanegroup().length;
                     }
                 }
+
+                lg.update_supply();
             }
         }
+
     }
 
 }

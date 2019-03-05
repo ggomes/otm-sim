@@ -17,6 +17,7 @@ import models.AbstractLaneGroup;
 import packet.PacketLaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
+import utils.OTMUtils;
 
 import java.util.*;
 
@@ -122,28 +123,27 @@ public class LaneGroup extends AbstractLaneGroup {
 
         Cell cell = cells.get(0);
 
-        // add vehicle part
-        if(vp.vehicles!=null && !vp.vehicles.isEmpty()){
-            for(AbstractVehicle v : vp.vehicles){
-                KeyCommPathOrLink key = v.get_key();
+        // When the link is a model source, then the packet first goes into a buffer.
+        // From there it is "processed", meaning that some part goes into the upstream cell.
+        if(link.is_model_source_link) {
+            // add packet to buffer
+            buffer.add_packet(vp);
+            process_buffer(timestamp);
+        }
+
+        // otherwise, this is an internal link, and the packet is guaranteed to be
+        // purely fluid.
+        else {
+            for(Map.Entry<KeyCommPathOrLink,Double> e : vp.container.amount.entrySet()) {
+                KeyCommPathOrLink key = e.getKey();
 
                 // update state
                 if(!key.isPath)
                     key = new KeyCommPathOrLink(key.commodity_id,nextlink_id,false);
 
-                cell.add_vehicles(key,1d);
+                cell.add_vehicles(key,e.getValue());
+
             }
-        }
-
-        // add fluid part
-        for(Map.Entry<KeyCommPathOrLink,Double> e : vp.container.amount.entrySet()) {
-            KeyCommPathOrLink key = e.getKey();
-
-            // update state
-            if(!key.isPath)
-                key = new KeyCommPathOrLink(key.commodity_id,nextlink_id,false);
-
-            cell.add_vehicles(key,e.getValue());
         }
 
         update_supply();
@@ -208,9 +208,16 @@ public class LaneGroup extends AbstractLaneGroup {
 
     @Override
     public void update_supply(){
-        Cell upcell = get_upstream_cell();
-        upcell.update_supply();
-        supply = upcell.supply;
+
+        // shut off if buffer is full
+        if(link.is_model_source_link && buffer.get_total_veh()>=1d)
+            supply = 0d;
+        else {
+            Cell upcell = get_upstream_cell();
+            upcell.update_supply();
+            supply = upcell.supply;
+        }
+
     }
 
     ////////////////////////////////////////////
@@ -288,4 +295,44 @@ public class LaneGroup extends AbstractLaneGroup {
         return (float) cells.stream().mapToDouble(c->c.get_veh_out_for_commodity(comm_id)).sum();
     }
 
+    protected void process_buffer(float timestamp){
+        assert(link.is_model_source_link);
+
+        double buffer_size = buffer.get_total_veh();
+
+        if(buffer_size < OTMUtils.epsilon )
+            return;
+
+
+
+        Cell cell = cells.get(0);
+                    double total_space = cell.supply;
+//        double total_space = jam_density_veh_per_cell - cell.get_vehicles();
+        double factor = Math.min( 1d , total_space / buffer_size );
+        for(Map.Entry<KeyCommPathOrLink,Double> e : buffer.amount.entrySet()) {
+            KeyCommPathOrLink key = e.getKey();
+            Double buffer_vehs = e.getValue() ;
+
+            // add to cell
+            cell.add_vehicles(key,buffer_vehs* factor);
+
+            // remove from buffer
+            e.setValue(buffer_vehs*(1d-factor));
+        }
+
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

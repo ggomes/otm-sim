@@ -8,10 +8,8 @@ import geometry.FlowDirection;
 import geometry.Side;
 import jaxb.Roadparam;
 import keys.KeyCommPathOrLink;
-import models.AbstractFluidModel;
 import models.AbstractLaneGroup;
 import models.AbstractLaneGroupVehicles;
-import models.AbstractVehicleModel;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
 import runner.RunParameters;
@@ -58,7 +56,14 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
     @Override
     public void update_supply() {
-        supply =  max_vehicles - get_total_vehicles();
+//        supply =  max_vehicles - vehicles.size();
+
+        Double up_veh_pos = get_upstream_vehicle_position();
+        supply =  up_veh_pos.isNaN() ? max_vehicles : up_veh_pos * max_vehicles / length;
+
+//        if(link.is_model_source_link)
+//            supply = Math.max(0d,supply + 1d - buffer.get_total_veh());
+
     }
 
     ///////////////////////////////////////////////////
@@ -80,6 +85,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
             vehicle.lg = this;
 
             if(!vehicles.isEmpty()) {
+
                 Vehicle leader = vehicles.get(vehicles.size()-1);
                 leader.follower = vehicle;
                 vehicle.leader = leader;
@@ -95,7 +101,6 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                 vehicle.headway = Double.POSITIVE_INFINITY;
             }
 
-
             vehicles.add(vehicle);
 
             // inform the travel timers
@@ -103,6 +108,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
         }
 
         update_supply();
+
     }
 
     @Override
@@ -163,8 +169,11 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
             // release the vehicle if
             // a) connected to a vehicle model and space >= 1
             // b) connected to a fluid model and space >= 0
-            if(    ((next_link.model instanceof AbstractVehicleModel) && next_supply >= 1d)
-                    || ((next_link.model instanceof AbstractFluidModel)   && next_supply > OTMUtils.epsilon ) ) {
+
+            if(next_supply > OTMUtils.epsilon){
+
+//                if(    ((next_link.model instanceof AbstractVehicleModel) && next_supply >= 1d)
+//                    || ((next_link.model instanceof AbstractFluidModel)   && next_supply > OTMUtils.epsilon ) ) {
 
                 // remove vehicle from this lanegroup
                 it.remove();

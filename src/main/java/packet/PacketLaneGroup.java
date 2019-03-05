@@ -12,7 +12,7 @@ public class PacketLaneGroup {
 
     public Set<AbstractVehicle> vehicles = new HashSet<>();
 
-    // this container holds remainders of arriving fluid packets.
+    // this buffer holds remainders of arriving fluid packets.
     // these remainders are added into the lane group packet
     public StateContainer container = new StateContainer();
 

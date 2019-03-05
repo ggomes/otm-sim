@@ -16,6 +16,7 @@ import geometry.FlowDirection;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import packet.PacketLaneGroup;
+import packet.StateContainer;
 import runner.RunParameters;
 import runner.Scenario;
 import utils.OTMUtils;
@@ -47,6 +48,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     // set of keys for states in this lanegroup
     public Set<KeyCommPathOrLink> states;   // TODO MOVE THIS TO DISCRETE TIME ONLY?
+
+    public StateContainer buffer;
 
     protected double supply;       // [veh]
 
@@ -130,6 +133,12 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     }
 
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
+
+        if(link.is_model_source_link) {
+            System.out.println("Created buffer for link " + link.getId());
+            this.buffer = new StateContainer();
+        }
+
         if(flw_acc!=null)
             flw_acc.reset();
     }

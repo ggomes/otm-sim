@@ -53,6 +53,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
     // model .............................................
     public AbstractModel model;
+    public boolean is_model_source_link;
 
     // lanegroups ......................................
 
@@ -249,15 +250,17 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
             commodity2split.get(commodity_id).set_splits(outlink2value);
     }
 
-    public void set_model(AbstractModel newmodel) throws OTMException {
+    public void set_model(AbstractModel newmodel,boolean is_model_source_link) throws OTMException {
 
         if (model==null){
             this.model = newmodel;
+            this.is_model_source_link = is_model_source_link;
             return;
         }
 
         if(model.is_default && !newmodel.is_default) {
             this.model = newmodel;
+            this.is_model_source_link = is_model_source_link;
             return;
         }
 

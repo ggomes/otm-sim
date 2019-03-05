@@ -110,7 +110,7 @@ public class Cell {
 
     public double get_veh_dwn_for_commodity(Long comm_id) {
         if(comm_id==null)
-            return this.total_vehs_dwn;
+            return total_vehs_dwn;
         else
             return veh_dwn.entrySet().stream()
                     .filter(x->x.getKey().commodity_id==comm_id)
@@ -257,7 +257,11 @@ public class Cell {
             double total_vehicles = get_total_vehicles();
             if(am_dnstrm)
                 supply = Math.min(laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - total_vehicles), laneGroup.capacity_veh_per_dt);
-            else
+            else {
+
+                if(am_upstrm && laneGroup.link.is_model_source_link)
+                    total_vehicles += laneGroup.buffer.get_total_veh();
+
                 supply = laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - total_vehicles);
 //                    break;
 //                case mn:
@@ -265,7 +269,10 @@ public class Cell {
 //                    break;
 //                default:
 //                    System.err.println("Wha??");
-//            }
+//            }8
+
+
+            }
         }
     }
 

@@ -254,18 +254,20 @@ public class Network {
 
         }
 
-        // set link models (links will choose new over default, so this determines the link list for each model)
-        for( AbstractModel model : models.values())
-            for (Link link : model2links.get(model.name))
-                link.set_model(model);
-
-        // Set links for each model
-//        for( AbstractModel model : models.values())
-//            model.set_links( all_links.stream().filter(link->link.model==model).collect(toSet()) );
-
         for( AbstractModel model : models.values())
             model.set_links(model2links.get(model.name));
 
+        // set link models (links will choose new over default, so this determines the link list for each model)
+        for( AbstractModel model : models.values()) {
+            for (Link link : model2links.get(model.name)) {
+
+                // determine whether link is a relative source link
+                // (a relative source is one that has at least one incoming link that is not in the model)
+                boolean incoming_are_all_in_model = model.links.containsAll(link.start_node.in_links.values());
+                boolean is_model_source = !link.is_source && !incoming_are_all_in_model;
+                link.set_model(model, is_model_source);
+            }
+        }
 
         return models;
     }

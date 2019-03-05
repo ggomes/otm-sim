@@ -144,6 +144,7 @@ public class Model_CTM extends AbstractFluidModel {
     @Override
     public void update_link_flux_part_I(Link link, float timestamp) throws OTMException {
 
+
         // TODO: should update_flux I and II be passed the link as in update_state?
         // TODO What is the point of that?
 
@@ -165,7 +166,7 @@ public class Model_CTM extends AbstractFluidModel {
             models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
 
             if(lg.states.isEmpty())
-                return;
+                continue;
 
             for(int i=0;i<lg.cells.size()-1;i++) {
 
@@ -195,6 +196,12 @@ public class Model_CTM extends AbstractFluidModel {
             }
 
             lg.update_supply();
+
+            // process buffer
+            if(link.is_model_source_link) {
+                lg.process_buffer(timestamp);
+                lg.update_supply();
+            }
 
         }
     }
