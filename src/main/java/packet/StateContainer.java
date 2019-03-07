@@ -6,12 +6,14 @@
  */
 package packet;
 
+import commodity.Commodity;
 import commodity.Path;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import models.AbstractLaneGroupVehicles;
 import models.AbstractVehicleModel;
+import runner.Scenario;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,10 +57,12 @@ public class StateContainer {
                 int num_veh = (int) value;
                 amount.put(key,value - num_veh);
                 for(int i=0;i<num_veh;i++) {
-                    AbstractVehicle vehicle = model.create_vehicle(key.commodity_id, null);
+                    Scenario scenario = lg.link.network.scenario;
+                    Commodity commodity = scenario.commodities.get(key.commodity_id);
+                    AbstractVehicle vehicle = model.create_vehicle(key.commodity_id, commodity.vehicle_event_listeners);
                     vehicle.set_key(key);
                     if(key.isPath)
-                        vehicle.path = (Path) lg.link.network.scenario.subnetworks.get(key.pathOrlink_id);
+                        vehicle.path = (Path) scenario.subnetworks.get(key.pathOrlink_id);
                     vehicles.add(vehicle);
                 }
             }

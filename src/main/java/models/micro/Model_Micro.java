@@ -35,17 +35,14 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
 
     @Override
     public void validate(OTMErrorLog errorLog) {
-        System.err.println("MICRO validate");
     }
 
     @Override
     public void reset(Link link) {
-        System.err.println("MICRO reset");
     }
 
     @Override
     public void build() {
-        System.err.println("MICRO build");
     }
 
     //////////////////////////////////////////////////
@@ -79,7 +76,6 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
 
     @Override
     public AbstractLinkInfo get_link_info(Link link) {
-        System.err.println("MICRO get_link_info");
         return null;
     }
 

@@ -134,10 +134,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
 
-        if(link.is_model_source_link) {
-            System.out.println("Created buffer for link " + link.getId());
+        if(link.is_model_source_link)
             this.buffer = new StateContainer();
-        }
 
         if(flw_acc!=null)
             flw_acc.reset();

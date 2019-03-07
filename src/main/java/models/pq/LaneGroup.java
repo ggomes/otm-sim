@@ -232,9 +232,10 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                 // TODO This is adhoc for when the next links is a fluid model.
                 // Todo Then the event counter is not getting triggered.
                 // inform the queue counters
-                if( !(next_link.model instanceof AbstractVehicleModel) && vehicle.get_event_listeners()!=null)
-                    for(InterfaceVehicleListener ev : vehicle.get_event_listeners())
-                        ev.move_from_to_queue(timestamp,vehicle,waiting_queue,null);
+                if( !(next_link.model instanceof Model_PQ) && vehicle.get_event_listeners()!=null) {
+                    for (InterfaceVehicleListener ev : vehicle.get_event_listeners())
+                        ev.move_from_to_queue(timestamp, vehicle, waiting_queue, null);
+                }
 
             } else { // all targets are blocked
                 return;

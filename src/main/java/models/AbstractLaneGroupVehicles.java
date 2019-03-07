@@ -39,15 +39,7 @@ public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
         assert(vp.vehicles.size()<2);
         assert(vp.vehicles.isEmpty() || vp.container.isEmpty());
 
-
-
         Set<AbstractVehicle> vehs = new HashSet<>();
-
-
-//        // if there is no space to place a vehicle, then forget it.
-//        if(get_upstream_vehicle_position()<10d)
-//            return vehicles;
-
 
         AbstractVehicleModel model = (AbstractVehicleModel) link.model;
 
