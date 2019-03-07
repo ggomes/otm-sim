@@ -583,15 +583,20 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         return rcs;
     }
 
-//    public Set<RoadConnection> get_roadconnections_entering(){
-//        Set<RoadConnection> rcs = new HashSet<>();
+    public Set<RoadConnection> get_roadconnections_entering(){
+        Set<RoadConnection> rcs = new HashSet<>();
+
 //        for(Link uplink : start_node.in_links.values())
 //            if(uplink.outlink2lanegroups.containsKey(getId()))
 //                for(AbstractLaneGroup lg : uplink.outlink2lanegroups.get(id) )
 //                    if(lg.outlink2roadconnection.containsKey(getId()))
 //                        rcs.add(lg.outlink2roadconnection.get(getId()));
-//        return rcs;
-//    }
+
+        for(Link uplink : start_node.in_links.values())
+            if(uplink.outlink2roadconnection.containsKey(getId()))
+                rcs.add(uplink.outlink2roadconnection.get(getId()));
+        return rcs;
+    }
 
     ////////////////////////////////////////////
     // configuration getters
