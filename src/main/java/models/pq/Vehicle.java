@@ -6,7 +6,6 @@
  */
 package models.pq;
 
-import commodity.Commodity;
 import error.OTMException;
 import common.AbstractVehicle;
 import output.InterfaceVehicleListener;
@@ -75,7 +74,6 @@ public class Vehicle extends AbstractVehicle {
 //            assign_queue(timestamp,((models.ctm.pq.LaneGroup) lanegroup).transit_queue);
 //    }
 
-
     ////////////////////////////////////////////////
     // move the vehicle
     ////////////////////////////////////////////////
@@ -95,9 +93,5 @@ public class Vehicle extends AbstractVehicle {
         my_queue = to_queue;
         lg = to_queue.lanegroup;
 
-        // inform listeners
-        if(get_event_listeners()!=null)
-            for(InterfaceVehicleListener ev : get_event_listeners())
-                ev.move_from_to_queue(timestamp,this,from_queue,to_queue);
     }
 }

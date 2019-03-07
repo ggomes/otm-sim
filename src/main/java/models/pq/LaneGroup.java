@@ -104,16 +104,23 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
         // for each vehicle
         Dispatcher dispatcher = link.network.scenario.dispatcher;
-        for(AbstractVehicle vehicle : create_vehicles_from_packet(vp,next_link_id)){
+        for(AbstractVehicle absveh : create_vehicles_from_packet(vp,next_link_id)){
+
+            Vehicle veh = (Vehicle) absveh;
+
+            // tell the event listeners
+            if(veh.get_event_listeners()!=null)
+                for(InterfaceVehicleListener ev : veh.get_event_listeners())
+                    ev.move_from_to_queue(timestamp,veh,veh.my_queue,transit_queue);
 
             // tell the vehicle it has moved
-            ((Vehicle)vehicle).move_to_queue(timestamp,transit_queue);
+            veh.move_to_queue(timestamp,transit_queue);
+
+            // tell the travel timers
+            link.travel_timers.forEach(x->x.vehicle_enter(timestamp,veh));
 
             // register_with_dispatcher dispatch to go to waiting queue
-            dispatcher.register_event(new EventTransitToWaiting(dispatcher,timestamp + transit_time_sec,vehicle));
-
-            // inform the travel timers
-            link.travel_timers.forEach(x->x.vehicle_enter(timestamp,vehicle));
+            dispatcher.register_event(new EventTransitToWaiting(dispatcher,timestamp + transit_time_sec,veh));
 
         }
 
@@ -220,6 +227,14 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
                 // send vehicle packet to next link
                 next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
+
+                // TODO Need a better solution than this.
+                // TODO This is adhoc for when the next links is a fluid model.
+                // Todo Then the event counter is not getting triggered.
+                // inform the queue counters
+                if( !(next_link.model instanceof AbstractVehicleModel) && vehicle.get_event_listeners()!=null)
+                    for(InterfaceVehicleListener ev : vehicle.get_event_listeners())
+                        ev.move_from_to_queue(timestamp,vehicle,waiting_queue,null);
 
             } else { // all targets are blocked
                 return;

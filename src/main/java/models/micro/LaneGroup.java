@@ -123,7 +123,9 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
         throw new OTMException("NOT IMPLEMENTED awpirg -jqig");
     }
 
-    public void release_vehicle(float timestamp, Iterator<Vehicle> it,Vehicle vehicle) throws OTMException {
+    public boolean release_vehicle(float timestamp, Iterator<Vehicle> it,Vehicle vehicle) throws OTMException {
+
+        boolean released = false;
 
         if(link.is_sink) {
 
@@ -132,7 +134,9 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                 vehicle.follower.headway = Double.POSITIVE_INFINITY;
             }
 
+            // remove the vehicle from the lanegroup
             it.remove();
+
 
 //            // inform vehicle listener
 //            if(vehicle.get_event_listeners()!=null)
@@ -142,6 +146,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
             // inform the travel timers
             link.travel_timers.forEach(x->x.vehicle_exit(timestamp,vehicle,link.getId(),null));
 
+            released = true;
         }
         else{
 
@@ -161,8 +166,9 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                     .mapToDouble(AbstractLaneGroup::get_supply)
                     .max();
 
-            if(!next_supply_o.isPresent())
-                return;
+            assert(next_supply_o.isPresent());
+//            if(!next_supply_o.isPresent())
+//                return false;
 
             double next_supply = next_supply_o.getAsDouble();
 
@@ -175,8 +181,9 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 //                if(    ((next_link.model instanceof AbstractVehicleModel) && next_supply >= 1d)
 //                    || ((next_link.model instanceof AbstractFluidModel)   && next_supply > OTMUtils.epsilon ) ) {
 
-                // remove vehicle from this lanegroup
+                // remove the vehicle from the lanegroup
                 it.remove();
+                vehicle.new_pos -= vehicle.lg.length;
 
                 // inform the travel timers
                 link.travel_timers.forEach(x->x.vehicle_exit(timestamp,vehicle,link.getId(),next_link));
@@ -188,15 +195,18 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                 if(!(next_link.model instanceof models.micro.Model_Micro) && vehicle.follower!=null)
                     vehicle.follower.leader = null;
 
-            } else { // all targets are blocked
-                return;
+                released = true;
             }
 
         }
 
         // tell the flow accumulators
-        update_flow_accummulators(vehicle.get_key(),1f);
-        update_supply();
+        if(released) {
+            update_flow_accummulators(vehicle.get_key(), 1f);
+            update_supply();
+        }
+
+        return released;
 
         /** NOTE RESOLVE THIS. NEED TO CHECK
          * a) WHETHER THE NEXT LANE GROUP IS MACRO OR MESO.

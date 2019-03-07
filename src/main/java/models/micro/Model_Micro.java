@@ -130,8 +130,11 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
                     Vehicle vehicle = it.next();
                     // possibly release the vehicle from this lanegroup
                     if (vehicle.new_pos > lg.length) {
-                        vehicle.new_pos -= lg.length;
-                        lg.release_vehicle(timestamp, it, vehicle);
+                        boolean released = lg.release_vehicle(timestamp, it, vehicle);
+
+                        if(!released)
+                            vehicle.new_pos = (vehicle.pos + lg.length)/2d;
+
                     }
                 }
             }
