@@ -10,20 +10,20 @@ import java.util.Map;
 public class DnLaneGroup {
 
     public class StateInfo {
-        public double delta_js;
-        public double f_js;
+        public double delta_hs;
+        public double f_hs;
         public void reset(){
-            delta_js = Double.NaN;
-            f_js = 0d;
+            delta_hs = Double.NaN;
+            f_hs = 0d;
         }
     }
 
     public AbstractLaneGroup lg;
     public Map<Long,RoadConnection> rcs;                  // incoming road connections
 
-    public double s_j;                                    // supply
-    public boolean is_blocked;                            // sj==0
-    public Double gamma_j;
+    public double s_h;                                    // supply
+    public boolean is_blocked;                            // sh==0
+    public Double gamma_h;
     public Map<KeyCommPathOrLink,StateInfo> state_infos;
 
     ////////////////////////////////////////////
@@ -50,7 +50,7 @@ public class DnLaneGroup {
 
     public void reset(){
         this.is_blocked = false;
-        this.s_j = lg.get_supply();
+        this.s_h = lg.get_supply();
 
 //        This should be multiplied by lg.() -> wnorm
 //                Problem is if dnLaneGroup is a different model,
@@ -58,13 +58,13 @@ public class DnLaneGroup {
 //                This is ok.
 
 
-        this.gamma_j = Double.NaN;
+        this.gamma_h = Double.NaN;
         state_infos.values().forEach(x->x.reset());
     }
 
     public void update_is_blocked(){
         if(!is_blocked)
-            is_blocked = s_j < NodeModel.eps;
+            is_blocked = s_h < NodeModel.eps;
     }
 
 }

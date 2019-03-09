@@ -6,8 +6,10 @@ import error.OTMErrorLog;
 import keys.KeyCommPathOrLink;
 import models.ctm.*;
 import runner.Scenario;
+import utils.OTMUtils;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,6 +19,8 @@ public class NodeModel {
 
     private static int MAX_ITERATIONS = 10;
     public static double eps = 1e-3;
+
+    public boolean use_old = true;
 
     public Node node;
 
@@ -154,11 +158,15 @@ public class NodeModel {
 
     public void update_flow(float timestamp) {
 
-
         // reset
         ulgs.values().forEach(x->x.reset());
         rcs.values().forEach(x->x.reset());
         dlgs.values().forEach(x->x.reset());
+
+
+        if(timestamp==967 && node.getId()==9l){
+            use_old  = false;
+        }
 
         // iteration
         int it = 0;
@@ -210,59 +218,77 @@ public class NodeModel {
     }
 
     private void step1(){
-        /** d_r, alpha_rj
+        /** d_r, alpha_rh
          */
 
         for(RoadConnection rc : rcs.values()) {
 
             rc.d_r = rc.is_blocked ? 0d : rc.ulgs.stream()
-                    .mapToDouble(x -> x.rc_infos.get(rc.id).d_ir).sum();
+                    .mapToDouble(x -> x.rc_infos.get(rc.id).d_gr).sum();
 
             if(rc.d_r< NodeModel.eps)
                 continue;
 
-            boolean any_is_infinite = rc.dnlg_infos.values().stream().anyMatch(x-> Double.isInfinite(x.dlg.s_j));
+            boolean any_is_infinite = rc.dnlg_infos.values().stream().anyMatch(x-> Double.isInfinite(x.dlg.s_h));
 
             if(any_is_infinite){
 
                 // distribute equally
                 double p = 1d/rc.dnlg_infos.size();
 
-                // alpha_rj: distribution amongst downstream lanegroups
-                rc.dnlg_infos.values().forEach( x -> x.alpha_rj =  x.lambda_rj * p );
+                // alpha_rh: distribution amongst downstream lanegroups
+                rc.dnlg_infos.values().forEach( x -> x.alpha_rh =  x.lambda_rh * p );
 
 
             } else {
                 // s_r: downstream supply seen by this road connection
                 double s_r = rc.dnlg_infos.values().stream()
-                        .mapToDouble(x->x.lambda_rj*x.dlg.s_j).sum();
+                        .mapToDouble(x->x.lambda_rh *x.dlg.s_h).sum();
 
-                // alpha_rj: distribution amongst downstream lanegroups
-                rc.dnlg_infos.values().forEach( x -> x.alpha_rj = s_r==0d ? 0d : x.lambda_rj * x.dlg.s_j / s_r);
+                // alpha_rh: distribution amongst downstream lanegroups
+                rc.dnlg_infos.values().forEach( x -> x.alpha_rh = s_r<OTMUtils.epsilon ? 0d : x.lambda_rh * x.dlg.s_h / s_r);
+
+                if(!use_old){
+                    System.out.println("step 1 r=" +rc.rc.getId() + "\t s_r="+ s_r);
+                    Iterator<RoadConnection.DnLgInfo> it = rc.dnlg_infos.values().iterator();
+                    while(it.hasNext()){
+                        RoadConnection.DnLgInfo x = it.next();
+                        System.out.println("\t\th=" + x.dlg.lg.id + "\t alpha_rh = " + x.alpha_rh );
+                    }
+                }
+
             }
         }
 
     }
 
     private void step2(){
-        /**  gamma_j */
+        /**  gamma_h */
+
+
+        if(!use_old)
+            System.out.println("step 2");
 
         for(DnLaneGroup dlg : dlgs.values() ) {
 
             // for MN model
-            if(Double.isInfinite(dlg.s_j))
-                dlg.gamma_j = 0d;
+            if(Double.isInfinite(dlg.s_h))
+                dlg.gamma_h = 0d;
 
             else if (dlg.is_blocked)
-                dlg.gamma_j = 1d;
+                dlg.gamma_h = 1d;
 
             else {
 
                 // total_demand = sum of demands in upstream road connections, times the proportion
                 // directed at this lanegroup
-                Double d_j = dlg.rcs.values().stream().mapToDouble(rc -> rc.dnlg_infos.get(dlg.lg.id).alpha_rj * Math.min(rc.d_r, rc.fbar)).sum();
+                Double d_h = dlg.rcs.values().stream().mapToDouble(rc -> rc.dnlg_infos.get(dlg.lg.id).alpha_rh * Math.min(rc.d_r, rc.fbar)).sum();
 
-                dlg.gamma_j = d_j>dlg.s_j ? 1d-dlg.s_j/d_j : 0d;
+                dlg.gamma_h = d_h>dlg.s_h ? 1d-dlg.s_h /d_h : 0d;
+
+
+                if(!use_old)
+                    System.out.println("\t h="+dlg.lg.id + "\t gamma_h = " + dlg.gamma_h);
             }
 
         }
@@ -270,48 +296,129 @@ public class NodeModel {
 
     private void step3(){
         /** gamma_r */
-        for(RoadConnection rc : rcs.values() )
-            rc.gamma_r = rc.is_blocked ? 0d : rc.dnlg_infos.values().stream().mapToDouble(x -> x.dlg.gamma_j * x.alpha_rj).sum();
-    }
 
-    private void step4(){
-        /** gamma_i */
-        for(UpLaneGroup ulg : ulgs.values() ) {
-            ulg.gamma_i = ulg.is_empty_or_blocked ?
-                    0d :
-                    1d - ulg.rc_infos.values().stream().mapToDouble(rc -> rc.rc.gamma_r).max().getAsDouble();
+        if(true){
+
+
+            if(!use_old)
+                System.out.println("step 3");
+
+            for(RoadConnection rc : rcs.values() ) {
+                rc.gamma_r = rc.is_blocked ? 0d : rc.dnlg_infos.values().stream().mapToDouble(x -> x.dlg.gamma_h * x.alpha_rh).sum();
+
+                if(!use_old)
+                    System.out.println("\t r="+rc.rc.getId() +"\t gamma_r=" + rc.gamma_r);
+            }
+
+
+        }
+
+        else{
+            for(RoadConnection rc : rcs.values() )
+                rc.gamma_r = rc.is_blocked ? 0d : rc.dnlg_infos.values().stream().mapToDouble(x -> x.dlg.gamma_h).max().getAsDouble();
         }
     }
 
+    private void step4(){
+        /** gamma_g */
+
+
+
+        if(use_old){
+            for(UpLaneGroup ulg : ulgs.values() ) {
+                ulg.gamma_g = ulg.is_empty_or_blocked ?
+                        0d :
+                        1d - ulg.rc_infos.values().stream().mapToDouble(rc -> rc.rc.gamma_r).max().getAsDouble();
+            }
+        }
+
+        else{
+            for(UpLaneGroup ulg : ulgs.values() ) {
+                ulg.gamma_g = ulg.is_empty_or_blocked ?
+                        1d :
+                        ulg.rc_infos.values().stream().mapToDouble(rc -> rc.rc.gamma_r).max().getAsDouble();
+
+                System.out.println("step 4 g=" +ulg.lg.id + "\t gamma_g="+ ulg.gamma_g);
+
+            }
+        }
+
+
+
+
+    }
+
     private void step5(){
-        /** delta_is, f_is */
+        /** delta_gs, f_gs */
 
-        for(UpLaneGroup ulg : ulgs.values()){
+        // TODO: This goes into step 4
 
-            if(!ulg.is_empty_or_blocked){
+        if(use_old){
 
-                for( Map.Entry<KeyCommPathOrLink,UpLaneGroup.StateInfo> e : ulg.state_infos.entrySet()){
+            for(UpLaneGroup ulg : ulgs.values()){
 
-                    KeyCommPathOrLink state = e.getKey();
-                    UpLaneGroup.StateInfo stateInfo = e.getValue();
+                if(!ulg.is_empty_or_blocked){
 
-                    stateInfo.delta_is = stateInfo.d_is * ulg.gamma_i;
-                    stateInfo.d_is -= stateInfo.delta_is;
-                    ulg.f_is.put(state,ulg.f_is.get(state)+stateInfo.delta_is);
+                    for( Map.Entry<KeyCommPathOrLink,UpLaneGroup.StateInfo> e : ulg.state_infos.entrySet()){
 
-                    // reduce d_ir
-                    if(ulg.lg.state2roadconnection.containsKey(state) ){
-                        Long rc_id = ulg.lg.state2roadconnection.get(state);
-                        if(ulg.rc_infos.containsKey(rc_id))
-                            ulg.rc_infos.get(rc_id).d_ir -= stateInfo.delta_is;
+                        KeyCommPathOrLink state = e.getKey();
+                        UpLaneGroup.StateInfo stateInfo = e.getValue();
+
+                        stateInfo.delta_gs = stateInfo.d_gs * ulg.gamma_g;
+                        stateInfo.d_gs -= stateInfo.delta_gs;
+                        ulg.f_gs.put(state,ulg.f_gs.get(state)+stateInfo.delta_gs);
+
+                        // reduce d_gr
+                        if(ulg.lg.state2roadconnection.containsKey(state) ){
+                            Long rc_id = ulg.lg.state2roadconnection.get(state);
+                            if(ulg.rc_infos.containsKey(rc_id))
+                                ulg.rc_infos.get(rc_id).d_gr -= stateInfo.delta_gs;
+                        }
                     }
                 }
             }
         }
+
+        else{
+
+            System.out.println("step 5");
+
+            for(UpLaneGroup ulg : ulgs.values()){
+
+                if(!ulg.is_empty_or_blocked){
+
+                    for( Map.Entry<KeyCommPathOrLink,UpLaneGroup.StateInfo> e : ulg.state_infos.entrySet()){
+
+                        KeyCommPathOrLink state = e.getKey();
+                        UpLaneGroup.StateInfo stateInfo = e.getValue();
+
+                        stateInfo.delta_gs = stateInfo.d_gs * (1d-ulg.gamma_g);
+                        stateInfo.d_gs -= stateInfo.delta_gs;
+                        ulg.f_gs.put(state,ulg.f_gs.get(state)+stateInfo.delta_gs);
+
+
+                        System.out.println("\t g="+ulg.lg.id + "\tdelta_gs="+stateInfo.delta_gs + "\t d_gs=" + stateInfo.d_gs);
+
+                        // reduce d_gr
+                        if(ulg.lg.state2roadconnection.containsKey(state) ){
+                            Long rc_id = ulg.lg.state2roadconnection.get(state);
+                            if(ulg.rc_infos.containsKey(rc_id))
+                                ulg.rc_infos.get(rc_id).d_gr -= stateInfo.delta_gs;
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     private void step6(){
         /** delta_rs, f_rs */
+
+        // Todo This is step 5 and 6
+
+        if(!use_old)
+            System.out.println("step 6");
 
         for(RoadConnection rc : rcs.values()){
 
@@ -320,14 +427,27 @@ public class NodeModel {
                 // delta_rs, f_rs
                 double delta_rs = rc.ulgs.stream()
                         .filter(x->!x.is_empty_or_blocked)
-                        .mapToDouble(x->x.state_infos.get(state).delta_is)
+                        .mapToDouble(x->x.state_infos.get(state).delta_gs)
                         .sum();
+
+
+                if(!use_old)
+                    System.out.println("\t r="+rc.rc.getId() + " delta_rs="+delta_rs);
+
 
                 rc.f_rs.put( state , rc.f_rs.get(state) + delta_rs );
 
-                // discount s_j
-                for(RoadConnection.DnLgInfo rc_dnlg : rc.dnlg_infos.values())
-                    rc_dnlg.dlg.s_j -= delta_rs * rc_dnlg.alpha_rj;
+                // discount s_h
+                for(RoadConnection.DnLgInfo dnlg : rc.dnlg_infos.values()) {
+
+                    double delta_rhs = delta_rs * dnlg.alpha_rh * (1-dnlg.dlg.gamma_h) / (1-rc.gamma_r);
+
+
+
+                    dnlg.dlg.s_h -= delta_rhs;
+
+
+                }
             }
 
         }

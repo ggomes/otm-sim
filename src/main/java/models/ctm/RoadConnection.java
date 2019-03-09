@@ -18,14 +18,14 @@ public class RoadConnection {
 
     public class DnLgInfo {
         public final DnLaneGroup dlg;
-        public final double lambda_rj;
-        public double alpha_rj;
-        public DnLgInfo(DnLaneGroup dlg,double lambda_rj){
+        public final double lambda_rh;
+        public double alpha_rh;
+        public DnLgInfo(DnLaneGroup dlg,double lambda_rh){
             this.dlg = dlg;
-            this.lambda_rj = lambda_rj;
+            this.lambda_rh = lambda_rh;
         }
         public void reset(){
-            alpha_rj = 0f;
+            alpha_rh = 0f;
         }
     }
 
@@ -61,7 +61,7 @@ public class RoadConnection {
 
     public void add_dn_lanegroup(DnLaneGroup x){
 
-        // compute lambda_rj
+        // compute lambda_rh
         int lg_from_lane = x.lg.start_lane_up;
         int lg_to_lane = x.lg.start_lane_up + x.lg.num_lanes - 1;
 

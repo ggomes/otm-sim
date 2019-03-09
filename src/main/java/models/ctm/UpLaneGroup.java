@@ -18,39 +18,39 @@ public class UpLaneGroup {
 
     public class RcInfo {
         public final RoadConnection rc;
-        public Set<KeyCommPathOrLink> S_ir = new HashSet<>();
-        public double d_ir;
+        public Set<KeyCommPathOrLink> S_gr = new HashSet<>();
+        public double d_gr;
         public RcInfo(RoadConnection rc) {
             this.rc = rc;
         }
         public void reset(){
-            d_ir = S_ir.stream().mapToDouble(state->state_infos.get(state).d_is).sum();
+            d_gr = S_gr.stream().mapToDouble(state->state_infos.get(state).d_gs).sum();
         }
         public void add_state(KeyCommPathOrLink state){
-            S_ir.add(state);
+            S_gr.add(state);
             rc.add_state(state);
         }
     }
 
     public class StateInfo {
         public final KeyCommPathOrLink state;
-        public double d_is;
-        public double delta_is;
+        public double d_gs;
+        public double delta_gs;
         public StateInfo(KeyCommPathOrLink state){
             this.state = state;
         }
         public void reset(){
-            d_is = lg.get_demand_in_target_for_state(state);
-            delta_is = Double.NaN;
+            d_gs = lg.get_demand_in_target_for_state(state);
+            delta_gs = Double.NaN;
         }
     }
 
     public LaneGroup lg;
 
     public boolean is_empty_or_blocked;
-    public double gamma_i;
+    public double gamma_g;
     public Map<KeyCommPathOrLink,StateInfo> state_infos;
-    public Map<KeyCommPathOrLink,Double> f_is;
+    public Map<KeyCommPathOrLink,Double> f_gs;
     public Map<Long,RcInfo> rc_infos;
 
     ////////////////////////////////////////////
@@ -60,9 +60,9 @@ public class UpLaneGroup {
     public UpLaneGroup(LaneGroup lg){
         this.lg = lg;
         this.is_empty_or_blocked = false;
-        this.gamma_i = Double.NaN;
+        this.gamma_g = Double.NaN;
         this.state_infos = new HashMap<>();
-        this.f_is = new HashMap<>();
+        this.f_gs = new HashMap<>();
         this.rc_infos = new HashMap<>();
     }
 
@@ -72,9 +72,9 @@ public class UpLaneGroup {
 
     public void add_state(KeyCommPathOrLink state){
         state_infos.put(state,new StateInfo(state));
-        f_is.put(state,0d);
+        f_gs.put(state,0d);
 
-        // S_ir
+        // S_gr
         Long rc_id = lg.state2roadconnection.get(state);
         if(rc_id!=null && rc_infos.containsKey(rc_id))
             rc_infos.get(rc_id).add_state(state);
@@ -86,13 +86,13 @@ public class UpLaneGroup {
 
     public void reset(){
         is_empty_or_blocked = false;
-        gamma_i = Double.NaN;
+        gamma_g = Double.NaN;
 
-        // d_is
+        // d_gs
         state_infos.values().forEach(x->x.reset());
-        f_is.keySet().forEach(x->f_is.put(x,0d));
+        f_gs.keySet().forEach(x-> f_gs.put(x,0d));
 
-        // d_ir
+        // d_gr
         rc_infos.values().forEach(x->x.reset());
 
     }
@@ -110,7 +110,7 @@ public class UpLaneGroup {
     ////////////////////////////////////////////
 
     public double total_demand(){
-        return rc_infos.values().stream().mapToDouble(x->x.d_ir).sum();
+        return rc_infos.values().stream().mapToDouble(x->x.d_gr).sum();
     }
 
 

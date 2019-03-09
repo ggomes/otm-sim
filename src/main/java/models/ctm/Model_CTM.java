@@ -161,9 +161,18 @@ public class Model_CTM extends AbstractFluidModel {
     @Override
     public void update_link_state(Link link,float timestamp) throws OTMException {
 
+
+
         for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
 
             models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
+
+
+//            if(timestamp>965 & link.getId()==10l) {
+//                System.out.println(timestamp + "\t" + lg.cells.get(0).get_vehicles());
+////            System.out.println(String.format("%.0f\t%.0f\t%.0f\t%.0f\t%.0f", timestamp, lg.cells.get(0).get_vehicles(),
+////                    lg.cells.get(1).get_vehicles(), lg.cells.get(2).get_vehicles(), lg.cells.get(3).get_vehicles()));
+//            }
 
             if(lg.states.isEmpty())
                 continue;
@@ -193,7 +202,10 @@ public class Model_CTM extends AbstractFluidModel {
                     dncell.add_vehicles(flow_stay,flow_lc_in,flow_lc_out);
                     upcell.subtract_vehicles(flow_stay,flow_lc_in,flow_lc_out);
                 }
+
+
             }
+
 
             lg.update_supply();
 

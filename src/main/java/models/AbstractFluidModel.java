@@ -150,10 +150,10 @@ public abstract class AbstractFluidModel extends AbstractModel {
 
             // set exit flows on non-sink lanegroups
             for(UpLaneGroup ulg : node_model.ulgs.values()) {
-                ulg.lg.release_vehicles(ulg.f_is);
+                ulg.lg.release_vehicles(ulg.f_gs);
 
                 // send lanegroup exit flow to flow accumulator
-                for(Map.Entry<KeyCommPathOrLink,Double> e : ulg.f_is.entrySet())
+                for(Map.Entry<KeyCommPathOrLink,Double> e : ulg.f_gs.entrySet())
                     if(e.getValue()>0)
                         ulg.lg.update_flow_accummulators(e.getKey(),e.getValue());
             }

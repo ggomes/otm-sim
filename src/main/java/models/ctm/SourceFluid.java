@@ -53,7 +53,7 @@ public class SourceFluid extends common.AbstractSource {
 
         Long comm_id = commodity.getId();
 
-        // for each lanegroup, a map from key to value.
+        // for each lanegroup, a map from state to value.
         Map<Long,Map<KeyCommPathOrLink,Double>> source_flows = new HashMap<>();
 
         if(commodity.pathfull){
@@ -69,7 +69,7 @@ public class SourceFluid extends common.AbstractSource {
         // source of pathless commodity
         else {
 
-            // Case no packet_splitter; ie there is no downstream split.
+            // Case no downstream split.
             if(link.outlink2lanegroups.size()<2){
 
                 assert(link.lanegroups_flwdn.size()==1);
@@ -103,18 +103,20 @@ public class SourceFluid extends common.AbstractSource {
                 Set<AbstractLaneGroup> candidate_lanegroups = link.outlink2lanegroups.get(nextlink_id);
 
                 // assign flows to candidate lanegroups
-                double demand_for_each_lg = flow_veh_per_timestep * split / candidate_lanegroups.size();
+                double all_lanes = candidate_lanegroups.stream().mapToDouble(x->x.num_lanes).sum();
+                double factor = flow_veh_per_timestep * split / all_lanes;
 
                 for(AbstractLaneGroup lg : candidate_lanegroups){
                     Map<KeyCommPathOrLink,Double> x;
+                    double demand_for_lg = factor * lg.num_lanes;
                     if(source_flows.containsKey(lg.id)) {
                         x = source_flows.get(lg.id);
                         double val = x.containsKey(key) ? x.get(key) : 0d;
-                        x.put(key,val + demand_for_each_lg);
+                        x.put(key,val + demand_for_lg);
                     }
                     else {
                         x = new HashMap<>();
-                        x.put(key,demand_for_each_lg);
+                        x.put(key,demand_for_lg);
                     }
                     source_flows.put(lg.id,x);
                 }

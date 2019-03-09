@@ -93,10 +93,9 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-//            String configfile = "C:\\Users\\gomes\\Downloads\\aimsun_extracted.xml";
-            String configfile = "C:\\Users\\gomes\\Desktop\\xxx\\Capstone_0211.xml";
+            String configfile = "C:\\Users\\gomes\\Downloads\\Capstone_0307.xml";
 
-            float duration = 1000f;
+            float duration = 3600f;
             float outdt = 10f;
             String prefix = "test";
             String output_folder = "temp/";
@@ -112,8 +111,8 @@ public class TestOne extends AbstractTest {
             api.set_stochastic_process("deterministic");
 
             // Output requests .....................
-//            api.request_links_flow(prefix,output_folder,null, api.get_link_ids(), outdt);
-//            api.request_links_veh(prefix,output_folder,null, api.get_link_ids(), outdt);
+            api.request_links_flow(prefix,output_folder,null, api.get_link_ids(), outdt);
+            api.request_links_veh(prefix,output_folder,null, api.get_link_ids(), outdt);
 
 //            api.request_links_flow(null, api.get_link_ids(), outdt);
 //            api.request_links_veh(null, api.get_link_ids(), outdt);
