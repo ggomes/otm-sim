@@ -35,6 +35,7 @@ public class RoadConnection {
     public boolean is_blocked;
     public Double d_r;
     public Double gamma_r;
+    public double delta_r;
     public double fbar; // vps, imposed by external controller;
 
     public Set<UpLaneGroup> ulgs;
