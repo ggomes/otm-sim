@@ -125,7 +125,8 @@ public class SignalPhase {
     }
 
     public void turn_off(float timestamp) throws OTMException {
-        set_bulb_color(timestamp, BulbColor.DARK);
+        for(RoadConnection rc : road_connections)
+            rc.set_external_max_flow_vps(timestamp, Float.POSITIVE_INFINITY);
     }
 
     ///////////////////////////////////////////////////
