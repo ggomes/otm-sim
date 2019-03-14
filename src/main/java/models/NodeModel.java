@@ -160,6 +160,16 @@ public class NodeModel {
         rcs.values().forEach(x->x.reset());
         dlgs.values().forEach(x->x.reset());
 
+        if( timestamp>=1000 && node.getId()==3l ){
+            System.out.println(String.format("%.2f node %d",timestamp,node.getId()));
+            UpLaneGroup ulg = ulgs.values().iterator().next();
+            double demand = ulg.rc_infos.values().iterator().next().d_gr;
+            DnLaneGroup dlg = dlgs.values().iterator().next();
+            double supply = dlg.s_h;
+            System.out.println(String.format("\tdemand = %2f",demand));
+            System.out.println(String.format("\tsupply = %2f",supply));
+        }
+
         // iteration
         int it = 0;
         while (it++ <= MAX_ITERATIONS) {
@@ -173,6 +183,18 @@ public class NodeModel {
             step5();
             step6();
         }
+
+
+
+
+        if( timestamp>=1000 && node.getId()==3l ){
+            RoadConnection rc = rcs.values().iterator().next();
+            double flow = rc.f_rs.values().stream().mapToDouble(x->x).sum();
+            System.out.println(String.format("\tflow = %2f",flow));
+        }
+
+
+
 
         // update flow accumulators
         // TODO CHECK THIS
@@ -323,13 +345,7 @@ public class NodeModel {
                 rc.delta_r += delta_rs;
                 rc.f_rs.put( state , rc.f_rs.get(state) + delta_rs );
 
-                // discount s_h
-//                for(RoadConnection.DnLgInfo dnlg : rc.dnlg_infos.values()) {
-//                    double delta_rhs = delta_rs * dnlg.alpha_rh * (1-dnlg.dlg.gamma_h) / (1-rc.gamma_r);
-//                    dnlg.dlg.s_h -= delta_rhs;
-//                }
             }
-
         }
     }
 
@@ -343,28 +359,10 @@ public class NodeModel {
             dlg.s_h -= (1d-dlg.gamma_h)*sum;
         }
 
-//        for(RoadConnection rc : rcs.values()){
-//
-//            for(KeyCommPathOrLink state : rc.f_rs.keySet()){
-//
-//                // delta_rs, f_rs
-//                double delta_rs = rc.ulgs.stream()
-//                        .filter(x->!x.is_empty_or_blocked)
-//                        .mapToDouble(x->x.state_infos.get(state).delta_gs)
-//                        .sum();
-//
-//                rc.f_rs.put( state , rc.f_rs.get(state) + delta_rs );
-//
-//                // discount s_h
-//                for(RoadConnection.DnLgInfo dnlg : rc.dnlg_infos.values()) {
-//                    double delta_rhs = delta_rs * dnlg.alpha_rh * (1-dnlg.dlg.gamma_h) / (1-rc.gamma_r);
-//                    dnlg.dlg.s_h -= delta_rhs;
-//                }
-//            }
-//
-//        }
-
     }
+
+
+
 //    private void update_flow_accumulators(){
 //        for(UpLaneGroup ulg : ulgs){
 //

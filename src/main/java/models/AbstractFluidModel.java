@@ -11,6 +11,7 @@ import models.ctm.SourceFluid;
 import models.ctm.UpLaneGroup;
 import packet.PacketLink;
 import runner.Scenario;
+import utils.StochasticProcess;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -25,8 +26,8 @@ public abstract class AbstractFluidModel extends AbstractModel {
     private Set<Link> sink_links;
     private Set<NodeModel> node_models;
 
-    public AbstractFluidModel(String name, boolean is_default, float dt) {
-        super(name, is_default);
+    public AbstractFluidModel(String name, boolean is_default, float dt, StochasticProcess process) {
+        super(name, is_default,process);
         this.dt = dt;
     }
 

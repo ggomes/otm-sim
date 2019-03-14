@@ -121,14 +121,32 @@ public class LaneGroup extends AbstractLaneGroup {
     @Override
     public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) {
 
+
         Cell cell = cells.get(0);
 
         // When the link is a model source, then the packet first goes into a buffer.
         // From there it is "processed", meaning that some part goes into the upstream cell.
         if(link.is_model_source_link) {
+
+
+            if(link.getId()==3l && timestamp>=1000){
+                System.out.println(String.format("%.1f\tadd_vehicle_packet",timestamp));
+                System.out.println(String.format("%.1f\t\tpacket size = %f",timestamp,vp.container.get_total_veh()));
+                System.out.println(String.format("%.1f\t\tbuffer initial size = %f",timestamp,buffer.get_total_veh()));
+            }
+
             // add packet to buffer
             buffer.add_packet(vp);
+
+            if(link.getId()==3l && timestamp>=1000){
+                System.out.println(String.format("%.1f\t\tbuffer after add = %f",timestamp,buffer.get_total_veh()));
+            }
+
             process_buffer(timestamp);
+
+            if(link.getId()==3l && timestamp>=1000){
+                System.out.println(String.format("%.1f\t\tbuffer after process= %f",timestamp,buffer.get_total_veh()));
+            }
         }
 
         // otherwise, this is an internal link, and the packet is guaranteed to be
