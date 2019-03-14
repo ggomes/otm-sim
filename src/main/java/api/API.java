@@ -141,14 +141,6 @@ public class API {
         return scenario!=null ? new ScenarioInfo(scenario) : null;
     }
 
-    /**
-     * Sets the type of process governing the creation and release of vehicles.
-     * @param str in {"poisson","deterministic"}
-     */
-    public void set_stochastic_process(String str){
-        scenario.set_stochastic_process(StochasticProcess.valueOf(str));
-    }
-
     ////////////////////////////////////////////////////////
     // models
     ////////////////////////////////////////////////////////

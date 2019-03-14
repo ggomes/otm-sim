@@ -14,13 +14,14 @@ import output.AbstractOutput;
 import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
 import runner.Scenario;
+import utils.StochasticProcess;
 
 import java.util.*;
 
 public class Model_PQ extends AbstractVehicleModel {
 
-    public Model_PQ(String name,boolean is_default) {
-        super(name,is_default);
+    public Model_PQ(String name, boolean is_default, StochasticProcess process) {
+        super(name,is_default,process);
     }
 
     //////////////////////////////////////////////////

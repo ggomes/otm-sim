@@ -49,16 +49,12 @@ public class Scenario {
     // commodity/link -> demand profile
     public Map<KeyCommodityDemandTypeId,AbstractDemandProfile> data_demands;
 
-    // process type
-    private StochasticProcess stochastic_process;
-
     ///////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////
 
     public Scenario(){
         this.is_initialized = false;
-        this.stochastic_process = StochasticProcess.poisson;
     }
 
     public OTMErrorLog validate(){
@@ -293,15 +289,6 @@ public class Scenario {
     }
 
     ///////////////////////////////////////////////////
-    // set
-    ///////////////////////////////////////////////////
-
-    public void set_stochastic_process(StochasticProcess stochastic_process){
-        if(stochastic_process!=null)
-            this.stochastic_process = stochastic_process;
-    }
-
-    ///////////////////////////////////////////////////
     // get
     ///////////////////////////////////////////////////
 
@@ -357,10 +344,6 @@ public class Scenario {
         } catch (OTMException e) {
             e.printStackTrace();
         }
-    }
-
-    public Float get_waiting_time_sec(double rate_vps){
-        return OTMUtils.get_waiting_time(rate_vps,stochastic_process);
     }
 
 }

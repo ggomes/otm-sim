@@ -18,6 +18,8 @@ import packet.PacketLaneGroup;
 import packet.PacketLink;
 import profiles.DemandProfile;
 import runner.Scenario;
+import utils.OTMUtils;
+import utils.StochasticProcess;
 
 import java.util.Collection;
 import java.util.Map;
@@ -28,10 +30,12 @@ public abstract class AbstractModel {
     public Set<Link> links;
     public String name;
     public boolean is_default;
+    private StochasticProcess stochastic_process;
 
-    public AbstractModel(String name, boolean is_default){
+    public AbstractModel(String name, boolean is_default,StochasticProcess process){
         this.name = name;
         this.is_default = is_default;
+        this.stochastic_process = process;
     }
 
     //////////////////////////////////////////////////
@@ -145,5 +149,19 @@ public abstract class AbstractModel {
     final public PacketLaneGroup create_lanegroup_packet(){
         return new PacketLaneGroup();
     }
+
+    final public Float get_waiting_time_sec(double rate_vps){
+        return OTMUtils.get_waiting_time(rate_vps,stochastic_process);
+    }
+
+    ///////////////////////////////////////////////////
+    // set
+    ///////////////////////////////////////////////////
+
+    final public void set_stochastic_process(StochasticProcess stochastic_process){
+        if(stochastic_process!=null)
+            this.stochastic_process = stochastic_process;
+    }
+
 
 }

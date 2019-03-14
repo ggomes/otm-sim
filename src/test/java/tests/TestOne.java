@@ -108,8 +108,6 @@ public class TestOne extends AbstractTest {
                 e.printStackTrace();
             }
 
-            api.set_stochastic_process("deterministic");
-
             // Output requests .....................
             api.request_links_flow(prefix,output_folder,null, api.get_link_ids(), outdt);
             api.request_links_veh(prefix,output_folder,null, api.get_link_ids(), outdt);
@@ -164,8 +162,6 @@ public class TestOne extends AbstractTest {
             } catch (OTMException e) {
                 e.printStackTrace();
             }
-
-            api.set_stochastic_process("deterministic");
 
             // Output requests .....................
             api.request_links_flow(prefix,output_folder,null, api.get_link_ids(), outdt);

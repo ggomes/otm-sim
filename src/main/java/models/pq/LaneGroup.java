@@ -268,10 +268,11 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
     ///////////////////////////////////////////////////
 
     private void schedule_release_vehicle(float nowtime,float rate){
-        Scenario scenario = link.network.scenario;
-        Float wait_time = scenario.get_waiting_time_sec(rate);
+
+        Float wait_time = link.model.get_waiting_time_sec(rate);
 
         if(wait_time!=null){
+            Scenario scenario = link.network.scenario;
             float timestamp = nowtime + wait_time;
             scenario.dispatcher.register_event(
                     new EventReleaseVehicleFromLaneGroup(scenario.dispatcher,timestamp,this));

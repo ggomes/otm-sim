@@ -21,6 +21,7 @@ import models.pq.Model_PQ;
 import runner.RunParameters;
 import runner.Scenario;
 import utils.OTMUtils;
+import utils.StochasticProcess;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -208,24 +209,34 @@ public class Network {
             if(model2links.containsKey(name))
                 throw new OTMException("Duplicate model name.");
 
+            StochasticProcess process;
+            try {
+                process = jaxb_model.getProcess()==null ? StochasticProcess.poisson : StochasticProcess.valueOf(jaxb_model.getProcess());
+            } catch (IllegalArgumentException e) {
+                process = StochasticProcess.poisson;
+            }
+
             AbstractModel model;
             switch(jaxb_model.getType()){
                 case "ctm":
                     model = new Model_CTM( jaxb_model.getName(),
                                         jaxb_model.isIsDefault(),
                                         jaxb_model.getModelParams().getSimDt(),
+                                        process,
                                         jaxb_model.getModelParams().getMaxCellLength());
                     break;
 
                 case "point_queue":
                     model = new Model_PQ(jaxb_model.getName(),
-                                        jaxb_model.isIsDefault());
+                                        jaxb_model.isIsDefault(),
+                                        process);
                     break;
 
                 case "micro":
                     model = new Model_Micro(jaxb_model.getName(),
                                         jaxb_model.isIsDefault(),
-                                        jaxb_model.getModelParams().getSimDt());
+                                        jaxb_model.getModelParams().getSimDt(),
+                                        process);
                     break;
 
                 default:

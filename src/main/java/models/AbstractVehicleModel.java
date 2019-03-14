@@ -7,13 +7,14 @@ import common.AbstractVehicle;
 import common.Link;
 import output.InterfaceVehicleListener;
 import profiles.DemandProfile;
+import utils.StochasticProcess;
 
 import java.util.*;
 
 public abstract class AbstractVehicleModel extends AbstractModel {
 
-    public AbstractVehicleModel(String name, boolean is_default) {
-        super(name, is_default);
+    public AbstractVehicleModel(String name, boolean is_default, StochasticProcess process) {
+        super(name, is_default,process);
     }
 
     //////////////////////////////////////////////////

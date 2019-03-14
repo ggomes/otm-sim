@@ -18,6 +18,7 @@ import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
 import runner.Scenario;
 import utils.OTMUtils;
+import utils.StochasticProcess;
 
 import java.util.*;
 
@@ -25,8 +26,8 @@ public class Model_CTM extends AbstractFluidModel {
 
     public float max_cell_length;
 
-    public Model_CTM(String name,boolean is_default, Float dt, Float max_cell_length) {
-        super(name,is_default,dt==null ? -1 : dt);
+    public Model_CTM(String name, boolean is_default, Float dt, StochasticProcess process,Float max_cell_length) {
+        super(name,is_default,dt==null ? -1 : dt,process);
         this.max_cell_length = max_cell_length==null ? -1 : max_cell_length;
     }
 
@@ -144,7 +145,6 @@ public class Model_CTM extends AbstractFluidModel {
     @Override
     public void update_link_flux_part_I(Link link, float timestamp) throws OTMException {
 
-
         // TODO: should update_flux I and II be passed the link as in update_state?
         // TODO What is the point of that?
 
@@ -161,18 +161,9 @@ public class Model_CTM extends AbstractFluidModel {
     @Override
     public void update_link_state(Link link,float timestamp) throws OTMException {
 
-
-
         for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
 
             models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
-
-
-//            if(timestamp>965 & link.getId()==10l) {
-//                System.out.println(timestamp + "\t" + lg.cells.get(0).get_vehicles());
-////            System.out.println(String.format("%.0f\t%.0f\t%.0f\t%.0f\t%.0f", timestamp, lg.cells.get(0).get_vehicles(),
-////                    lg.cells.get(1).get_vehicles(), lg.cells.get(2).get_vehicles(), lg.cells.get(3).get_vehicles()));
-//            }
 
             if(lg.states.isEmpty())
                 continue;
@@ -203,9 +194,7 @@ public class Model_CTM extends AbstractFluidModel {
                     upcell.subtract_vehicles(flow_stay,flow_lc_in,flow_lc_out);
                 }
 
-
             }
-
 
             lg.update_supply();
 
@@ -351,19 +340,35 @@ public class Model_CTM extends AbstractFluidModel {
 
     // call update_supply_demand on each cell
     private void update_supply_for_all_cells(Link link,float timestamp) {
+
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
             LaneGroup ctmlg = (LaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_supply());
         }
+
+        if(link.getId()==3l && timestamp>=1000){
+            LaneGroup lg = (models.ctm.LaneGroup) link.lanegroups_flwdn.values().iterator().next();
+            System.out.println(String.format("%.1f\t\tupdate supply: %.4f",timestamp,lg.get_supply()));
+        }
+
     }
 
     private void update_demand(Link link,float timestamp) {
+
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
             LaneGroup ctmlg = (LaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_demand());
         }
+
+        if(link.getId()==2l && timestamp>=1000){
+            LaneGroup lg = (models.ctm.LaneGroup) link.lanegroups_flwdn.values().iterator().next();
+            Cell cell = lg.cells.get(lg.cells.size()-1);
+            double demand = cell.demand_dwn.values().stream().mapToDouble(x->x).sum();
+            System.out.println(String.format("%.1f\t\tupdate demand: %.4f",timestamp,demand));
+        }
+
     }
 
     private void create_cells(Link link,float max_cell_length){

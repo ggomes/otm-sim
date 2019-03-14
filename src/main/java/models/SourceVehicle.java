@@ -40,8 +40,7 @@ public class SourceVehicle extends common.AbstractSource {
     public void schedule_next_vehicle(Dispatcher dispatcher, float timestamp){
         if(vehicle_scheduled)
             return;
-        Scenario scenario = link.network.scenario;
-        Float wait_time = scenario.get_waiting_time_sec(source_demand_vps);
+        Float wait_time = link.model.get_waiting_time_sec(source_demand_vps);
         if(wait_time!=null) {
             EventCreateVehicle new_event = new EventCreateVehicle(dispatcher, timestamp + wait_time, this);
             dispatcher.register_event(new_event);

@@ -5,67 +5,204 @@ import runner.OTM;
 
 public class PaperExperiments extends AbstractTest {
 
-    static String base_folder = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\";
+    static String base_folder = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\config\\";
     static String[] args = new String[7];
 
     static {
         args[0] = "-run";
         args[5] = "0";
-        args[6] = "2000";
+        args[6] = "1000";
     }
 
-    static void run(String x){
-        System.out.println("----------- " + x + " -------------");
-        args[1] = base_folder + x + "\\exp_" + x + ".xml";
+    static void run(String s,String x){
+        System.out.println("----------- "  + s + "  " + x + " -------------");
+        String myfolder = base_folder + s + "\\";
+        args[1] = myfolder + x + "\\exp_" + x + ".xml";
         args[2] = x;
-        args[3] = base_folder + x + "\\output_" + x + ".xml";
-        args[4] = base_folder + x + "\\output";
+        args[3] = myfolder + x + "\\output_" + x + ".xml";
+        args[4] = myfolder + x + "\\output";
         OTM.main(args);
     }
 
+    /** DETERMINISTIC **/
+
+    // fluid 1
+
     @Test
-    public void run_fluid_fluid(){
-        run("fluid_fluid");
+    public void run_d_fluid1_fluid1(){
+        run("d","fluid1_fluid1");
     }
 
     @Test
-    public void run_fluid_meso(){
-        run("fluid_meso");
+    public void run_d_fluid1_fluid2(){
+        run("d","fluid1_fluid2");
     }
 
     @Test
-    public void run_fluid_micro(){
-        run("fluid_micro");
+    public void run_d_fluid1_meso(){
+        run("d","fluid1_meso");
     }
 
     @Test
-    public void run_meso_fluid(){
-        run("meso_fluid");
+    public void run_d_fluid1_micro(){
+        run("d","fluid1_micro");
+    }
+
+    // fluid 2
+
+    @Test
+    public void run_d_fluid2_fluid1(){
+        run("d","fluid2_fluid1");
     }
 
     @Test
-    public void run_meso_meso(){
-        run("meso_meso");
+    public void run_d_fluid2_fluid2(){
+        run("d","fluid2_fluid2");
     }
 
     @Test
-    public void run_meso_micro(){
-        run("meso_micro");
+    public void run_d_fluid2_meso(){
+        run("d","fluid2_meso");
     }
 
     @Test
-    public void run_micro_fluid(){
-        run("micro_fluid");
+    public void run_d_fluid2_micro(){
+        run("d","fluid2_micro");
+    }
+
+    // meso
+
+    @Test
+    public void run_d_meso_fluid1(){
+        run("d","meso_fluid1");
     }
 
     @Test
-    public void run_micro_meso(){
-        run("micro_meso");
+    public void run_d_meso_fluid2(){
+        run("d","meso_fluid2");
     }
 
     @Test
-    public void run_micro_micro(){
-        run("micro_micro");
+    public void run_d_meso_meso(){
+        run("d","meso_meso");
     }
+
+    @Test
+    public void run_d_meso_micro(){
+        run("d","meso_micro");
+    }
+
+    // micro
+
+    @Test
+    public void run_d_micro_fluid1(){
+        run("d","micro_fluid1");
+    }
+
+    @Test
+    public void run_d_micro_fluid2(){
+        run("d","micro_fluid2");
+    }
+
+    @Test
+    public void run_d_micro_meso(){
+        run("d","micro_meso");
+    }
+
+    @Test
+    public void run_d_micro_micro(){
+        run("d","micro_micro");
+    }
+
+    /** STOCHASTIC **/
+
+    // fluid 1
+
+    @Test
+    public void run_p_fluid1_fluid1(){
+        run("p","fluid1_fluid1");
+    }
+
+    @Test
+    public void run_p_fluid1_fluid2(){
+        run("p","fluid1_fluid2");
+    }
+
+    @Test
+    public void run_p_fluid1_meso(){
+        run("p","fluid1_meso");
+    }
+
+    @Test
+    public void run_p_fluid1_micro(){
+        run("p","fluid1_micro");
+    }
+
+    // fluid 2
+
+    @Test
+    public void run_p_fluid2_fluid1(){
+        run("p","fluid2_fluid1");
+    }
+
+    @Test
+    public void run_p_fluid2_fluid2(){
+        run("p","fluid2_fluid2");
+    }
+
+    @Test
+    public void run_p_fluid2_meso(){
+        run("p","fluid2_meso");
+    }
+
+    @Test
+    public void run_p_fluid2_micro(){
+        run("p","fluid2_micro");
+    }
+
+    // meso
+
+    @Test
+    public void run_p_meso_fluid1(){
+        run("p","meso_fluid1");
+    }
+
+    @Test
+    public void run_p_meso_fluid2(){
+        run("p","meso_fluid2");
+    }
+
+    @Test
+    public void run_p_meso_meso(){
+        run("p","meso_meso");
+    }
+
+    @Test
+    public void run_p_meso_micro(){
+        run("p","meso_micro");
+    }
+
+    // micro
+
+    @Test
+    public void run_p_micro_fluid1(){
+        run("p","micro_fluid1");
+    }
+
+    @Test
+    public void run_p_micro_fluid2(){
+        run("p","micro_fluid2");
+    }
+
+    @Test
+    public void run_p_micro_meso(){
+        run("p","micro_meso");
+    }
+
+    @Test
+    public void run_p_micro_micro(){
+        run("p","micro_micro");
+    }
+
 
 }
