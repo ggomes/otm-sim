@@ -36,7 +36,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
 
     public boolean is_many2one;
 
-    private NodeModel node_model;
+//    private NodeModel node_model;
 
     // split ratio data
     public Map<KeyCommodityLink, SplitMatrixProfile> splits;   // these hold split profiles and issue events when they change
@@ -105,14 +105,14 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
             splits.put(key,smp);
     }
 
-    public void set_node_model(NodeModel model){
-        if( node_model==null )
-            node_model = model;
-    }
-
-    public NodeModel get_node_model(){
-        return node_model;
-    }
+//    public void set_node_model(NodeModel model){
+//        if( node_model==null )
+//            node_model = model;
+//    }
+//
+//    public NodeModel get_node_model(){
+//        return node_model;
+//    }
 
     @Override
     public void register_actuator(AbstractActuator act) throws OTMException {

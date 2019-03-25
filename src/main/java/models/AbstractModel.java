@@ -57,7 +57,6 @@ public abstract class AbstractModel {
     abstract public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes,int start_lane,Set<RoadConnection> out_rcs);
     abstract public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path);
     abstract public AbstractLinkInfo get_link_info(Link link);
-//    abstract public AbstractPacketLaneGroup create_lanegroup_packet();
 
     //////////////////////////////////////////////////
     // run
@@ -84,10 +83,6 @@ public abstract class AbstractModel {
                 lg.allocate_state();
         }
     }
-
-//    public float get_max_vehicles(Link link){
-//        return (float) link.lanegroups_flwdn.values().stream().map(x->x.max_vehicles).mapToDouble(i->i).sum();
-//    }
 
     // called by Network constructor
     public void set_road_param(Link link, jaxb.Roadparam r){
@@ -154,14 +149,9 @@ public abstract class AbstractModel {
         return OTMUtils.get_waiting_time(rate_vps,stochastic_process);
     }
 
-    ///////////////////////////////////////////////////
-    // set
-    ///////////////////////////////////////////////////
-
     final public void set_stochastic_process(StochasticProcess stochastic_process){
         if(stochastic_process!=null)
             this.stochastic_process = stochastic_process;
     }
-
 
 }

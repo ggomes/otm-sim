@@ -57,7 +57,7 @@ public abstract class AbstractFluidModel extends AbstractModel {
         for(Node node : all_nodes) {
             NodeModel nm = new NodeModel(node);
             node_models.add(nm);
-            node.set_node_model(nm);
+//            node.set_node_model(nm);
         }
     }
 
