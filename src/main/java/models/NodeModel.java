@@ -160,16 +160,6 @@ public class NodeModel {
         rcs.values().forEach(x->x.reset());
         dlgs.values().forEach(x->x.reset());
 
-        if( timestamp>=1000 && node.getId()==3l ){
-            System.out.println(String.format("%.2f node %d",timestamp,node.getId()));
-            UpLaneGroup ulg = ulgs.values().iterator().next();
-            double demand = ulg.rc_infos.values().iterator().next().d_gr;
-            DnLaneGroup dlg = dlgs.values().iterator().next();
-            double supply = dlg.s_h;
-            System.out.println(String.format("\tdemand = %2f",demand));
-            System.out.println(String.format("\tsupply = %2f",supply));
-        }
-
         // iteration
         int it = 0;
         while (it++ <= MAX_ITERATIONS) {
@@ -183,18 +173,6 @@ public class NodeModel {
             step5();
             step6();
         }
-
-
-
-
-        if( timestamp>=1000 && node.getId()==3l ){
-            RoadConnection rc = rcs.values().iterator().next();
-            double flow = rc.f_rs.values().stream().mapToDouble(x->x).sum();
-            System.out.println(String.format("\tflow = %2f",flow));
-        }
-
-
-
 
         // update flow accumulators
         // TODO CHECK THIS

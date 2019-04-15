@@ -160,14 +160,6 @@ public class API {
         return x;
     }
 
-//    public Float get_unique_dt_sec(){
-//        Set<Float> dts = scenario.network.models.values().stream()
-//                .filter(model->model.model_type== AbstractModel.ModelType.discrete_time)
-//                .map(model->((AbstractDiscreteTimeModel)model).dt)
-//                .collect(Collectors.toSet());
-//        return dts.size()==1 ? dts.iterator().next() : null;
-//    }
-
     ////////////////////////////////////////////////////////
     // commodities
     ////////////////////////////////////////////////////////

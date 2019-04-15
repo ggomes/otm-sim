@@ -347,11 +347,6 @@ public class Model_CTM extends AbstractFluidModel {
                 ctmlg.cells.forEach(cell -> cell.update_supply());
         }
 
-        if(link.getId()==3l && timestamp>=1000){
-            LaneGroup lg = (models.ctm.LaneGroup) link.lanegroups_flwdn.values().iterator().next();
-            System.out.println(String.format("%.1f\t\tupdate supply: %.4f",timestamp,lg.get_supply()));
-        }
-
     }
 
     private void update_demand(Link link,float timestamp) {
@@ -360,13 +355,6 @@ public class Model_CTM extends AbstractFluidModel {
             LaneGroup ctmlg = (LaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_demand());
-        }
-
-        if(link.getId()==2l && timestamp>=1000){
-            LaneGroup lg = (models.ctm.LaneGroup) link.lanegroups_flwdn.values().iterator().next();
-            Cell cell = lg.cells.get(lg.cells.size()-1);
-            double demand = cell.demand_dwn.values().stream().mapToDouble(x->x).sum();
-            System.out.println(String.format("%.1f\t\tupdate demand: %.4f",timestamp,demand));
         }
 
     }

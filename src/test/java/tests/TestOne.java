@@ -14,6 +14,7 @@ import error.OTMException;
 import org.junit.Ignore;
 import org.junit.Test;
 import output.*;
+import profiles.Profile1D;
 import runner.OTM;
 
 import java.util.List;
@@ -93,7 +94,7 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "C:\\Users\\gomes\\Downloads\\Capstone_0307.xml";
+            String configfile = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\MEng\\2018-2019\\traffic_master\\Traffic-Master\\XML files\\Capstone_0314.xml";
 
             float duration = 3600f;
             float outdt = 10f;
@@ -109,11 +110,11 @@ public class TestOne extends AbstractTest {
             }
 
             // Output requests .....................
-            api.request_links_flow(prefix,output_folder,null, api.get_link_ids(), outdt);
-            api.request_links_veh(prefix,output_folder,null, api.get_link_ids(), outdt);
+//            api.request_links_flow(prefix,output_folder,null, api.get_link_ids(), outdt);
+//            api.request_links_veh(prefix,output_folder,null, api.get_link_ids(), outdt);
 
-//            api.request_links_flow(null, api.get_link_ids(), outdt);
-//            api.request_links_veh(null, api.get_link_ids(), outdt);
+            api.request_links_flow(null, api.get_link_ids(), outdt);
+            api.request_links_veh(null, api.get_link_ids(), outdt);
 
 //            api.request_controller(1L);
 //            api.request_actuator(1L);
@@ -132,10 +133,10 @@ public class TestOne extends AbstractTest {
                     ((EventsController) output).plot(String.format("%scontroller%d.png",outfolder,((EventsController) output).controller_id));
 
                 if (output instanceof LinkFlow)
-                    ((LinkFlow) output).plot_for_links(null,String.format("%sflow.png",outfolder));
+                    ((LinkFlow) output).plot_for_links(null, String.format("%sflow.png", outfolder));
 
                 if (output instanceof LinkVehicles)
-                    ((LinkVehicles) output).plot_for_links(null,String.format("%sveh.png",outfolder));
+                    ((LinkVehicles) output).plot_for_links(null, String.format("%sveh.png", outfolder));
 
             }
 
