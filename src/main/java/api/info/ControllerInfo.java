@@ -35,7 +35,7 @@ public class ControllerInfo {
         this.type = x.type;
         this.dt = Float.isNaN(x.dt) ? Float.NaN : x.dt;
         this.actuators_ids = new ArrayList<>();
-        x.actuators.forEach(a->actuators_ids.add(a.id));
+        x.actuators.values().forEach(a->actuators_ids.add(a.id));
 
 //        if(x.myType== AbstractController.Algorithm.SIG_Pretimed)
 //            pretimed_signal_info = new ControllerSignalPretimedInfo((_ControllerSignalPretimedNEMA)x);

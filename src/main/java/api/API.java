@@ -586,6 +586,11 @@ public class API {
         return controller==null ? null : new ControllerInfo(controller);
     }
 
+    public AbstractController get_actual_controller_with_id(long id){
+        return scenario.controllers.get(id);
+    }
+
+
     ////////////////////////////////////////////////////////
     // actuators
     ////////////////////////////////////////////////////////

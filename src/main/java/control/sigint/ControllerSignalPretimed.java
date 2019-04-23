@@ -57,7 +57,7 @@ public class ControllerSignalPretimed extends AbstractController {
             errorLog.addError("actuators.size()!=1");
 
         // target is a signal
-        if(actuators.iterator().next().type!=AbstractActuator.Type.signal)
+        if(actuators.values().iterator().next().type!=AbstractActuator.Type.signal)
             errorLog.addError("actuator is not a signal");
 
         // validate schedule items
@@ -73,7 +73,7 @@ public class ControllerSignalPretimed extends AbstractController {
 
         // not reached first item, set all to dark
         if(current_schedule_item_index ==null) {
-            ((ActuatorSignal) actuators.iterator().next()).turn_off(now);
+            ((ActuatorSignal) actuators.values().iterator().next()).turn_off(now);
             return;
         }
 
@@ -123,7 +123,7 @@ public class ControllerSignalPretimed extends AbstractController {
     ///////////////////////////////////////////////////
 
     public ActuatorSignal get_signal(){
-        return (ActuatorSignal) actuators.iterator().next();
+        return (ActuatorSignal) actuators.values().iterator().next();
     }
 
     public Integer get_item_index_for_time(float time){

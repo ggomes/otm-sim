@@ -25,19 +25,21 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
 
     public enum Algorithm {
         sig_pretimed,
+        capacity,
         plugin
     }
 
     public static final Map<Algorithm, AbstractActuator.Type> map_algorithm_actuator = new HashMap<>();
     static {
         map_algorithm_actuator.put( Algorithm.sig_pretimed  , AbstractActuator.Type.signal );
+        map_algorithm_actuator.put( Algorithm.capacity  , AbstractActuator.Type.capacity );
     }
 
     public long id;
     public Algorithm type;
     public float dt;
 
-    public Set<AbstractActuator> actuators;
+    public Map<Long,AbstractActuator> actuators;
     public Map<String,AbstractActuator> actuator_by_usage;
 
     public Set<AbstractSensor> sensors;
@@ -63,7 +65,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
             return;
 
         // read actuators ..............................................................
-        actuators = new HashSet<>();
+        actuators = new HashMap<>();
         actuator_by_usage = new HashMap<>();
         if(jaxb_controller.getTargetActuators()!=null){
 
@@ -77,7 +79,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
                         throw new OTMException("Bad actuator id in controller");
                     if(act.myController!=null)
                         throw new OTMException("Multiple controllers assigned to single actuator");
-                    actuators.add(act);
+                    actuators.put(act.id,act);
                     act.myController=this;
                 }
             }
@@ -89,7 +91,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
                     throw new OTMException("Bad actuator id in controller");
                 if(act.myController!=null)
                     throw new OTMException("Multiple controllers assigned to single actuator");
-                actuators.add(act);
+                actuators.put(act.id,act);
                 if(actuator_by_usage.containsKey(jaxb_act.getUsage()))
                     throw new OTMException("Repeated value in actuator usage for controller " +this.id);
                 actuator_by_usage.put(jaxb_act.getUsage(),act);
@@ -97,9 +99,9 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
             }
         }
 
-
         this.command = new HashMap<>();
-        actuators.forEach(x->command.put(x.id,null));
+        for(AbstractActuator act : actuators.values())
+            command.put(act.id,null);
 
         // read sensors ..............................................................
         sensors = new HashSet<>();

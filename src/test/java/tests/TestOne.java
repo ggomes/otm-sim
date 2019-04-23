@@ -60,7 +60,8 @@ public class TestOne extends AbstractTest {
             float start_time = 0f;
             float duration = 3600f;
 
-            API api = OTM.load_test("onramp_offramp_1",true);
+            String configfile = "C:\\Users\\gomes\\Desktop\\traffic_master\\XML files\\Capstone_0314.xml";
+            API api = OTM.load(configfile,true);
 
             api.initialize(start_time);
 
@@ -81,7 +82,7 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "C:\\Users\\gomes\\Desktop\\50_cfg_0.xml";
+            String configfile = "C:\\Users\\gomes\\Desktop\\traffic_master\\XML files\\Capstone_0314.xml";
             API api = OTM.load(configfile,true);
 //            API api = OTM.load("/home/gomes/code/otm-mpi-bb/config/100.xml",true);
         } catch (OTMException e) {
@@ -94,7 +95,7 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\MEng\\2018-2019\\traffic_master\\Traffic-Master\\XML files\\Capstone_0314.xml";
+            String configfile = "C:\\Users\\gomes\\Desktop\\traffic_master\\XML files\\Capstone_0314.xml";
 
             float duration = 3600f;
             float outdt = 10f;

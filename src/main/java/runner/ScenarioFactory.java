@@ -196,6 +196,9 @@ public class ScenarioFactory {
                 case "signal":
                     actuator = new ActuatorSignal(scenario,jaxb_actuator);
                     break;
+                case "capacity":
+                    actuator = new ActuatorCapacity(scenario,jaxb_actuator);
+                    break;
                 case "ramp_meter":
                     actuator = new ActuatorRampMeter(scenario,jaxb_actuator);
                     break;
@@ -227,6 +230,9 @@ public class ScenarioFactory {
                     break;
                 case "sig_pretimed":
                     controller = new ControllerSignalPretimed(scenario,jaxb_controller);
+                    break;
+                case "capacity":
+                    controller = new ControllerCapacity(scenario,jaxb_controller);
                     break;
                 default:
 
