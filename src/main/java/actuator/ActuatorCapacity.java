@@ -10,14 +10,20 @@ import runner.Scenario;
 public class ActuatorCapacity extends AbstractActuator  {
 
     public float rate_vps;
-
+    public float max_rate_vps;
+    public float min_rate_vps;
     ///////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////
 
-    public ActuatorCapacity(Scenario scenario, Actuator jaxb_actuator) throws OTMException {
-        super(scenario, jaxb_actuator);
+    public ActuatorCapacity(Scenario scenario, Actuator jact) throws OTMException {
+        super(scenario, jact);
         rate_vps = 0f;
+
+        // interpret jact.getMaxValue and jact.getMinValue in vphpl
+        int num_lanes = ((Link)target).full_lanes;
+        max_rate_vps = jact.getMaxValue()>=0f ? jact.getMaxValue()*num_lanes/3600f : Float.POSITIVE_INFINITY;
+        min_rate_vps = jact.getMinValue()>=0f ? jact.getMinValue()*num_lanes/3600f : 0f;
     }
 
     @Override

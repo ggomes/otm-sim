@@ -82,7 +82,7 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "C:\\Users\\gomes\\Desktop\\traffic_master\\XML files\\Capstone_0314.xml";
+            String configfile = "C:\\Users\\gomes\\Desktop\\traffic_master\\Capstone_0423_450.xml";
             API api = OTM.load(configfile,true);
 //            API api = OTM.load("/home/gomes/code/otm-mpi-bb/config/100.xml",true);
         } catch (OTMException e) {
@@ -95,7 +95,7 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "C:\\Users\\gomes\\Desktop\\traffic_master\\XML files\\Capstone_0314.xml";
+            String configfile = "C:\\Users\\gomes\\Desktop\\traffic_master\\Capstone_0423_450_alinea.xml";
 
             float duration = 3600f;
             float outdt = 10f;

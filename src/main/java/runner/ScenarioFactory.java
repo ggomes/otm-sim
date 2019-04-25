@@ -231,6 +231,9 @@ public class ScenarioFactory {
                 case "sig_pretimed":
                     controller = new ControllerSignalPretimed(scenario,jaxb_controller);
                     break;
+                case "alinea":
+                    controller = new ControllerAlinea(scenario,jaxb_controller);
+                    break;
                 case "capacity":
                     controller = new ControllerCapacity(scenario,jaxb_controller);
                     break;
