@@ -37,7 +37,7 @@ public class ControllerCapacity extends AbstractController  {
             Long act_id = e.getKey();
             Float rate_vph = e.getValue();
             ActuatorCapacity actuator = (ActuatorCapacity) actuators.get(act_id);
-            actuator.rate_vps = rate_vph / 3600f;
+            command.put(act_id, rate_vph / 3600f);
         }
     }
 

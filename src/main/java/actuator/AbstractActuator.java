@@ -74,7 +74,8 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
     public void poke(Dispatcher dispatcher, float timestamp) throws OTMException {
 
         // process the command
-        process_controller_command(myController.get_command_for_actuator_id(id),dispatcher,timestamp);
+        if(myController!=null)
+            process_controller_command(myController.get_command_for_actuator_id(id),dispatcher,timestamp);
 
         // wake up in dt, if dt is defined
         if(dt>0)
