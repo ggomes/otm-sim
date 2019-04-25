@@ -13,7 +13,7 @@ import packet.PacketLink;
 import runner.Scenario;
 import utils.StochasticProcess;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,7 +24,7 @@ public abstract class AbstractFluidModel extends AbstractModel {
     public float dt;
     private Set<Link> source_links;
     private Set<Link> sink_links;
-    private Set<NodeModel> node_models;
+    private Map<Long,NodeModel> node_models;
 
     public AbstractFluidModel(String name, boolean is_default, float dt, StochasticProcess process) {
         super(name, is_default,process);
@@ -53,10 +53,10 @@ public abstract class AbstractFluidModel extends AbstractModel {
                 .filter(node->!node.is_sink)
                 .collect(toSet()));
 
-        node_models = new HashSet<>();
+        node_models = new HashMap<>();
         for(Node node : all_nodes) {
             NodeModel nm = new NodeModel(node);
-            node_models.add(nm);
+            node_models.put(node.getId(),nm);
 //            node.set_node_model(nm);
         }
     }
@@ -65,14 +65,14 @@ public abstract class AbstractFluidModel extends AbstractModel {
     public void build() {
 
         // build node models
-        node_models.forEach(m->m.build());
+        node_models.values().forEach(m->m.build());
     }
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
 
-        for(NodeModel node_model : node_models)
+        for(NodeModel node_model : node_models.values())
             node_model.initialize(scenario);
     }
 
@@ -106,7 +106,7 @@ public abstract class AbstractFluidModel extends AbstractModel {
             update_link_flux_part_I(link,timestamp);
 
         // compute node inflow and outflow (all nodes except sources)
-        node_models.forEach(n->n.update_flow(timestamp));
+        node_models.values().forEach(n->n.update_flow(timestamp));
 
     }
 
@@ -140,7 +140,7 @@ public abstract class AbstractFluidModel extends AbstractModel {
         }
 
         // node models exchange packets
-        for(NodeModel node_model : node_models) {
+        for(NodeModel node_model : node_models.values()) {
 
             // flows on road connections arrive to links on give lanes
             // convert to packets and send
@@ -164,6 +164,14 @@ public abstract class AbstractFluidModel extends AbstractModel {
     public void update_fluid_state(float timestamp) throws OTMException {
         for(Link link : links)
             update_link_state(link,timestamp);
+    }
+
+    //////////////////////////////////////////////////////////////
+    // getters
+    //////////////////////////////////////////////////////////////
+
+    public NodeModel get_node_model_for_node(Long node_id){
+        return node_models.get(node_id);
     }
 
 }
