@@ -22,6 +22,7 @@ public class ActuatorInfo {
     public ActuatorInfo(AbstractActuator x){
         this.id = x.id;
         this.type = x.type;
+        this.target = x.target;
     }
 
     public long getId() {

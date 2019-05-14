@@ -7,9 +7,12 @@
 package tests;
 
 import api.API;
+import api.APIopen;
+import api.info.ActuatorInfo;
 import api.info.LinkInfo;
 import api.info.ODInfo;
 import api.info.Profile1DInfo;
+import control.ControllerCapacity;
 import error.OTMException;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -17,6 +20,7 @@ import output.*;
 import profiles.Profile1D;
 import runner.OTM;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.fail;
@@ -59,18 +63,21 @@ public class TestOne extends AbstractTest {
 
             float start_time = 0f;
             float duration = 3600f;
+            float advance_time = 300f;
 
             String configfile = "C:\\Users\\gomes\\Desktop\\traffic_master\\XML files\\Capstone_0314.xml";
-            API api = OTM.load(configfile,true);
+            APIopen api = OTM.loadOpen(configfile);
 
-            api.initialize(start_time);
+            api.api.initialize(start_time);
 
             float time = start_time;
             float end_time = start_time+duration;
-//            while(time<end_time){
-//                api.advance(sim_dt);
-//                time += sim_dt;
-//            }
+            while(time<end_time){
+                api.api.advance(advance_time);
+                System.out.println(api.api.get_current_time());
+                System.out.println(api.scenario().network.links.get(0l).get_veh());
+                time += advance_time;
+            }
 
         } catch (OTMException e) {
             System.out.print(e);
@@ -145,6 +152,93 @@ public class TestOne extends AbstractTest {
             System.out.print(e);
             fail();
         }
+    }
+
+    @Ignore
+    @Test
+    public void run_RL() {
+
+
+//        String configfile = "C:\\Users\\gomes\\Desktop\\traffic_master\\Capstone_0314.xml";
+        String configfile = "C:\\Users\\gomes\\Desktop\\traffic_master\\n_Capstone_0426_9000.xml";
+
+        float duration = 3600f;
+        float outdt = 300f;
+
+        // Load ..............................
+        API otm_api = null;
+        try {
+            otm_api = OTM.load(configfile,true);
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+
+        // Output requests .....................
+        List<Long> list_orig_link_ids = otm_api.get_link_ids();
+        otm_api.request_links_flow(null, list_orig_link_ids, outdt);
+        otm_api.request_links_veh(null, list_orig_link_ids, outdt);
+
+        List<Long> ramp_ids = new ArrayList<>();
+        for(ActuatorInfo act_info : otm_api.get_actuators())
+            ramp_ids.add(act_info.target.getId());
+
+        ControllerCapacity controller = (ControllerCapacity) otm_api.get_actual_controller_with_id(1);
+
+        // Qtable loop
+
+        double[] sum_vehicles = new double[6];
+        double[] sum_flow = new double[6];
+
+        for( int i=0 ; i<6 ; i++){
+
+            // update control
+            for(Long ramp_id : ramp_ids) {
+                float rate_ramp = i*300f;
+                controller.set_rate_vph_for_actuator(ramp_id, rate_ramp);
+            }
+
+            System.out.println("i=" + i);
+
+            otm_api.run(0,duration);
+
+            // extract output .........................
+            sum_vehicles[i] = 0d;
+            sum_flow[i] = 0d;
+
+            for(AbstractOutput output :  otm_api.get_output_data()){
+
+                if (output instanceof LinkFlow){
+
+                    for(Long link_id : list_orig_link_ids) {
+                        Profile1D profile = ((LinkFlow) output).get_flow_profile_for_link_in_vph(link_id);
+                        List<Double> values = profile.get_values();
+//                        System.out.println(String.format("LinkFlow: id=%d num_values=%d",link_id,values.size()));
+
+                        sum_flow[i] += values.stream().mapToDouble(x->x).sum();
+                    }
+                }
+
+
+                if (output instanceof LinkVehicles) {
+                    for(Long link_id : list_orig_link_ids) {
+                        Profile1D profile = ((LinkVehicles) output).get_profile_for_linkid(link_id);
+                        List<Double> values = profile.get_values();
+//                        System.out.println(String.format("LinkVehicles: id=%d num_values=%d",link_id,values.size()));
+
+                        sum_vehicles[i] += values.stream().mapToDouble(x->x).sum();
+                    }
+                }
+
+            }
+
+            System.out.println(i + "\t" + sum_flow[i] + "\t" + sum_vehicles[i]);
+
+            // do some Qtable calculation
+
+
+
+        }
+
     }
 
     @Ignore

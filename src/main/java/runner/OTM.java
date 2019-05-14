@@ -7,6 +7,7 @@
 package runner;
 
 import api.API;
+import api.APIopen;
 import dispatch.Dispatcher;
 import dispatch.EventStopSimulation;
 import error.OTMException;
@@ -128,6 +129,13 @@ public class OTM {
 
         else
             System.err.print(get_usage());
+    }
+
+
+    public static APIopen loadOpen(String configfile) throws OTMException {
+        API api = new API();
+        api.load(configfile);
+        return new APIopen(api);
     }
 
     public static API load(String configfile) throws OTMException {
