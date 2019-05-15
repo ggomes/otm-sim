@@ -131,7 +131,6 @@ public class OTM {
             System.err.print(get_usage());
     }
 
-
     public static APIopen loadOpen(String configfile) throws OTMException {
         API api = new API();
         api.load(configfile);
