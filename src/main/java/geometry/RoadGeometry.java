@@ -7,6 +7,7 @@
 package geometry;
 
 import error.OTMErrorLog;
+import error.OTMException;
 import runner.InterfaceScenarioElement;
 import runner.ScenarioElementType;
 
@@ -20,7 +21,7 @@ public class RoadGeometry implements InterfaceScenarioElement {
     public AddLanes dn_in; // = new AddLanes(AddLanes.FlowDirection.dn,AddLanes.Side.in);
     public AddLanes dn_out; // = new AddLanes(AddLanes.FlowDirection.dn,AddLanes.Side.out);
 
-    public RoadGeometry(jaxb.Roadgeom jaxb_geom) {
+    public RoadGeometry(jaxb.Roadgeom jaxb_geom) throws OTMException {
 
         // null road geom
         if(jaxb_geom==null) {
@@ -43,11 +44,16 @@ public class RoadGeometry implements InterfaceScenarioElement {
                     dn_in = addlane;
                 else
                     dn_out = addlane;
-
         }
     }
 
     public void validate(OTMErrorLog errorLog){
+
+        if(dn_in!=null || dn_out!=null || up_in!=null || up_out!=null) {
+            errorLog.addError("Road geometry " + id + ": Addlanes has not been implemented.");
+            return;
+        }
+
         if( dn_in !=null )
             dn_in.validate(errorLog);
         if( dn_out !=null )

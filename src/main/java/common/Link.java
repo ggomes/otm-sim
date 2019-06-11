@@ -223,14 +223,17 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
         outlink2lanegroups = new HashMap<>();
         for(Link outlink : end_node.out_links.values()) {
-            outlink2lanegroups.put(outlink.getId(), lanegroups_flwdn.values().stream()
+            Set<AbstractLaneGroup> lgs = lanegroups_flwdn.values().stream()
                     .filter(lg -> lg.link_is_link_reachable(outlink.getId()))
-                    .collect(Collectors.toSet()));
+                    .collect(Collectors.toSet());
+            if(!lgs.isEmpty())
+                outlink2lanegroups.put(outlink.getId(), lgs);
         }
+
     }
 
     public void populate_commodity2split(Collection<Commodity> commodities){
-        Long trivial_next_link = outlink2lanegroups.size() == 1 ? outlink2lanegroups.keySet().iterator().next() : null;
+        Long trivial_next_link = outlink2lanegroups.keySet().size() == 1 ? outlink2lanegroups.keySet().iterator().next() : null;
         commodity2split = new HashMap<>();
         for(Commodity c : commodities)
             commodity2split.put(c.getId(), new SplitInfo(trivial_next_link));
@@ -450,7 +453,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
                 // pathfull
                 if (key.isPath) {
                     Link next_link = path2outlink.get(key.pathOrlink_id);
-                    add_to_lanegroup_packets(split_packets,next_link.getId(),key,vehicles);
+                    add_to_lanegroup_packets(split_packets,next_link==null?null:next_link.getId(),key,vehicles);
                 }
 
                 // pathless

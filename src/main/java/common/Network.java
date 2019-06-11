@@ -182,7 +182,7 @@ public class Network {
         return road_params;
     }
 
-    private static HashMap<Long,RoadGeometry> read_geoms(jaxb.Roadgeoms jaxb_geoms) {
+    private static HashMap<Long,RoadGeometry> read_geoms(jaxb.Roadgeoms jaxb_geoms) throws OTMException {
         HashMap<Long,RoadGeometry> road_geoms = new HashMap<>();
         if(jaxb_geoms!=null) {
             for (jaxb.Roadgeom jaxb_geom : jaxb_geoms.getRoadgeom())
@@ -317,36 +317,41 @@ public class Network {
 
     private static Map<Long,RoadConnection> create_missing_road_connections(Link link){
         Map<Long,RoadConnection> new_rcs = new HashMap<>();
-        int start_lane = 1;
         int lanes;
         Long rc_id;
-        RoadConnection newrc;
-        Link end_link = link.end_node.out_links.values().iterator().next();
-        int end_link_lanes = end_link.get_num_up_lanes();
 
-        // dn in rc
-        if(link.road_geom!=null && link.road_geom.dn_in!=null){
+        for(Link end_link : link.end_node.out_links.values()){
+
+            int start_lane = 1;
+            int end_link_lanes = end_link.get_num_up_lanes();
+
+            // dn in rc
+            if(link.road_geom!=null && link.road_geom.dn_in!=null){
+                rc_id = ++max_rcid;
+                lanes = link.road_geom.dn_in.lanes;
+                RoadConnection rc_dnin = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
+                new_rcs.put(rc_id, rc_dnin);
+                start_lane += lanes;
+            }
+
+            // stay rc
             rc_id = ++max_rcid;
-            lanes = link.road_geom.dn_in.lanes;
-            newrc = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
-            new_rcs.put(rc_id, newrc);
+            lanes = link.full_lanes;
+            RoadConnection rc_stay = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
+            new_rcs.put(rc_id, rc_stay);
             start_lane += lanes;
+
+            // dn out rc
+            if(link.road_geom!=null && link.road_geom.dn_out!=null){
+                rc_id = ++max_rcid;
+                lanes = link.road_geom.dn_out.lanes;
+                RoadConnection rc_dnout = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
+                new_rcs.put(rc_id, rc_dnout);
+            }
+
         }
 
-        // stay rc
-        rc_id = ++max_rcid;
-        lanes = link.full_lanes;
-        newrc = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
-        new_rcs.put(rc_id, newrc);
-        start_lane += lanes;
 
-        // dn out rc
-        if(link.road_geom!=null && link.road_geom.dn_out!=null){
-            rc_id = ++max_rcid;
-            lanes = link.road_geom.dn_out.lanes;
-            newrc = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
-            new_rcs.put(rc_id, newrc);
-        }
         return new_rcs;
     }
 

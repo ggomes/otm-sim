@@ -228,7 +228,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         assert(lg.flwdir==FlowDirection.dn);
         assert(this.flwdir==FlowDirection.dn);
 
-        if(this.link.getId()!=lg.link.getId())
+        if(!this.link.getId().equals(link.getId()))
             return null;
 
         if(this==lg)

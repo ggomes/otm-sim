@@ -38,6 +38,17 @@ public class SourceFluid extends common.AbstractSource {
     }
 
     public void validate(OTMErrorLog errorLog){
+
+
+        if(!commodity.pathfull) {
+
+            if(link.lanegroups_flwdn.size()!=1)
+                errorLog.addError(String.format("Source on link %d with more than one lane group",link.getId()));
+
+            if(!link.end_node.is_many2one)
+                errorLog.addError(String.format("Source on link %d, whose end node %d has multiple outputs",link.getId(),link.end_node.getId()));
+
+        }
     }
 
     @Override
@@ -71,9 +82,6 @@ public class SourceFluid extends common.AbstractSource {
 
             // Case no downstream split.
             if(link.outlink2lanegroups.size()<2){
-
-                assert(link.lanegroups_flwdn.size()==1);
-                assert(link.end_node.is_many2one);
 
                 Long nextlink_id = link.outlink2lanegroups.keySet().iterator().next();
                 KeyCommPathOrLink key = new KeyCommPathOrLink(comm_id,nextlink_id,false);

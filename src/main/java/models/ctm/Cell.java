@@ -184,6 +184,7 @@ public class Cell {
 
     public void add_vehicles(KeyCommPathOrLink key,Double value){
         double cur_val;
+        
         switch(laneGroup.state2lanechangedirection.get(key)){
             case stay:
                 cur_val = veh_dwn.containsKey(key) ? veh_dwn.get(key) : 0d;

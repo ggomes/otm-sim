@@ -5,13 +5,13 @@ import runner.OTM;
 
 public class PaperExperiments extends AbstractTest {
 
-    static String base_folder = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\config\\";
+    static String base_folder = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm-sim\\exp\\config\\";
     static String[] args = new String[7];
 
     static {
         args[0] = "-run";
         args[5] = "0";
-        args[6] = "1000";
+        args[6] = "4000";
     }
 
     static void run(String s,String x){

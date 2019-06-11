@@ -9,15 +9,19 @@ package profiles;
 import commodity.Commodity;
 import commodity.Subnetwork;
 import common.Link;
+import common.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
 import dispatch.EventSplitChange;
 import common.Node;
 import runner.Scenario;
+import utils.OTMUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 public class SplitMatrixProfile {
 
@@ -57,24 +61,38 @@ public class SplitMatrixProfile {
             errorLog.addWarning("Split ratios have been defined for pathfull commodity id=" + commodity_id);
 
         // node is within commodity subnetworks
-        Set<Node> subnetwork_nodes = new HashSet<>();
-        for(Subnetwork subnetwork : commodity.subnetworks){
-            subnetwork_nodes.addAll(subnetwork.links.stream().map(x->x.end_node).collect(Collectors.toSet()));
-            subnetwork_nodes.addAll(subnetwork.links.stream().map(x->x.start_node).collect(Collectors.toSet()));
-        }
-        if(!subnetwork_nodes.contains(node))
-            errorLog.addError("!subnetwork_nodes.contains(node))");
-
-//        // link_in_id is good
-//        Link link_in = scenario.network.links.get(link_in_id);
-//        if(link_in==null)
-//            errorLog.addError("link_in==null");
-
-//        // link_in_id is  in a subnetwork
+//        Set<Node> subnetwork_nodes = new HashSet<>();
 //        for(Subnetwork subnetwork : commodity.subnetworks){
-//            if(!subnetwork.links.contains(link_in))
-//                errorLog.addError("!commodity.subnetwork.links.contains(link_in)");
+//            subnetwork_nodes.addAll(subnetwork.links.stream().map(x->x.end_node).collect(Collectors.toSet()));
+//            subnetwork_nodes.addAll(subnetwork.links.stream().map(x->x.start_node).collect(Collectors.toSet()));
 //        }
+//        if(!subnetwork_nodes.contains(node))
+//            errorLog.addError("!subnetwork_nodes.contains(node))");
+
+        // link_in_id is good
+        Link link_in = scenario.network.links.get(link_in_id);
+        if(link_in==null)
+            errorLog.addError("link_in==null");
+
+        // link_in_id is in a subnetwork
+        for(Subnetwork subnetwork : commodity.subnetworks){
+            if(!subnetwork.links.contains(link_in))
+                errorLog.addError("!commodity.subnetwork.links.contains(link_in)");
+        }
+
+
+        Set<Long> reachable_outlinks = node.road_connections.stream()
+                .filter(rc->rc.start_link.getId().equals(link_in_id))
+                .map(z->z.end_link.getId())
+                .collect(Collectors.toSet());
+
+        // check that there is a road connection for every split ratio
+        if(!reachable_outlinks.containsAll(splits.values.keySet())) {
+            Set<Long> unreachable = new HashSet<>();
+            unreachable.addAll(splits.values.keySet());
+            unreachable.removeAll(reachable_outlinks);
+            errorLog.addError(String.format("No road connection supporting split from link %d to link(s) %s",link_in_id, OTMUtils.comma_format(unreachable)));
+        }
 
         splits.validate(errorLog,node.getId(),link_in_id,commodity_id);
 
