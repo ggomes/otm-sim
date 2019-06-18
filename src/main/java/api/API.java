@@ -10,6 +10,7 @@ import actuator.AbstractActuator;
 import actuator.sigint.ActuatorSignal;
 import api.info.*;
 import commodity.Commodity;
+import commodity.Path;
 import commodity.Subnetwork;
 import models.AbstractLaneGroup;
 import common.RoadConnection;
@@ -495,7 +496,7 @@ public class API {
             if(odmap.containsKey(odpair)){
                 odinfo = odmap.get(odpair);
             } else {
-                odinfo = new ODInfo(odpair);
+                odinfo = new ODInfo(odpair,scenario);
                 odmap.put(odpair,odinfo);
             }
             odinfo.add_demand_profile(demand_profile);

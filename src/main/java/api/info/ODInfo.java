@@ -6,13 +6,18 @@
  */
 package api.info;
 
+import commodity.Path;
+import commodity.Subnetwork;
 import error.OTMException;
 import keys.DemandType;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;
+import runner.Scenario;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ODInfo {
 
@@ -31,12 +36,22 @@ public class ODInfo {
     /** list of subnetworks (i.e. routes) for this OD pair  */
     public List<SubnetworkInfo> subnetworks;
 
-    public ODInfo(ODPair odpair){
+    public ODInfo(ODPair odpair, Scenario scenario){
         this.origin_node_id = odpair.origin_node_id;
         this.destination_node_id = odpair.destination_node_id;
         this.commodity_id = odpair.commodity_id;
         this.total_demand = null;
         this.subnetworks = new ArrayList<>();
+
+        for(Subnetwork subnetwork : scenario.subnetworks.values()){
+            if(subnetwork.is_path){
+                Path path = (Path) subnetwork;
+                if(path.ordered_links.get(0).getId()==origin_node_id &&
+                   path.ordered_links.get(path.ordered_links.size()-1).getId()==destination_node_id )
+                    subnetworks.add(new SubnetworkInfo(subnetwork));
+            }
+        }
+
     }
 
     public void add_demand_profile(AbstractDemandProfile demand_profile) throws OTMException {
@@ -57,9 +72,6 @@ public class ODInfo {
             total_demand = new Profile1DInfo(demand_profile.profile);
         else
             total_demand.add_profile(demand_profile.profile);
-
-        if(demand_profile instanceof DemandProfile)
-            this.subnetworks.add(new SubnetworkInfo(((DemandProfile) demand_profile).path));
 
     }
 

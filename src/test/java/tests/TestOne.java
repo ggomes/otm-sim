@@ -8,10 +8,7 @@ package tests;
 
 import api.API;
 import api.APIopen;
-import api.info.ActuatorInfo;
-import api.info.LinkInfo;
-import api.info.ODInfo;
-import api.info.Profile1DInfo;
+import api.info.*;
 import control.ControllerCapacity;
 import error.OTMException;
 import org.junit.Ignore;
@@ -96,6 +93,28 @@ public class TestOne extends AbstractTest {
             e.printStackTrace();
         }
     }
+
+
+    @Ignore
+    @Test
+    public void load_for_traffic_assignment() {
+        try {
+            String configfile = "C:\\Users\\gomes\\Desktop\\seven_links.xml";
+            API api = OTM.load_for_static_traffic_assignment(configfile);
+
+            List<ODInfo> od_infos = api.get_od_info();
+            ODInfo od_info = od_infos.get(0);
+            List<SubnetworkInfo> xxx = od_info.get_subnetworks();
+
+            System.out.println(xxx);
+
+//            API api = OTM.load("/home/gomes/code/otm-mpi-bb/config/100.xml",true);
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     @Ignore
     @Test

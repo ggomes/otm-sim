@@ -128,7 +128,15 @@ public class Network {
         road_params = read_params(jaxb_params);
         links = create_links(jaxb_links,this,nodes);
 
-        assign_road_params(jaxb_links,links,road_params);
+        nodes.values().stream().forEach(node -> node.is_many2one = node.out_links.size()==1);
+
+        // is_source and is_sink
+        for(Link link : links.values()){
+            link.is_source = link.start_node.in_links.isEmpty();
+            link.is_sink = link.end_node.out_links.isEmpty();
+        }
+
+//        assign_road_params(jaxb_links,links,road_params);
 
     }
 

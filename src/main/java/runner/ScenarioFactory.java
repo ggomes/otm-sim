@@ -114,6 +114,11 @@ public class ScenarioFactory {
                 js.getNetwork().getLinks().getLink(),
                 js.getNetwork().getRoadparams() );
 
+        scenario.subnetworks = ScenarioFactory.create_subnetworks_from_jaxb(
+                scenario.network,
+                js.getSubnetworks() ,
+                have_global_commodity(js.getCommodities()) );
+
         // commodities
         scenario.commodities = new HashMap<>();
         for (jaxb.Commodity jaxb_comm : js.getCommodities().getCommodity())
