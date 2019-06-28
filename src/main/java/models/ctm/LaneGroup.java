@@ -143,7 +143,6 @@ public class LaneGroup extends AbstractLaneGroup {
                     key = new KeyCommPathOrLink(key.commodity_id,nextlink_id,false);
 
                 cell.add_vehicles(key,e.getValue());
-
             }
         }
 
@@ -251,16 +250,15 @@ public class LaneGroup extends AbstractLaneGroup {
 //            flow += OTMUtils.sum(flow_lc_out.get(0));
 //        return flow;
 //    }
-
-    @Override
-    public float get_current_travel_time() {
-
-        double travel_time;
-        double sim_dt = ((models.ctm.Model_CTM)link.model).dt;
-        float sum = 0f;
+//
+//    @Override
+//    public float get_current_travel_time() {
+//        double sim_dt = ((models.ctm.Model_CTM)link.model).dt;
+//        float sum = 0f;
 //        for(int i=0;i<cells.size();i++){
 //            Cell cell = cells.get(i);
 //
+//            double tt;
 //            double veh = cell.get_vehicles();   // [veh]
 //
 //            if(veh>0) {
@@ -269,17 +267,17 @@ public class LaneGroup extends AbstractLaneGroup {
 //                double out_flow = bf==null ? 0d : bf.values().stream().mapToDouble(x->x).sum();
 //
 //                if(out_flow==0)
-//                    travel_time = link.is_source ? sim_dt : sim_dt / ffspeed_cell_per_dt;
+//                    tt = link.is_source ? sim_dt : sim_dt / ffspeed_cell_per_dt;
 //                else
-//                    travel_time = sim_dt * veh / out_flow;
+//                    tt = sim_dt * veh / out_flow;
 //
 //            } else
-//                travel_time = link.is_source ? sim_dt : sim_dt / ffspeed_cell_per_dt;
+//                tt = link.is_source ? sim_dt : sim_dt / ffspeed_cell_per_dt;
 //
-//            sum += travel_time;
+//            sum += tt;
 //        }
-        return sum;
-    }
+//        return sum;
+//    }
 
     @Override
     public float vehs_dwn_for_comm(Long comm_id) {
@@ -303,8 +301,6 @@ public class LaneGroup extends AbstractLaneGroup {
 
         if(buffer_size < OTMUtils.epsilon )
             return;
-
-
 
         Cell cell = cells.get(0);
                     double total_space = cell.supply;

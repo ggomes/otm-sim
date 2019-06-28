@@ -30,9 +30,10 @@ public abstract class AbstractOutputTimedSubnetwork extends AbstractOutputTimed 
         if(subnetwork_id==null)
             subnetwork = null;
         else{
-            subnetwork = scenario.subnetworks.get(subnetwork_id);
-            if(subnetwork==null)
+            if (!scenario.subnetworks.containsKey(subnetwork_id))
                 throw new OTMException("Bad subnetwork id in output request.");
+
+            subnetwork = scenario.subnetworks.get(subnetwork_id);
         }
     }
 

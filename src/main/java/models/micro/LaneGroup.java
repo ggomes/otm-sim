@@ -14,6 +14,7 @@ import packet.PacketLaneGroup;
 import packet.PacketLink;
 import runner.RunParameters;
 import runner.Scenario;
+import traveltime.VehicleLaneGroupTimer;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -104,7 +105,8 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
             vehicles.add(vehicle);
 
             // inform the travel timers
-            link.travel_timers.forEach(x->x.vehicle_enter(timestamp,vehicle));
+            ((VehicleLaneGroupTimer)travel_timer).vehicle_enter(timestamp,vehicle);
+
         }
 
         update_supply();
@@ -144,7 +146,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 //                    ev.move_from_to_queue(timestamp,vehicle,waiting_queue,null);
 
             // inform the travel timers
-            link.travel_timers.forEach(x->x.vehicle_exit(timestamp,vehicle,link.getId(),null));
+            ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),null);
 
             released = true;
         }
@@ -186,7 +188,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                 vehicle.new_pos -= vehicle.lg.length;
 
                 // inform the travel timers
-                link.travel_timers.forEach(x->x.vehicle_exit(timestamp,vehicle,link.getId(),next_link));
+                ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),next_link);
 
                 // send vehicle packet to next link
                 next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));

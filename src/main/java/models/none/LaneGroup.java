@@ -46,10 +46,10 @@ public class LaneGroup extends AbstractLaneGroup {
         return 0;
     }
 
-    @Override
-    public float get_current_travel_time() {
-        return Float.NaN;
-    }
+//    @Override
+//    public float get_current_travel_time() {
+//        return Float.NaN;
+//    }
 
     @Override
     public void allocate_state() {

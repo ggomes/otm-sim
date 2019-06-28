@@ -24,7 +24,7 @@ import output.LaneGroups;
 import output.LinkFlow;
 import output.LinkVHT;
 import output.LinkVehicles;
-import output.PathTravelTime;
+import output.PathTravelTimeWriter;
 import output.VehicleClass;
 import output.VehicleTravelTime;
 import utils.OTMUtils;
@@ -334,7 +334,8 @@ public class OTM {
                         output = new EventsActuator(scenario, prefix, output_folder, jaxb_or.getActuator());
                         break;
                     case "path_travel_time":
-                        output = new PathTravelTime(scenario, prefix, output_folder, null, outDt);
+                        output = new PathTravelTimeWriter(scenario, prefix, output_folder, null, outDt);
+                        scenario.path_tt_manager.add_path_travel_time_writer((PathTravelTimeWriter) output);
                         break;
                     default:
                         throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());

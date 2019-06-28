@@ -17,6 +17,7 @@ import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
 import runner.Scenario;
+import traveltime.FluidLaneGroupTimer;
 import utils.OTMUtils;
 import utils.StochasticProcess;
 
@@ -168,6 +169,8 @@ public class Model_CTM extends AbstractFluidModel {
             if(lg.states.isEmpty())
                 continue;
 
+            double total_travel_time = 0d;
+
             for(int i=0;i<lg.cells.size()-1;i++) {
 
                 Cell upcell = lg.cells.get(i);
@@ -190,11 +193,33 @@ public class Model_CTM extends AbstractFluidModel {
                     Map<KeyCommPathOrLink, Double> flow_lc_in = OTMUtils.times(dem_in, gamma);
                     Map<KeyCommPathOrLink, Double> flow_lc_out = OTMUtils.times(dem_out, gamma);
 
+                    // travel time computation
+                    if(lg.travel_timer!=null){
+                        double veh = upcell.get_vehicles();
+                        double tt;
+                        if(veh>0) {
+
+                            double out_flow = flow_stay==null ? 0d : flow_stay.values().stream().mapToDouble(x->x).sum();
+
+                            if(out_flow==0)
+                                tt = link.is_source ? dt : dt / lg.ffspeed_cell_per_dt;
+                            else
+                                tt = dt * veh / out_flow;
+
+                        } else
+                            tt = link.is_source ? dt : dt / lg.ffspeed_cell_per_dt;
+                        total_travel_time += tt;
+                    }
+
                     dncell.add_vehicles(flow_stay,flow_lc_in,flow_lc_out);
                     upcell.subtract_vehicles(flow_stay,flow_lc_in,flow_lc_out);
                 }
 
             }
+
+            // travel time computation
+            if(lg.travel_timer!=null)
+                ((FluidLaneGroupTimer)lg.travel_timer).add_sample(total_travel_time);
 
             lg.update_supply();
 

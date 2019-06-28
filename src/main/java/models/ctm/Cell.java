@@ -19,10 +19,6 @@ public class Cell {
     public boolean am_upstrm;
     public boolean am_dnstrm;
 
-    // road params
-//    public double capacity_veh;         // [veh]
-//    public double jam_density_veh;      // [veh]
-
     // vehicles and demand already in their target lanegroup
     public Map<KeyCommPathOrLink, Double> veh_dwn;      // comm,path|nlink -> number of vehicles
     public Map<KeyCommPathOrLink, Double> demand_dwn;   // comm,path|nlink -> number of vehicles
@@ -49,17 +45,6 @@ public class Cell {
         this.am_dnstrm = false;
         this.laneGroup = laneGroup;
     }
-
-//    public void set_road_params(float capacity_vehperlane, float jam_density_vehperlane, float ffspeed_veh) {
-//        int lanes = laneGroup.num_lanes;
-//        if (laneGroup.link.is_source) {
-//            this.capacity_veh = capacity_vehperlane * lanes;
-//            this.jam_density_veh = Double.NaN;
-//        } else {
-//            this.capacity_veh = capacity_vehperlane * lanes;
-//            this.jam_density_veh = jam_density_vehperlane * lanes;
-//        }
-//    }
 
     public void reset(){
 

@@ -19,6 +19,7 @@ import packet.PacketLaneGroup;
 import packet.StateContainer;
 import runner.RunParameters;
 import runner.Scenario;
+import traveltime.AbstractLaneGroupTimer;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -68,6 +69,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // target lane group to direction
     public Map<KeyCommPathOrLink,Side> state2lanechangedirection = new HashMap<>();
 
+    public AbstractLaneGroupTimer travel_timer;
+
     ///////////////////////////////////////////////////
     // abstract methods
     ///////////////////////////////////////////////////
@@ -86,7 +89,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     abstract public float vehs_dwn_for_comm(Long comm_id);
     abstract public float vehs_in_for_comm(Long comm_id);
     abstract public float vehs_out_for_comm(Long comm_id);
-    abstract public float get_current_travel_time();
+//    abstract public float get_current_travel_time();
 
     /**
      * An event signals an opportunity to release a vehicle packet. The lanegroup must,

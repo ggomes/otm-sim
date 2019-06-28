@@ -18,7 +18,7 @@ import jaxb.Roadparam;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import models.AbstractModel;
-import output.PathTravelTime;
+import traveltime.LinkTravelTimer;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
 import runner.InterfaceScenarioElement;
@@ -33,7 +33,7 @@ import static java.util.stream.Collectors.toSet;
 
 public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
-    public enum RoadType {none,onramp,offramp,freeway,arterial,hov,interconnect,source,sink,lightrail}
+    public enum RoadType {none,ramp,mainline}
 
     // basics ........................................
     protected final long id;
@@ -94,8 +94,8 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     public actuator.ActuatorRampMeter ramp_meter;
     public actuator.ActuatorFD actuator_fd;
 
-    // output ...........................................
-    public Set<PathTravelTime> travel_timers;
+    // travel timer
+    public LinkTravelTimer link_tt;
 
     ///////////////////////////////////////////
     // construction
@@ -144,8 +144,8 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         // demands ............................................
         sources = new HashSet<>();
 
-        // output ...........................................
-        travel_timers = new HashSet<>();
+//        // output ...........................................
+//        travel_timers = new HashSet<>();
 
     }
 
@@ -189,14 +189,14 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         road_type = null;
         road_geom = null;
         model = null;
-        travel_timers = null;
+//        travel_timers = null;
         shape = null;
         outlink2roadconnection = null;
     }
 
-    public void add_travel_timer(PathTravelTime x){
-        travel_timers.add(x);
-    }
+//    public void add_travel_timer(PathTravelTimeWriter x){
+//        travel_timers.add(x);
+//    }
 
     public void set_long_lanegroups(Collection<AbstractLaneGroup> lgs) {
 
@@ -716,13 +716,6 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         return lanegroups_flwdn.values().stream()
                 .mapToDouble(x->x.vehs_dwn_for_comm(commodity_id))
                 .sum();
-    }
-
-    // return the instantaneous travel time averaged over the lane groups
-    // This is used by the path travel timer.
-    // It should be improved to measure travel times on the lanegroups used by the path.
-    public double get_current_average_travel_time(){
-        return lanegroups_flwdn.values().stream().mapToDouble(lg->lg.get_current_travel_time()).average().getAsDouble();
     }
 
     ////////////////////////////////////////////

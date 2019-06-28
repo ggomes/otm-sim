@@ -58,11 +58,11 @@ public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
         return vehs;
     }
 
-    @Override
-    public float get_current_travel_time() {
-        System.err.println("NOT IMPLEMENTED");
-        return Float.NaN;
-    }
+//    @Override
+//    public float get_current_travel_time() {
+//        System.err.println("NOT IMPLEMENTED");
+//        return Float.NaN;
+//    }
 
     @Override
     public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {

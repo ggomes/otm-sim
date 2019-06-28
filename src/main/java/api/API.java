@@ -10,7 +10,6 @@ import actuator.AbstractActuator;
 import actuator.sigint.ActuatorSignal;
 import api.info.*;
 import commodity.Commodity;
-import commodity.Path;
 import commodity.Subnetwork;
 import models.AbstractLaneGroup;
 import common.RoadConnection;
@@ -31,7 +30,6 @@ import runner.Scenario;
 import runner.ScenarioFactory;
 import sensor.AbstractSensor;
 import utils.OTMUtils;
-import utils.StochasticProcess;
 import xml.JaxbLoader;
 
 import java.util.*;
@@ -813,7 +811,9 @@ public class API {
      */
     public void request_path_travel_time(String prefix,String output_folder,Long subnetwork_id,Float outDt){
         try {
-            this.scenario.outputs.add(new PathTravelTime(scenario,prefix,output_folder,subnetwork_id,outDt));
+            PathTravelTimeWriter path_tt = new PathTravelTimeWriter(scenario,prefix,output_folder,subnetwork_id,outDt);
+            this.scenario.outputs.add(path_tt);
+            this.scenario.add_path_travel_time(path_tt);
         } catch (OTMException e) {
             e.printStackTrace();
         }

@@ -80,6 +80,7 @@ public abstract class AbstractFluidModel extends AbstractModel {
     // run
     //////////////////////////////////////////////////////////////
 
+    // udpate supplies and demands
     abstract public void update_link_flux_part_I(Link link, float timestamp) throws OTMException;
     abstract public void update_link_state(Link link,float timestamp) throws OTMException;
 
@@ -99,6 +100,7 @@ public abstract class AbstractFluidModel extends AbstractModel {
 
     }
 
+    // update supplies and demands, then run node model to obtain inter-link flows
     public void update_fluid_flux_part_I(float timestamp) throws OTMException {
 
         // lane changes and compute demand and supply
@@ -110,6 +112,8 @@ public abstract class AbstractFluidModel extends AbstractModel {
 
     }
 
+    // compute source and source flows
+    // node model exchange packets
     public void update_fluid_flux_part_II(float timestamp) throws OTMException {
 
         // add to source links
@@ -161,6 +165,7 @@ public abstract class AbstractFluidModel extends AbstractModel {
         }
     }
 
+    // intra link flows and states
     public void update_fluid_state(float timestamp) throws OTMException {
         for(Link link : links)
             update_link_state(link,timestamp);

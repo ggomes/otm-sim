@@ -99,29 +99,66 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_for_traffic_assignment() {
         try {
+
+            float sample_dt = 2;
+            int num_samp = 10;
+            long path_id = 1;
+
+            float start_time = 0.0f;
+            float time_horizon = 1000f;
+
             String configfile = "C:\\Users\\gomes\\Desktop\\seven_links.xml";
-            API api = OTM.load_for_static_traffic_assignment(configfile);
+            String outfolder  = "C:\\Users\\gomes\\Desktop\\";
+            API api = OTM.load(configfile);
 
             List<ODInfo> od_infos = api.get_od_info();
             ODInfo od_info = od_infos.get(0);
             List<SubnetworkInfo> xxx = od_info.get_subnetworks();
 
-            System.out.println(xxx);
 
-//            API api = OTM.load("/home/gomes/code/otm-mpi-bb/config/100.xml",true);
+            api.request_path_travel_time(path_id, sample_dt);
+//            api.request_links_flow(null, api.get_link_ids(), sample_dt);
+//            api.request_links_veh(null, api.get_link_ids(), sample_dt);
+
+
+            api.set_random_seed(1);
+
+            api.run(start_time,time_horizon);
+
+            boolean instantaneous = true;
+            for(AbstractOutput output : api.get_output_data()){
+
+//                if (output instanceof LinkFlow)
+//                    ((LinkFlow) output).plot_for_links(null, String.format("%sflow.png", outfolder));
+//
+//                if (output instanceof LinkVehicles)
+//                    ((LinkVehicles) output).plot_for_links(null, String.format("%sveh.png", outfolder));
+
+//                if(output instanceof PathTravelTimeWriter){
+//                    PathTravelTimeWriter ptt = (PathTravelTimeWriter) output;
+//                    List<Double> cost_list;
+//                    if(instantaneous)
+//                        cost_list = ptt.compute_instantaneous_travel_times(start_time, sample_dt, num_samp);
+//                    else
+//                        cost_list = ptt.compute_predictive_travel_times(start_time, sample_dt, num_samp);
+//
+//                    System.out.println(cost_list);
+//
+//                }
+            }
+
+
         } catch (OTMException e) {
             e.printStackTrace();
         }
     }
-
-
 
     @Ignore
     @Test
     public void run_one() {
         try {
 
-            String configfile = "C:\\Users\\gomes\\code\\otm\\otm-tools-python-ucb\\examples\\sample_configfiles\\UPDiliman_small_splits_ctm.xml";
+            String configfile = "C:\\Users\\gomes\\code\\otm\\otm-base\\src\\main\\resources\\test_configs\\onramp_offramp.xml";
 
             float duration = 3600f;
             float outdt = 10f;
@@ -140,6 +177,15 @@ public class TestOne extends AbstractTest {
             api.request_links_flow(prefix,output_folder,null, api.get_link_ids(), outdt);
             api.request_links_veh(prefix,output_folder,null, api.get_link_ids(), outdt);
 
+
+            List<ODInfo> od_infos = api.get_od_info();
+            ODInfo od_info = od_infos.get(0);
+            List<SubnetworkInfo> xxx = od_info.get_subnetworks();
+
+            long path_id = 2l;
+
+            api.request_path_travel_time(path_id, outdt);
+
 //            api.request_links_flow(null, api.get_link_ids(), outdt);
 //            api.request_links_veh(null, api.get_link_ids(), outdt);
 
@@ -151,6 +197,7 @@ public class TestOne extends AbstractTest {
 
             // Print output .........................
             String outfolder = "temp/";
+            boolean instantaneous = true;
             for(AbstractOutput output :  api.get_output_data()){
 
                 if (output instanceof EventsActuator)
@@ -164,6 +211,13 @@ public class TestOne extends AbstractTest {
 
                 if (output instanceof LinkVehicles)
                     ((LinkVehicles) output).plot_for_links(null, String.format("%sveh.png", outfolder));
+
+
+                if(output instanceof PathTravelTimeWriter){
+                    PathTravelTimeWriter ptt = (PathTravelTimeWriter) output;
+                    System.out.println(ptt.travel_times);
+
+                }
 
             }
 

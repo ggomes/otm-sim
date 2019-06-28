@@ -10,6 +10,7 @@ import actuator.AbstractActuator;
 import commodity.Commodity;
 import commodity.Subnetwork;
 import common.Link;
+import traveltime.LinkTravelTimeManager;
 import control.AbstractController;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -19,10 +20,10 @@ import jaxb.Split;
 import keys.KeyCommodityDemandTypeId;
 import keys.KeyCommodityLink;
 import output.AbstractOutput;
+import output.PathTravelTimeWriter;
 import profiles.*;
 import sensor.AbstractSensor;
 import utils.OTMUtils;
-import utils.StochasticProcess;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -36,11 +37,12 @@ public class Scenario {
 
     public boolean is_initialized;
 
-    // ScenarioElements
+    public Dispatcher dispatcher;
+    public Set<AbstractOutput> outputs = new HashSet<>();
+
+    // Scenario elements
     public Map<Long,Commodity> commodities = new HashMap<>();     // commodity id -> commodity
     public Map<Long,Subnetwork> subnetworks = new HashMap<>();    // subnetwork id -> subnetwork
-    public Set<AbstractOutput> outputs = new HashSet<>();
-    public Dispatcher dispatcher;
     public Network network;
     public Map<Long, AbstractController> controllers = new HashMap<>();
     public Map<Long, AbstractActuator> actuators = new HashMap<>();
@@ -48,6 +50,9 @@ public class Scenario {
 
     // commodity/link -> demand profile
     public Map<KeyCommodityDemandTypeId,AbstractDemandProfile> data_demands;
+
+    // travel time computation
+    public LinkTravelTimeManager path_tt_manager;
 
     ///////////////////////////////////////////////////
     // construction
@@ -133,6 +138,8 @@ public class Scenario {
             x.initialize(this,now);
 
         // register initial events ......................................
+        if(path_tt_manager!=null)
+            path_tt_manager.initialize(dispatcher);
         data_demands.values().forEach(x -> x.register_with_dispatcher(dispatcher));
         network.nodes.values().stream()
                 .filter(node->node.splits!=null)
@@ -344,6 +351,17 @@ public class Scenario {
         } catch (OTMException e) {
             e.printStackTrace();
         }
+    }
+
+    ///////////////////////////////////////////////////
+    // travel time manager
+    ///////////////////////////////////////////////////
+
+    public void add_path_travel_time(PathTravelTimeWriter path_tt_writer) throws OTMException {
+        if(path_tt_manager==null)
+            path_tt_manager = new LinkTravelTimeManager(this);
+
+        path_tt_manager.add_path_travel_time_writer(path_tt_writer);
     }
 
 }
