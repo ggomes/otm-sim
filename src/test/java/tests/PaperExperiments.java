@@ -1,27 +1,54 @@
 package tests;
 
+import api.API;
+import error.OTMException;
 import org.junit.Test;
 import runner.OTM;
 
 public class PaperExperiments extends AbstractTest {
 
     static String base_folder = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm-sim\\exp\\config\\";
-    static String[] args = new String[7];
+//    static String[] args = new String[7];
 
-    static {
-        args[0] = "-run";
-        args[5] = "0";
-        args[6] = "4000";
-    }
+//    static {
+//        args[0] = "-run";
+//        args[5] = "0";
+//        args[6] = "4000";
+//    }
+//
+//    static void run(String s,String x){
+//        System.out.println("----------- "  + s + "  " + x + " -------------");
+//        String myfolder = base_folder + s + "\\";
+//        args[1] = myfolder + x + "\\exp_" + x + ".xml";
+//        args[2] = x;
+//        args[3] = myfolder + x + "\\output_" + x + ".xml";
+//        args[4] = myfolder + x + "\\output";
+//        OTM.main(args);
+//    }
 
-    static void run(String s,String x){
-        System.out.println("----------- "  + s + "  " + x + " -------------");
-        String myfolder = base_folder + s + "\\";
-        args[1] = myfolder + x + "\\exp_" + x + ".xml";
-        args[2] = x;
-        args[3] = myfolder + x + "\\output_" + x + ".xml";
-        args[4] = myfolder + x + "\\output";
-        OTM.main(args);
+    static void run(String s,String prefix){
+
+        try {
+            System.out.println("----------- "  + s + "  " + prefix + " -------------");
+            String myfolder = base_folder + s + "\\";
+            String configfile = myfolder + prefix + "\\exp_" + prefix + ".xml";
+            String output_requests_file = myfolder + prefix + "\\output_" + prefix + ".xml";
+            String output_folder = myfolder + prefix + "\\output";
+
+            API api = OTM.load(configfile,true);
+
+            api.request_path_travel_time(prefix,output_folder,1l,2f);
+
+            api.run(prefix,
+                    output_requests_file,
+                    output_folder,
+                    0,
+                    4000);
+
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /** DETERMINISTIC **/

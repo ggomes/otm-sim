@@ -30,6 +30,7 @@ public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
         if(!write_to_file)
             travel_times = new Profile1D(0f,outDt);
     }
@@ -45,12 +46,12 @@ public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
 
     @Override
     public void write(float timestamp,Object obj) throws OTMException {
+        super.write(timestamp,null);
 
         double travel_time = instantaneous ?
                 compute_instantaneous_travel_time() :
                 compute_predictive_travel_time();
 
-        super.write(timestamp,null);
         if(write_to_file){
             try {
                 writer.write(String.format("%f\n",travel_time));
