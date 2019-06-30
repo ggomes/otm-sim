@@ -180,9 +180,9 @@ public class TestOne extends AbstractTest {
 
             List<ODInfo> od_infos = api.get_od_info();
             ODInfo od_info = od_infos.get(0);
-            List<SubnetworkInfo> xxx = od_info.get_subnetworks();
+            List<SubnetworkInfo> paths = od_info.get_subnetworks();
 
-            long path_id = 2l;
+            long path_id = paths.get(0).getId();
 
             api.request_path_travel_time(path_id, outdt);
 
@@ -197,26 +197,25 @@ public class TestOne extends AbstractTest {
 
             // Print output .........................
             String outfolder = "temp/";
-            boolean instantaneous = true;
             for(AbstractOutput output :  api.get_output_data()){
 
-                if (output instanceof EventsActuator)
-                    ((EventsActuator) output).plot(String.format("%sactuator%d.png",outfolder,((EventsActuator) output).actuator_id));
-
-                if (output instanceof EventsController)
-                    ((EventsController) output).plot(String.format("%scontroller%d.png",outfolder,((EventsController) output).controller_id));
-
-                if (output instanceof LinkFlow)
-                    ((LinkFlow) output).plot_for_links(null, String.format("%sflow.png", outfolder));
-
-                if (output instanceof LinkVehicles)
-                    ((LinkVehicles) output).plot_for_links(null, String.format("%sveh.png", outfolder));
+//                if (output instanceof EventsActuator)
+//                    ((EventsActuator) output).plot(String.format("%sactuator%d.png",outfolder,((EventsActuator) output).actuator_id));
+//
+//                if (output instanceof EventsController)
+//                    ((EventsController) output).plot(String.format("%scontroller%d.png",outfolder,((EventsController) output).controller_id));
+//
+//                if (output instanceof LinkFlow)
+//                    ((LinkFlow) output).plot_for_links(null, String.format("%sflow.png", outfolder));
+//
+//                if (output instanceof LinkVehicles)
+//                    ((LinkVehicles) output).plot_for_links(null, String.format("%sveh.png", outfolder));
 
 
                 if(output instanceof PathTravelTimeWriter){
                     PathTravelTimeWriter ptt = (PathTravelTimeWriter) output;
-                    System.out.println(ptt.travel_times);
-
+                    List<Double> travel_times = ptt.get_travel_times_sec();
+                    System.out.println(travel_times);
                 }
 
             }

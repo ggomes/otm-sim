@@ -12,6 +12,7 @@ import profiles.Profile1D;
 import runner.Scenario;
 
 import java.io.IOException;
+import java.util.List;
 
 public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
 
@@ -122,8 +123,8 @@ public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
 //    }
 
 
-//    public Profile1D get_travel_times_for_link(Long link_id){
-//        return link_tt.get(link_id).travel_times;
-//    }
+    public List<Double> get_travel_times_sec(){
+        return travel_times.get_values();
+    }
 
 }
