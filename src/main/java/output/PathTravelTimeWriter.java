@@ -29,6 +29,10 @@ public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
         this.path = (Path) this.subnetwork;
     }
 
+    public long get_path_id(){
+        return path.getId();
+    }
+
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);

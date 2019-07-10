@@ -29,7 +29,7 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
     }
 
     public long id;
-    public Type type;
+    private Type type;
     public float dt;
 
     public AbstractController myController;
@@ -119,5 +119,8 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
         return ScenarioElementType.actuator;
     }
 
+    public Type getType(){
+        return type;
+    }
 
 }

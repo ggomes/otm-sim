@@ -86,7 +86,7 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "C:\\Users\\gomes\\code\\otm\\otm-tools-python-ucb\\examples\\sample_configfiles\\UPDiliman_small_splits_ctm.xml";
+            String configfile = "C:\\Users\\gomes\\code\\otm\\otm-simcenter\\filename.xml";
             API api = OTM.load(configfile,true);
 //            API api = OTM.load("/home/gomes/code/otm-mpi-bb/config/100.xml",true);
         } catch (OTMException e) {

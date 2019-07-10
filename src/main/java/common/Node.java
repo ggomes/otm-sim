@@ -7,11 +7,9 @@
 package common;
 
 import actuator.AbstractActuator;
-import commodity.Commodity;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.KeyCommodityLink;
-import models.NodeModel;
 import profiles.SplitMatrixProfile;
 import actuator.InterfaceActuatorTarget;
 import runner.InterfaceScenarioElement;
@@ -21,7 +19,6 @@ import runner.ScenarioElementType;
 
 import java.util.*;
 
-import static java.util.stream.Collectors.toSet;
 
 public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
 

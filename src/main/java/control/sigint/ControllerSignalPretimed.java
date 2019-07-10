@@ -57,7 +57,7 @@ public class ControllerSignalPretimed extends AbstractController {
             errorLog.addError("actuators.size()!=1");
 
         // target is a signal
-        if(actuators.values().iterator().next().type!=AbstractActuator.Type.signal)
+        if(actuators.values().iterator().next().getType()!=AbstractActuator.Type.signal)
             errorLog.addError("actuator is not a signal");
 
         // validate schedule items
