@@ -86,7 +86,7 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "C:\\Users\\gomes\\code\\otm\\otm-simcenter\\filename.xml";
+            String configfile = "C:\\Users\\gomes\\code\\otm\\otm-simcenter\\anchorage.xml";
             API api = OTM.load(configfile,true);
 //            API api = OTM.load("/home/gomes/code/otm-mpi-bb/config/100.xml",true);
         } catch (OTMException e) {

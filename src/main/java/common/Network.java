@@ -17,6 +17,7 @@ import models.AbstractLaneGroup;
 import models.AbstractModel;
 import models.ctm.Model_CTM;
 import models.micro.Model_Micro;
+import models.none.Model_None;
 import models.pq.Model_PQ;
 import runner.RunParameters;
 import runner.Scenario;
@@ -244,6 +245,12 @@ public class Network {
                     model = new Model_Micro(jaxb_model.getName(),
                                         jaxb_model.isIsDefault(),
                                         jaxb_model.getModelParams().getSimDt(),
+                                        process);
+                    break;
+
+                case "none":
+                    model = new Model_None(jaxb_model.getName(),
+                                        jaxb_model.isIsDefault(),
                                         process);
                     break;
 
