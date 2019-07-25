@@ -45,8 +45,9 @@ public class SourceFluid extends common.AbstractSource {
             if(link.lanegroups_flwdn.size()!=1)
                 errorLog.addError(String.format("Source on link %d with more than one lane group",link.getId()));
 
-            if(!link.end_node.is_many2one)
-                errorLog.addError(String.format("Source on link %d, whose end node %d has multiple outputs",link.getId(),link.end_node.getId()));
+            // TODO DEAL WITH THIS RESTRICTION
+//            if(!link.end_node.is_many2one)
+//                errorLog.addError(String.format("Source on link %d, whose end node %d has multiple outputs",link.getId(),link.end_node.getId()));
 
         }
     }

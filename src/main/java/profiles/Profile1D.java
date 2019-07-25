@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class Profile1D {
 
@@ -34,12 +35,12 @@ public class Profile1D {
     public List<Double> values;
 
     public Profile1D(Float start_time,Float dt,List<Double> values){
-        this.start_time = start_time==null ? 0 : start_time;
+        this.start_time = start_time==null ? 0f : start_time;
         this.dt = dt;
         this.values = values;
     }
 
-    public Profile1D(Float start_time, float dt){
+    public Profile1D(Float start_time, Float dt){
         this.start_time = start_time==null ? 0 : start_time;
         this.dt = dt;
         this.values = new ArrayList<>();
@@ -79,7 +80,7 @@ public class Profile1D {
             values.set(i,(double) Math.round(values.get(i)));
     }
 
-    public float get_dt(){
+    public Float get_dt(){
         return dt;
     }
 
@@ -216,6 +217,21 @@ public class Profile1D {
                 ", dt=" + dt +
                 ", values=" + values +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Profile1D profile1D = (Profile1D) o;
+        return Float.compare(profile1D.start_time, start_time) == 0 &&
+                Objects.equals(dt, profile1D.dt) &&
+                Objects.equals(values, profile1D.values);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(start_time, dt, values);
     }
 
 }

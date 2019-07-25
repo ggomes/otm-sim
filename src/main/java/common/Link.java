@@ -33,7 +33,7 @@ import static java.util.stream.Collectors.toSet;
 
 public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
-    public enum RoadType {none,ramp,mainline}
+    public enum RoadType {none,ramp,mainline,connector}
 
     // basics ........................................
     protected final long id;
