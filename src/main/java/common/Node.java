@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2018, Gabriel Gomes
- * All rights reserved.
- * This source code is licensed under the standard 3-clause BSD license found
- * in the LICENSE file in the root directory of this source tree.
- */
 package common;
 
 import actuator.AbstractActuator;
@@ -33,8 +27,6 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
 
     public boolean is_many2one;
 
-//    private NodeModel node_model;
-
     // split ratio data
     public Map<KeyCommodityLink, SplitMatrixProfile> splits;   // these hold split profiles and issue events when they change
                                                         // they are not used to retrieve split data. for this use the
@@ -56,7 +48,6 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
         this.xcoord = xcoord;
         this.ycoord = ycoord;
 
-//        this.is_macro_node = false;
         this.in_links = new HashMap<>();
         this.out_links = new HashMap<>();
         this.road_connections = new HashSet<>();
@@ -74,9 +65,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
         network = null;
         in_links = null;
         out_links = null;
-//        commodities = null;
         road_connections = null;
-//        node_model = null;
         splits = null;
         actuator = null;
     }
@@ -102,15 +91,6 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
             splits.put(key,smp);
     }
 
-//    public void set_node_model(NodeModel model){
-//        if( node_model==null )
-//            node_model = model;
-//    }
-//
-//    public NodeModel get_node_model(){
-//        return node_model;
-//    }
-
     @Override
     public void register_actuator(AbstractActuator act) throws OTMException {
         if(this.actuator!=null)
@@ -119,18 +99,12 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     }
 
     public void validate(Scenario scenario,OTMErrorLog errorLog){
-//        if(node_model!=null)
-//            node_model.validate(errorLog);
-
         if(splits!=null){
             splits.values().stream().forEach(x -> x.validate(scenario,errorLog));
         }
     }
 
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
-//        if(node_model!=null)
-//            node_model.initialize(scenario);
-
         if(splits!=null)
             for(SplitMatrixProfile x : splits.values())
                 x.initialize(scenario.dispatcher.current_time);
@@ -141,10 +115,6 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     ///////////////////////////////////////////
 
     public void set_node_split(long commodity_id, long linkinid, Map<Long,Double> outlink2value) throws OTMException {
-
-//        if(!commodities.stream().map(x->x.getId()).collect(toSet()).contains(commodity_id))
-//            throw new OTMException("Node " + getId() + "  does not support this commodity " + commodity_id);
-
         Link linkin = in_links.get(linkinid);
         if(linkin!=null)
            linkin.set_splits(commodity_id,outlink2value);

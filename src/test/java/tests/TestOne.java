@@ -86,8 +86,8 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "C:\\Users\\gomes\\code\\otm\\otm-simcenter\\anchorage.xml";
-            API api = OTM.load(configfile,true);
+            String configfile = "C:\\Users\\gomes\\Desktop\\test\\50_x_cfg_0.xml";
+            API api = OTM.load(configfile,false);
 //            API api = OTM.load("/home/gomes/code/otm-mpi-bb/config/100.xml",true);
         } catch (OTMException e) {
             e.printStackTrace();
@@ -158,7 +158,7 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "C:\\Users\\gomes\\code\\otm\\otm-base\\src\\main\\resources\\test_configs\\onramp_offramp.xml";
+            String configfile = "C:\\Users\\gomes\\Desktop\\test\\50_x_cfg_0.xml";
 
             float duration = 3600f;
             float outdt = 10f;
@@ -166,25 +166,21 @@ public class TestOne extends AbstractTest {
             String output_folder = "temp/";
 
             // Load ..............................
-            API api = null;
-            try {
-                api = OTM.load(configfile,true);
-            } catch (OTMException e) {
-                e.printStackTrace();
-            }
-
-            // Output requests .....................
-            api.request_links_flow(prefix,output_folder,null, api.get_link_ids(), outdt);
-            api.request_links_veh(prefix,output_folder,null, api.get_link_ids(), outdt);
+            API api = OTM.load(configfile,true);
 
 
-            List<ODInfo> od_infos = api.get_od_info();
-            ODInfo od_info = od_infos.get(0);
-            List<SubnetworkInfo> paths = od_info.get_subnetworks();
-
-            long path_id = paths.get(0).getId();
-
-            api.request_path_travel_time(path_id, outdt);
+//            // Output requests .....................
+//            api.request_links_flow(prefix,output_folder,null, api.get_link_ids(), outdt);
+//            api.request_links_veh(prefix,output_folder,null, api.get_link_ids(), outdt);
+//
+//
+//            List<ODInfo> od_infos = api.get_od_info();
+//            ODInfo od_info = od_infos.get(0);
+//            List<SubnetworkInfo> paths = od_info.get_subnetworks();
+//
+//            long path_id = paths.get(0).getId();
+//
+//            api.request_path_travel_time(path_id, outdt);
 
 //            api.request_links_flow(null, api.get_link_ids(), outdt);
 //            api.request_links_veh(null, api.get_link_ids(), outdt);
