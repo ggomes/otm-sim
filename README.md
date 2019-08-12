@@ -1,19 +1,21 @@
-# otm-sim
-Open Traffic Models - Simulation engine
+# Open Traffic Models
 
-## Requirements ##
+<!-- <img src="docs/img/square_logo.png" align="right" width="25%"/> -->
 
-+ Java 8
-+ Apache Maven
+OTM is a ....
 
-## Installation ##
+[our website](https://opentrafficmodels.org/) .... 
+<!-- Other [results and videos](https://sites.google.com/view/ieee-tro-flow/home) .... -->
 
-If you are interested in running OTM and not in development, you can download the jar file [here](https://mymavenrepo.com/repo/XtcMAROnIu3PyiMCmbdY/otm/otm-sim/1.0-SNAPSHOT/)
+# More information
 
-Otherwise:
-1. move “settings.xml” to your .m2 folder
-2. mvn install -DskipTests
-3. IntelliJ: 
-  + Import Project
-  + Import from external model > Maven
-  + “Next” through everything
+- [Documentation](https://open-traffic-models.readthedocs.io/en/latest/)
+- [Installation instructions](https://open-traffic-models.readthedocs.io/en/latest/installation.html)
+- [Demos](https://github.com/otm-sim/tree/master/demos)
+
+# Add-ons
+
+- Python and Matlab tools
+- OTM with Open Street Map
+- OTM with high performance computing
+- OTM for traffic assignment
