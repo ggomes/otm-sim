@@ -22,6 +22,7 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
 
     public enum Type {
         signal,
+        signal_simple,
         stop,
         ramp_meter,
         fd,
