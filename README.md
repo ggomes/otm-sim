@@ -6,8 +6,7 @@ OTM is a traffic simulation platform that implements models and control algorith
 
 # More information
 - [Website](https://sites.google.com/berkeley.edu/otm/home)
-- Publications
-    - [1](https://arxiv.org/abs/1908.04009)
+- Publications  ([1](https://arxiv.org/abs/1908.04009))
 - [Documentation](https://open-traffic-models.readthedocs.io/en/latest/)
 - [Installation](https://open-traffic-models.readthedocs.io/en/latest/installation.html)
 - [Demos](https://github.com/otm-sim/tree/master/demos)
