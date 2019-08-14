@@ -119,7 +119,8 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
             veh.move_to_queue(timestamp,transit_queue);
 
             // tell the travel timers
-            ((VehicleLaneGroupTimer)travel_timer).vehicle_enter(timestamp,veh);
+            if (travel_timer != null)
+                ((VehicleLaneGroupTimer)travel_timer).vehicle_enter(timestamp,veh);
 
             // register_with_dispatcher dispatch to go to waiting queue
             dispatcher.register_event(new EventTransitToWaiting(dispatcher,timestamp + transit_time_sec,veh));
@@ -144,7 +145,10 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                 saturation_flow_rate_vps :
                 current_max_flow_rate_vps;
 
-        // TODO: REMOVE FUTURE RELEASES?
+        // Remove scheduled future releases from the previous RC capacity,
+        // will be replaced by new schedule with modified capacity.
+        link.network.scenario.dispatcher
+                .remove_events_for_recipient(EventReleaseVehicleFromLaneGroup.class, this);
 
         // schedule a release for now+ half wait time
         schedule_release_vehicle(timestamp,current_max_flow_rate_vps*2);
@@ -188,7 +192,8 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                     ev.move_from_to_queue(timestamp,vehicle,waiting_queue,null);
 
             // inform the travel timers
-            ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),null);
+            if (travel_timer != null)
+                ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),null);
 
         }
         else{
@@ -225,7 +230,8 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                 waiting_queue.remove_given_vehicle(timestamp,vehicle);
 
                 // inform the travel timers
-                ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),next_link);
+                if (travel_timer != null)
+                    ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),next_link);
 
                 // send vehicle packet to next link
                 next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
