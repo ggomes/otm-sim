@@ -12,9 +12,8 @@ OTM is a traffic simulation platform that implements models and control algorith
 - [Demos](https://github.com/otm-sim/tree/master/demos)
 
 # Add-ons
-- [Schema](https://github.com/ggomes/otm-base)
-- [Python](https://github.com/ggomes/otm-tools-python-ucb) and [Matlab](https://github.com/ggomes/otm-tools) tools
+- [Python tools](https://github.com/ggomes/otm-tools-python-ucb) 
+- [Matlab tools](https://github.com/ggomes/otm-tools) tools
 - [GUI](https://github.com/ggomes/otm-ui)
 - [OTM with Open Street Map](https://github.com/ggomes/otm-simcenter)
 - [OTM with high performance computing](https://github.com/ggomes/otm-mpi)
-- OTM for traffic assignment
