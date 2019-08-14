@@ -2,7 +2,7 @@
 
 <!-- <img src="docs/img/square_logo.png" align="right" width="25%"/> -->
 
-OTM is a hybrid simulator for general traffic networks that implements traffic models and control algorithms as Java plugins. Three basic models are provided: the cell-transmission model, the two-queue (mesoscopic) model, and Newell's car-following model. 
+OTM is a traffic simulation platform that implements models and control algorithms as Java plugins. Three basic models are provided: the cell-transmission model, the two-queue (mesoscopic) model, and Newell's car-following model. 
 
 # More information
 - [Website](https://sites.google.com/berkeley.edu/otm/home)
