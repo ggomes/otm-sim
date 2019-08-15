@@ -1,7 +1,7 @@
 package tools.splitter;
 
 import actuator.AbstractActuator;
-import api.APIopen;
+import api.APIdev;
 import common.Link;
 import common.Node;
 import control.AbstractController;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 public class ScenarioSplitter {
 
-    public static APIopen api;
+    public static APIdev api;
     public static Set<SplitNode> split_nodes;
     public static Set<Long> boundary_nodes = new HashSet<>();
     public static Set<Long> boundary_links = new HashSet<>();
@@ -44,9 +44,9 @@ public class ScenarioSplitter {
 
         // read the scenario
         try {
-            api = new APIopen(OTM.load(cfg.config));
+            api = new APIdev(OTM.load(cfg.config));
 
-            to_metis(api.scenario(),
+            to_metis(api.scenario,
                     "C:\\Users\\gomes\\code\\beats\\metisfile.txt",
                     "C:\\Users\\gomes\\code\\beats\\nodemap.txt");
 
@@ -470,8 +470,8 @@ public class ScenarioSplitter {
         // only boundary nodes have been placed
 
         // all nodes and links start out unplaced
-        unplaced_nodes.addAll(api.scenario().network.nodes.keySet());
-        unplaced_links.addAll(api.scenario().network.links.keySet());
+        unplaced_nodes.addAll(api.scenario.network.nodes.keySet());
+        unplaced_links.addAll(api.scenario.network.links.keySet());
 
         // initialize graphs with split nodes and adjacent graph2links
         graphs.put("A", new Graph("A"));
@@ -511,7 +511,7 @@ public class ScenarioSplitter {
         for (Long node_id : unplaced_nodes_clone) {
 
             // links adjacent to the node
-            Node node = api.scenario().network.nodes.get(node_id);
+            Node node = api.scenario.network.nodes.get(node_id);
             Set<Long> adj_links = new HashSet<>();
             adj_links.addAll(node.in_links.keySet());
             adj_links.addAll(node.out_links.keySet());
@@ -544,7 +544,7 @@ public class ScenarioSplitter {
             return;
 
         // get start and end nodes
-        Link curr_link = api.scenario().network.links.get(curr_link_id);
+        Link curr_link = api.scenario.network.links.get(curr_link_id);
         Node start_node = curr_link.start_node;
         Node end_node = curr_link.end_node;
 
@@ -575,7 +575,7 @@ public class ScenarioSplitter {
 
     private static Long get_internal_link(Long blink_id, SplitNode splitNode, Graph g) {
 
-        Link blink = api.scenario().network.links.get(blink_id);
+        Link blink = api.scenario.network.links.get(blink_id);
         Long start_node = blink.start_node.getId();
         Long end_node = blink.end_node.getId();
 

@@ -3,7 +3,8 @@ package output;
 import actuator.AbstractActuator;
 import actuator.sigint.ActuatorSignal;
 import actuator.sigint.SignalPhase;
-import api.events.EventSignalPhase;
+import api.info.events.AbstractEventInfo;
+import api.info.events.EventSignalPhaseInfo;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -95,8 +96,8 @@ public class EventsActuator extends AbstractOutputEvent {
         }
 
         // go through events
-        for(api.events.AbstractEvent absevent : this.events){
-            EventSignalPhase e = (EventSignalPhase) absevent;
+        for(AbstractEventInfo absevent : this.events){
+            EventSignalPhaseInfo e = (EventSignalPhaseInfo) absevent;
 
             XYSeries series =dataset.getSeries(e.signal_phase_id);
 

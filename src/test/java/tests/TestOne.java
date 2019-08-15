@@ -1,7 +1,7 @@
 package tests;
 
 import api.API;
-import api.APIopen;
+import api.APIdev;
 import api.info.*;
 import control.ControllerCapacity;
 import error.OTMException;
@@ -26,7 +26,7 @@ public class TestOne extends AbstractTest {
             // TODO Add large network to test configurations
             String configfile = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\beats\\beats_share\\MetroManila_unfiltered.xml";
 
-            API api = OTM.load_for_static_traffic_assignment(configfile);
+            API api = OTM.load_xml(configfile);
             
             System.out.println(api.scenario.get_node_ids().size());
             System.out.println(api.scenario.get_link_connectivity().size());
@@ -57,7 +57,7 @@ public class TestOne extends AbstractTest {
             float advance_time = 300f;
 
             String configfile = "C:\\Users\\gomes\\Desktop\\traffic_master\\XML files\\Capstone_0314.xml";
-            APIopen api = OTM.loadOpen(configfile);
+            APIdev api = OTM.loaddev(configfile);
 
             api.api.initialize(start_time);
 
@@ -66,7 +66,7 @@ public class TestOne extends AbstractTest {
             while(time<end_time){
                 api.api.advance(advance_time);
                 System.out.println(api.api.get_current_time());
-                System.out.println(api.scenario().network.links.get(0l).get_veh());
+                System.out.println(api.scenario.network.links.get(0l).get_veh());
                 time += advance_time;
             }
 
@@ -314,12 +314,12 @@ public class TestOne extends AbstractTest {
 
             // Load ..............................
             API api = null;
-            try {
-                api = OTM.load_test("signal_nopocket",true);
-//                api = OTM.load("C:\\Users\\gomes\\vbox_shared\\all_cfgs\\100.xml",true,"ctm");
-            } catch (OTMException e) {
-                e.printStackTrace();
-            }
+//            try {
+////                api = OTM.load_test("signal_nopocket",true);
+////                api = OTM.load("C:\\Users\\gomes\\vbox_shared\\all_cfgs\\100.xml",true,"ctm");
+//            } catch (OTMException e) {
+//                e.printStackTrace();
+//            }
 
             // Output requests .....................
             api.output.request_links_flow(prefix,output_folder,null, api.scenario.get_link_ids(), outdt);

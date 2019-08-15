@@ -1,7 +1,7 @@
 package runner;
 
 import api.API;
-import api.APIopen;
+import api.APIdev;
 import dispatch.Dispatcher;
 import dispatch.EventStopSimulation;
 import error.OTMException;
@@ -121,39 +121,28 @@ public class OTM {
             System.err.print(get_usage());
     }
 
-    public static APIopen loadOpen(String configfile) throws OTMException {
-        API api = new API();
-        api.load(configfile);
-        return new APIopen(api);
+    public static APIdev loaddev(String configfile) throws OTMException {
+        return new APIdev(load(configfile));
     }
 
     public static API load(String configfile) throws OTMException {
-        API api = new API();
-        api.load(configfile);
-        return api;
+        return new API(configfile,true,false);
     }
 
-    public static API load_test(String testname,boolean validate) throws OTMException {
-        if(!JaxbLoader.get_test_config_names().contains(testname))
-            return null;
-        API api = new API();
-        api.load_test(JaxbLoader.get_test_filename(testname),validate);
-        return api;
-    }
+//    public static API load_test(String testname,boolean validate) throws OTMException {
+//        if(!JaxbLoader.get_test_config_names().contains(testname))
+//            return null;
+//        API api = new API();
+//        api.load_test(JaxbLoader.get_test_filename(testname),validate);
+//        return api;
+//    }
 
-    public static API load_for_static_traffic_assignment(String configfile) throws OTMException {
-        API api = new API();
-        api.load_for_static_traffic_assignment(configfile);
-        return api;
+    public static API load_xml(String configfile) throws OTMException {
+        return new API(configfile,true,true);
     }
 
     public static API load(String configfile,boolean validate) throws OTMException {
-        System.out.println("Load");
-        API api = new API();
-        List<Long> times = api.load(configfile,validate);
-        System.out.println("\tTime to load XML: " + String.format("%.1f",(times.get(1)-times.get(0))/1000d) + " seconds.");
-        System.out.println("\tTime to configure scenario: " + String.format("%.1f",(times.get(2)-times.get(1))/1000d) + " seconds.");
-        return api;
+        return new API(configfile,validate,false);
     }
 
     public static void run(Scenario scenario,String runfile) throws OTMException {

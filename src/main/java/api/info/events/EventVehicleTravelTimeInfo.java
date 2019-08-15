@@ -1,14 +1,14 @@
-package api.events;
+package api.info.events;
 
 import models.pq.Queue;
 
-public class EventVehicleTravelTime extends AbstractEvent {
+public class EventVehicleTravelTimeInfo extends AbstractEventInfo {
 
     public final long vehicle_id;
     public final Queue from_queue;
     public final Queue to_queue;
 
-    public EventVehicleTravelTime(float timestamp, long vehicle_id, Queue from_queue, Queue to_queue) {
+    public EventVehicleTravelTimeInfo(float timestamp, long vehicle_id, Queue from_queue, Queue to_queue) {
         super(timestamp);
         this.vehicle_id = vehicle_id;
         this.from_queue = from_queue;

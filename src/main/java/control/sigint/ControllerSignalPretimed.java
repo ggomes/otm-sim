@@ -2,7 +2,7 @@ package control.sigint;
 
 import actuator.AbstractActuator;
 import actuator.sigint.ActuatorSignal;
-import api.events.EventControllerScheduleTransition;
+import api.info.events.EventControllerScheduleTransitionInfo;
 import control.AbstractController;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
@@ -73,7 +73,7 @@ public class ControllerSignalPretimed extends AbstractController {
 
         // inform output writer
         if(event_listener !=null)
-            event_listener.write(now, new EventControllerScheduleTransition(now,id,current_schedule_item_index));
+            event_listener.write(now, new EventControllerScheduleTransitionInfo(now,id,current_schedule_item_index));
     }
 
     @Override
@@ -107,7 +107,7 @@ public class ControllerSignalPretimed extends AbstractController {
 
             // inform output writer
             if(event_listener !=null)
-                event_listener.write(timestamp, new EventControllerScheduleTransition(timestamp,id,current_schedule_item_index));
+                event_listener.write(timestamp, new EventControllerScheduleTransitionInfo(timestamp,id,current_schedule_item_index));
         }
 
     }

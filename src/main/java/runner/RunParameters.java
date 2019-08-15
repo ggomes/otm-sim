@@ -53,10 +53,8 @@ public class RunParameters {
         prefix  = properties.getProperty("PREFIX") == null ? "" : properties.getProperty("PREFIX");
         output_requests_file  = properties.getProperty("OUTPUT_REQUESTS_FILE") == null ? "" : properties.getProperty("OUTPUT_REQUESTS_FILE");
         output_folder = properties.getProperty("OUTPUT_FOLDER") == null ? "" : properties.getProperty("OUTPUT_FOLDER");
-//        sim_dt = properties.getProperty("SIM_DT") == null ? 0 : Integer.parseInt(properties.getProperty("SIM_DT"));
         start_time = Integer.parseInt(properties.getProperty("START_TIME", "0"));
         duration = Integer.parseInt(properties.getProperty("DURATION", "86400"));
-//        verbose = Boolean.parseBoolean(properties.getProperty("VERBOSE", "false"));
     }
 
     public void validate(OTMErrorLog errorLog) {

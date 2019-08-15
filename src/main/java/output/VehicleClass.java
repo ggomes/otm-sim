@@ -1,6 +1,6 @@
 package output;
 
-import api.events.EventVehicleClass;
+import api.info.events.EventVehicleInfo;
 import commodity.Commodity;
 import dispatch.Dispatcher;
 import error.OTMException;
@@ -32,7 +32,7 @@ public class VehicleClass extends AbstractOutputEvent implements InterfaceVehicl
     @Override
     public void move_from_to_queue(float timestamp, Vehicle vehicle, Queue from_queue, Queue to_queue) throws OTMException {
         if(from_queue==null)
-            write(timestamp,new EventVehicleClass(vehicle.getId(),vehicle.get_commodity_id()));
+            write(timestamp,new EventVehicleInfo(vehicle.getId(),vehicle.get_commodity_id()));
     }
 
     @Override

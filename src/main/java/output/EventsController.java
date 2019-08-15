@@ -1,6 +1,7 @@
 package output;
 
-import api.events.EventControllerScheduleTransition;
+import api.info.events.AbstractEventInfo;
+import api.info.events.EventControllerScheduleTransitionInfo;
 import control.AbstractController;
 import control.sigint.ControllerSignalPretimed;
 import dispatch.Dispatcher;
@@ -68,8 +69,8 @@ public class EventsController extends AbstractOutputEvent {
         dataset.addSeries(series);
 
         // go through events
-        for(api.events.AbstractEvent absevent : this.events){
-            EventControllerScheduleTransition e = (EventControllerScheduleTransition) absevent;
+        for(AbstractEventInfo absevent : this.events){
+            EventControllerScheduleTransitionInfo e = (EventControllerScheduleTransitionInfo) absevent;
             series.add(absevent.timestamp,e.current_item);
         }
 

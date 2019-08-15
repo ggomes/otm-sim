@@ -92,8 +92,16 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.1.1</version>
                 <configuration>
-                    <excludePackageNames>jaxb</excludePackageNames>
-                    <!--                    <excludePackageNames>com.mycompany.myapp.package1.*:com.mycompany.myapp.package2:*.util.*</excludePackageNames>-->
+                    <show>public</show>
+
+<!--                    <sourceFileIncludes>-->
+<!--                        <include>Foo.java</include>-->
+<!--                        <include>Bar.java</include>-->
+<!--                    </sourceFileIncludes>-->
+<!--                    <sourcepath>${basedir}/src/main/java/path/to/foo-and-bar</sourcepath>-->
+
+                    <excludePackageNames>jaxb:api.info:api.info.*:actuator:actuator.*:commodity:common:control:control.*:dispatch:geometry:keys:models:models.*:packet:profiles:runner:sensor:tools.splitter:traveltime
+                    </excludePackageNames>
                 </configuration>
 
                 <executions>

@@ -7,8 +7,6 @@ import runner.ScenarioFactory;
 import utils.OTMUtils;
 import xml.JaxbLoader;
 
-import java.util.*;
-
 public class API {
 
     protected Scenario scn;
@@ -16,19 +14,26 @@ public class API {
     public APIOutput output;
     public APIPerformance performance;
 
-    public API(){
-        this.scn = null;
+    public API(String configfile,boolean validate,boolean jaxb_only) throws OTMException {
+        jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,validate);
+        if(jaxb_only)
+            this.scn =  ScenarioFactory.create_scenario_for_static_traffic_assignment(jaxb_scenario);
+        else
+           this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,validate);
+        scenario = new APIScenario(scn);
+        output = new APIOutput(scn);
+        performance = new APIPerformance(scn);
     }
 
     ////////////////////////////////////////////////////////
-    // miscellaneous
+    // static
     ////////////////////////////////////////////////////////
 
     /**
      * Undocumented
      * @return git hash for the current build.
      */
-    public String get_version(){
+    public static String get_version(){
         return OTM.getGitHash();
     }
 
@@ -36,109 +41,8 @@ public class API {
      * Undocumented
      * @param seed Undocumented
      */
-    public void set_random_seed(long seed){
+    public static void set_random_seed(long seed){
         OTMUtils.set_random_seed(seed);
-    }
-
-    /**
-     * Undocumented
-     * @return Undocumented
-     */
-    public boolean has_scenario(){
-        return scn !=null;
-    }
-
-    ////////////////////////////////////////////////////////
-    // load
-    ////////////////////////////////////////////////////////
-
-    /**
-     * Undocumented
-     * @param configfile Undocumented
-     * @throws OTMException Undocumented
-     */
-    public void load(String configfile) throws OTMException{
-        load(configfile,true);
-    }
-
-    /**
-     * Undocumented
-     * @param configfile Undocumented
-     * @param validate Undocumented
-     * @return Undocumented
-     * @throws OTMException Undocumented
-     */
-    public List<Long> load(String configfile,boolean validate) throws OTMException{
-
-        List<Long> timestamps = new ArrayList<>();
-        Date now = new Date();
-
-        timestamps.add(now.getTime());
-        jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,validate);
-        now = new Date();
-        timestamps.add(now.getTime());
-
-        this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,validate);
-
-        now = new Date();
-        timestamps.add(now.getTime());
-
-        return timestamps;
-
-    }
-
-    /**
-     * Undocumented
-     * @param configfile Undocumented
-     * @return Undocumented
-     * @throws OTMException Undocumented
-     */
-    public List<Long> load_for_static_traffic_assignment(String configfile) throws OTMException{
-
-        List<Long> timestamps = new ArrayList<>();
-        Date now = new Date();
-
-        timestamps.add(now.getTime());
-        jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,false);
-        now = new Date();
-        timestamps.add(now.getTime());
-        System.out.println("Took " + (timestamps.get(1)-timestamps.get(0)) + " to load XML.");
-
-        this.scn =  ScenarioFactory.create_scenario_for_static_traffic_assignment(jaxb_scenario);
-//        this.scenario =  ScenarioFactory.create_scenario(jaxb_scenario,1f,true,"ctm");
-
-        now = new Date();
-        timestamps.add(now.getTime());
-        System.out.println("Took " + (timestamps.get(2)-timestamps.get(1)) + " to create scenario.");
-
-        return timestamps;
-
-    }
-
-    /**
-     * Undocumented
-     * @param testname Undocumented
-     * @param validate Undocumented
-     * @return Undocumented
-     * @throws OTMException Undocumented
-     */
-    public List<Long> load_test(String testname,boolean validate) throws OTMException{
-
-        List<Long> timestamps = new ArrayList<>();
-        Date now = new Date();
-
-        timestamps.add(now.getTime());
-        jaxb.Scenario jaxb_scenario = JaxbLoader.load_test_scenario(testname,validate);
-        now = new Date();
-        timestamps.add(now.getTime());
-
-        this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,validate);
-
-        now = new Date();
-        timestamps.add(now.getTime());
-
-        return timestamps;
-
     }
 
     ////////////////////////////////////////////////////////
@@ -215,10 +119,5 @@ public class API {
     public float get_current_time(){
         return scn.get_current_time();
     }
-
-    ////////////////////////////////////////////////////////
-    // animation
-    ////////////////////////////////////////////////////////
-
 
 }

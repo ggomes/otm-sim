@@ -1,21 +1,16 @@
 package tests;
 
 import api.API;
-import api.APIopen;
+import api.APIdev;
 import api.info.CommodityInfo;
 import api.info.DemandInfo;
 import api.info.LinkInfo;
 import api.info.SubnetworkInfo;
-import commodity.Commodity;
-import commodity.Subnetwork;
-import common.Link;
 import error.OTMException;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import output.animation.AnimationInfo;
 import runner.OTM;
-import runner.Scenario;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,13 +22,13 @@ import static org.junit.Assert.assertTrue;
 
 public class TestAPI extends AbstractTest {
 
-    static API api;
-    static APIopen apiopen;
+    public static API api;
+    public static APIdev apidev;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        api = OTM.load_test("line",true);
-        apiopen = new APIopen(api);
+//        api = OTM.load_test("line",true);
+//        apidev = new APIdev(api);
     }
 
     //////////////////////////////////////////////////////////////////
@@ -391,7 +386,7 @@ public class TestAPI extends AbstractTest {
 //
 //            api.initialize(start_time);
 //
-//            Scenario scenario = apiopen.scenario();
+//            Scenario scenario = apidev.scenario();
 //            Link link = scenario.network.links.get(0L);
 //
 //            final int steps = (int) (duration / sim_dt);

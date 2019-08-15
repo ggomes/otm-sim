@@ -1,6 +1,6 @@
 package output;
 
-import api.events.AbstractEvent;
+import api.info.events.AbstractEventInfo;
 import error.OTMException;
 import runner.Scenario;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 public abstract class AbstractOutputEvent extends AbstractOutput {
 
-    public List<AbstractEvent> events;
+    public List<AbstractEventInfo> events;
 
     //////////////////////////////////////////////////////
     // construction
@@ -33,10 +33,10 @@ public abstract class AbstractOutputEvent extends AbstractOutput {
     @Override
     public void write(float timestamp,Object obj) throws OTMException {
 
-        if(!(obj instanceof api.events.AbstractEvent))
+        if(!(obj instanceof AbstractEventInfo))
             throw new OTMException("Bad object type in AbstractOutputEvent.write");
 
-        api.events.AbstractEvent event = (api.events.AbstractEvent) obj;
+        AbstractEventInfo event = (AbstractEventInfo) obj;
 
         if(write_to_file){
             try {
@@ -51,7 +51,7 @@ public abstract class AbstractOutputEvent extends AbstractOutput {
 
     abstract public void plot(String filename) throws OTMException;
 
-    public List<AbstractEvent> get_events(){
+    public List<AbstractEventInfo> get_events(){
         return events;
     }
 

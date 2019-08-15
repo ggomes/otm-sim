@@ -1,11 +1,11 @@
-package api.events;
+package api.info.events;
 
-public class EventControllerScheduleTransition extends AbstractEvent {
+public class EventControllerScheduleTransitionInfo extends AbstractEventInfo {
 
     public final long controller_id;
     public final int current_item;
 
-    public EventControllerScheduleTransition(float timestamp, long controller_id, int current_item) {
+    public EventControllerScheduleTransitionInfo(float timestamp, long controller_id, int current_item) {
         super(timestamp);
         this.controller_id = controller_id;
         this.current_item = current_item;

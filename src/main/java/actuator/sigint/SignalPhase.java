@@ -1,6 +1,7 @@
 package actuator.sigint;
 
 import actuator.AbstractActuator;
+import api.info.events.EventSignalPhaseInfo;
 import common.RoadConnection;
 import dispatch.Dispatcher;
 import dispatch.EventAdvanceSignalPhase;
@@ -206,7 +207,7 @@ public class SignalPhase {
 
         // inform the output listener
         if(my_signal.event_listener!=null)
-            my_signal.event_listener.write(timestamp,new api.events.EventSignalPhase(timestamp,id,bulbcolor));
+            my_signal.event_listener.write(timestamp,new EventSignalPhaseInfo(timestamp,id,bulbcolor));
 
     }
 
