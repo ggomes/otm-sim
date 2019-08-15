@@ -18,7 +18,6 @@ import models.AbstractLaneGroup;
 import output.animation.AnimationInfo;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;
-import runner.Scenario;
 import sensor.AbstractSensor;
 
 import java.util.*;
@@ -26,10 +25,10 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
-public class APIScenario {
+public class Scenario {
 
-    private Scenario scenario;
-    protected APIScenario(Scenario scenario){
+    private runner.Scenario scenario;
+    protected Scenario(runner.Scenario scenario){
         this.scenario = scenario;
     }
 

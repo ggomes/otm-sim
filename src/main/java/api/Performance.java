@@ -2,10 +2,10 @@ package api;
 
 import runner.Scenario;
 
-public class APIPerformance {
+public class Performance {
 
     private Scenario scenario;
-    protected APIPerformance(Scenario scenario){
+    protected Performance(Scenario scenario){
         this.scenario = scenario;
     }
 

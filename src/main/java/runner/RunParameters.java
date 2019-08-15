@@ -66,9 +66,9 @@ public class RunParameters {
             errorLog.addError("duration <= 0");
     }
 
-    public boolean is_valid(){
-        boolean is_invalid = output_folder.isEmpty() || (start_time < 0) || (duration <= 0);
-        return !is_invalid;
-    }
+//    public boolean is_valid(){
+//        boolean is_invalid = output_folder.isEmpty() || (start_time < 0) || (duration <= 0);
+//        return !is_invalid;
+//    }
 
 }

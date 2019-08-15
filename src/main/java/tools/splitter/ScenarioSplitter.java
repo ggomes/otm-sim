@@ -1,7 +1,7 @@
 package tools.splitter;
 
 import actuator.AbstractActuator;
-import api.APIdev;
+import api.OTMdev;
 import common.Link;
 import common.Node;
 import control.AbstractController;
@@ -13,7 +13,7 @@ import keys.KeyCommodityLink;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;
 import profiles.SplitMatrixProfile;
-import runner.OTM;
+import runner.OTMold;
 import runner.Scenario;
 import utils.OTMUtils;
 
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 public class ScenarioSplitter {
 
-    public static APIdev api;
+    public static OTMdev api;
     public static Set<SplitNode> split_nodes;
     public static Set<Long> boundary_nodes = new HashSet<>();
     public static Set<Long> boundary_links = new HashSet<>();
@@ -44,7 +44,7 @@ public class ScenarioSplitter {
 
         // read the scenario
         try {
-            api = new APIdev(OTM.load(cfg.config));
+            api = new OTMdev(cfg.config);
 
             to_metis(api.scenario,
                     "C:\\Users\\gomes\\code\\beats\\metisfile.txt",

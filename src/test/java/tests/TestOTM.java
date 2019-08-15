@@ -1,7 +1,7 @@
 package tests;
 
-import api.API;
-import api.APIdev;
+import api.OTM;
+import api.OTMdev;
 import api.info.CommodityInfo;
 import api.info.DemandInfo;
 import api.info.LinkInfo;
@@ -10,7 +10,7 @@ import error.OTMException;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import runner.OTM;
+import runner.OTMold;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +20,10 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class TestAPI extends AbstractTest {
+public class TestOTM extends AbstractTest {
 
-    public static API api;
-    public static APIdev apidev;
+    public static OTM api;
+    public static OTMdev apidev;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -35,7 +35,7 @@ public class TestAPI extends AbstractTest {
 
     @Test
     public void test_get_version(){
-        assertTrue(!OTM.getGitHash().isEmpty());
+        assertTrue(!OTMold.getGitHash().isEmpty());
     }
 
     @Test

@@ -134,7 +134,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>runner.OTM</mainClass>
+                            <mainClass>runner.OTMold</mainClass>
                         </manifest>
                         <manifestEntries>
                             <git-SHA-1>${buildNumber}</git-SHA-1>

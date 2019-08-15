@@ -1,19 +1,6 @@
 package tests;
 
-import api.API;
-import api.info.DemandInfo;
-import error.OTMException;
-import jaxb.Demand;
 import org.junit.Test;
-import output.animation.AbstractLaneGroupInfo;
-import output.animation.AbstractLinkInfo;
-import output.animation.AnimationInfo;
-import output.animation.macro.LaneGroupInfo;
-import runner.OTM;
-import xml.JaxbLoader;
-
-import java.util.Collection;
-import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;

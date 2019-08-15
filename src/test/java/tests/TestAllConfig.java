@@ -1,17 +1,12 @@
 package tests;
 
-import api.API;
-import api.info.CommodityInfo;
-import error.OTMException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import runner.OTM;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 import static org.junit.Assert.*;

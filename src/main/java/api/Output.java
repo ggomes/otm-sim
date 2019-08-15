@@ -10,10 +10,10 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public class APIOutput {
+public class Output {
 
     private Scenario scenario;
-    protected APIOutput(Scenario scenario){
+    protected Output(Scenario scenario){
         this.scenario = scenario;
     }
 

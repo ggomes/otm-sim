@@ -1,7 +1,7 @@
 package tests;
 
-import api.API;
-import api.APIdev;
+import api.OTM;
+import api.OTMdev;
 import api.info.*;
 import control.ControllerCapacity;
 import error.OTMException;
@@ -9,7 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import output.*;
 import profiles.Profile1D;
-import runner.OTM;
+import runner.OTMold;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class TestOne extends AbstractTest {
             // TODO Add large network to test configurations
             String configfile = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\beats\\beats_share\\MetroManila_unfiltered.xml";
 
-            API api = OTM.load_xml(configfile);
+            OTM api = OTMold.load_xml(configfile);
             
             System.out.println(api.scenario.get_node_ids().size());
             System.out.println(api.scenario.get_link_connectivity().size());
@@ -57,7 +57,7 @@ public class TestOne extends AbstractTest {
             float advance_time = 300f;
 
             String configfile = "C:\\Users\\gomes\\Desktop\\traffic_master\\XML files\\Capstone_0314.xml";
-            APIdev api = OTM.loaddev(configfile);
+            OTMdev api = OTMold.loaddev(configfile);
 
             api.api.initialize(start_time);
 
@@ -81,7 +81,7 @@ public class TestOne extends AbstractTest {
     public void load_one() {
         try {
             String configfile = "C:\\Users\\gomes\\Desktop\\test\\50_x_cfg_0.xml";
-            API api = OTM.load(configfile,false);
+            OTM api = OTMold.load(configfile,false);
 //            API api = OTM.load("/home/gomes/code/otm-mpi-bb/config/100.xml",true);
         } catch (OTMException e) {
             e.printStackTrace();
@@ -103,7 +103,7 @@ public class TestOne extends AbstractTest {
 
             String configfile = "C:\\Users\\gomes\\Desktop\\seven_links.xml";
             String outfolder  = "C:\\Users\\gomes\\Desktop\\";
-            API api = OTM.load(configfile);
+            OTM api = OTMold.load(configfile);
 
             List<ODInfo> od_infos = api.scenario.get_od_info();
             ODInfo od_info = od_infos.get(0);
@@ -160,7 +160,7 @@ public class TestOne extends AbstractTest {
             String output_folder = "temp/";
 
             // Load ..............................
-            API api = OTM.load(configfile,true);
+            OTM api = OTMold.load(configfile,true);
 
 
 //            // Output requests .....................
@@ -228,9 +228,9 @@ public class TestOne extends AbstractTest {
         float outdt = 300f;
 
         // Load ..............................
-        API otm_api = null;
+        OTM otm_api = null;
         try {
-            otm_api = OTM.load(configfile,true);
+            otm_api = OTMold.load(configfile,true);
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -313,7 +313,7 @@ public class TestOne extends AbstractTest {
             String output_folder = "temp/";
 
             // Load ..............................
-            API api = null;
+            OTM api = null;
 //            try {
 ////                api = OTM.load_test("signal_nopocket",true);
 ////                api = OTM.load("C:\\Users\\gomes\\vbox_shared\\all_cfgs\\100.xml",true,"ctm");
@@ -378,7 +378,7 @@ public class TestOne extends AbstractTest {
         args[5] = "0";
         args[6] = "100";
 
-        OTM.main(args);
+        OTMold.main(args);
 
     }
 
