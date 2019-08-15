@@ -6,7 +6,6 @@ import error.OTMException;
 import jaxb.OutputRequests;
 import models.AbstractModel;
 import output.*;
-import runner.OTMold;
 import runner.RunParameters;
 import runner.ScenarioFactory;
 import utils.OTMUtils;
@@ -20,8 +19,10 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 public class OTM {
@@ -31,6 +32,10 @@ public class OTM {
     public Scenario scenario;
     public Output output;
     public Performance performance;
+
+    public OTM(String configfile) throws OTMException {
+        this(configfile,true,false);
+    }
 
     public OTM(String configfile, boolean validate, boolean jaxb_only) throws OTMException {
         jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,validate);
@@ -52,8 +57,25 @@ public class OTM {
      * @return git hash for the current build.
      */
     public static String get_version(){
-        return OTMold.getGitHash();
+        InputStream inputStream = runner.OTM.class.getResourceAsStream("/otm-sim.properties");
+        Properties properties = new Properties();
+        try {
+            properties.load(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read properties file", e);
+        }
+        finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    // Ignore
+                }
+            }
+        }
+        return properties.getProperty("sim.git");
     }
+
 
     /**
      * Undocumented
@@ -80,15 +102,17 @@ public class OTM {
     }
 
     /**
-     *
+     * Undocumented
+     * @param prefix Undocumented
+     * @param output_requests_file Undocumented
+     * @param output_folder Undocumented
      * @param start_time Undocumented
      * @param duration Undocumented
-     * @param output_requests_file Undocumented
-     * @param prefix Undocumented
-     * @param output_folder Undocumented
      * @throws OTMException Undocumented
      */
-    public void run(float start_time,float duration,String output_requests_file,String prefix,String output_folder) throws OTMException {
+    public void run(String prefix,String output_requests_file,String output_folder,float start_time,float duration
+
+                    ) throws OTMException {
         initialize(start_time,output_requests_file,prefix,output_folder);
         advance(duration);
         scn.is_initialized = false;

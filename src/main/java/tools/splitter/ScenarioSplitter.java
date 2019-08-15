@@ -13,7 +13,6 @@ import keys.KeyCommodityLink;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;
 import profiles.SplitMatrixProfile;
-import runner.OTMold;
 import runner.Scenario;
 import utils.OTMUtils;
 

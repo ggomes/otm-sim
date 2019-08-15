@@ -1,9 +1,8 @@
 package tests;
 
-import api.OTM;
 import error.OTMException;
 import org.junit.Test;
-import runner.OTMold;
+import runner.OTM;
 
 public class PaperExperiments extends AbstractTest {
 
@@ -35,11 +34,11 @@ public class PaperExperiments extends AbstractTest {
             String output_requests_file = myfolder + prefix + "\\output_" + prefix + ".xml";
             String output_folder = myfolder + prefix + "\\output";
 
-            OTM api = OTMold.load(configfile,true);
+            api.OTM otm = new api.OTM(configfile);
 
-            api.output.request_path_travel_time(prefix,output_folder,1l,2f);
+            otm.output.request_path_travel_time(prefix,output_folder,1l,2f);
 
-            api.run(prefix,
+            otm.run(prefix,
                     output_requests_file,
                     output_folder,
                     0,

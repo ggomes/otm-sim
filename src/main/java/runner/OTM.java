@@ -1,44 +1,11 @@
 package runner;
 
-import api.OTM;
-import api.OTMdev;
 import dispatch.Dispatcher;
-import dispatch.EventStopSimulation;
 import error.OTMException;
-import jaxb.OutputRequests;
 
-import models.AbstractModel;
-import output.AbstractOutput;
-import output.EventsActuator;
-import output.EventsController;
-import output.EventsVehicle;
-import output.LaneGroupFlow;
-import output.LaneGroupVehicles;
-import output.LaneGroups;
-import output.LinkFlow;
-import output.LinkVHT;
-import output.LinkVehicles;
-import output.PathTravelTimeWriter;
-import output.VehicleClass;
-import output.VehicleTravelTime;
 import utils.OTMUtils;
-import xml.JaxbLoader;
 
-import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-
-public class OTMold {
+public class OTM {
 
     private static Dispatcher dispatcher;
 
@@ -66,7 +33,7 @@ public class OTMold {
         // load and validate
         if (cmd.equals("-load")){
             try {
-                OTM otm = new OTM(arguments[0],true,false); // config
+                api.OTM otm = new api.OTM(arguments[0]); // config
             } catch (OTMException e) {
                 e.printStackTrace();
                 return;
@@ -97,9 +64,8 @@ public class OTMold {
                 int start_time = Integer.parseInt(arguments[4]);
                 int duration = Integer.parseInt(arguments[5]);
 
-                OTM otm = new OTM(configfile,true,false);
-
-                otm.run(start_time,duration,output_requests_file,prefix,output_folder);
+                api.OTM otm = new api.OTM(configfile);
+                otm.run(prefix, output_requests_file, output_folder,start_time,duration);
 
             } catch (OTMException e) {
                 e.printStackTrace();
@@ -109,7 +75,7 @@ public class OTMold {
          // version
         else if (cmd.equals("-version")){
             System.out.println("otm-base: " + OTMUtils.getBaseGitHash());
-            System.out.println("otm-sim: " + getGitHash());
+            System.out.println("otm-sim: " + api.OTM.get_version());
         }
 
         // help
@@ -119,40 +85,6 @@ public class OTMold {
         else
             System.err.print(get_usage());
     }
-
-//    public static OTMdev loaddev(String configfile) throws OTMException {
-//        return new OTMdev(load(configfile));
-//    }
-//
-//    public static OTM load(String configfile) throws OTMException {
-//        return new OTM(configfile,true,false);
-//    }
-
-//    public static API load_test(String testname,boolean validate) throws OTMException {
-//        if(!JaxbLoader.get_test_config_names().contains(testname))
-//            return null;
-//        API api = new API();
-//        api.load_test(JaxbLoader.get_test_filename(testname),validate);
-//        return api;
-//    }
-
-//    public static OTM load_xml(String configfile) throws OTMException {
-//        return new OTM(configfile,true,true);
-//    }
-//
-//    public static OTM load(String configfile, boolean validate) throws OTMException {
-//        return new OTM(configfile,validate,false);
-//    }
-//
-//    public static void run(Scenario scenario,String runfile) throws OTMException {
-//        run(scenario,new RunParameters(runfile));
-//    }
-//
-//    public static void run(Scenario scenario,String prefix,String output_requests_file,String output_folder,float start_time,float duration) throws OTMException {
-//        OTMold.run(scenario,new RunParameters(prefix,output_requests_file,output_folder,start_time,duration));
-//    }
-//
-
 
     ///////////////////////////////////////////////////
     // static
@@ -173,26 +105,5 @@ public class OTMold {
                         "\t\tduration: [integer] simulation duration in seconds.\n";
         return str;
     }
-
-    public static String getGitHash(){
-        InputStream inputStream = OTMold.class.getResourceAsStream("/otm-sim.properties");
-        Properties properties = new Properties();
-        try {
-            properties.load(inputStream);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read properties file", e);
-        }
-        finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    // Ignore
-                }
-            }
-        }
-        return properties.getProperty("sim.git");
-    }
-
 
 }
