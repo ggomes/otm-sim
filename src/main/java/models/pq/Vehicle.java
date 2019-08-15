@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2018, Gabriel Gomes
- * All rights reserved.
- * This source code is licensed under the standard 3-clause BSD license found
- * in the LICENSE file in the root directory of this source tree.
- */
 package models.pq;
 
 import error.OTMException;
@@ -35,7 +29,7 @@ public class Vehicle extends AbstractVehicle {
     // update
     ///////////////////////////////////////////////////
 
-    /** used by EventTransitToWaiting **/
+    // used by EventTransitToWaiting
     public void move_to_waiting_queue(float timestamp) throws OTMException {
 
         Queue from_queue = my_queue;
@@ -54,7 +48,7 @@ public class Vehicle extends AbstractVehicle {
         assign_queue(timestamp,to_queue);
     }
 
-    /** used by create_vehicle and this.move_to_waiting_queue **/
+    // used by create_vehicle and this.move_to_waiting_queue
     private void assign_queue(float timestamp,Queue to_queue) throws OTMException {
 
         throw new OTMException("NOT IMPLEMENTED");

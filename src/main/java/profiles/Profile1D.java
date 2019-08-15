@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2018, Gabriel Gomes
- * All rights reserved.
- * This source code is licensed under the standard 3-clause BSD license found
- * in the LICENSE file in the root directory of this source tree.
- */
 package profiles;
 
 import error.OTMErrorLog;
@@ -120,9 +114,8 @@ public class Profile1D {
         return get_ith_value((int)((time-start_time)/dt));
     }
 
-    /** returns values corresponding to the next change after "now"
-     * If there are no more changes, return null.
-     */
+    // returns values corresponding to the next change after "now"
+    // If there are no more changes, return null.
     public TimeValue get_change_following(float now){
         if(now<start_time)
             return new TimeValue(start_time,get_ith_value(0));

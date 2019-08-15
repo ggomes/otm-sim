@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2018, Gabriel Gomes
- * All rights reserved.
- * This source code is licensed under the standard 3-clause BSD license found
- * in the LICENSE file in the root directory of this source tree.
- */
 package tests;
 
 import api.API;
@@ -283,7 +277,7 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_request_lanegroups(){
-        api.request_lanegroups("lgs",output_folder);
+        api.output.request_lanegroups("lgs",output_folder);
     }
 
     // links ....................

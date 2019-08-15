@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2018, Gabriel Gomes
- * All rights reserved.
- * This source code is licensed under the standard 3-clause BSD license found
- * in the LICENSE file in the root directory of this source tree.
- */
 package profiles;
 
 import commodity.Commodity;
@@ -35,9 +29,8 @@ public abstract class AbstractDemandProfile {
     // public
     ////////////////////////////////////////////////////
 
-    /** use with caution. This simply adds ulgs all of the numbers in the profile.
-     * It does not account for start time and end time.
-     */
+    // use with caution. This simply adds ulgs all of the numbers in the profile.
+    // It does not account for start time and end time.
     public double get_total_trips(){
         return profile==null ? 0d : profile.values.stream()
                 .reduce(0.0, Double::sum)

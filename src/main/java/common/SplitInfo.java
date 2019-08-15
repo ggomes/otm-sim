@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2018, Gabriel Gomes
- * All rights reserved.
- * This source code is licensed under the standard 3-clause BSD license found
- * in the LICENSE file in the root directory of this source tree.
- */
 package common;
 
 import utils.OTMUtils;
@@ -54,9 +48,7 @@ public class SplitInfo {
         return outlink2split.containsKey(linkid) ? outlink2split.get(linkid) : 0d;
     }
 
-    /** return an output link id according to split ratios
-     * for this commodity and link
-     */
+    // return an output link id according to split ratios for this commodity and line
     public Long sample_output_link(){
 
         // no splits have been specified

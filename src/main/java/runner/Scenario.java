@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2018, Gabriel Gomes
- * All rights reserved.
- * This source code is licensed under the standard 3-clause BSD license found
- * in the LICENSE file in the root directory of this source tree.
- */
 package runner;
 
 import actuator.AbstractActuator;
@@ -83,9 +77,8 @@ public class Scenario {
         return errorLog;
     }
 
-    /** Use to initialize all of the components of the scenario
-     * Use to initialize a scenario that has already been run
-     */
+    // Use to initialize all of the components of the scenario
+    // Use to initialize a scenario that has already been run
     public void initialize(Dispatcher dispatcher,RunParameters runParams) throws OTMException {
 
         float now = runParams.start_time;

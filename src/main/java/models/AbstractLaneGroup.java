@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2018, Gabriel Gomes
- * All rights reserved.
- * This source code is licensed under the standard 3-clause BSD license found
- * in the LICENSE file in the root directory of this source tree.
- */
 package models;
 
 import actuator.AbstractActuator;
@@ -82,24 +76,18 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     abstract public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) throws OTMException;
     abstract public void exiting_roadconnection_capacity_has_been_modified(float timestamp);
 
-    /** Return the total number of vehicles in this lane group with the
-     * given commodity id. commodity_id==null means return total over all
-     * commodities.
-     */
+    // Return the total number of vehicles in this lane group with the given commodity id.
+    // commodity_id==null means return total over all commodities.
     abstract public float vehs_dwn_for_comm(Long comm_id);
     abstract public float vehs_in_for_comm(Long comm_id);
     abstract public float vehs_out_for_comm(Long comm_id);
 //    abstract public float get_current_travel_time();
 
-    /**
-     * An event signals an opportunity to release a vehicle packet. The lanegroup must,
-     * 1. construct packets to be released to each of the lanegroups reached by each of it's
-     *    road connections.
-     * 2. check what portion of each of these packets will be accepted. Reduce the packets
-     *    if necessary.
-     * 3. call next_link.add_vehicle_packet for each reduces packet.
-     * 4. remove the vehicle packets from this lanegroup.
-     */
+    // An event signals an opportunity to release a vehicle packet. The lanegroup must,
+    // 1. construct packets to be released to each of the lanegroups reached by each of it's road connections.
+    // 2. check what portion of each of these packets will be accepted. Reduce the packets if necessary.
+    // 3. call next_link.add_vehicle_packet for each reduces packet.
+    // 4. remove the vehicle packets from this lanegroup.
     abstract public void release_vehicle_packets(float timestamp) throws OTMException;
 
     ///////////////////////////////////////////////////

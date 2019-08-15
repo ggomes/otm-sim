@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2018, Gabriel Gomes
- * All rights reserved.
- * This source code is licensed under the standard 3-clause BSD license found
- * in the LICENSE file in the root directory of this source tree.
- */
 package runner;
 
 import api.API;
@@ -49,20 +43,16 @@ public class OTM {
 
     private static Dispatcher dispatcher;
 
-
-/**
- 0:  -help      Display usage message.
-     -version   Display version information.
-     -load      Load and validate a config file. arguments: <configfile>
-     -run       Run a config file with default paramters. arguments: <configfile> <prefix> <output request file> <output folder> <start_time> <duration>
-         1: configfile: absolute location and name of the configuration file.
-         2: prefix: string to be pre-pended to all output files.
-         3: output request file: absolute location and name of the output request file.
-         4: output folder: folder where the output files should go.
-         5: start_time: [integer] start time for the simrultion in seconds after midnight.
-         6: duration: [integer] simulation duration in seconds.
-  */
-
+    // 0:  -help      Display usage message.
+    //     -version   Display version information.
+    //     -load      Load and validate a config file. arguments: <configfile>
+    //     -run       Run a config file with default paramters. arguments: <configfile> <prefix> <output request file> <output folder> <start_time> <duration>
+    //         1: configfile: absolute location and name of the configuration file.
+    //         2: prefix: string to be pre-pended to all output files.
+    //         3: output request file: absolute location and name of the output request file.
+    //         4: output folder: folder where the output files should go.
+    //         5: start_time: [integer] start time for the simrultion in seconds after midnight.
+    //         6: duration: [integer] simulation duration in seconds.
     public static void main(String[] args) {
 
         if (0 == args.length) {

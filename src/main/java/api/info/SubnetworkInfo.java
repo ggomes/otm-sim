@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2018, Gabriel Gomes
- * All rights reserved.
- * This source code is licensed under the standard 3-clause BSD license found
- * in the LICENSE file in the root directory of this source tree.
- */
 package api.info;
 
 import commodity.Path;
@@ -49,17 +43,27 @@ public class SubnetworkInfo {
         this.is_path = true;
     }
 
-    /** Get the id of the subntework. */
+    /**
+     * Get the id of the subntework.
+     * @return Undocumented
+     */
     public long getId() {
         return id;
     }
 
-    /** True if the subnetwork is a path */
+    /**
+     * True if the subnetwork is a path
+     * @return Undocumented
+     */
     public boolean isPath() {
         return is_path;
     }
 
-    /** Get list of ids in the subnetwork. It is ordered if the subnetwork is a path */
+    /**
+     * Get list of ids in the subnetwork. It is ordered if the subnetwork is a path
+     *
+     * @return Undocumented
+     */
     public List<Long> get_link_ids() {
         return link_ids;
     }
