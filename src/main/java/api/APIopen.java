@@ -11,7 +11,7 @@ public class APIopen {
     }
 
     public Scenario scenario(){
-        return api.scenario;
+        return api.scn;
     }
 
 }

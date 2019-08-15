@@ -37,7 +37,7 @@ public class PaperExperiments extends AbstractTest {
 
             API api = OTM.load(configfile,true);
 
-            api.request_path_travel_time(prefix,output_folder,1l,2f);
+            api.output.request_path_travel_time(prefix,output_folder,1l,2f);
 
             api.run(prefix,
                     output_requests_file,

@@ -59,25 +59,25 @@ public class TestAPI extends AbstractTest {
 
     @Test
     public void test_get_num_commodities(){
-        assertEquals(api.get_num_commodities(),1);
+        assertEquals(api.scenario.get_num_commodities(),1);
     }
 
     @Test
     public void test_get_commodities(){
-        Set<CommodityInfo> commodities = api.get_commodities();
+        Set<CommodityInfo> commodities = api.scenario.get_commodities();
         CommodityInfo comm = commodities.iterator().next();
         assertEquals(comm.getId(),1);
     }
 
     @Test
     public void test_get_commodity_with_id(){
-        CommodityInfo comm = api.get_commodity_with_id(1l);
+        CommodityInfo comm = api.scenario.get_commodity_with_id(1l);
         assertEquals(comm.getId(),1);
     }
 
     @Test
     public void test_get_commodity_ids(){
-        assertEquals((long) api.get_commodity_ids().iterator().next(),1l);
+        assertEquals((long) api.scenario.get_commodity_ids().iterator().next(),1l);
     }
 
     ////////////////////////////////////////////////////////
@@ -86,28 +86,28 @@ public class TestAPI extends AbstractTest {
 
     @Test
     public void test_get_num_subnetworks(){
-        assertEquals(api.get_num_subnetworks(),1);
+        assertEquals(api.scenario.get_num_subnetworks(),1);
     }
 
     @Test
     public void test_get_subnetwork_ids(){
-        assertEquals((long)api.get_subnetwork_ids().iterator().next(),0l);
+        assertEquals((long)api.scenario.get_subnetwork_ids().iterator().next(),0l);
     }
 
     @Test
     public void test_get_path_ids(){
-        assertEquals((long)api.get_path_ids().iterator().next(),0l);
+        assertEquals((long)api.scenario.get_path_ids().iterator().next(),0l);
     }
 
     @Test
     public void test_get_subnetworks(){
-        Set<SubnetworkInfo> subnet = api.get_subnetworks();
+        Set<SubnetworkInfo> subnet = api.scenario.get_subnetworks();
         assertEquals(subnet.iterator().next().getId(),0l);
     }
 
     @Test
     public void test_get_subnetwork_with_id(){
-        SubnetworkInfo subnet = api.get_subnetwork_with_id(0l);
+        SubnetworkInfo subnet = api.scenario.get_subnetwork_with_id(0l);
         assertEquals(subnet.getId(),0l);
     }
 
@@ -117,29 +117,29 @@ public class TestAPI extends AbstractTest {
 
     @Test
     public void test_get_num_links(){
-        assertEquals(api.get_num_links(),3);
+        assertEquals(api.scenario.get_num_links(),3);
     }
 
     @Test
     public void test_get_num_nodes(){
-        assertEquals(api.get_num_nodes(),4);
+        assertEquals(api.scenario.get_num_nodes(),4);
     }
 
     @Test
     public void test_get_links(){
-        Map<Long,LinkInfo> links = api.get_links();
+        Map<Long,LinkInfo> links = api.scenario.get_links();
         assertEquals(links.get(1l).getId(),1l);
     }
 
     @Test
     public void test_get_link_with_id(){
-        LinkInfo info = api.get_link_with_id(2l);
+        LinkInfo info = api.scenario.get_link_with_id(2l);
         assertEquals(info.getId(),2l);
     }
 
     @Test
     public void test_get_link_ids(){
-        List<Long> link_ids = api.get_link_ids();
+        List<Long> link_ids = api.scenario.get_link_ids();
         assertTrue(link_ids.contains(1l));
         assertTrue(link_ids.contains(2l));
         assertTrue(link_ids.contains(3l));
@@ -148,7 +148,7 @@ public class TestAPI extends AbstractTest {
 
     @Test
     public void test_get_node_ids(){
-        List<Long> node_ids = api.get_node_ids();
+        List<Long> node_ids = api.scenario.get_node_ids();
         assertTrue(node_ids.contains(1l));
         assertTrue(node_ids.contains(2l));
         assertTrue(node_ids.contains(3l));
@@ -158,7 +158,7 @@ public class TestAPI extends AbstractTest {
 
     @Test
     public void test_get_source_link_ids(){
-        List<Long> source_ids = api.get_source_link_ids();
+        List<Long> source_ids = api.scenario.get_source_link_ids();
         assertEquals((long)source_ids.iterator().next(),1l);
     }
 
@@ -168,7 +168,7 @@ public class TestAPI extends AbstractTest {
 
     @Test
     public void test_get_demands(){
-        DemandInfo demands = api.get_demands().iterator().next();
+        DemandInfo demands = api.scenario.get_demands().iterator().next();
         assertEquals((long)demands.getCommodity_id(),1l);
         assertEquals(demands.getLink_id(),1l);
     }
@@ -182,7 +182,7 @@ public class TestAPI extends AbstractTest {
             float start_time = 0;
             float dt = 10f;
             List<Double> values = new ArrayList<>();
-            api.set_demand_on_path_in_vph(path_id,commodity_id,start_time,dt,values);
+            api.scenario.set_demand_on_path_in_vph(path_id,commodity_id,start_time,dt,values);
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -190,7 +190,7 @@ public class TestAPI extends AbstractTest {
 
     @Test
     public void test_get_total_trips() {
-        assertEquals(api.get_total_trips(),416.666666666666,0.0001);
+        assertEquals(api.scenario.get_total_trips(),416.666666666666,0.0001);
     }
 
     ////////////////////////////////////////////////////////
@@ -199,13 +199,13 @@ public class TestAPI extends AbstractTest {
 
     @Test
     public void test_get_num_sensors(){
-        assertEquals(api.get_num_sensors(),0);
+        assertEquals(api.scenario.get_num_sensors(),0);
     }
 
     @Test
     @Ignore
     public void test_get_sensor_with_id(){
-        System.out.println(api.get_sensor_with_id(1l));
+        System.out.println(api.scenario.get_sensor_with_id(1l));
     }
 
     ////////////////////////////////////////////////////////
@@ -214,19 +214,19 @@ public class TestAPI extends AbstractTest {
 
     @Test
     public void test_get_num_controllers(){
-        assertEquals(api.get_num_controllers(),0);
+        assertEquals(api.scenario.get_num_controllers(),0);
     }
 
     @Test
     @Ignore
     public void test_get_controllers(){
-        System.out.println(api.get_controllers());
+        System.out.println(api.scenario.get_controllers());
     }
 
     @Test
     @Ignore
     public void test_get_controller_with_id(){
-        System.out.println(api.get_controller_with_id(1l));
+        System.out.println(api.scenario.get_controller_with_id(1l));
     }
 
     ////////////////////////////////////////////////////////
@@ -235,19 +235,19 @@ public class TestAPI extends AbstractTest {
 
     @Test
     public void test_get_num_actuators(){
-        assertEquals(api.get_num_actuators(),0);
+        assertEquals(api.scenario.get_num_actuators(),0);
     }
 
     @Test
     @Ignore
     public void test_get_actuators(){
-        System.out.println(api.get_actuators());
+        System.out.println(api.scenario.get_actuators());
     }
 
     @Test
     @Ignore
     public void test_get_actuator_with_id(){
-        System.out.println(api.get_actuator_with_id(1l));
+        System.out.println(api.scenario.get_actuator_with_id(1l));
     }
 
     ////////////////////////////////////////////////////////
@@ -257,19 +257,19 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_get_output_data(){
-        System.out.println(api.get_output_data());
+        System.out.println(api.output.get_data());
     }
 
     @Test
     @Ignore
     public void test_clear_output_requests(){
-        api.clear_output_requests();
+        api.output.clear();
     }
 
     @Test
     @Ignore
     public void test_get_outputs(){
-        System.out.println(api.get_outputs());
+        System.out.println(api.output.get_data());
     }
 
     // network ................
@@ -285,13 +285,13 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_request_links_veh(){
-        api.request_links_veh("lv",output_folder,null,null,10f);
+        api.output.request_links_veh("lv",output_folder,null,null,10f);
     }
 
     @Test
     @Ignore
     public void test_request_links_flow(){
-        api.request_links_flow("lf",output_folder,null,null,10f);
+        api.output.request_links_flow("lf",output_folder,null,null,10f);
     }
 
     // lanegroups ...............
@@ -299,13 +299,13 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_request_lanegroup_flw(){
-        api.request_lanegroup_flw("lgf",output_folder,null,null,10f);
+        api.output.request_lanegroup_flw("lgf",output_folder,null,null,10f);
     }
 
     @Test
     @Ignore
     public void test_request_lanegroup_veh(){
-        api.request_lanegroup_veh("lgv",output_folder,null,null,10f);
+        api.output.request_lanegroup_veh("lgv",output_folder,null,null,10f);
     }
 
     // subnetwroks ..............
@@ -313,14 +313,14 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_request_path_travel_time(){
-        api.request_path_travel_time("ptt",output_folder,0l,10f);
+        api.output.request_path_travel_time("ptt",output_folder,0l,10f);
     }
 
 
     @Test
     @Ignore
     public void test_request_subnetwork_vht(){
-        api.request_subnetwork_vht("vht",output_folder,null,0l,10f);
+        api.output.request_subnetwork_vht("vht",output_folder,null,0l,10f);
     }
 
     // vehicles .................
@@ -328,19 +328,19 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_request_vehicle_events(){
-        api.request_vehicle_events("vehev",output_folder,null);
+        api.output.request_vehicle_events("vehev",output_folder,null);
     }
 
     @Test
     @Ignore
     public void test_request_vehicle_class(){
-        api.request_vehicle_class("vc",output_folder);
+        api.output.request_vehicle_class("vc",output_folder);
     }
 
     @Test
     @Ignore
     public void test_request_vehicle_travel_time(){
-        api.request_vehicle_travel_time("vtt",output_folder);
+        api.output.request_vehicle_travel_time("vtt",output_folder);
     }
 
     // sensors ..................
@@ -350,7 +350,7 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_request_actuator(){
-        api.request_actuator("act", output_folder,1l);
+        api.output.request_actuator("act", output_folder,1l);
     }
 
     // controllers ..............
@@ -358,7 +358,7 @@ public class TestAPI extends AbstractTest {
     @Test
     @Ignore
     public void test_request_controller(){
-        api.request_controller(0l);
+        api.output.request_controller(0l);
     }
 
     ////////////////////////////////////////////////////////

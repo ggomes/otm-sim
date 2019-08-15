@@ -54,21 +54,21 @@ public class TestAllConfig extends AbstractTest {
         try {
 
             API api = OTM.load_test(testname,true);
-            List<Long> link_ids = api.get_link_ids();
+            List<Long> link_ids = api.scenario.get_link_ids();
             Float outDt = 2f;
 
             // request outputs
-            for(CommodityInfo comm : api.get_commodities()) {
+            for(CommodityInfo comm : api.scenario.get_commodities()) {
                 String prefix = "ctm" + "_" + testname;
-                api.request_links_flow(prefix,output_folder, comm.getId(), link_ids, outDt);
-                api.request_links_veh(prefix, output_folder, comm.getId(), link_ids, outDt);
+                api.output.request_links_flow(prefix,output_folder, comm.getId(), link_ids, outDt);
+                api.output.request_links_veh(prefix, output_folder, comm.getId(), link_ids, outDt);
             }
 
             // run the simulation
             api.run(start_time,duration);
 
             // check the output against expects
-            for(String output_path : api.get_outputs())
+            for(String output_path : api.output.get_file_names())
                 compare_files(output_path);
 
         }

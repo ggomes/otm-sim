@@ -28,14 +28,14 @@ public class TestOne extends AbstractTest {
 
             API api = OTM.load_for_static_traffic_assignment(configfile);
             
-            System.out.println(api.get_node_ids().size());
-            System.out.println(api.get_link_connectivity().size());
+            System.out.println(api.scenario.get_node_ids().size());
+            System.out.println(api.scenario.get_link_connectivity().size());
 
-            LinkInfo link = api.get_link_with_id(107948L);
+            LinkInfo link = api.scenario.get_link_with_id(107948L);
 
             System.out.println(link.getFull_length());
 
-            List<ODInfo> odinfo = api.get_od_info();
+            List<ODInfo> odinfo = api.scenario.get_od_info();
 
             Profile1DInfo profile = odinfo.get(0).get_total_demand_vps();
 
@@ -105,12 +105,12 @@ public class TestOne extends AbstractTest {
             String outfolder  = "C:\\Users\\gomes\\Desktop\\";
             API api = OTM.load(configfile);
 
-            List<ODInfo> od_infos = api.get_od_info();
+            List<ODInfo> od_infos = api.scenario.get_od_info();
             ODInfo od_info = od_infos.get(0);
             List<SubnetworkInfo> xxx = od_info.get_subnetworks();
 
 
-            api.request_path_travel_time(path_id, sample_dt);
+            api.output.request_path_travel_time(path_id, sample_dt);
 //            api.request_links_flow(null, api.get_link_ids(), sample_dt);
 //            api.request_links_veh(null, api.get_link_ids(), sample_dt);
 
@@ -120,7 +120,7 @@ public class TestOne extends AbstractTest {
             api.run(start_time,time_horizon);
 
             boolean instantaneous = true;
-            for(AbstractOutput output : api.get_output_data()){
+            for(AbstractOutput output : api.output.get_data()){
 
 //                if (output instanceof LinkFlow)
 //                    ((LinkFlow) output).plot_for_links(null, String.format("%sflow.png", outfolder));
@@ -187,7 +187,7 @@ public class TestOne extends AbstractTest {
 
             // Print output .........................
             String outfolder = "temp/";
-            for(AbstractOutput output :  api.get_output_data()){
+            for(AbstractOutput output :  api.output.get_data()){
 
 //                if (output instanceof EventsActuator)
 //                    ((EventsActuator) output).plot(String.format("%sactuator%d.png",outfolder,((EventsActuator) output).actuator_id));
@@ -236,15 +236,15 @@ public class TestOne extends AbstractTest {
         }
 
         // Output requests .....................
-        List<Long> list_orig_link_ids = otm_api.get_link_ids();
-        otm_api.request_links_flow(null, list_orig_link_ids, outdt);
-        otm_api.request_links_veh(null, list_orig_link_ids, outdt);
+        List<Long> list_orig_link_ids = otm_api.scenario.get_link_ids();
+        otm_api.output.request_links_flow(null, list_orig_link_ids, outdt);
+        otm_api.output.request_links_veh(null, list_orig_link_ids, outdt);
 
         List<Long> ramp_ids = new ArrayList<>();
-        for(ActuatorInfo act_info : otm_api.get_actuators())
+        for(ActuatorInfo act_info : otm_api.scenario.get_actuators())
             ramp_ids.add(act_info.target.getId());
 
-        ControllerCapacity controller = (ControllerCapacity) otm_api.get_actual_controller_with_id(1);
+        ControllerCapacity controller = (ControllerCapacity) otm_api.scenario.get_actual_controller_with_id(1);
 
         // Qtable loop
 
@@ -267,7 +267,7 @@ public class TestOne extends AbstractTest {
             sum_vehicles[i] = 0d;
             sum_flow[i] = 0d;
 
-            for(AbstractOutput output :  otm_api.get_output_data()){
+            for(AbstractOutput output :  otm_api.output.get_data()){
 
                 if (output instanceof LinkFlow){
 
@@ -322,8 +322,8 @@ public class TestOne extends AbstractTest {
             }
 
             // Output requests .....................
-            api.request_links_flow(prefix,output_folder,null, api.get_link_ids(), outdt);
-            api.request_links_veh(prefix,output_folder,null, api.get_link_ids(), outdt);
+            api.output.request_links_flow(prefix,output_folder,null, api.scenario.get_link_ids(), outdt);
+            api.output.request_links_veh(prefix,output_folder,null, api.scenario.get_link_ids(), outdt);
 
 //            api.request_links_flow(null, api.get_link_ids(), outdt);
 //            api.request_links_veh(null, api.get_link_ids(), outdt);
@@ -336,7 +336,7 @@ public class TestOne extends AbstractTest {
 
             // Print output .........................
             String outfolder = "temp/";
-            for(AbstractOutput output :  api.get_output_data()){
+            for(AbstractOutput output :  api.output.get_data()){
 
                 if (output instanceof EventsActuator)
                     ((EventsActuator) output).plot(String.format("%sactuator%d.png",outfolder,((EventsActuator) output).actuator_id));
