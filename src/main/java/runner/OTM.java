@@ -1,13 +1,10 @@
 package runner;
 
-import dispatch.Dispatcher;
 import error.OTMException;
 
 import utils.OTMUtils;
 
 public class OTM {
-
-    private static Dispatcher dispatcher;
 
     // 0:  -help      Display usage message.
     //     -version   Display version information.
@@ -85,10 +82,6 @@ public class OTM {
         else
             System.err.print(get_usage());
     }
-
-    ///////////////////////////////////////////////////
-    // static
-    ///////////////////////////////////////////////////
 
     private static String get_usage(){
         String str =
