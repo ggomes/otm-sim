@@ -4,7 +4,7 @@ import common.*;
 import common.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.FlowDirection;
+import geometry.FlowPosition;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
@@ -30,8 +30,8 @@ public class LaneGroup extends AbstractLaneGroup {
     // load
     ///////////////////////////////////////////
 
-    public LaneGroup(Link link, Side side, FlowDirection flwdir, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        super(link, side, flwdir,length, num_lanes, start_lane, out_rcs);
+    public LaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        super(link, side, flwpos,length, num_lanes, start_lane, out_rcs);
     }
 
     public void create_cells(int num_cells,double cell_length_meters){

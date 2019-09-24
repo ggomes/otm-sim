@@ -6,15 +6,12 @@ import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
 import dispatch.EventReleaseVehicleFromLaneGroup;
-import geometry.FlowDirection;
+import geometry.FlowPosition;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import models.AbstractFluidModel;
 import models.AbstractLaneGroup;
 import models.AbstractLaneGroupVehicles;
-import models.AbstractVehicleModel;
 import output.InterfaceVehicleListener;
-import output.VehicleTravelTime;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
 import runner.RunParameters;
@@ -33,8 +30,8 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
     public float saturation_flow_rate_vps;
     public float transit_time_sec;
 
-    public LaneGroup(Link link, Side side, FlowDirection flwdir, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
-        super(link, side,flwdir,length, num_lanes, start_lane, out_rcs);
+    public LaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
+        super(link, side,flwpos,length, num_lanes, start_lane, out_rcs);
         this.transit_queue = new models.pq.Queue(this, models.pq.Queue.Type.transit);
         this.waiting_queue = new models.pq.Queue(this, models.pq.Queue.Type.waiting);
     }

@@ -13,6 +13,7 @@ import runner.OTM;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 public class TestOne extends AbstractTest {
@@ -79,11 +80,11 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "C:\\Users\\gomes\\Desktop\\test\\50_x_cfg_0.xml";
+            String configfile = "C:\\Users\\gomes\\code\\opt\\src\\test\\resources\\two_fwy_hov.xml";
             api.OTM otm = new api.OTM(configfile,false,false);
-//            API api = OTM.load("/home/gomes/code/otm-mpi-bb/config/100.xml",true);
+            assertNotNull(otm);
         } catch (OTMException e) {
-            e.printStackTrace();
+            fail(e.getMessage());
         }
     }
 

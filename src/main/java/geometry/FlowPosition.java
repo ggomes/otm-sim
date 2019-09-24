@@ -1,5 +1,5 @@
 package geometry;
 
-public enum FlowDirection {
+public enum FlowPosition {
     up, dn
 }

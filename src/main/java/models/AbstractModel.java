@@ -9,7 +9,7 @@ import common.RoadConnection;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.FlowDirection;
+import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.OutputRequest;
 import output.AbstractOutput;
@@ -54,7 +54,7 @@ public abstract class AbstractModel {
     // factory
     //////////////////////////////////////////////////
     abstract public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException;
-    abstract public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes,int start_lane,Set<RoadConnection> out_rcs);
+    abstract public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs);
     abstract public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path);
     abstract public AbstractLinkInfo get_link_info(Link link);
 

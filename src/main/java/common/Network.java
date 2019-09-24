@@ -3,7 +3,7 @@ package common;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.AddLanes;
-import geometry.FlowDirection;
+import geometry.FlowPosition;
 import geometry.RoadGeometry;
 import geometry.Side;
 import jaxb.Roadparam;
@@ -53,7 +53,7 @@ public class Network {
 
         nodes = read_nodes(jaxb_nodes,this);
         road_params = read_params(jaxb_params);
-        road_geoms = read_geoms(jaxb_geoms);
+        road_geoms = read_geoms(jaxb_geoms,road_params);
 
         links = create_links(jaxb_links,this,nodes);
 
@@ -185,11 +185,11 @@ public class Network {
         return road_params;
     }
 
-    private static HashMap<Long,RoadGeometry> read_geoms(jaxb.Roadgeoms jaxb_geoms) throws OTMException {
+    private static HashMap<Long,RoadGeometry> read_geoms(jaxb.Roadgeoms jaxb_geoms,Map<Long,jaxb.Roadparam> road_params) throws OTMException {
         HashMap<Long,RoadGeometry> road_geoms = new HashMap<>();
         if(jaxb_geoms!=null) {
             for (jaxb.Roadgeom jaxb_geom : jaxb_geoms.getRoadgeom())
-                road_geoms.put(jaxb_geom.getId(), new RoadGeometry(jaxb_geom));
+                road_geoms.put(jaxb_geom.getId(), new RoadGeometry(jaxb_geom,road_params));
         }
         return road_geoms;
     }
@@ -292,13 +292,15 @@ public class Network {
         return models;
     }
 
-    private static HashMap<Long,RoadConnection> read_road_connections(jaxb.Roadconnections jaxb_conns,Map<Long,Link> links) {
+    private static HashMap<Long,RoadConnection> read_road_connections(jaxb.Roadconnections jaxb_conns,Map<Long,Link> links) throws OTMException {
 
         HashMap<Long,RoadConnection> road_connections = new HashMap<>();
         Set<Long> no_road_connection = new HashSet<>();
         no_road_connection.addAll(links.values().stream().filter(x->!x.is_sink).map(y->y.getId()).collect(toSet()));
         if (jaxb_conns != null && jaxb_conns.getRoadconnection() != null) {
             for (jaxb.Roadconnection jaxb_rc : jaxb_conns.getRoadconnection()) {
+                if(road_connections.containsKey(jaxb_rc.getId()))
+                    throw new OTMException("Repeated road connection id");
                 RoadConnection rc =  new RoadConnection(links, jaxb_rc);
                 road_connections.put(jaxb_rc.getId(),rc);
                 no_road_connection.remove(rc.get_start_link_id());
@@ -366,38 +368,57 @@ public class Network {
 
     private static void create_lane_groups(Link link,final Set<RoadConnection> out_rcs) throws OTMException {
 
-        if(link.model==null)
+        if (link.model == null)
             throw new OTMException("Not all links have a model.");
 
         // absent road connections: create them, if it is not a sink
-        if(out_rcs.isEmpty() && !link.is_sink)
+        if (out_rcs.isEmpty() && !link.is_sink)
             throw new OTMException("THIS SHOULD NOT HAPPEN.");
 
         // create lanegroups
-        link.set_long_lanegroups(create_dnflw_lanegroups(link,out_rcs));
+        link.set_long_lanegroups(create_dnflw_lanegroups(link, out_rcs));
         create_up_side_lanegroups(link);
 
-        // set start_lane_up
-        int up_in_lanes = link.road_geom!=null && link.road_geom.up_in!=null ? link.road_geom.up_in.lanes : 0;
-        int dn_in_lanes = link.road_geom!=null && link.road_geom.dn_in!=null ? link.road_geom.dn_in.lanes : 0;
-        int offset = dn_in_lanes-up_in_lanes;
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-            if(lg.side==Side.stay)
-                lg.start_lane_up = lg.start_lane_dn - offset;
+        int offset = 0;
+        if(link.road_geom!=null){
+            if(link.road_geom.in_is_full_length())
+                offset = 0;
+            else {
+                int dn_in_lanes = link.road_geom.dn_in != null ? link.road_geom.dn_in.lanes : 0;
+                int up_in_lanes = link.road_geom.up_in != null ? link.road_geom.up_in.lanes : 0;
+                offset = dn_in_lanes-up_in_lanes;
+            }
+        }
+
+        for (AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+            switch (lg.side) {
+                case in:
+                    if(link.road_geom.in_is_full_length())
+                        lg.start_lane_up = lg.start_lane_dn;
+                    break;
+                case middle:
+                    lg.start_lane_up = lg.start_lane_dn - offset;
+                    break;
+                case out:
+                    if(link.road_geom.out_is_full_length())
+                        lg.start_lane_up = lg.start_lane_dn - offset;
+                    break;
+            }
+        }
 
         // set neighbors
 
         // .................. lat lanegroups = {up addlane}
-        if(link.lanegroup_flwside_in !=null){
+        if(link.lanegroup_up_in !=null){
             AbstractLaneGroup inner_full = link.get_inner_full_lanegroup();
-            link.lanegroup_flwside_in.neighbor_out = inner_full;
-            inner_full.neighbor_up_in = link.lanegroup_flwside_in;
+            link.lanegroup_up_in.neighbor_out = inner_full;
+            inner_full.neighbor_up_in = link.lanegroup_up_in;
         }
 
-        if (link.lanegroup_flwside_out != null) {
+        if (link.lanegroup_up_out != null) {
             AbstractLaneGroup outer_full = link.get_outer_full_lanegroup();
-            link.lanegroup_flwside_out.neighbor_in = outer_full;
-            outer_full.neighbor_up_out = link.lanegroup_flwside_out;
+            link.lanegroup_up_out.neighbor_in = outer_full;
+            outer_full.neighbor_up_out = link.lanegroup_up_out;
         }
 
         // ................... long lanegroups = {dn addlane, stay lgs}
@@ -437,21 +458,53 @@ public class Network {
 
         Set<AbstractLaneGroup> lanegroups = new HashSet<>();
 
-        // empty out_rc => sink
-        if(out_rcs.isEmpty()){
-            assert(link.is_sink);
-            lanegroups.add(create_dnflw_lanegroup(link,1, link.full_lanes, null));
+        // empty out_rc <=> sink
+        assert(out_rcs.isEmpty()==link.is_sink);
+//        if(out_rcs.isEmpty()){
+//            assert(link.is_sink);
+//            lanegroups.add(create_dnflw_lanegroup(link,1, link.full_lanes, null));
+//            return lanegroups;
+//        }
+
+        // for sinks (or out_rcs is empty), create lane groups according to addlanes.
+        if(link.is_sink){
+
+            // trivial case
+            if(link.road_geom==null) {
+                lanegroups.add(create_dnflw_lanegroup(link, 1, link.full_lanes, null));
+                return lanegroups;
+            }
+
+            int lane = 0;
+
+            // create inner addlane
+            if(link.road_geom.dn_in!=null) {
+                lanegroups.add(create_dnflw_lanegroup(link, 1, link.road_geom.dn_in.lanes, null));
+                lane += link.road_geom.dn_in.lanes;
+            }
+
+            // create full lanes
+            if(link.full_lanes>0){
+                lanegroups.add(create_dnflw_lanegroup(link, lane+1, link.full_lanes, null));
+                lane += link.full_lanes;
+            }
+
+            // create outer addlane
+            if(link.road_geom.dn_out!=null)
+                lanegroups.add(create_dnflw_lanegroup(link, lane+1, link.road_geom.dn_out.lanes, null));
+
             return lanegroups;
         }
 
-        // faster code for singleton
+        // special code for singleton
         if(out_rcs.size()==1) {
             lanegroups.add(create_dnflw_lanegroup(link, 1, link.full_lanes, out_rcs));
             return lanegroups;
         }
 
+
         // create map from lanes to road connection sets
-        boolean lane_one_is_empty = false;
+//        boolean lane_one_is_empty = false;
         Map<Integer,Set<RoadConnection>> dnlane2rcs = new HashMap<>();
         for(int lane=1;lane<=link.get_num_dn_lanes();lane++) {
             Set<RoadConnection> myrcs = new HashSet<>();
@@ -462,18 +515,18 @@ public class Network {
             if(myrcs.isEmpty()) {
                 if(lane>1)
                     myrcs.addAll(dnlane2rcs.get(lane-1));
-                else
-                    lane_one_is_empty = true;
+//                else
+//                    lane_one_is_empty = true;
             }
             dnlane2rcs.put(lane,myrcs);
         }
 
-        // case no lane groups for lane 1
-        if(lane_one_is_empty){
-            if(link.get_num_dn_lanes()<2)
-                throw new OTMException(String.format("No outgoing road connection for link %d",link.getId()));
-            dnlane2rcs.get(1).addAll(dnlane2rcs.get(2));
-        }
+//        // case no lane groups for lane 1
+//        if(lane_one_is_empty){
+//            if(link.get_num_dn_lanes()<2)
+//                throw new OTMException(String.format("No outgoing road connection for link %d",link.getId()));
+//            dnlane2rcs.get(1).addAll(dnlane2rcs.get(2));
+//        }
 
         // set of unique road connection sets
         Set<Set<RoadConnection>> unique_rc_sets = new HashSet<>();
@@ -495,38 +548,41 @@ public class Network {
 
     private static AbstractLaneGroup create_dnflw_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
 
-        // Determine whether it is an addlane lanegroup or a stay lane group.
+        // Determine whether it is an addlane lanegroup or a full lane lane group.
         Set<Side> sides = new HashSet<>();
         for(int lane=dn_start_lane;lane<dn_start_lane+num_lanes;lane++)
             sides.add(link.get_side_for_dn_lane(lane));
 
+        // all lanes must belong to one of the 3
+        // That is, there are no lane groups that is both inner and full length, or outer and full length.
         if(sides.size()!=1)
             throw new OTMException(String.format("Rule broken: Lane groups must be contained in addlanes or stay lanes. Check link %d",link.getId()));
 
         float length = 0f;
         Side side = sides.iterator().next();
         switch(side){
-            case in:
-                length = link.road_geom.dn_in.length;
+            case in:    // inner addlane lane group
+                length = Float.isNaN(link.road_geom.dn_in.length) ? link.length : link.road_geom.dn_in.length;
                 break;
-            case stay:
+            case middle:    // full lane lane group
                 length = link.length;
                 break;
-            case out:
-                length = link.road_geom.dn_out.length;
+            case out:    // outer addlane lane group
+                length = Float.isNaN(link.road_geom.dn_out.length) ? link.length : link.road_geom.dn_out.length;
                 break;
         }
 
-        return link.model.create_lane_group(link,side, FlowDirection.dn,length,num_lanes,dn_start_lane,out_rcs);
+        // This precludes multiple lane groups of the same side: multiple 'stay' lane
+        return link.model.create_lane_group(link,side, FlowPosition.dn,length,num_lanes,dn_start_lane,out_rcs);
     }
 
     private static void create_up_side_lanegroups(Link link) throws OTMException {
         if(link.road_geom==null)
             return;
         if(link.road_geom.up_in!=null)
-            link.lanegroup_flwside_in = create_up_side_lanegroup(link, link.road_geom.up_in);
+            link.lanegroup_up_in = create_up_side_lanegroup(link, link.road_geom.up_in);
         if(link.road_geom.up_out!=null)
-            link.lanegroup_flwside_out = create_up_side_lanegroup(link,link.road_geom.up_out);
+            link.lanegroup_up_out = create_up_side_lanegroup(link,link.road_geom.up_out);
     }
 
     private static AbstractLaneGroup create_up_side_lanegroup(Link link, AddLanes addlanes) {
@@ -535,7 +591,7 @@ public class Network {
         Side side = addlanes.side;
         int start_lane_up = side==Side.in ? 1 : link.get_num_up_lanes() - addlanes.lanes + 1;
 
-        return link.model.create_lane_group(link,side, FlowDirection.up,length,num_lanes,start_lane_up,null);
+        return link.model.create_lane_group(link,side, FlowPosition.up,length,num_lanes,start_lane_up,null);
     }
 
     private static void set_rc_in_out_lanegroups(RoadConnection rc){

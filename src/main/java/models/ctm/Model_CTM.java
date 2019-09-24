@@ -5,7 +5,7 @@ import commodity.Path;
 import common.AbstractSource;
 import common.RoadConnection;
 import error.OTMException;
-import geometry.FlowDirection;
+import geometry.FlowPosition;
 import jaxb.OutputRequest;
 import models.AbstractFluidModel;
 import models.AbstractLaneGroup;
@@ -96,8 +96,8 @@ public class Model_CTM extends AbstractFluidModel {
     //////////////////////////////////////////////////////////////
 
     @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        return new models.ctm.LaneGroup(link,side,flowdir,length,num_lanes,start_lane,out_rcs);
+    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        return new models.ctm.LaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
     }
 
 //    @Override
@@ -294,13 +294,13 @@ public class Model_CTM extends AbstractFluidModel {
                             // add to side cell
                             Side newside = lg.state2lanechangedirection.containsKey(state) ?
                                     lg.state2lanechangedirection.get(state) :
-                                    Side.stay;
+                                    Side.middle;
                             switch (newside) {
                                 case in:
                                     to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);
                                     to_cell.total_vehs_in += flw;
                                     break;
-                                case stay:
+                                case middle:
                                     to_cell.veh_dwn.put(state, to_cell.veh_dwn.get(state) + flw);
                                     to_cell.total_vehs_dwn += flw;
                                     break;
@@ -337,13 +337,13 @@ public class Model_CTM extends AbstractFluidModel {
                             // add to side cell
                             Side newside = lg.state2lanechangedirection.containsKey(state) ?
                                     lg.state2lanechangedirection.get(state) :
-                                    Side.stay;
+                                    Side.middle;
                             switch (newside) {
                                 case in:
                                     to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);
                                     to_cell.total_vehs_in += flw;
                                     break;
-                                case stay:
+                                case middle:
                                     to_cell.veh_dwn.put(state, to_cell.veh_dwn.get(state) + flw);
                                     to_cell.total_vehs_dwn += flw;
                                     break;

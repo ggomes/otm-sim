@@ -2,20 +2,22 @@ package geometry;
 
 import error.OTMErrorLog;
 import error.OTMException;
+import jaxb.Roadparam;
 import runner.InterfaceScenarioElement;
 import runner.ScenarioElementType;
 
 import java.util.List;
+import java.util.Map;
 
 public class RoadGeometry implements InterfaceScenarioElement {
 
     final public long id;
-    public AddLanes up_in; // = new AddLanes(AddLanes.FlowDirection.up,AddLanes.Side.in);
-    public AddLanes up_out; // = new AddLanes(AddLanes.FlowDirection.up,AddLanes.Side.out);
-    public AddLanes dn_in; // = new AddLanes(AddLanes.FlowDirection.dn,AddLanes.Side.in);
-    public AddLanes dn_out; // = new AddLanes(AddLanes.FlowDirection.dn,AddLanes.Side.out);
+    public AddLanes up_in;
+    public AddLanes up_out;
+    public AddLanes dn_in;
+    public AddLanes dn_out;
 
-    public RoadGeometry(jaxb.Roadgeom jaxb_geom) throws OTMException {
+    public RoadGeometry(jaxb.Roadgeom jaxb_geom,Map<Long, Roadparam> road_params) throws OTMException {
 
         // null road geom
         if(jaxb_geom==null) {
@@ -27,7 +29,12 @@ public class RoadGeometry implements InterfaceScenarioElement {
 
         // Warning: this does not check for repetitions
         for(jaxb.AddLanes jaxb_al : jaxb_geom.getAddLanes()){
-            AddLanes addlane = new AddLanes(jaxb_al);
+
+            Roadparam rp = null;
+            if( jaxb_al.getRoadparam()!=null && road_params.containsKey(jaxb_al.getRoadparam()))
+                rp = road_params.get(jaxb_al.getRoadparam());
+
+            AddLanes addlane = new AddLanes(jaxb_al,rp);
             if(addlane.isUp())
                 if(addlane.isIn())
                     up_in = addlane;
@@ -67,6 +74,14 @@ public class RoadGeometry implements InterfaceScenarioElement {
         if(this.dn_out.lanes>0)
             jaddlanes.add(this.dn_out.to_jaxb());
         return jgeom;
+    }
+
+    public boolean in_is_full_length(){
+        return dn_in==null ? false : Float.isNaN(dn_in.length);
+    }
+
+    public boolean out_is_full_length(){
+        return dn_out==null ? false : Float.isNaN(dn_out.length);
     }
 
     ////////////////////////////////////////////

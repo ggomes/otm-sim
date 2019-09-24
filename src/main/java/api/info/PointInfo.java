@@ -5,10 +5,10 @@ import common.Point;
 
 public class PointInfo {
 
-    /** X flwdir. Unspecified units. This is not used by the simulator. */
+    /** X position. Unspecified units. This is not used by the simulator. */
     public float x;
 
-    /** Y flwdir. Unspecified units. This is not used by the simulator. */
+    /** Y position. Unspecified units. This is not used by the simulator. */
     public float y;
 
     public PointInfo(Point p){

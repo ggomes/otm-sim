@@ -1,6 +1,7 @@
 package geometry;
 
 import error.OTMErrorLog;
+import jaxb.Roadparam;
 
 import java.util.TreeSet;
 
@@ -10,18 +11,20 @@ public class AddLanes {
     public boolean isopen;
 
     public Side side;
-    public FlowDirection position;
+    public FlowPosition position;
     public float length;        // meters
     public int lanes;
+    public jaxb.Roadparam roadparam;
 
-    public AddLanes(FlowDirection pos, Side side){
+    public AddLanes(FlowPosition pos, Side side, Roadparam rp){
         this.lanes = 0;
         this.side = side;
         this.position = pos;
         this.length = 0f;
+        this.roadparam = rp;
     }
 
-    public AddLanes(jaxb.AddLanes jaxb_al) {
+    public AddLanes(jaxb.AddLanes jaxb_al, Roadparam rp) {
 
         if(jaxb_al==null){
             this.lanes = 0;
@@ -29,10 +32,11 @@ public class AddLanes {
             return;
         }
 
+        this.roadparam = rp;
         this.isopen = jaxb_al.isIsopen();
         this.side = Side.valueOf(jaxb_al.getSide().toLowerCase());
-        this.position = FlowDirection.valueOf(jaxb_al.getPos().toLowerCase());
-        this.length = jaxb_al.getLength();
+        this.position = jaxb_al.getPos()==null ? FlowPosition.dn : FlowPosition.valueOf(jaxb_al.getPos().toLowerCase());
+        this.length = jaxb_al.getLength()==null ? Float.NaN : jaxb_al.getLength();
         this.lanes = jaxb_al.getLanes();
 
         if(jaxb_al.getGates()!=null)
@@ -41,7 +45,7 @@ public class AddLanes {
     }
 
     public boolean isUp(){
-        return this.position.equals(FlowDirection.up);
+        return this.position.equals(FlowPosition.up);
     }
 
     public boolean isIn(){
@@ -81,7 +85,7 @@ public class AddLanes {
     public jaxb.AddLanes to_jaxb(){
         // TODO FIX THIS
         jaxb.AddLanes j1 = new jaxb.AddLanes();
-//        if(flwdir.equals(FlowDirection.dn))
+//        if(flwpos.equals(FlowDirection.dn))
 //            j1.setStartPos(this.length);
 //        else
 //            j1.setEndPos(this.length);

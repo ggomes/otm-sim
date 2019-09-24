@@ -6,7 +6,7 @@ import common.Link;
 import common.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.FlowDirection;
+import geometry.FlowPosition;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import packet.PacketLaneGroup;
@@ -27,9 +27,9 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public final long id;
     public Link link;
     public final Side side;               // inner, stay, or outer
-    public final FlowDirection flwdir;
-    public int start_lane_up;       // counted with respect to upstream boundary
-    public int start_lane_dn;       // counted with respect to downstream boundary
+    public final FlowPosition flwpos;
+    public int start_lane_up = -1;       // counted with respect to upstream boundary
+    public int start_lane_dn = -1;       // counted with respect to downstream boundary
     public final int num_lanes;
     public float length;        // [m]
 
@@ -94,15 +94,15 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // construction
     ///////////////////////////////////////////////////
 
-    public AbstractLaneGroup(Link link, Side side, FlowDirection flwdir, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
+    public AbstractLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
         this.link = link;
         this.side = side;
-        this.flwdir = flwdir;
+        this.flwpos = flwpos;
         this.length = length;
         this.num_lanes = num_lanes;
         this.id = OTMUtils.get_lanegroup_id();
         this.states = new HashSet<>();
-        switch(flwdir){
+        switch(flwpos){
             case up:
                 this.start_lane_up = start_lane;
                 break;
@@ -159,7 +159,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         // state2lanechangedirection
         if(link.is_sink){
             state2roadconnection.put(state,null);
-            state2lanechangedirection.put(state, Side.stay);
+            state2lanechangedirection.put(state, Side.middle);
         } else {
 
             // store in map
@@ -173,8 +173,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
                 Set<AbstractLaneGroup> target_lgs = rc.in_lanegroups;
                 Set<Side> sides = target_lgs.stream().map(x -> x.get_side_with_respect_to_lg(this)).collect(Collectors.toSet());
 
-                if(sides.contains(Side.stay))
-                    state2lanechangedirection.put(state, Side.stay );
+                if(sides.contains(Side.middle))
+                    state2lanechangedirection.put(state, Side.middle);
                 else {
                     if (sides.size() != 1)
                         throw new OTMException("asd;liqwr g-q4iwq jg");
@@ -216,14 +216,14 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public final Side get_side_with_respect_to_lg(AbstractLaneGroup lg){
 
         // This is more complicated with up addlanes
-        assert(lg.flwdir==FlowDirection.dn);
-        assert(this.flwdir==FlowDirection.dn);
+        assert(lg.flwpos == FlowPosition.dn);
+        assert(this.flwpos == FlowPosition.dn);
 
         if(!this.link.getId().equals(link.getId()))
             return null;
 
         if(this==lg)
-            return Side.stay;
+            return Side.middle;
 
         if (this.start_lane_dn < lg.start_lane_dn)
             return Side.in;

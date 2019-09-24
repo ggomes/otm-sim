@@ -279,7 +279,7 @@ public class Scenario {
 //            jsns.setLinkId(link_id);
 ////            jsns.setDataId(abssns);
 //            jsns.setLanes(abssns.start_lane + "#" + abssns.end_lane);
-//            jsns.setPosition(abssns.flwdir);
+//            jsns.setPosition(abssns.flwpos);
 //            jsns.setType(abssns.type.toString());
 //
 //        }

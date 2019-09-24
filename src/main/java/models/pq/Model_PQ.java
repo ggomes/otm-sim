@@ -4,7 +4,7 @@ import common.AbstractVehicle;
 import common.RoadConnection;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
-import geometry.FlowDirection;
+import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.OutputRequest;
 import models.*;
@@ -65,8 +65,8 @@ public class Model_PQ extends AbstractVehicleModel {
     }
 
     @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowDirection flowdir, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        return new models.pq.LaneGroup(link,side,flowdir,length,num_lanes,start_lane,out_rcs);
+    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        return new models.pq.LaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
     }
 
     @Override

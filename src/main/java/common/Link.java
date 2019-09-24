@@ -56,8 +56,8 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     public Map<Long, AbstractLaneGroup> lanegroups_flwdn;
 
     // Lateral lanegroups: all flow exits laterally. These are the upstream addlanes.
-    public AbstractLaneGroup lanegroup_flwside_in;
-    public AbstractLaneGroup lanegroup_flwside_out;
+    public AbstractLaneGroup lanegroup_up_in;
+    public AbstractLaneGroup lanegroup_up_out;
 
     // downstream lane count -> lane group
     public Map<Integer, AbstractLaneGroup> dnlane2lanegroup;
@@ -169,10 +169,10 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         if(lanegroups_flwdn !=null)
             lanegroups_flwdn.values().forEach(lg->lg.delete());
         lanegroups_flwdn = null;
-        lanegroup_flwside_out.delete();
-        lanegroup_flwside_in.delete();
-        lanegroup_flwside_out = null;
-        lanegroup_flwside_in = null;
+        lanegroup_up_out.delete();
+        lanegroup_up_in.delete();
+        lanegroup_up_out = null;
+        lanegroup_up_in = null;
         dnlane2lanegroup = null;
         path2outlink = null;
         outlink2lanegroups = null;
@@ -292,24 +292,24 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
             errorLog.addError("link " + id + ": lanegroups==null");
 
         // check that the road geometry fits the link
-        if(this.road_geom!=null){
-
-            // each addlane has length less than the link
-            if(road_geom.up_in!=null && road_geom.up_in.length>this.length )
-                errorLog.addError("link " + id + ", road_geom.up_in.length > this.length");
-            if(road_geom.up_out!=null && road_geom.up_out.length>this.length )
-                errorLog.addError("link " + id + ", road_geom.up_out.length > this.length");
-            if(road_geom.dn_in!=null && road_geom.dn_in.length>this.length )
-                errorLog.addError("link " + id + ", road_geom.dn_in.length > this.length");
-            if(road_geom.dn_out!=null && road_geom.dn_out.length>this.length )
-                errorLog.addError("link " + id + ", road_geom.dn_out.length > this.length");
-
-            // sum of inside (outside) addlane lengths is less than link length
-            if(road_geom.up_in!=null && road_geom.dn_in!=null && road_geom.up_in.length+road_geom.dn_in.length>this.length)
-                errorLog.addError("link " + id + ", road_geom.up_in.length+road_geom.dn_in.length>this.length");
-            if(road_geom.up_out!=null && road_geom.dn_out!=null && road_geom.up_out.length+road_geom.dn_out.length>this.length)
-                errorLog.addError("link " + id + ", road_geom.up_out.length+road_geom.dn_out.length>this.length");
-        }
+//        if(this.road_geom!=null){
+//
+//            // each addlane has length less than the link
+//            if(road_geom.up_in!=null && road_geom.up_in.length>this.length )
+//                errorLog.addError("link " + id + ", road_geom.up_in.length > this.length");
+//            if(road_geom.up_out!=null && road_geom.up_out.length>this.length )
+//                errorLog.addError("link " + id + ", road_geom.up_out.length > this.length");
+//            if(road_geom.dn_in!=null && road_geom.dn_in.length>this.length )
+//                errorLog.addError("link " + id + ", road_geom.dn_in.length > this.length");
+//            if(road_geom.dn_out!=null && road_geom.dn_out.length>this.length )
+//                errorLog.addError("link " + id + ", road_geom.dn_out.length > this.length");
+//
+//            // sum of inside (outside) addlane lengths is less than link length
+//            if(road_geom.up_in!=null && road_geom.dn_in!=null && road_geom.up_in.length+road_geom.dn_in.length>this.length)
+//                errorLog.addError("link " + id + ", road_geom.up_in.length+road_geom.dn_in.length>this.length");
+//            if(road_geom.up_out!=null && road_geom.dn_out!=null && road_geom.up_out.length+road_geom.dn_out.length>this.length)
+//                errorLog.addError("link " + id + ", road_geom.up_out.length+road_geom.dn_out.length>this.length");
+//        }
 
         // all lanes are covered in dnlane2lanegroup
 //        if( dnlane2lanegroup !=null) {
@@ -611,27 +611,28 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
                 (road_geom==null||road_geom.up_out==null ? 0 : road_geom.up_out.lanes);
     }
 
-    // returns length in meters
-    public float get_length_for_lane(int lane){
+//    // returns length in meters
+//    public float get_length_for_lane(int lane){
+//
+//        // TODO REPAIR THIS
+//
+//        if(lane<1)
+//            return 0f;
+//
+//        if(road_geom==null)
+//            return this.length;
+//
+//        if(lane<=road_geom.dn_in.lanes)
+//            return road_geom.dn_in.length;
+//        else if(lane<=road_geom.dn_in.lanes+full_lanes)
+//            return this.length;
+//        else if (lane<=road_geom.dn_in.lanes+full_lanes+road_geom.dn_out.lanes)
+//            return road_geom.dn_out.length;
+//        else
+//            return 0f;
+//    }
 
-        // TODO REPAIR THIS
-
-        if(lane<1)
-            return 0f;
-
-        if(road_geom==null)
-            return this.length;
-
-        if(lane<=road_geom.dn_in.lanes)
-            return road_geom.dn_in.length;
-        else if(lane<=road_geom.dn_in.lanes+full_lanes)
-            return this.length;
-        else if (lane<=road_geom.dn_in.lanes+full_lanes+road_geom.dn_out.lanes)
-            return road_geom.dn_out.length;
-        else
-            return 0f;
-    }
-
+    // whether this lane belongs to the inside addlane, the full lanes or the outside addlane.
     public Side get_side_for_dn_lane(int lane){
         int in_lanes = road_geom!=null && road_geom.dn_in!=null ? road_geom.dn_in.lanes : 0;
         int out_lanes = road_geom!=null && road_geom.dn_out!=null ? road_geom.dn_out.lanes : 0;
@@ -640,7 +641,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
             return Side.in;
 
         if(lane<=in_lanes+full_lanes)
-            return Side.stay;
+            return Side.middle;
 
         if(lane<=in_lanes+full_lanes+out_lanes)
             return Side.out;
@@ -659,6 +660,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         Set<AbstractLaneGroup> x = new HashSet<>();
         for (int lane = from_lane; lane <= to_lane; lane++)
             x.add(get_lanegroup_for_up_lane(lane));
+
         return x;
     }
 
@@ -667,7 +669,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     }
 
     public AbstractLaneGroup get_lanegroup_for_up_lane(int lane){
-        AbstractLaneGroup lg = lanegroup_flwside_in !=null ? lanegroup_flwside_in : get_inner_full_lanegroup();
+        AbstractLaneGroup lg = lanegroup_up_in !=null ? lanegroup_up_in : get_inner_full_lanegroup();
         while(true){
             if(lane<=lg.start_lane_up+lg.num_lanes-1)
                 return lg;

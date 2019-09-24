@@ -24,6 +24,7 @@ public class Commodity implements InterfaceScenarioElement {
     public final Set<Subnetwork> subnetworks;
     public  Set<Link> all_links;
     public boolean pathfull;
+    public float pvequiv;
 
     // this is a dispatch output writer for vehicles of this commodity
     public Set<InterfaceVehicleListener> vehicle_event_listeners;
@@ -36,7 +37,7 @@ public class Commodity implements InterfaceScenarioElement {
         this.id = id;
         this.name = name;
         this.subnetworks = new HashSet<>();
-//        this.all_lanegroups = new HashSet<>();
+        this.pvequiv = 1f;
         this.all_links = new HashSet<>();
         if(subnet_ids!=null)
             for(Long subnet_id : subnet_ids){
@@ -55,7 +56,7 @@ public class Commodity implements InterfaceScenarioElement {
         this.name = jaxb_comm.getName();
         this.pathfull = jaxb_comm.isPathfull();
         this.subnetworks = new HashSet<>();
-//        this.all_lanegroups = new HashSet<>();
+        this.pvequiv = jaxb_comm.getPvequiv();
         this.all_links = new HashSet<>();
         if(subnet_ids!=null)
             for(Long subnet_id : subnet_ids){
@@ -63,29 +64,12 @@ public class Commodity implements InterfaceScenarioElement {
                 if(subnet!=null) {
                     this.subnetworks.add(subnet);
                     all_links.addAll(subnet.links);
-//                    if(subnet.lanegroups!=null)
-//                        all_lanegroups.addAll(subnet.lanegroups);
                 }
             }
         this.vehicle_event_listeners = new HashSet<>();
     }
 
     public void validate(OTMErrorLog errorLog){
-
-        // pathfull commodities must have exactly one subnetwork
-//        if(pathfull && subnetworks.size()!=1)
-//            errorLog.addError("pathfull commodities must have exactly one subnetwork");
-
-
-//        if(id<=0)
-//            scenario.error_log.addError("id<=0 is prohibited for commodities");
-
-//        // check that there is a split defined for me everywhere in my subnetwork
-//        for(Link link : subnetwork.links){
-//            Collection<Link> bla = link.end_node.out_links.values();
-//            System.out.println("MISSING VALIDATION");
-//        }
-
     }
 
     public void initialize() throws OTMException {
@@ -150,6 +134,7 @@ public class Commodity implements InterfaceScenarioElement {
         jcomm.setId(getId());
         jcomm.setName(name);
         jcomm.setPathfull(pathfull);
+        jcomm.setPvequiv(pvequiv);
         String str = OTMUtils.comma_format(subnetworks.stream().map(x->x.getId()).collect(Collectors.toList()));
         jcomm.setSubnetworks(str);
         return jcomm;

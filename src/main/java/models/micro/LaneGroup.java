@@ -4,7 +4,7 @@ import common.AbstractVehicle;
 import common.Link;
 import common.RoadConnection;
 import error.OTMException;
-import geometry.FlowDirection;
+import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.Roadparam;
 import keys.KeyCommPathOrLink;
@@ -26,8 +26,8 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
     public double dw;   // w*dt [meters per dt]
     public double dc;   // capcity*dt [veh per dt]
 
-    public LaneGroup(Link link, Side side, FlowDirection flwdir, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        super(link, side, flwdir, length, num_lanes, start_lane, out_rcs);
+    public LaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        super(link, side, flwpos, length, num_lanes, start_lane, out_rcs);
         vehicles = new ArrayList<>();
     }
 

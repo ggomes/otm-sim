@@ -67,7 +67,7 @@ public class AddLanesInfo {
                 "lanes=" + lanes +
                 ", side='" + side + '\'' +
                 ", isopen=" + isopen +
-                ", flwdir='" + position + '\'' +
+                ", position ='" + position + '\'' +
                 ", length=" + length +
                 ", gates=" + gates +
                 '}';

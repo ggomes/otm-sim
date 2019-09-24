@@ -165,7 +165,7 @@ public class Cell {
         double cur_val;
         
         switch(laneGroup.state2lanechangedirection.get(key)){
-            case stay:
+            case middle:
                 cur_val = veh_dwn.containsKey(key) ? veh_dwn.get(key) : 0d;
                 veh_dwn.put(key,cur_val + value);
                 total_vehs_dwn += value;

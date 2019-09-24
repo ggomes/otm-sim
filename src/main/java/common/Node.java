@@ -13,7 +13,6 @@ import runner.ScenarioElementType;
 
 import java.util.*;
 
-
 public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
 
     public Network network;
@@ -34,7 +33,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     // actuator
     public AbstractActuator actuator;
 
-    // node flwdir
+    // node flwpos
     public Float xcoord;
     public Float ycoord;
 
