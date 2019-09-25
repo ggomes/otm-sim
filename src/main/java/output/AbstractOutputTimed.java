@@ -1,7 +1,6 @@
 package output;
 
 import commodity.Commodity;
-import commodity.Subnetwork;
 import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
@@ -10,8 +9,6 @@ import runner.RunParameters;
 import runner.Scenario;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class AbstractOutputTimed extends AbstractOutput {
 
@@ -112,10 +109,7 @@ public abstract class AbstractOutputTimed extends AbstractOutput {
 
     @Override
     public void register(RunParameters props, Dispatcher dispatcher) {
-        float start_time = props.start_time;
-        float end_time = props.start_time + props.duration;
-        for(float time=start_time ; time<=end_time ; time+=outDt )
-            dispatcher.register_event(new EventTimedWrite(dispatcher,time,this));
+        dispatcher.register_event(new EventTimedWrite(dispatcher,props.start_time,this));
     }
 
 }

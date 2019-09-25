@@ -12,6 +12,8 @@ public class EventTimedWrite extends AbstractEvent {
     @Override
     public void action(boolean verbose) throws OTMException {
         super.action(verbose);
-        ((AbstractOutputTimed)recipient).write(timestamp,null);
+        AbstractOutputTimed obj = (AbstractOutputTimed)recipient;
+        obj.write(timestamp,null);
+        dispatcher.register_event(new EventTimedWrite(dispatcher,timestamp + obj.outDt,recipient));
     }
 }

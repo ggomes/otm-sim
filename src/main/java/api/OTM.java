@@ -147,7 +147,7 @@ public class OTM {
         }
 
         // initialize
-        RunParameters runParams = new RunParameters(prefix,output_requests_file,output_folder,start_time,0f);
+        RunParameters runParams = new RunParameters(prefix,output_requests_file,output_folder,start_time);
         scn.initialize(dispatcher,runParams);
     }
 

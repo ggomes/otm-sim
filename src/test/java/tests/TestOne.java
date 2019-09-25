@@ -88,7 +88,6 @@ public class TestOne extends AbstractTest {
         }
     }
 
-
     @Ignore
     @Test
     public void load_for_traffic_assignment() {
@@ -152,7 +151,7 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "C:\\Users\\gomes\\Desktop\\test\\50_x_cfg_0.xml";
+            String configfile = "C:\\Users\\gomes\\code\\otm\\otm-base\\src\\main\\resources\\test_configs\\line.xml";
 
             float duration = 3600f;
             float outdt = 10f;
@@ -163,10 +162,14 @@ public class TestOne extends AbstractTest {
             api.OTM otm = new api.OTM(configfile,true,false);
 
 
-//            // Output requests .....................
-//            api.request_links_flow(prefix,output_folder,null, api.get_link_ids(), outdt);
-//            api.request_links_veh(prefix,output_folder,null, api.get_link_ids(), outdt);
-//
+            // Output requests .....................
+            List<Long> link_ids = otm.scenario.get_link_ids();
+//            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
+//            otm.output.request_links_veh(prefix,output_folder,null, link_ids, outdt);
+
+            otm.output.request_links_flow(null, link_ids, outdt);
+            otm.output.request_links_veh(null, link_ids, outdt);
+
 //
 //            List<ODInfo> od_infos = api.get_od_info();
 //            ODInfo od_info = od_infos.get(0);
@@ -194,12 +197,12 @@ public class TestOne extends AbstractTest {
 //
 //                if (output instanceof EventsController)
 //                    ((EventsController) output).plot(String.format("%scontroller%d.png",outfolder,((EventsController) output).controller_id));
-//
-//                if (output instanceof LinkFlow)
-//                    ((LinkFlow) output).plot_for_links(null, String.format("%sflow.png", outfolder));
-//
-//                if (output instanceof LinkVehicles)
-//                    ((LinkVehicles) output).plot_for_links(null, String.format("%sveh.png", outfolder));
+
+                if (output instanceof LinkFlow)
+                    ((LinkFlow) output).plot_for_links(null, String.format("%sflow.png", outfolder));
+
+                if (output instanceof LinkVehicles)
+                    ((LinkVehicles) output).plot_for_links(null, String.format("%sveh.png", outfolder));
 
 
                 if(output instanceof PathTravelTimeWriter){
