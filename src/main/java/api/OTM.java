@@ -52,6 +52,16 @@ public class OTM {
     // static
     ////////////////////////////////////////////////////////
 
+    public static OTM load(String configfile){
+        OTM otm = null;
+        try {
+            otm = new OTM(configfile,true,false);
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+        return otm;
+    }
+
     /**
      * Undocumented
      * @return git hash for the current build.
@@ -75,7 +85,6 @@ public class OTM {
         }
         return properties.getProperty("sim.git");
     }
-
 
     /**
      * Undocumented
@@ -110,9 +119,7 @@ public class OTM {
      * @param duration Undocumented
      * @throws OTMException Undocumented
      */
-    public void run(String prefix,String output_requests_file,String output_folder,float start_time,float duration
-
-                    ) throws OTMException {
+    public void run(String prefix,String output_requests_file,String output_folder,float start_time,float duration) throws OTMException {
         initialize(start_time,output_requests_file,prefix,output_folder);
         advance(duration);
         scn.is_initialized = false;
