@@ -162,6 +162,13 @@
 
     <dependencies>
 
+        <!-- JAXB -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+
         <!-- OTM BASE -->
         <dependency>
             <groupId>edu.berkeley.ucbtrans</groupId>
