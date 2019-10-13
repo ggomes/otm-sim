@@ -164,7 +164,7 @@
 
         <!-- OTM BASE -->
         <dependency>
-            <groupId>otm</groupId>
+            <groupId>edu.berkeley.ucbtrans</groupId>
             <artifactId>otm-base</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
