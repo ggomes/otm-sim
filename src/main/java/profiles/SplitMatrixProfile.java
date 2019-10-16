@@ -74,8 +74,6 @@ public class SplitMatrixProfile {
                 errorLog.addError("!commodity.subnetwork.links.contains(link_in)");
         }
 
-        System.out.println(this.node.getId());
-
         Set<Long> reachable_outlinks = node.road_connections.stream()
                 .filter(rc->rc.start_link.getId().equals(link_in_id))
                 .map(z->z.end_link.getId())

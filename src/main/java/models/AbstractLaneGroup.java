@@ -284,24 +284,22 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     @Override
     public int compareTo(AbstractLaneGroup that) {
 
-        System.err.println("WPOGJOWRGPOIWEGJPOIWEJGPOIJWEGPOI");
-        return 0;
+        int this_start = this.start_lane_up;
+        int that_start = that.start_lane_up;
+        if(this_start < that_start)
+            return -1;
+        if(that_start < this_start)
+            return 1;
 
-//        int this_start = this.lanes.stream().min(Integer::compareTo).get();
-//        int that_start = that.lanes.stream().min(Integer::compareTo).get();
-//        if(this_start < that_start)
-//            return -1;
-//        if(that_start < this_start)
-//            return 1;
-//
-//        int this_end = this.lanes.stream().max(Integer::compareTo).get();
-//        int that_end = that.lanes.stream().max(Integer::compareTo).get();
-//        if(this_end < that_end)
-//            return -1;
-//        if(that_end < this_end)
-//            return 1;
-//
-//        return 0;
+        int this_end = this.start_lane_up + this.num_lanes;
+        int that_end = that.start_lane_up + that.num_lanes;
+        if(this_end < that_end)
+            return -1;
+        if(that_end < this_end)
+            return 1;
+
+        System.err.println("WARNING!! FOUND EQUAL LANE GROUPS IN COMPARE TO.");
+        return 0;
     }
 
 }
