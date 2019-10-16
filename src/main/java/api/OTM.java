@@ -48,6 +48,13 @@ public class OTM {
         performance = new Performance(scn);
     }
 
+    public OTM(jaxb.Scenario jscn,boolean validate) throws OTMException {
+        this.scn =  ScenarioFactory.create_scenario(jscn,validate);
+        scenario = new Scenario(scn);
+        output = new Output(scn);
+        performance = new Performance(scn);
+    }
+
     ////////////////////////////////////////////////////////
     // static
     ////////////////////////////////////////////////////////

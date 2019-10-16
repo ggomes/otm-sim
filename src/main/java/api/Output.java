@@ -17,7 +17,6 @@ public class Output {
         this.scenario = scenario;
     }
 
-
     // ----------------------------------------------
     // get
     // ----------------------------------------------
@@ -245,7 +244,7 @@ public class Output {
      * @param outDt Undocumented
      */
     public void request_path_travel_time(Long subnetwork_id,Float outDt){
-        request_path_travel_time(null,null,subnetwork_id,new Float(outDt));
+        request_path_travel_time(null,null,subnetwork_id,outDt);
     }
 
     /**

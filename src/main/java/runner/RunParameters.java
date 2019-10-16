@@ -16,6 +16,13 @@ public class RunParameters {
     public String output_folder;
     public float start_time;      // seconds after midnight
 
+    public RunParameters(float start_time){
+        this.prefix = null;
+        this.output_requests_file = null;
+        this.output_folder = null;
+        this.start_time = start_time;
+    }
+
     public RunParameters(String prefix,String output_requests_file,String output_folder,float start_time){
         this.prefix = prefix;
         this.output_requests_file = output_requests_file;

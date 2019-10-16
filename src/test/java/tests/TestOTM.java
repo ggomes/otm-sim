@@ -1,5 +1,6 @@
 package tests;
 
+import api.OTM;
 import api.OTMdev;
 import api.info.CommodityInfo;
 import api.info.DemandInfo;
@@ -9,7 +10,7 @@ import error.OTMException;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import runner.OTM;
+import xml.JaxbLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +23,10 @@ import static org.junit.Assert.assertTrue;
 public class TestOTM extends AbstractTest {
 
     public static api.OTM otm;
-    public static OTMdev otmdev;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-//        api = OTM.load_test("line",true);
-//        apidev = new APIdev(api);
+        otm = load_test_config("line",true);
     }
 
     //////////////////////////////////////////////////////////////////

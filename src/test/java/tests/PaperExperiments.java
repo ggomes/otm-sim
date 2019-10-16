@@ -1,9 +1,11 @@
 package tests;
 
 import error.OTMException;
+import org.junit.Ignore;
 import org.junit.Test;
 import runner.OTM;
 
+@Ignore
 public class PaperExperiments extends AbstractTest {
 
     static String base_folder = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm-sim\\exp\\config\\";

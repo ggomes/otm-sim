@@ -9,7 +9,10 @@ import org.junit.Test;
 import output.*;
 import profiles.Profile1D;
 import runner.OTM;
+import xml.JaxbLoader;
 
+import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,8 +83,8 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "C:\\Users\\gomes\\code\\opt\\src\\test\\resources\\two_fwy_hov.xml";
-            api.OTM otm = new api.OTM(configfile,false,false);
+            String configfile = "/home/gomes/code/otm/otm-mpi/test/50_x_cfg_0.xml";
+            api.OTM otm = new api.OTM(configfile,true,false);
             assertNotNull(otm);
         } catch (OTMException e) {
             fail(e.getMessage());
@@ -151,7 +154,7 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "C:\\Users\\gomes\\code\\otm\\otm-base\\src\\main\\resources\\test_configs\\line.xml";
+            String configfile = "/home/gomes/Downloads/four_intersect.xml";
 
             float duration = 3600f;
             float outdt = 10f;
@@ -373,12 +376,14 @@ public class TestOne extends AbstractTest {
         //    5 start_time
         //    6 duration
 
+        String resource_folder = (new File("src/test/resources")).getAbsolutePath()+ File.separator ;
+
         String[] args = new String[7];
         args[0] = "-run";
-        args[1] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\exp_micro.xml";
-        args[2] = "micro";
-        args[3] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output_micro.xml";
-        args[4] = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\pub\\current\\otm\\exp\\output";
+        args[1] = resource_folder + "line.xml";
+        args[2] = "mytest";
+        args[3] = resource_folder+"sample_output_request.xml";
+        args[4] = resource_folder+"test_output";
         args[5] = "0";
         args[6] = "100";
 

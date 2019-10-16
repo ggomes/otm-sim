@@ -1,5 +1,7 @@
 package tests;
 
+import api.OTM;
+import error.OTMException;
 import org.junit.runners.Parameterized;
 import xml.JaxbLoader;
 
@@ -27,6 +29,11 @@ public abstract class AbstractTest {
         for(String s : all_configs)
             x.add(new String[]{s});
         return x;
+    }
+
+    public static OTM load_test_config(String configname,boolean validate) throws OTMException  {
+        jaxb.Scenario jscn =  JaxbLoader.load_test_scenario(configname+".xml",false);
+        return new OTM(jscn,validate);
     }
 
 }
