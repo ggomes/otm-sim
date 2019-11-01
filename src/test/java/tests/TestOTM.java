@@ -132,7 +132,7 @@ public class TestOTM extends AbstractTest {
 
     @Test
     public void test_get_link_ids(){
-        List<Long> link_ids = otm.scenario.get_link_ids();
+        Set<Long> link_ids = otm.scenario.get_link_ids();
         assertTrue(link_ids.contains(1l));
         assertTrue(link_ids.contains(2l));
         assertTrue(link_ids.contains(3l));
@@ -141,7 +141,7 @@ public class TestOTM extends AbstractTest {
 
     @Test
     public void test_get_node_ids(){
-        List<Long> node_ids = otm.scenario.get_node_ids();
+        Set<Long> node_ids = otm.scenario.get_node_ids();
         assertTrue(node_ids.contains(1l));
         assertTrue(node_ids.contains(2l));
         assertTrue(node_ids.contains(3l));
@@ -151,7 +151,7 @@ public class TestOTM extends AbstractTest {
 
     @Test
     public void test_get_source_link_ids(){
-        List<Long> source_ids = otm.scenario.get_source_link_ids();
+        Set<Long> source_ids = otm.scenario.get_source_link_ids();
         assertEquals((long)source_ids.iterator().next(),1l);
     }
 

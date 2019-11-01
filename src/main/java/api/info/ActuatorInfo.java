@@ -11,12 +11,12 @@ public class ActuatorInfo {
     /** Type of the actuator. */
     public AbstractActuator.Type type;
 
-    public InterfaceActuatorTarget target;
+//    public InterfaceActuatorTarget target;
 
     public ActuatorInfo(AbstractActuator x){
         this.id = x.id;
         this.type = x.getType();
-        this.target = x.target;
+//        this.target = x.target;
     }
 
     public long getId() {

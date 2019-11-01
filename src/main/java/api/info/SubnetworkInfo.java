@@ -45,7 +45,7 @@ public class SubnetworkInfo {
 
     /**
      * Get the id of the subntework.
-     * @return Undocumented
+     * @return long id
      */
     public long getId() {
         return id;
@@ -53,7 +53,7 @@ public class SubnetworkInfo {
 
     /**
      * True if the subnetwork is a path
-     * @return Undocumented
+     * @return boolean
      */
     public boolean isPath() {
         return is_path;
@@ -61,8 +61,7 @@ public class SubnetworkInfo {
 
     /**
      * Get list of ids in the subnetwork. It is ordered if the subnetwork is a path
-     *
-     * @return Undocumented
+     * @return list of link ids.
      */
     public List<Long> get_link_ids() {
         return link_ids;

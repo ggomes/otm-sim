@@ -19,7 +19,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
     // construction
     //////////////////////////////////////////////////////
 
-    public AbstractOutputTimedLanegroup(Scenario scenario,String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt) throws OTMException {
+    public AbstractOutputTimedLanegroup(Scenario scenario,String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,outDt);
 
         // get lanegroup list

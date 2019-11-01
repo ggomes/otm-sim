@@ -68,56 +68,27 @@
                 </configuration>
             </plugin>
 
-            <!-- JAXB
+            <!-- JAVADOC -->
             <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb2-plugin</artifactId>
-                <version>0.8.2</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <show>public</show>
+                    <excludePackageNames>actuator:actuator.sigint:commodity:common:control:control.sigint:dispatch:geometry:jaxb:keys:models:models.*:output:output.*:packet:plugin:profiles:runner:sensor:tools.splitter:traveltime:
+                    </excludePackageNames>
+                    <reportOutputDirectory>docs</reportOutputDirectory>
+                </configuration>
 
                 <executions>
                     <execution>
-                        <id>Request</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <generatePackage>jaxb</generatePackage>
-                            <bindingDirectory>src/main/resources</bindingDirectory>
-                            <bindingIncludes>
-                                <bindingInclude>jaxb-bindings.xjb</bindingInclude>
-                            </bindingIncludes>
-                        </configuration>
+                        <id>attach-javadocs</id>
+                        <phase>install</phase>
+                        <goals><goal>jar</goal></goals>
                     </execution>
                 </executions>
-            </plugin> -->
 
-            <!-- JAVADOC -->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-javadoc-plugin</artifactId>-->
-<!--                <version>3.1.1</version>-->
-<!--                <configuration>-->
-<!--                    <show>public</show>-->
-
-<!--                    <sourceFileIncludes>-->
-<!--                        <include>Foo.java</include>-->
-<!--                        <include>Bar.java</include>-->
-<!--                    </sourceFileIncludes>-->
-<!--                    <sourcepath>${basedir}/src/main/java/path/to/foo-and-bar</sourcepath>-->
-
-<!--                    <excludePackageNames>jaxb:api.info:api.info.*:actuator:actuator.*:commodity:common:control:control.*:dispatch:geometry:keys:models:models.*:packet:profiles:runner:sensor:tools.splitter:traveltime-->
-<!--                    </excludePackageNames>-->
-<!--                </configuration>-->
-
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>attach-javadocs</id>-->
-<!--                        <phase>install</phase>-->
-<!--                        <goals><goal>jar</goal></goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-
-<!--            </plugin>-->
+            </plugin>
 
             <!-- MAVEN COMPILER -->
             <plugin>

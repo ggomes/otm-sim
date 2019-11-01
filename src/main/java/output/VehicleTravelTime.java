@@ -18,7 +18,7 @@ public class VehicleTravelTime extends AbstractOutputEvent implements InterfaceV
 
     @Override
     public String get_output_file() {
-        return super.get_output_file() + "_vehicle_travel_time.txt";
+        return write_to_file ? super.get_output_file() + "_vehicle_travel_time.txt" : null;
     }
 
     @Override

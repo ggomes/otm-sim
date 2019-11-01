@@ -5,7 +5,9 @@ import error.OTMException;
 import profiles.Profile1D;
 import runner.Scenario;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public class LinkVehicles extends AbstractOutputTimedLink {
 
@@ -13,7 +15,7 @@ public class LinkVehicles extends AbstractOutputTimedLink {
     // construction
     //////////////////////////////////////////////////////
 
-    public LinkVehicles(Scenario scenario, String prefix, String output_folder, Long commodity_id, List<Long> link_ids, Float outDt) throws OTMException {
+    public LinkVehicles(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,link_ids,outDt);
         this.type = Type.link_veh;
     }
@@ -24,6 +26,8 @@ public class LinkVehicles extends AbstractOutputTimedLink {
 
     @Override
     public String get_output_file() {
+        if(!write_to_file)
+            return null;
         if(commodity==null)
             return String.format("%s_link_veh.txt",super.get_output_file());
         else

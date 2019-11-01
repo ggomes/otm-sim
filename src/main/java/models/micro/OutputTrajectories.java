@@ -34,6 +34,8 @@ public class OutputTrajectories extends AbstractOutput implements InterfacePokab
 
     @Override
     public String get_output_file() {
+        if(!write_to_file)
+            return null;
         return  output_folder + File.separator + prefix + "_" +
                 String.format("%.0f", outDt) + "_" +
                 model.name + "_traj.txt";

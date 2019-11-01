@@ -35,7 +35,7 @@ public class EventsVehicle extends AbstractOutputEvent implements InterfaceVehic
 
     @Override
     public String get_output_file() {
-        return super.get_output_file() + "_vehicle_events_" + suffix + ".txt";
+        return write_to_file ? super.get_output_file() + "_vehicle_events_" + suffix + ".txt" : null;
     }
 
 

@@ -1,5 +1,4 @@
 target/
-docs/build/
 .idea/
 *.png
 *.class

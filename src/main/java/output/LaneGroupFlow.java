@@ -5,6 +5,7 @@ import models.AbstractLaneGroup;
 import runner.Scenario;
 import common.FlowAccumulatorState;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ public class LaneGroupFlow extends AbstractOutputTimedLanegroup  {
     // construction
     //////////////////////////////////////////////////////
 
-    public LaneGroupFlow(Scenario scenario, String prefix, String output_folder, Long commodity_id, List<Long> link_ids, Float outDt) throws OTMException {
+    public LaneGroupFlow(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, commodity_id, link_ids, outDt);
         this.type = Type.lanegroup_flw;
     }
@@ -32,6 +33,8 @@ public class LaneGroupFlow extends AbstractOutputTimedLanegroup  {
 
     @Override
     public String get_output_file() {
+        if(!write_to_file)
+            return null;
         if(commodity==null)
             return String.format("%s_lanegroup_flw.txt",super.get_output_file());
         else

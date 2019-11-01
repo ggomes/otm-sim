@@ -17,6 +17,7 @@ import static java.util.stream.Collectors.toSet;
 
 public class NodeModel {
 
+//    private static boolean verbose = false;
     private static int MAX_ITERATIONS = 10;
     public static double eps = 1e-3;
     public Node node;
@@ -155,19 +156,77 @@ public class NodeModel {
 
     public void update_flow(float timestamp) {
 
+//        verbose = timestamp==162f && node.getId()==8L;
+//
+//        if(verbose)
+//            System.out.println(timestamp + "\t" + node.getId());
+
         // reset
         ulgs.values().forEach(x->x.reset());
         rcs.values().forEach(x->x.reset());
         dlgs.values().forEach(x->x.reset());
 
+
         // iteration
         int it = 0;
         while (it++ <= MAX_ITERATIONS) {
+
+//            if(verbose){
+//                System.out.println("\t------- "+it+" ----------------");
+//]
+//                System.out.println("\tulgs:");
+//                ulgs.values().forEach(ulg->System.out.println(String.format("\t\tlg=%d\td=%f",
+//                        ulg.lg.id,
+//                        ulg.state_infos.values().stream().mapToDouble(x->x.d_gs).sum())));
+//
+//                System.out.println("\tdlgs:");
+//                dlgs.values().forEach(dlg->System.out.println(String.format("\t\tlg=%d\ts=%f",
+//                        dlg.lg.id,
+//                        dlg.s_h)));
+//            }
+
             step0();
+
+
+//            if(verbose){
+//                System.out.println("\tstep0 ulgs:");
+//                ulgs.values().forEach(ulg->System.out.println(String.format("\t\t%d is empty or blocked=%s",
+//                        ulg.lg.link.getId(),
+//                        ulg.is_empty_or_blocked)));
+//
+//                System.out.println("\tstep0 rcs:");
+//                rcs.values().forEach(rc->System.out.println(String.format("\t\t%d is blocked=%s",
+//                        rc.id,rc.is_blocked)));
+//
+//                System.out.println("\tstep0 dlgs:");
+//                dlgs.values().forEach(dlg->System.out.println(String.format("\t\t%d is blocked = %s",
+//                        dlg.lg.link.getId(),
+//                        dlg.is_blocked)));
+//            }
+
             if (eval_stop(it))
                 break;
+
             step1();
+
+//            if(verbose){
+//                System.out.println("\tstep1 rcs:");
+//                System.out.println(String.format("\t\t%d dr=%f",106,rcs.get(106L).d_r));
+//                System.out.println(String.format("\t\t%d dr=%f",111,rcs.get(111L).d_r));
+//                System.out.println(String.format("\t\t%d dr=%f",112,rcs.get(112L).d_r));
+//                System.out.println(String.format("\t\t%d dr=%f",113,rcs.get(113L).d_r));
+//            }
+
             step2();
+
+//            if(verbose){
+//                System.out.println("\tstep2 dlgs:");
+//                System.out.println(String.format("\t\t%d gh=%f",115,dlgs.get(115L).gamma_h));
+//                System.out.println(String.format("\t\t%d gh=%f",24,dlgs.get(24L).gamma_h));
+//                System.out.println(String.format("\t\t%d gh=%f",26,dlgs.get(26L).gamma_h));
+//                System.out.println(String.format("\t\t%d gh=%f",27,dlgs.get(27L).gamma_h));
+//            }
+
             step3();
             step4();
             step5();
@@ -182,7 +241,7 @@ public class NodeModel {
     private boolean eval_stop(int iteration){
 
         if(iteration>MAX_ITERATIONS){
-            System.out.println("Reached iteration limit");
+            System.out.println("Reached iteration limit for node " + node.getId());
             return true;
         }
 
@@ -216,7 +275,9 @@ public class NodeModel {
         for(RoadConnection rc : rcs.values()) {
 
             rc.d_r = rc.is_blocked ? 0d : rc.ulgs.stream()
-                    .mapToDouble(x -> x.rc_infos.get(rc.id).d_gr).sum();
+                    .filter(ulg->!ulg.is_empty_or_blocked)
+                    .mapToDouble(ulg -> ulg.rc_infos.get(rc.id).d_gr)
+                    .sum();
 
             if(rc.d_r< NodeModel.eps)
                 continue;

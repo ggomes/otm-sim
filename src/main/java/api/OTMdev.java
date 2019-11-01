@@ -3,6 +3,10 @@ package api;
 import error.OTMException;
 import runner.Scenario;
 
+/**
+ * Superuser API. It provides access to standard API methods and also exposes the internal Scenario class.
+ * This class should be used for development and debugging purposes only.
+ */
 public class OTMdev {
 
     public Scenario scenario;

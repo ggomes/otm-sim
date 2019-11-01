@@ -19,7 +19,7 @@ public class VehicleClass extends AbstractOutputEvent implements InterfaceVehicl
 
     @Override
     public String get_output_file() {
-        return super.get_output_file() + "_vehicle_class.txt";
+        return write_to_file ? super.get_output_file() + "_vehicle_class.txt" : null;
     }
 
     @Override

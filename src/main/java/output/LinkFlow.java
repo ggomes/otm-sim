@@ -16,7 +16,7 @@ public class LinkFlow extends AbstractOutputTimedLink {
     // construction
     //////////////////////////////////////////////////////
 
-    public LinkFlow(Scenario scenario, String prefix, String output_folder, Long commodity_id, List<Long> link_ids, Float outDt) throws OTMException {
+    public LinkFlow(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,link_ids,outDt);
         this.type = Type.link_flw;
     }
@@ -39,7 +39,7 @@ public class LinkFlow extends AbstractOutputTimedLink {
 
     @Override
     public String get_output_file() {
-        return super.get_output_file() + "_link_flw_global.txt";
+        return write_to_file ? super.get_output_file() + "_link_flw_global.txt" : null;
     }
 
     @Override

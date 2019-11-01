@@ -33,7 +33,9 @@ public abstract class AbstractTest {
 
     public static OTM load_test_config(String configname,boolean validate) throws OTMException  {
         jaxb.Scenario jscn =  JaxbLoader.load_test_scenario(configname+".xml",false);
-        return new OTM(jscn,validate);
+        OTM otm = new OTM();
+        otm.load_from_jaxb(jscn,validate);
+        return otm;
     }
 
 }

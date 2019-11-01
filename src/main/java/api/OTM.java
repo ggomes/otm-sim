@@ -25,53 +25,63 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+/**
+ * Public API. The methods in the API are of three types. Basic scenario loading and running
+ * methods belong to the OTM class. Methods for querying and modifying a scenario belong to
+ * api.Scenario. Methods for requesting outputs and calculating different metrics are in api.Output.
+ */
 public class OTM {
 
     protected Dispatcher dispatcher;
     protected runner.Scenario scn;
     public Scenario scenario;
     public Output output;
-    public Performance performance;
 
-    public OTM(String configfile) throws OTMException {
-        this(configfile,true,false);
-    }
+    public OTM(){}
 
-    public OTM(String configfile, boolean validate, boolean jaxb_only) throws OTMException {
+    public void load(String configfile, boolean validate, boolean jaxb_only) throws OTMException {
         jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,validate);
         if(jaxb_only)
             this.scn =  ScenarioFactory.create_scenario_for_static_traffic_assignment(jaxb_scenario);
         else
-           this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,validate);
+            this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,validate);
         scenario = new Scenario(scn);
         output = new Output(scn);
-        performance = new Performance(scn);
     }
 
-    public OTM(jaxb.Scenario jscn,boolean validate) throws OTMException {
+    public void load_from_jaxb(jaxb.Scenario jscn,boolean validate) throws OTMException {
         this.scn =  ScenarioFactory.create_scenario(jscn,validate);
         scenario = new Scenario(scn);
         output = new Output(scn);
-        performance = new Performance(scn);
+    }
+
+    /**
+     * Constructor. Equivalent to OTM(configfile,true,false)
+     * @param configfile Configuration file.
+     * @throws OTMException Undocumented
+     */
+    public OTM(String configfile) throws OTMException {
+        load(configfile,true,false);
+    }
+
+    /**
+     * Constructor.
+     * @param configfile Configuration file.
+     * @param validate Validate if true.
+     * @param jaxb_only Load raw jaxb only if true (ie don't build OTM objects).
+     * @throws OTMException Undocumented
+     */
+    public OTM(String configfile, boolean validate, boolean jaxb_only) throws OTMException {
+        load(configfile,validate,jaxb_only);
     }
 
     ////////////////////////////////////////////////////////
     // static
     ////////////////////////////////////////////////////////
 
-    public static OTM load(String configfile){
-        OTM otm = null;
-        try {
-            otm = new OTM(configfile,true,false);
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-        return otm;
-    }
-
     /**
-     * Undocumented
-     * @return git hash for the current build.
+     * Git hash for the current build.
+     * @return Git hash for the current build.
      */
     public static String get_version(){
         InputStream inputStream = runner.OTM.class.getResourceAsStream("/otm-sim.properties");
@@ -94,8 +104,8 @@ public class OTM {
     }
 
     /**
-     * Undocumented
-     * @param seed Undocumented
+     * Set the seed for the simulator's random number generator.
+     * @param seed Any number
      */
     public static void set_random_seed(long seed){
         OTMUtils.set_random_seed(seed);
@@ -106,9 +116,9 @@ public class OTM {
     ////////////////////////////////////////////////////////
 
     /**
-     * Undocumented
-     * @param start_time Undocumented
-     * @param duration Undocumented
+     * Run the simulation.
+     * @param start_time Initial time in seconds.
+     * @param duration Duration of the simulation in seconds.
      * @throws OTMException Undocumented
      */
     public void run(float start_time,float duration) throws OTMException {
@@ -118,12 +128,12 @@ public class OTM {
     }
 
     /**
-     * Undocumented
-     * @param prefix Undocumented
-     * @param output_requests_file Undocumented
-     * @param output_folder Undocumented
-     * @param start_time Undocumented
-     * @param duration Undocumented
+     * Run the simulation.
+     * @param prefix Prefix for the output.
+     * @param output_requests_file Absolute location and name of file with output requests.
+     * @param output_folder Folder for the output.
+     * @param start_time Initial time in seconds.
+     * @param duration Duration of the simulation in seconds.
      * @throws OTMException Undocumented
      */
     public void run(String prefix,String output_requests_file,String output_folder,float start_time,float duration) throws OTMException {
@@ -133,8 +143,8 @@ public class OTM {
     }
 
     /**
-     *  Undocumented
-     * @param start_time Undocumented
+     *  Validate and initialize all components of the scenario. This function must be called prior to calling "advance".
+     * @param start_time Initial time in seconds.
      * @throws OTMException Undocumented
      */
     public void initialize(float start_time) throws OTMException {
@@ -142,11 +152,11 @@ public class OTM {
     }
 
     /**
-     *  Undocumented
-     * @param start_time Undocumented
-     * @param output_requests_file Undocumented
-     * @param prefix Undocumented
-     * @param output_folder Undocumented
+     *  Validate and initialize all components of the scenario. This function must be called prior to calling "advance".
+     * @param start_time Initial time in seconds.
+     * @param output_requests_file Absolute location and name of file with output requests.
+     * @param prefix Prefix for the output.
+     * @param output_folder Folder for the output.
      * @throws OTMException Undocumented
      */
     public void initialize(float start_time,String output_requests_file,String prefix,String output_folder) throws OTMException {
@@ -166,8 +176,8 @@ public class OTM {
     }
 
     /**
-     *  Undocumented
-     * @param duration Undocumented
+     *  Advance the simulation in time.
+     * @param duration Seconds to advance.
      * @throws OTMException Undocumented
      */
     public void advance(float duration) throws OTMException {
@@ -189,8 +199,8 @@ public class OTM {
     }
 
     /**
-     * Undocumented
-     * @return Undocumented
+     * Current simulation time in seconds.
+     * @return Current simulation time in seconds.
      */
     public float get_current_time(){
         return scn.get_current_time();

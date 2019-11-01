@@ -36,10 +36,10 @@ public abstract class AbstractOutput implements InterfaceOutput {
     public Type type;
 
     // file output
-    public String output_folder;
+    public final String output_folder;
     public Writer writer;
-    public String prefix;
-    public boolean write_to_file;
+    public final String prefix;
+    public final boolean write_to_file;
 
     //////////////////////////////////////////////////////
     // construction
@@ -54,6 +54,7 @@ public abstract class AbstractOutput implements InterfaceOutput {
             this.prefix.replaceAll("\\\\", File.separator);
 
         this.write_to_file = output_folder!=null && prefix!=null;
+
     }
 
     public void validate(OTMErrorLog errorLog){

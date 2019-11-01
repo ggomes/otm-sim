@@ -17,7 +17,7 @@ public class LaneGroups extends AbstractOutput {
 
     @Override
     public String get_output_file() {
-        return super.get_output_file() + "_lanegroups.txt";
+        return write_to_file ? super.get_output_file() + "_lanegroups.txt" : null;
     }
 
     @Override

@@ -23,11 +23,11 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
     // construction
     //////////////////////////////////////////////////////
 
-    public AbstractOutputTimedLink(Scenario scenario,String prefix,String output_folder,Long commodity_id,List<Long> link_ids,Float outDt) throws OTMException {
+    public AbstractOutputTimedLink(Scenario scenario,String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,outDt);
 
         if(link_ids==null)
-            link_ids = scenario.network.links.values().stream().map(link->link.getId()).collect(Collectors.toList());
+            link_ids = scenario.network.links.values().stream().map(link->link.getId()).collect(Collectors.toSet());
 
         ordered_ids = new ArrayList<>();
         linkprofiles = new HashMap<>();

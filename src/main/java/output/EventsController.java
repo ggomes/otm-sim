@@ -38,7 +38,7 @@ public class EventsController extends AbstractOutputEvent {
 
     @Override
     public String get_output_file() {
-        return super.get_output_file() + "_controller_" + controller_id + "_.txt";
+        return write_to_file ? super.get_output_file() + "_controller_" + controller_id + "_.txt" : null;
     }
 
     @Override

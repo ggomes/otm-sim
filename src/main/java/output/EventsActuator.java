@@ -50,7 +50,7 @@ public class EventsActuator extends AbstractOutputEvent {
 
     @Override
     public String get_output_file() {
-        return super.get_output_file() + "_actuator_" + actuator_id + "_.txt";
+        return write_to_file ? super.get_output_file() + "_actuator_" + actuator_id + "_.txt" : null;
     }
 
     public void plot(String filename) throws OTMException {

@@ -24,7 +24,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
+/**
+ * Methods for querying and modifying a scenario.
+ */
 public class Scenario {
 
     private runner.Scenario scenario;
@@ -34,11 +38,6 @@ public class Scenario {
 
     /**
      * Get scenario information.
-     * <p>
-     * Returns a ScenarioInfo object, containing all of the input
-     * data for this scenario.
-     * </p>
-     *
      * @return a ScenarioInfo object.
      * @see ScenarioInfo
      */
@@ -51,22 +50,14 @@ public class Scenario {
     ////////////////////////////////////////////////////////
 
     /**
-     * Undocumented
-     * @return Undocumented
+     * Get model coverage.
+     * @return a set of model info objects
+     * @see ModelInfo
      */
     public Set<ModelInfo> get_models(){
-        Set<ModelInfo> x = new HashSet<>();
-//        for(AbstractModel model : scenario.network.models.values()) {
-//            switch(model.model_type){
-//                case discrete_event:
-//                    x.add(new ModelDiscreteEventInfo((AbstractDiscreteEventModel)model));
-//                    break;
-//                case discrete_time:
-//                    x.add(new ModelDiscreteTimeInfo((AbstractDiscreteTimeModel) model));
-//                    break;
-//            }
-//        }
-        return x;
+        return scenario.network.models.values().stream()
+                .map(model->new ModelInfo(model))
+                .collect(toSet());
     }
 
     ////////////////////////////////////////////////////////
@@ -75,8 +66,7 @@ public class Scenario {
 
     /**
      * Get the total number of commodities in the scenario.
-     *
-     * @return Undocumented
+     * @return integer number of commodities.
      */
     public int get_num_commodities(){
         return scenario.commodities.size();
@@ -84,8 +74,7 @@ public class Scenario {
 
     /**
      * Get information for all commodities in the scenario.
-     *
-     * @return Undocumented
+     * @return Set of commodity info
      * @see CommodityInfo
      */
     public Set<CommodityInfo> get_commodities(){
@@ -97,7 +86,6 @@ public class Scenario {
 
     /**
      * Get information for a specific commodity.
-     *
      * @param  id Integer commodity id
      * @return A CommodityInfo object
      * @see CommodityInfo
@@ -108,8 +96,8 @@ public class Scenario {
     }
 
     /**
-     * Undocumented
-     * @return Undocumented
+     * Get commodity ids.
+     * @return set of commodity ids
      */
     public Set<Long> get_commodity_ids(){
         return new HashSet(scenario.commodities.keySet());
@@ -121,35 +109,33 @@ public class Scenario {
 
     /**
      * Get the total number of subnetworks in the scenario.
-     *
-     * @return an integer.
+     * @return integer number of subnetworks
      */
     public int get_num_subnetworks(){
         return scenario.subnetworks.size();
     }
 
     /**
-     * Get list of all subnetwork ids
-     * @return Undocumented
+     * Get subnetwork ids
+     * @return Set of subnetwork ids
      */
-    public List<Long> get_subnetwork_ids(){
-        return new ArrayList(scenario.subnetworks.keySet());
+    public Set<Long> get_subnetwork_ids(){
+        return new HashSet(scenario.subnetworks.keySet());
     }
 
     /**
-     * Get list of all path ids (ie linear subnetworks that begin at a source)
-     * @return Undocumented
+     * Get set of all path ids (ie linear subnetworks that begin at a source)
+     * @return Set of path ids
      */
-    public List<Long> get_path_ids(){
+    public Set<Long> get_path_ids(){
         return scenario.subnetworks.values().stream()
                 .filter(x->x.is_path)
                 .map(x->x.getId())
-                .collect(toList());
+                .collect(toSet());
     }
 
     /**
      * Get information for all subnetworks in the scenario.
-     *
      * @return a set of SubnetworkInfo
      * @see SubnetworkInfo
      */
@@ -162,7 +148,6 @@ public class Scenario {
 
     /**
      * Get information for a specific subnetwork.
-     *
      * @param  id Integer subnetwork id
      * @return A SubnetworkInfo object
      * @see SubnetworkInfo
@@ -178,7 +163,6 @@ public class Scenario {
 
     /**
      * Get the total number of links in the scenario.
-     *
      * @return an integer.
      */
     public int get_num_links(){
@@ -187,7 +171,6 @@ public class Scenario {
 
     /**
      * Get the total number of nodes in the scenario.
-     *
      * @return an integer.
      */
     public int get_num_nodes(){
@@ -195,19 +178,19 @@ public class Scenario {
     }
 
     /**
-     * Undocumented
-     * @return Undocumented
+     * Get node ids
+     * @return Set of node ids.
      */
-    public List<Long> get_node_ids(){
-        return new ArrayList(scenario.network.nodes.keySet());
+    public Set<Long> get_node_ids(){
+        return new HashSet(scenario.network.nodes.keySet());
     }
 
     /**
-     * Returns a list where every entry is a list with entries [link_id,start_node,end_node]
-     * @return Undocumented
+     * Returns a set where every entry is a list with entries [link_id,start_node,end_node]
+     * @return A set of lists
      */
-    public List<List<Long>> get_link_connectivity(){
-        List<List<Long>> X = new ArrayList<>();
+    public Set<List<Long>> get_link_connectivity(){
+        Set<List<Long>> X = new HashSet<>();
         for(Link link : scenario.network.links.values()){
             List<Long> A = new ArrayList<>();
             A.add(link.getId());
@@ -220,7 +203,8 @@ public class Scenario {
 
     /**
      * Get information for all links in the scenario.
-     * @return Undocumented
+     * @return Map from link id to LinkInfo
+     * @see LinkInfo
      */
     public Map<Long, LinkInfo> get_links(){
         Map<Long,LinkInfo> linkInfo = new HashMap<>();
@@ -231,68 +215,69 @@ public class Scenario {
 
     /**
      * Get information for a specific link.
-     * @param id Undocumented
-     * @return Undocumented
+     * @param link_id Id of the requested link.
+     * @return a LinkInfo object
+     * @see LinkInfo
      */
-    public LinkInfo get_link_with_id(long id){
-        Link link = scenario.network.links.get(id);
+    public LinkInfo get_link_with_id(long link_id){
+        Link link = scenario.network.links.get(link_id);
         return link==null ? null : new LinkInfo(link);
     }
 
     /**
-     * Get the list of ids of all links in the network.
-     * @return Undocumented
+     * Get the set of ids of all links in the network.
+     * @return A set of ids
      */
-    public List<Long> get_link_ids(){
-        return new ArrayList(scenario.network.links.keySet());
+    public Set<Long> get_link_ids(){
+        return new HashSet(scenario.network.links.keySet());
     }
 
     /**
      * Get ids for all source links.
-     * @return Undocumented
+     * @return A set of ids.
      */
-    public List<Long> get_source_link_ids(){
+    public Set<Long> get_source_link_ids(){
         return scenario.network.links.values().stream()
                 .filter(x->x.is_source)
                 .map(x->x.getId())
-                .collect(toList());
+                .collect(toSet());
     }
 
     /**
-     * Undocumented
-     * @param rcid Undocumented
-     * @return Undocumented
+     * Get the lane groups that enter a given road connection
+     * @param rcid Id of the road connection
+     * @return A set of lane group ids.
      */
-    public List<Long> get_in_lanegroups_for_road_connection(long rcid){
+    public Set<Long> get_in_lanegroups_for_road_connection(long rcid){
         RoadConnection rc = scenario.network.get_road_connection(rcid);
-        List<Long> lgids = new ArrayList<>();
+        Set<Long> lgids = new HashSet<>();
         for(AbstractLaneGroup lg : rc.in_lanegroups)
             lgids.add(lg.id);
         return lgids;
     }
 
     /**
-     * Undocumented
-     * @param rcid Undocumented
-     * @return Undocumented
+     * Get the lane groups that exit a given road connection
+     * @param rcid Id of the road connection
+     * @return A set of lane group ids.
      */
-    public List<Long> get_out_lanegroups_for_road_connection(long rcid){
+    public Set<Long> get_out_lanegroups_for_road_connection(long rcid){
         RoadConnection rc = scenario.network.get_road_connection(rcid);
-        List<Long> lgids = new ArrayList<>();
+        Set<Long> lgids = new HashSet<>();
         for(AbstractLaneGroup lg : rc.out_lanegroups)
             lgids.add(lg.id);
         return lgids;
     }
 
     /**
-     * Undocumented
-     * @return Undocumented
+     * Get lane groups in every link
+     * @return A map from link ids to a set of lane group ids.
      */
     public Map<Long,Set<Long>> get_link2lgs(){
         Map<Long,Set<Long>> lk2lgs = new HashMap<>();
         for(Link link : scenario.network.links.values())
             lk2lgs.put(link.getId(),link.lanegroups_flwdn.values().stream()
-                    .map(x->x.id).collect(Collectors.toSet()));
+                    .map(x->x.id).collect(toSet()));
         return lk2lgs;
     }
 
@@ -302,10 +287,11 @@ public class Scenario {
 
     /**
      * Get information for all demands in the scenario.
-     * @return Undocumented
+     * @return A set of DemandInfo
+     * @see DemandInfo
      */
-    public List<DemandInfo> get_demands(){
-        List<DemandInfo> x = new ArrayList<>();
+    public Set<DemandInfo> get_demands(){
+        Set<DemandInfo> x = new HashSet<>();
         for(AbstractDemandProfile y : scenario.data_demands.values())
             x.add(new DemandInfo(y));
         return x;
@@ -313,10 +299,11 @@ public class Scenario {
 
     /**
      * Get information for a specific demand.
-     * @param typestr Undocumented
-     * @param link_or_path_id Undocumented
-     * @param commodity_id Undocumented
-     * @return Undocumented
+     * @param typestr 'pathfull' or 'pathless' (NOTE: Why is this an input???)
+     * @param link_or_path_id Id of the source link or path
+     * @param commodity_id Id of the commodity
+     * @return A DemandInfo object
+     * @see DemandInfo
      */
     public DemandInfo get_demand_with_ids(String typestr,long link_or_path_id,long commodity_id){
         DemandType type = DemandType.valueOf(typestr);
@@ -327,7 +314,7 @@ public class Scenario {
     }
 
     /**
-     *  Undocumented
+     *  Clear all demands in the scenario.
      */
     public void clear_all_demands(){
 
@@ -351,13 +338,11 @@ public class Scenario {
 
     /**
      * Set or override a demand value for a path.
-     * <p>
      * Use this method to set a demand profile of a given commodity on a given path.
      * The profile is a piecewise continuous function starting a time "start_time" and with
      * sample time "dt". The values are given by the "values" array. The value before
      * before "start_time" is zero, and the last value in the array is held into positive
      * infinity time.
-     * </p>
      * This method will override any existing demands for that commodity and path.
      *
      * @param path_id : [long] integer id of the subnetwork
@@ -403,41 +388,41 @@ public class Scenario {
 
     }
 
+//    /**
+//     * Undocumented
+//     * @return Undocumented
+//     * @throws OTMException Undocumented
+//     */
+//    public List<ODInfo> get_od_info() throws OTMException {
+//
+//        Map<ODPair,ODInfo> odmap = new HashMap<>();
+//
+//        for(AbstractDemandProfile demand_profile : scenario.data_demands.values()){
+//
+//            if(demand_profile.get_type()==DemandType.pathless)
+//                continue;
+//
+//            Long origin_node_id = demand_profile.get_origin_node_id();
+//            Long destination_node_id = demand_profile.get_destination_node_id();
+//            Long commodity_id = demand_profile.commodity.getId();
+//
+//            ODPair odpair = new ODPair(origin_node_id,destination_node_id,commodity_id);
+//            ODInfo odinfo;
+//            if(odmap.containsKey(odpair)){
+//                odinfo = odmap.get(odpair);
+//            } else {
+//                odinfo = new ODInfo(odpair, scenario);
+//                odmap.put(odpair,odinfo);
+//            }
+//            odinfo.add_demand_profile(demand_profile);
+//        }
+//
+//        return new ArrayList(odmap.values());
+//    }
+
     /**
-     * Undocumented
-     * @return Undocumented
-     * @throws OTMException Undocumented
-     */
-    public List<ODInfo> get_od_info() throws OTMException {
-
-        Map<ODPair,ODInfo> odmap = new HashMap<>();
-
-        for(AbstractDemandProfile demand_profile : scenario.data_demands.values()){
-
-            if(demand_profile.get_type()==DemandType.pathless)
-                continue;
-
-            Long origin_node_id = demand_profile.get_origin_node_id();
-            Long destination_node_id = demand_profile.get_destination_node_id();
-            Long commodity_id = demand_profile.commodity.getId();
-
-            ODPair odpair = new ODPair(origin_node_id,destination_node_id,commodity_id);
-            ODInfo odinfo;
-            if(odmap.containsKey(odpair)){
-                odinfo = odmap.get(odpair);
-            } else {
-                odinfo = new ODInfo(odpair, scenario);
-                odmap.put(odpair,odinfo);
-            }
-            odinfo.add_demand_profile(demand_profile);
-        }
-
-        return new ArrayList(odmap.values());
-    }
-
-    /**
-     * Undocumented
-     * @return Undocumented
+     * Integrate the demands to obtain the total number of trips that will take place.
+     * @return The number of trips.
      */
     public double get_total_trips() {
         return scenario.data_demands.values().stream()
@@ -451,7 +436,7 @@ public class Scenario {
 
     /**
      * Get the total number of sensors in the scenario.
-     * @return Undocumented
+     * @return Number of sensors
      */
     public int get_num_sensors(){
         return scenario.sensors.size();
@@ -459,10 +444,11 @@ public class Scenario {
 
     /**
      * Get information for all sensors in the scenario.
-     * @return Undocumented
+     * @return A set of SensorInfo
+     * @see SensorInfo
      */
-    public List<SensorInfo> get_sensors(){
-        List<SensorInfo> x = new ArrayList<>();
+    public Set<SensorInfo> get_sensors(){
+        Set<SensorInfo> x = new HashSet<>();
         for(AbstractSensor y : scenario.sensors.values())
             x.add(new SensorInfo(y));
         return x;
@@ -470,8 +456,9 @@ public class Scenario {
 
     /**
      * Get information for a specific sensor.
-     * @param id Undocumented
-     * @return Undocumented
+     * @param id Id of the requested sensor
+     * @return A SensorInfo object
+     * @see SensorInfo
      */
     public SensorInfo get_sensor_with_id(long id){
         AbstractSensor sensor = scenario.sensors.get(id);
@@ -484,7 +471,6 @@ public class Scenario {
 
     /**
      * Get the total number of controllers in the scenario.
-     *
      * @return an integer.
      */
     public int get_num_controllers(){
@@ -493,12 +479,11 @@ public class Scenario {
 
     /**
      * Get information for all controllers in the scenario.
-     *
-     * @return a list of ControllerInfo
+     * @return a set of ControllerInfo
      * @see ControllerInfo
      */
-    public List<ControllerInfo> get_controllers(){
-        List<ControllerInfo> x = new ArrayList<>();
+    public Set<ControllerInfo> get_controllers(){
+        Set<ControllerInfo> x = new HashSet<>();
         for(AbstractController y : scenario.controllers.values())
             x.add(new ControllerInfo(y));
         return x;
@@ -506,7 +491,6 @@ public class Scenario {
 
     /**
      * Get information for a specific myController.
-     *
      * @param id : [long] integer id of the myController.
      * @return A ControllerInfo object
      * @see ControllerInfo
@@ -516,22 +500,21 @@ public class Scenario {
         return controller==null ? null : new ControllerInfo(controller);
     }
 
-    /**
-     *
-     * @param id Undocumented
-     * @return Undocumented
-     */
-    public AbstractController get_actual_controller_with_id(long id){
-        return scenario.controllers.get(id);
-    }
+//    /**
+//     *
+//     * @param id Undocumented
+//     * @return Undocumented
+//     */
+//    public AbstractController get_actual_controller_with_id(long id){
+//        return scenario.controllers.get(id);
+//    }
 
     ////////////////////////////////////////////////////////
     // actuators
     ////////////////////////////////////////////////////////
 
     /**
-     * Get the total number of actuators in the scenario.
-     *
+     * Get the total number of actuators in the scenario
      * @return an integer.
      */
     public int get_num_actuators(){
@@ -540,12 +523,11 @@ public class Scenario {
 
     /**
      * Get information for all actuators in the scenario.
-     *
-     * @return a list of ActuatorInfo
+     * @return a set of ActuatorInfo
      * @see ActuatorInfo
      */
-    public List<ActuatorInfo> get_actuators(){
-        List<ActuatorInfo> x = new ArrayList<>();
+    public Set<ActuatorInfo> get_actuators(){
+        Set<ActuatorInfo> x = new HashSet<>();
         for(AbstractActuator y : scenario.actuators.values())
             x.add(create_actuator_info(y));
         return x;
@@ -553,7 +535,6 @@ public class Scenario {
 
     /**
      * Get information for a specific actuator.
-     *
      * @param id : [long] integer id of the actuator.
      * @return A ActuatorInfo object
      * @see ActuatorInfo
@@ -566,24 +547,24 @@ public class Scenario {
     // animation info
     ////////////////////////////////////////////////////////
 
-    /**
-     *
-     * @param link_ids Undocumented
-     * @return Undocumented
-     * @throws OTMException Undocumented
-     */
-    public AnimationInfo get_animation_info(List<Long> link_ids) throws OTMException {
-        return new AnimationInfo(scenario,link_ids);
-    }
-
-    /**
-     * Undocumented
-     * @return Undocumented
-     * @throws OTMException Undocumented
-     */
-    public AnimationInfo get_animation_info() throws OTMException {
-        return new AnimationInfo(scenario);
-    }
+//    /**
+//     *
+//     * @param link_ids Undocumented
+//     * @return Undocumented
+//     * @throws OTMException Undocumented
+//     */
+//    public AnimationInfo get_animation_info(List<Long> link_ids) throws OTMException {
+//        return new AnimationInfo(scenario,link_ids);
+//    }
+//
+//    /**
+//     * Undocumented
+//     * @return Undocumented
+//     * @throws OTMException Undocumented
+//     */
+//    public AnimationInfo get_animation_info() throws OTMException {
+//        return new AnimationInfo(scenario);
+//    }
 
     ////////////////////////////////////////////////////////
     // private

@@ -36,7 +36,7 @@ public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
 
     @Override
     public String get_output_file() {
-        return super.get_output_file() + "_path_tt.txt";
+        return write_to_file ? super.get_output_file() + "_path_tt.txt" : null;
     }
 
     //////////////////////////////////////////////////////
