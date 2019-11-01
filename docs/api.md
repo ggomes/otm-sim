@@ -1,3 +1,3 @@
-##API documentation
+# API documentation
 
 [Javadoc](apidocs/index.html)

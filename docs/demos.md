@@ -1,23 +1,21 @@
-##Demos
+# Demos
 
 OTM is written in Java, and includes connections to Matlab and Python. This is done via OTM's Java API, which is documented
-[here](apidocs/index.html). The Matlab and Python interfaces can be obtained [here](https://github.com/ggomes/otm-tools).
-All of the methods in the Java API are reproduced in Matlab and Python, and hence the Java documentation is valid in all three
-languages. The Matlab and Python interfaces contain additional methods, and these are documented in code.
+[here](docs/apidocs/index.html). The Matlab and Python interfaces are included with [otm-tools](https://github.com/ggomes/otm-tools).
+All of the methods in the Java API are accessible from Matlab and Python, so the Java documentation is valid in all three
+languages. The Matlab and Python interfaces provide additional methods bundled in the `OTMWrapper` class.
 
-Below are sample exercises..
-Sample configuration files can be found [here](https://github.com/ggomes/otm-tools/tree/master/configs).
-The OTM jar file must be linked to the demo code. Methods for doing this for Matlab and Python are provided [here](XXX).
+You can see below a few simple examples. The source code is linked in each case, and it is assumed in each case that the code is run from the respective language folder within `otm-tools',
 
-###Load a scenario
+## Load a scenario
 
-####Java ([source](https://github.com/ggomes/otm-tools/blob/master/java/demos/src/otm/demos/Main.java)
+### Java ([source](https://github.com/ggomes/otm-tools/blob/master/java/demos/src/otm/demos/Main.java))
 
 ```java
 api.OTM otm = new api.OTM("../configs/line.xml");
 ```
 
-####Python
+### Python
 
 ```python
 # comment
@@ -25,16 +23,16 @@ x=1
 print(x)
 ```
 
-####Matlab
+### Matlab
 
 ```Matlab
 import api.OTM
 otm = OTMWrapper("../configs/line.xml");
 ```
 
-###Run a complete simulation
+## Run a complete simulation
 
-####Java ([source](https://github.com/ggomes/otm-tools/blob/master/java/demos/src/otm/demos/Main.java)
+### Java ([source](https://github.com/ggomes/otm-tools/blob/master/java/demos/src/otm/demos/Main.java))
 
 ```java
 
@@ -60,7 +58,7 @@ for(AbstractOutput output :  otm.output.get_data()){
 }
 ```
 
-####Python
+### Python
 
 ```python
 # comment
@@ -68,7 +66,7 @@ x=1
 print(x)
 ```
 
-####Matlab
+### Matlab
 
 ```Matlab
 % import the OTM API
@@ -97,9 +95,9 @@ subplot(313)
 plot(Y.time(2:end),Y.speed_kph)
 ```
 
-###Run a scenario step-by-step
+## Run a scenario step-by-step
 
-####Java ([source](https://github.com/ggomes/otm-tools/blob/master/java/demos/src/otm/demos/Main.java)
+### Java ([source](https://github.com/ggomes/otm-tools/blob/master/java/demos/src/otm/demos/Main.java))
 
 ```Java
 try {
@@ -130,7 +128,7 @@ try {
 }
 ```
 
-####Python
+### Python
 
 ```python
 # comment
@@ -138,7 +136,7 @@ x=1
 print(x)
 ```
 
-####Matlab
+### Matlab
 
 ```Matlab
 % comment
@@ -146,14 +144,14 @@ x=1
 disp(x)
 ```
 
-###Write a controller plugin
+## Write a controller plugin
 Coming soon...
 
-###Write a model plugin
+## Write a model plugin
 Coming soon...
 
 
-###Import a network from OSM
+## Import a network from OSM
 [OSM](https://github.com/ggomes/otm-simcenter)
 
-###Import a network from SUMO
+## Import a network from SUMO

@@ -1,4 +1,4 @@
-##Additional packages
+# Additional packages
 
 - [otm-tools](https://github.com/ggomes/otm-tools) ... Python and Matlab iterfaces
 - [otm-gui](https://github.com/ggomes/otm-ui) ... A simple GUI
