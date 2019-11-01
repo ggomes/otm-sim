@@ -16,7 +16,7 @@ Follow these steps if you wish to build OTM from the source code.
 
 1. Fork and/or clone the [repo](https://github.com/ggomes/otm-sim).
 2. Install [Apache Maven](https://maven.apache.org/install.html).
-3. Add OTM's Maven repository profile to your Maven settings file: `~/.m2/settings.xml`::
+3. Add OTM's Maven repository profile to your Maven settings file: `~/.m2/settings.xml`:
 ```xml
     <profile>
         <id>myMavenRepoOTM</id>
