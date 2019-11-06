@@ -1,19 +1,3 @@
-# Open Traffic Models
+OTM is a platform for simulating vehicular traffic scenarios. It offers multiple models that can be arbitrarily combined in a single simulation. You can also use OTM to test your own modeling concepts by using its model plugin framework. You can similarly test new controllers this way. OTM is built for research: there are APIs for Java, Python, and Matlab. 
 
-<!-- <img src="docs/img/square_logo.png" align="right" width="25%"/> -->
-
-OTM is a traffic simulation platform that implements models and control algorithms as Java plugins. Three basic models are provided: the cell-transmission model, the two-queue (mesoscopic) model, and Newell's car-following model. 
-
-# More information
-- [Website](https://sites.google.com/berkeley.edu/otm/home)
-- Publications  ([1](https://arxiv.org/abs/1908.04009))
-- [Documentation](https://open-traffic-models.readthedocs.io/en/latest/)
-- [Installation](https://open-traffic-models.readthedocs.io/en/latest/installation.html)
-- [Demos](https://github.com/otm-sim/tree/master/demos)
-
-# Add-ons
-- [Python tools](https://github.com/ggomes/otm-tools-python-ucb) 
-- [Matlab tools](https://github.com/ggomes/otm-tools)
-- [GUI](https://github.com/ggomes/otm-ui)
-- [OTM with Open Street Map](https://github.com/ggomes/otm-simcenter)
-- [OTM with high performance computing](https://github.com/ggomes/otm-mpi)
+Visit the [Github Page](https://ggomes.github.io/otm-sim/) to learn more.
