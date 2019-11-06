@@ -6,14 +6,20 @@ public class NodeInfo {
 
     /** Integer id of the node. */
     public long id;
+    public float x;
+    public float y;
 
-    public NodeInfo(Node x){
-        this.id = x.getId();
+    public NodeInfo(Node node){
+        this.id = node.getId();
+        this.x = node.xcoord;
+        this.y = node.ycoord;
     }
 
     public long getId() {
         return id;
     }
+    public float getX(){ return x; }
+    public float getY(){ return y; }
 
     @Override
     public String toString() {

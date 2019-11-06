@@ -21,9 +21,7 @@ import javax.xml.validation.SchemaFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Public API. The methods in the API are of three types. Basic scenario loading and running
@@ -38,6 +36,14 @@ public class OTM {
     public Output output;
 
     public OTM(){}
+
+    public Scenario scenario(){
+        return scenario;
+    }
+
+    public Output output(){
+        return output;
+    }
 
     public void load(String configfile, boolean validate, boolean jaxb_only) throws OTMException {
         jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,validate);

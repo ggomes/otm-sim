@@ -30,7 +30,7 @@ Follow these steps if you wish to build OTM from the source code.
         </properties>
     </profile>
 ```
-If you do not have `~/.m2/settings.xml` then you can use [the one provided](https://github.com/ggomes/otm-sim/blob/master/settings.xml).
+If you do not have `~/.m2/settings.xml` then you can use [this one](https://github.com/ggomes/otm-sim/blob/master/settings.xml).
 4. Install:
 ```
 mvn clean install -DskipTests

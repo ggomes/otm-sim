@@ -6,6 +6,7 @@ import api.info.*;
 import commodity.Commodity;
 import commodity.Subnetwork;
 import common.Link;
+import common.Node;
 import common.RoadConnection;
 import control.AbstractController;
 import dispatch.EventCreateVehicle;
@@ -15,7 +16,6 @@ import error.OTMException;
 import keys.DemandType;
 import keys.KeyCommodityDemandTypeId;
 import models.AbstractLaneGroup;
-import output.animation.AnimationInfo;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;
 import sensor.AbstractSensor;
@@ -23,7 +23,6 @@ import sensor.AbstractSensor;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -186,6 +185,29 @@ public class Scenario {
     }
 
     /**
+     * Get information for all nodes in the scenario.
+     * @return Map from node id to NodeInfo
+     * @see NodeInfo
+     */
+    public Map<Long, NodeInfo> get_nodes(){
+        Map<Long,NodeInfo> nodeInfo = new HashMap<>();
+        for(Node node : scenario.network.nodes.values())
+            nodeInfo.put(node.getId(),new NodeInfo(node));
+        return nodeInfo;
+    }
+
+    /**
+     * Get information for a specific node.
+     * @param node_id Id of the requested node.
+     * @return a NodeInfo object
+     * @see NodeInfo
+     */
+    public NodeInfo get_node_with_id(long node_id){
+        Node node = scenario.network.nodes.get(node_id);
+        return node==null ? null : new NodeInfo(node);
+    }
+
+    /**
      * Returns a set where every entry is a list with entries [link_id,start_node,end_node]
      * @return A set of lists
      */
@@ -206,11 +228,8 @@ public class Scenario {
      * @return Map from link id to LinkInfo
      * @see LinkInfo
      */
-    public Map<Long, LinkInfo> get_links(){
-        Map<Long,LinkInfo> linkInfo = new HashMap<>();
-        for(Link link : scenario.network.links.values())
-            linkInfo.put(link.getId(),new LinkInfo(link));
-        return linkInfo;
+    public Map<Long,LinkInfo> get_links(){
+        return scenario.network.links.values().stream().collect(Collectors.toMap(x->x.getId(),x->new LinkInfo(x)));
     }
 
     /**
