@@ -170,6 +170,8 @@ public class ScenarioFactory {
             return sensors;
         for(jaxb.Sensor jaxb_sensor : jaxb_sensors.getSensor()){
             AbstractSensor sensor;
+            if(sensors.containsKey(jaxb_sensor.getId()))
+                throw new OTMException("Duplicate sensor id found: " + jaxb_sensor.getId());
             switch(jaxb_sensor.getType()){
                 case "fixed":
                     sensor = new FixedSensor(scenario,jaxb_sensor);
@@ -192,6 +194,8 @@ public class ScenarioFactory {
             return actuators;
         for(jaxb.Actuator jaxb_actuator : jaxb_actuators.getActuator()){
             AbstractActuator actuator;
+            if(actuators.containsKey(jaxb_actuator.getId()))
+                throw new OTMException("Duplicate actuator id found: " + jaxb_actuator.getId());
             switch(jaxb_actuator.getType()){
                 case "signal":
                     actuator = new ActuatorSignal(scenario,jaxb_actuator);
@@ -230,6 +234,8 @@ public class ScenarioFactory {
         for(jaxb.Controller jaxb_controller : jaxb_controllers.getController()){
             AbstractController controller;
             String controller_type = jaxb_controller.getType();
+            if(controllers.containsKey(jaxb_controller.getId()))
+                throw new OTMException("Duplicate controller id found: " + jaxb_controller.getId());
             switch(controller_type){
                 case "irm_tod":
                     controller = null;

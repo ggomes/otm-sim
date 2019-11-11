@@ -15,9 +15,9 @@ import static java.util.stream.Collectors.toSet;
  */
 public class Output {
 
-    private Scenario scenario;
-    protected Output(Scenario scenario){
-        this.scenario = scenario;
+    private api.OTM myapi;
+    protected Output(api.OTM myapi){
+        this.myapi = myapi;
     }
 
     // ----------------------------------------------
@@ -30,7 +30,7 @@ public class Output {
      */
     public Set<AbstractOutput> get_data(){
         Set<AbstractOutput> x = new HashSet<>();
-        for(AbstractOutput output : scenario.outputs)
+        for(AbstractOutput output : myapi.scn.outputs)
             if(!output.write_to_file)
                 x.add(output);
         return x;
@@ -41,7 +41,7 @@ public class Output {
      * @return Set of all output file names
      */
     public Set<String> get_file_names(){
-        return scenario.outputs.stream()
+        return myapi.scn.outputs.stream()
                 .map(x->x.get_output_file())
                 .filter(x->x!=null)
                 .collect(toSet());
@@ -51,7 +51,7 @@ public class Output {
      * Clear the outputs.
      */
     public void clear(){
-        scenario.outputs.clear();
+        myapi.scn.outputs.clear();
     }
 
     // ----------------------------------------------
@@ -65,7 +65,7 @@ public class Output {
      */
     public void request_lanegroups(String prefix,String output_folder){
         try {
-            this.scenario.outputs.add(new LaneGroups(scenario,prefix,output_folder));
+            this.myapi.scn.outputs.add(new LaneGroups(myapi.scn,prefix,output_folder));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -85,7 +85,7 @@ public class Output {
      */
     public void request_links_flow(String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt){
         try {
-            this.scenario.outputs.add(new LinkFlow(scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scn.outputs.add(new LinkFlow(myapi.scn,prefix,output_folder,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -99,7 +99,7 @@ public class Output {
      */
     public void request_links_flow(Long commodity_id,Collection<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LinkFlow(scenario,null,null,commodity_id,link_ids,outDt));
+            this.myapi.scn.outputs.add(new LinkFlow(myapi.scn,null,null,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -112,7 +112,7 @@ public class Output {
      */
     public void request_links_flow(Collection<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LinkFlow(scenario,null,null,null,link_ids,outDt));
+            this.myapi.scn.outputs.add(new LinkFlow(myapi.scn,null,null,null,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -128,7 +128,7 @@ public class Output {
      */
     public void request_links_veh(String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LinkVehicles(scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scn.outputs.add(new LinkVehicles(myapi.scn,prefix,output_folder,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -142,7 +142,7 @@ public class Output {
      */
     public void request_links_veh(Long commodity_id,Collection<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LinkVehicles(scenario,null,null,commodity_id,link_ids,outDt));
+            this.myapi.scn.outputs.add(new LinkVehicles(myapi.scn,null,null,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -155,7 +155,7 @@ public class Output {
      */
     public void request_links_veh(Collection<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LinkVehicles(scenario,null,null,null,link_ids,outDt));
+            this.myapi.scn.outputs.add(new LinkVehicles(myapi.scn,null,null,null,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -173,7 +173,7 @@ public class Output {
      */
     public void request_lanegroup_flw(String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LaneGroupFlow(scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scn.outputs.add(new LaneGroupFlow(myapi.scn,prefix,output_folder,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -187,7 +187,7 @@ public class Output {
      */
     public void request_lanegroup_flw(Long commodity_id,Collection<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LaneGroupFlow(scenario,null,null,commodity_id,link_ids,outDt));
+            this.myapi.scn.outputs.add(new LaneGroupFlow(myapi.scn,null,null,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -203,7 +203,7 @@ public class Output {
      */
     public void request_lanegroup_veh(String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LaneGroupVehicles(scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scn.outputs.add(new LaneGroupVehicles(myapi.scn,prefix,output_folder,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -217,7 +217,7 @@ public class Output {
      */
     public void request_lanegroup_veh(Long commodity_id,Collection<Long> link_ids,Float outDt){
         try {
-            this.scenario.outputs.add(new LaneGroupVehicles(scenario,null,null,commodity_id,link_ids,outDt));
+            this.myapi.scn.outputs.add(new LaneGroupVehicles(myapi.scn,null,null,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -236,9 +236,9 @@ public class Output {
      */
     public void request_path_travel_time(String prefix,String output_folder,Long subnetwork_id,Float outDt){
         try {
-            PathTravelTimeWriter path_tt = new PathTravelTimeWriter(scenario,prefix,output_folder,subnetwork_id,outDt);
-            this.scenario.outputs.add(path_tt);
-            this.scenario.add_path_travel_time(path_tt);
+            PathTravelTimeWriter path_tt = new PathTravelTimeWriter(myapi.scn,prefix,output_folder,subnetwork_id,outDt);
+            this.myapi.scn.outputs.add(path_tt);
+            this.myapi.scn.add_path_travel_time(path_tt);
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -263,7 +263,7 @@ public class Output {
      */
     public void request_subnetwork_vht(String prefix,String output_folder,Long commodity_id,Long subnetwork_id,Float outDt){
         try {
-            this.scenario.outputs.add(new LinkVHT(scenario,prefix,output_folder,commodity_id,subnetwork_id,outDt));
+            this.myapi.scn.outputs.add(new LinkVHT(myapi.scn,prefix,output_folder,commodity_id,subnetwork_id,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -299,7 +299,7 @@ public class Output {
      */
     public void request_vehicle_events(String prefix,String output_folder,Long commodity_id){
         try {
-            this.scenario.outputs.add(new EventsVehicle(scenario,prefix,output_folder,commodity_id));
+            this.myapi.scn.outputs.add(new EventsVehicle(myapi.scn,prefix,output_folder,commodity_id));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -311,14 +311,14 @@ public class Output {
      * @param output_folder Output folder.
      */
     public void request_vehicle_class(String prefix,String output_folder){
-        this.scenario.outputs.add(new VehicleClass(scenario,prefix,output_folder));
+        this.myapi.scn.outputs.add(new VehicleClass(myapi.scn,prefix,output_folder));
     }
 
     /**
      * Request vehicle class.
      */
     public void request_vehicle_class(){
-        this.scenario.outputs.add(new VehicleClass(scenario,null,null));
+        this.myapi.scn.outputs.add(new VehicleClass(myapi.scn,null,null));
     }
 
     /**
@@ -327,14 +327,14 @@ public class Output {
      * @param output_folder Output folder.
      */
     public void request_vehicle_travel_time(String prefix,String output_folder){
-        this.scenario.outputs.add(new VehicleTravelTime(scenario,prefix,output_folder));
+        this.myapi.scn.outputs.add(new VehicleTravelTime(myapi.scn,prefix,output_folder));
     }
 
     /**
      * Request vehicle travel times.
      */
     public void request_vehicle_travel_time(){
-        this.scenario.outputs.add(new VehicleTravelTime(scenario,null,null));
+        this.myapi.scn.outputs.add(new VehicleTravelTime(myapi.scn,null,null));
     }
 
     // ----------------------------------------------
@@ -349,7 +349,7 @@ public class Output {
      */
     public void request_actuator(String prefix,String output_folder,Long actuator_id){
         try {
-            this.scenario.outputs.add(new EventsActuator(scenario,prefix,output_folder,actuator_id));
+            this.myapi.scn.outputs.add(new EventsActuator(myapi.scn,prefix,output_folder,actuator_id));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -375,7 +375,7 @@ public class Output {
      */
     public void request_controller(String prefix,String output_folder,Long controller_id){
         try {
-            this.scenario.outputs.add(new EventsController(scenario,prefix,output_folder,controller_id));
+            this.myapi.scn.outputs.add(new EventsController(myapi.scn,prefix,output_folder,controller_id));
         } catch (OTMException e) {
             e.printStackTrace();
         }

@@ -32,8 +32,8 @@ public class OTM {
 
     protected Dispatcher dispatcher;
     protected runner.Scenario scn;
-    public Scenario scenario;
-    public Output output;
+    public api.Scenario scenario;
+    public api.Output output;
 
     public OTM(){}
 
@@ -51,14 +51,21 @@ public class OTM {
             this.scn =  ScenarioFactory.create_scenario_for_static_traffic_assignment(jaxb_scenario);
         else
             this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,validate);
-        scenario = new Scenario(scn);
-        output = new Output(scn);
+        scenario = new api.Scenario(this);
+        output = new api.Output(this);
     }
 
     public void load_from_jaxb(jaxb.Scenario jscn,boolean validate) throws OTMException {
         this.scn =  ScenarioFactory.create_scenario(jscn,validate);
-        scenario = new Scenario(scn);
-        output = new Output(scn);
+        scenario = new Scenario(this);
+        output = new Output(this);
+    }
+
+    public void load_test(String configname) throws OTMException  {
+        jaxb.Scenario jaxb_scenario =  JaxbLoader.load_test_scenario(configname+".xml",true);
+        this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,true);
+        scenario = new api.Scenario(this);
+        output = new api.Output(this);
     }
 
     /**

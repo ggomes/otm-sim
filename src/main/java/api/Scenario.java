@@ -30,9 +30,10 @@ import static java.util.stream.Collectors.toSet;
  */
 public class Scenario {
 
-    private runner.Scenario scenario;
-    protected Scenario(runner.Scenario scenario){
-        this.scenario = scenario;
+    private api.OTM myapi;
+//    private runner.Scenario scenario;
+    protected Scenario(api.OTM myapi){
+        this.myapi = myapi;
     }
 
     /**
@@ -41,7 +42,7 @@ public class Scenario {
      * @see ScenarioInfo
      */
     public ScenarioInfo get_info(){
-        return scenario !=null ? new ScenarioInfo(scenario) : null;
+        return myapi.scn !=null ? new ScenarioInfo(myapi.scn) : null;
     }
 
     ////////////////////////////////////////////////////////
@@ -54,7 +55,7 @@ public class Scenario {
      * @see ModelInfo
      */
     public Set<ModelInfo> get_models(){
-        return scenario.network.models.values().stream()
+        return myapi.scn.network.models.values().stream()
                 .map(model->new ModelInfo(model))
                 .collect(toSet());
     }
@@ -68,7 +69,7 @@ public class Scenario {
      * @return integer number of commodities.
      */
     public int get_num_commodities(){
-        return scenario.commodities.size();
+        return myapi.scn.commodities.size();
     }
 
     /**
@@ -78,7 +79,7 @@ public class Scenario {
      */
     public Set<CommodityInfo> get_commodities(){
         Set<CommodityInfo> commInfo = new HashSet<>();
-        for(Commodity comm : scenario.commodities.values())
+        for(Commodity comm : myapi.scn.commodities.values())
             commInfo.add(new CommodityInfo(comm));
         return commInfo;
     }
@@ -90,7 +91,7 @@ public class Scenario {
      * @see CommodityInfo
      */
     public CommodityInfo get_commodity_with_id(long id){
-        Commodity comm = scenario.commodities.get(id);
+        Commodity comm = myapi.scn.commodities.get(id);
         return comm==null? null : new CommodityInfo(comm);
     }
 
@@ -99,7 +100,7 @@ public class Scenario {
      * @return set of commodity ids
      */
     public Set<Long> get_commodity_ids(){
-        return new HashSet(scenario.commodities.keySet());
+        return new HashSet(myapi.scn.commodities.keySet());
     }
 
     ////////////////////////////////////////////////////////
@@ -111,7 +112,7 @@ public class Scenario {
      * @return integer number of subnetworks
      */
     public int get_num_subnetworks(){
-        return scenario.subnetworks.size();
+        return myapi.scn.subnetworks.size();
     }
 
     /**
@@ -119,7 +120,7 @@ public class Scenario {
      * @return Set of subnetwork ids
      */
     public Set<Long> get_subnetwork_ids(){
-        return new HashSet(scenario.subnetworks.keySet());
+        return new HashSet(myapi.scn.subnetworks.keySet());
     }
 
     /**
@@ -127,7 +128,7 @@ public class Scenario {
      * @return Set of path ids
      */
     public Set<Long> get_path_ids(){
-        return scenario.subnetworks.values().stream()
+        return myapi.scn.subnetworks.values().stream()
                 .filter(x->x.is_path)
                 .map(x->x.getId())
                 .collect(toSet());
@@ -140,7 +141,7 @@ public class Scenario {
      */
     public Set<SubnetworkInfo> get_subnetworks(){
         Set<SubnetworkInfo> subnetInfo = new HashSet<>();
-        for(Subnetwork subnet : scenario.subnetworks.values())
+        for(Subnetwork subnet : myapi.scn.subnetworks.values())
             subnetInfo.add(new SubnetworkInfo(subnet));
         return subnetInfo;
     }
@@ -152,7 +153,7 @@ public class Scenario {
      * @see SubnetworkInfo
      */
     public SubnetworkInfo get_subnetwork_with_id(long id){
-        Subnetwork subnet = scenario.subnetworks.get(id);
+        Subnetwork subnet = myapi.scn.subnetworks.get(id);
         return subnet==null? null : new SubnetworkInfo(subnet);
     }
 
@@ -165,7 +166,7 @@ public class Scenario {
      * @return an integer.
      */
     public int get_num_links(){
-        return scenario.network.links.size();
+        return myapi.scn.network.links.size();
     }
 
     /**
@@ -173,7 +174,7 @@ public class Scenario {
      * @return an integer.
      */
     public int get_num_nodes(){
-        return scenario.network.nodes.size();
+        return myapi.scn.network.nodes.size();
     }
 
     /**
@@ -181,7 +182,7 @@ public class Scenario {
      * @return Set of node ids.
      */
     public Set<Long> get_node_ids(){
-        return new HashSet(scenario.network.nodes.keySet());
+        return new HashSet(myapi.scn.network.nodes.keySet());
     }
 
     /**
@@ -191,7 +192,7 @@ public class Scenario {
      */
     public Map<Long, NodeInfo> get_nodes(){
         Map<Long,NodeInfo> nodeInfo = new HashMap<>();
-        for(Node node : scenario.network.nodes.values())
+        for(Node node : myapi.scn.network.nodes.values())
             nodeInfo.put(node.getId(),new NodeInfo(node));
         return nodeInfo;
     }
@@ -203,7 +204,7 @@ public class Scenario {
      * @see NodeInfo
      */
     public NodeInfo get_node_with_id(long node_id){
-        Node node = scenario.network.nodes.get(node_id);
+        Node node = myapi.scn.network.nodes.get(node_id);
         return node==null ? null : new NodeInfo(node);
     }
 
@@ -213,7 +214,7 @@ public class Scenario {
      */
     public Set<List<Long>> get_link_connectivity(){
         Set<List<Long>> X = new HashSet<>();
-        for(Link link : scenario.network.links.values()){
+        for(Link link : myapi.scn.network.links.values()){
             List<Long> A = new ArrayList<>();
             A.add(link.getId());
             A.add(link.start_node.getId());
@@ -229,7 +230,7 @@ public class Scenario {
      * @see LinkInfo
      */
     public Map<Long,LinkInfo> get_links(){
-        return scenario.network.links.values().stream().collect(Collectors.toMap(x->x.getId(),x->new LinkInfo(x)));
+        return myapi.scn.network.links.values().stream().collect(Collectors.toMap(x->x.getId(),x->new LinkInfo(x)));
     }
 
     /**
@@ -239,7 +240,7 @@ public class Scenario {
      * @see LinkInfo
      */
     public LinkInfo get_link_with_id(long link_id){
-        Link link = scenario.network.links.get(link_id);
+        Link link = myapi.scn.network.links.get(link_id);
         return link==null ? null : new LinkInfo(link);
     }
 
@@ -248,7 +249,7 @@ public class Scenario {
      * @return A set of ids
      */
     public Set<Long> get_link_ids(){
-        return new HashSet(scenario.network.links.keySet());
+        return new HashSet(myapi.scn.network.links.keySet());
     }
 
     /**
@@ -256,7 +257,7 @@ public class Scenario {
      * @return A set of ids.
      */
     public Set<Long> get_source_link_ids(){
-        return scenario.network.links.values().stream()
+        return myapi.scn.network.links.values().stream()
                 .filter(x->x.is_source)
                 .map(x->x.getId())
                 .collect(toSet());
@@ -268,7 +269,7 @@ public class Scenario {
      * @return A set of lane group ids.
      */
     public Set<Long> get_in_lanegroups_for_road_connection(long rcid){
-        RoadConnection rc = scenario.network.get_road_connection(rcid);
+        RoadConnection rc = myapi.scn.network.get_road_connection(rcid);
         Set<Long> lgids = new HashSet<>();
         for(AbstractLaneGroup lg : rc.in_lanegroups)
             lgids.add(lg.id);
@@ -281,7 +282,7 @@ public class Scenario {
      * @return A set of lane group ids.
      */
     public Set<Long> get_out_lanegroups_for_road_connection(long rcid){
-        RoadConnection rc = scenario.network.get_road_connection(rcid);
+        RoadConnection rc = myapi.scn.network.get_road_connection(rcid);
         Set<Long> lgids = new HashSet<>();
         for(AbstractLaneGroup lg : rc.out_lanegroups)
             lgids.add(lg.id);
@@ -294,7 +295,7 @@ public class Scenario {
      */
     public Map<Long,Set<Long>> get_link2lgs(){
         Map<Long,Set<Long>> lk2lgs = new HashMap<>();
-        for(Link link : scenario.network.links.values())
+        for(Link link : myapi.scn.network.links.values())
             lk2lgs.put(link.getId(),link.lanegroups_flwdn.values().stream()
                     .map(x->x.id).collect(toSet()));
         return lk2lgs;
@@ -311,7 +312,7 @@ public class Scenario {
      */
     public Set<DemandInfo> get_demands(){
         Set<DemandInfo> x = new HashSet<>();
-        for(AbstractDemandProfile y : scenario.data_demands.values())
+        for(AbstractDemandProfile y : myapi.scn.data_demands.values())
             x.add(new DemandInfo(y));
         return x;
     }
@@ -328,7 +329,7 @@ public class Scenario {
         DemandType type = DemandType.valueOf(typestr);
         if(type==null)
             return null;
-        AbstractDemandProfile dp = scenario.data_demands.get(new KeyCommodityDemandTypeId(commodity_id,link_or_path_id,type));
+        AbstractDemandProfile dp = myapi.scn.data_demands.get(new KeyCommodityDemandTypeId(commodity_id,link_or_path_id,type));
         return dp==null ? null : new DemandInfo(dp);
     }
 
@@ -337,22 +338,22 @@ public class Scenario {
      */
     public void clear_all_demands(){
 
-        if(scenario ==null)
+        if(myapi.scn ==null)
             return;
 
         // delete sources from links
-        for(Link link : scenario.network.links.values())
+        for(Link link : myapi.scn.network.links.values())
             link.sources = new HashSet<>();
 
         // delete all EventCreateVehicle and EventDemandChange from dispatcher
-        if(scenario.dispatcher!=null) {
-            scenario.dispatcher.remove_events_for_recipient(EventCreateVehicle.class);
-            scenario.dispatcher.remove_events_for_recipient(EventDemandChange.class);
+        if(myapi.scn.dispatcher!=null) {
+            myapi.scn.dispatcher.remove_events_for_recipient(EventCreateVehicle.class);
+            myapi.scn.dispatcher.remove_events_for_recipient(EventDemandChange.class);
         }
 
         // delete all demand profiles
-        if(scenario.data_demands!=null)
-            scenario.data_demands.clear();
+        if(myapi.scn.data_demands!=null)
+            myapi.scn.data_demands.clear();
     }
 
     /**
@@ -373,11 +374,11 @@ public class Scenario {
      */
     public void set_demand_on_path_in_vph(long path_id,long commodity_id,float start_time,float dt,List<Double> values) throws OTMException {
 
-        Subnetwork path = scenario.subnetworks.get(path_id);
+        Subnetwork path = myapi.scn.subnetworks.get(path_id);
         if(path==null)
             throw new OTMException("Bad path id");
 
-        Commodity commodity = scenario.commodities.get(commodity_id);
+        Commodity commodity = myapi.scn.commodities.get(commodity_id);
         if(commodity==null)
             throw new OTMException("Bad commodity id");
 
@@ -395,14 +396,14 @@ public class Scenario {
             throw new OTMException(errorLog.format_errors());
 
         // add to scenario
-        scenario.data_demands.put(dp.get_key(),dp);
+        myapi.scn.data_demands.put(dp.get_key(),dp);
 
-        if(scenario.is_initialized) {
+        if(myapi.scn.is_initialized) {
             // initialize
-            dp.initialize(scenario);
+            dp.initialize(myapi.scn);
 
             // send to dispatcher
-            dp.register_with_dispatcher(scenario.dispatcher);
+            dp.register_with_dispatcher(myapi.scn.dispatcher);
         }
 
     }
@@ -444,7 +445,7 @@ public class Scenario {
      * @return The number of trips.
      */
     public double get_total_trips() {
-        return scenario.data_demands.values().stream()
+        return myapi.scn.data_demands.values().stream()
                 .map(x->x.get_total_trips())
                 .reduce(0.0,Double::sum);
     }
@@ -458,7 +459,7 @@ public class Scenario {
      * @return Number of sensors
      */
     public int get_num_sensors(){
-        return scenario.sensors.size();
+        return myapi.scn.sensors.size();
     }
 
     /**
@@ -468,7 +469,7 @@ public class Scenario {
      */
     public Set<SensorInfo> get_sensors(){
         Set<SensorInfo> x = new HashSet<>();
-        for(AbstractSensor y : scenario.sensors.values())
+        for(AbstractSensor y : myapi.scn.sensors.values())
             x.add(new SensorInfo(y));
         return x;
     }
@@ -480,7 +481,7 @@ public class Scenario {
      * @see SensorInfo
      */
     public SensorInfo get_sensor_with_id(long id){
-        AbstractSensor sensor = scenario.sensors.get(id);
+        AbstractSensor sensor = myapi.scn.sensors.get(id);
         return sensor==null ? null : new SensorInfo(sensor);
     }
 
@@ -493,7 +494,7 @@ public class Scenario {
      * @return an integer.
      */
     public int get_num_controllers(){
-        return scenario.controllers.size();
+        return myapi.scn.controllers.size();
     }
 
     /**
@@ -503,7 +504,7 @@ public class Scenario {
      */
     public Set<ControllerInfo> get_controllers(){
         Set<ControllerInfo> x = new HashSet<>();
-        for(AbstractController y : scenario.controllers.values())
+        for(AbstractController y : myapi.scn.controllers.values())
             x.add(new ControllerInfo(y));
         return x;
     }
@@ -515,7 +516,7 @@ public class Scenario {
      * @see ControllerInfo
      */
     public ControllerInfo get_controller_with_id(long id){
-        AbstractController controller = scenario.controllers.get(id);
+        AbstractController controller = myapi.scn.controllers.get(id);
         return controller==null ? null : new ControllerInfo(controller);
     }
 
@@ -537,7 +538,7 @@ public class Scenario {
      * @return an integer.
      */
     public int get_num_actuators(){
-        return scenario.actuators.size();
+        return myapi.scn.actuators.size();
     }
 
     /**
@@ -547,7 +548,7 @@ public class Scenario {
      */
     public Set<ActuatorInfo> get_actuators(){
         Set<ActuatorInfo> x = new HashSet<>();
-        for(AbstractActuator y : scenario.actuators.values())
+        for(AbstractActuator y : myapi.scn.actuators.values())
             x.add(create_actuator_info(y));
         return x;
     }
@@ -559,7 +560,7 @@ public class Scenario {
      * @see ActuatorInfo
      */
     public ActuatorInfo get_actuator_with_id(long id){
-        return create_actuator_info( scenario.actuators.get(id) );
+        return create_actuator_info( myapi.scn.actuators.get(id) );
     }
 
     ////////////////////////////////////////////////////////

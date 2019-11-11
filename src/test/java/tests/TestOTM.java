@@ -26,7 +26,8 @@ public class TestOTM extends AbstractTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        otm = load_test_config("line",true);
+        otm = new OTM();
+        otm.load_test("line");
     }
 
     //////////////////////////////////////////////////////////////////
