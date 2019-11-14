@@ -408,37 +408,37 @@ public class Scenario {
 
     }
 
-//    /**
-//     * Undocumented
-//     * @return Undocumented
-//     * @throws OTMException Undocumented
-//     */
-//    public List<ODInfo> get_od_info() throws OTMException {
-//
-//        Map<ODPair,ODInfo> odmap = new HashMap<>();
-//
-//        for(AbstractDemandProfile demand_profile : scenario.data_demands.values()){
-//
-//            if(demand_profile.get_type()==DemandType.pathless)
-//                continue;
-//
-//            Long origin_node_id = demand_profile.get_origin_node_id();
-//            Long destination_node_id = demand_profile.get_destination_node_id();
-//            Long commodity_id = demand_profile.commodity.getId();
-//
-//            ODPair odpair = new ODPair(origin_node_id,destination_node_id,commodity_id);
-//            ODInfo odinfo;
-//            if(odmap.containsKey(odpair)){
-//                odinfo = odmap.get(odpair);
-//            } else {
-//                odinfo = new ODInfo(odpair, scenario);
-//                odmap.put(odpair,odinfo);
-//            }
-//            odinfo.add_demand_profile(demand_profile);
-//        }
-//
-//        return new ArrayList(odmap.values());
-//    }
+    /**
+     * Get OD matrix information for this scenario
+     * @return List of ODInfo objects
+     * @throws OTMException Undocumented
+     */
+    public List<ODInfo> get_od_info() throws OTMException {
+
+        Map<ODPair,ODInfo> odmap = new HashMap<>();
+
+        for(AbstractDemandProfile demand_profile : myapi.scn.data_demands.values()){
+
+            if(demand_profile.get_type()==DemandType.pathless)
+                continue;
+
+            Long origin_node_id = demand_profile.get_origin_node_id();
+            Long destination_node_id = demand_profile.get_destination_node_id();
+            Long commodity_id = demand_profile.commodity.getId();
+
+            ODPair odpair = new ODPair(origin_node_id,destination_node_id,commodity_id);
+            ODInfo odinfo;
+            if(odmap.containsKey(odpair)){
+                odinfo = odmap.get(odpair);
+            } else {
+                odinfo = new ODInfo(odpair, myapi.scn);
+                odmap.put(odpair,odinfo);
+            }
+            odinfo.add_demand_profile(demand_profile);
+        }
+
+        return new ArrayList(odmap.values());
+    }
 
     /**
      * Integrate the demands to obtain the total number of trips that will take place.
