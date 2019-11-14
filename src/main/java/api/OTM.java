@@ -37,6 +37,10 @@ public class OTM {
 
     public OTM(){}
 
+    public boolean has_scenario(){
+        return scn!=null;
+    }
+
     public Scenario scenario(){
         return scenario;
     }

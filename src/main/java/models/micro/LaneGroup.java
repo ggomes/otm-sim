@@ -105,7 +105,8 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
             vehicles.add(vehicle);
 
             // inform the travel timers
-            ((VehicleLaneGroupTimer)travel_timer).vehicle_enter(timestamp,vehicle);
+            if(travel_timer!=null)
+                ((VehicleLaneGroupTimer)travel_timer).vehicle_enter(timestamp,vehicle);
 
         }
 
@@ -146,7 +147,8 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 //                    ev.move_from_to_queue(timestamp,vehicle,waiting_queue,null);
 
             // inform the travel timers
-            ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),null);
+            if(travel_timer!=null)
+                ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),null);
 
             released = true;
         }
@@ -188,7 +190,8 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                 vehicle.new_pos -= vehicle.lg.length;
 
                 // inform the travel timers
-                ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),next_link);
+                if(travel_timer!=null)
+                    ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),next_link);
 
                 // send vehicle packet to next link
                 next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
