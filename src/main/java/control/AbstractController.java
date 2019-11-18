@@ -34,6 +34,8 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
     public long id;
     public Algorithm type;
     public float dt;
+    public float start_time;
+    public float end_time;
 
     public Map<Long,AbstractActuator> actuators;
     public Map<String,AbstractActuator> actuator_by_usage;
@@ -55,6 +57,8 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
         String controller_type = jaxb_controller.getType();
         this.type = is_inbuilt(controller_type) ? Algorithm.valueOf(controller_type) : Algorithm.plugin;
         this.dt = jaxb_controller.getDt();
+        this.start_time = jaxb_controller.getStartTime();
+        this.end_time = jaxb_controller.getEndTime();
 
         // below this does not apply for scenario-less controllers  ..............................
         if(scenario==null)
