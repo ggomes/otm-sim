@@ -123,9 +123,9 @@ public class DemandProfile extends AbstractDemandProfile {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-//        float now = scenario.get_current_time();
-//        double value = profile.get_value_for_time(now);
-//        source.set_demand_in_veh_per_timestep(scenario.dispatcher,now,value*scenario.sim_dt);
+        float now = scenario.get_current_time();
+        double value = profile.get_value_for_time(now);
+        source.set_demand_vps(scenario.dispatcher,now,value);
     }
 
     @Override

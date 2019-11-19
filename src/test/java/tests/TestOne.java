@@ -152,12 +152,35 @@ public class TestOne extends AbstractTest {
 
     @Ignore
     @Test
+    public void TempTest() {
+        try {
+            api.OTM otm = new api.OTM("/home/gomes/Desktop/test/seven_links.xml",true,false);
+
+            long path_id = 1l;
+            long comm_id = 1l;
+            float start_time = 0f;
+            float sample_dt = 10f;
+            List<Double> values = new ArrayList<>();
+            for(int i=0;i<10;i++)
+                values.add(1000d);
+            otm.scenario().set_demand_on_path_in_vph(path_id, comm_id, start_time,sample_dt, values);
+
+
+            otm.run(0f,1800f);
+        } catch (OTMException e) {
+            System.out.print(e);
+            fail();
+        }
+    }
+
+    @Ignore
+    @Test
     public void run_one() {
         try {
 
-            String configfile = "/home/gomes/Desktop/test2/scenario_25_nodes.xml";
+            String configfile = "/home/gomes/Desktop/test/seven_links.xml";
 
-            float duration = 200f;
+            float duration = 1800f;
             float outdt = 10f;
             String prefix = "test";
             String output_folder = "temp/";

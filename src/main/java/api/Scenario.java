@@ -31,7 +31,7 @@ import static java.util.stream.Collectors.toSet;
 public class Scenario {
 
     private api.OTM myapi;
-//    private runner.Scenario scenario;
+
     protected Scenario(api.OTM myapi){
         this.myapi = myapi;
     }
@@ -374,6 +374,7 @@ public class Scenario {
      */
     public void set_demand_on_path_in_vph(long path_id,long commodity_id,float start_time,float dt,List<Double> values) throws OTMException {
 
+        // create a demand profile
         Subnetwork path = myapi.scn.subnetworks.get(path_id);
         if(path==null)
             throw new OTMException("Bad path id");
@@ -382,11 +383,6 @@ public class Scenario {
         if(commodity==null)
             throw new OTMException("Bad commodity id");
 
-
-//        List<Double> valuelist = new ArrayList<>();
-//        for(double v : values)
-//            valuelist.add(v/3600.0);    // change to vps
-
         DemandProfile dp = new DemandProfile(path,commodity,start_time, dt, values);
 
         // validate
@@ -394,6 +390,17 @@ public class Scenario {
         dp.validate(errorLog);
         if (errorLog.haserror())
             throw new OTMException(errorLog.format_errors());
+
+        // if a similar demand already exists, then delete it
+        if(myapi.scn.data_demands.containsKey(dp.get_key())){
+            AbstractDemandProfile old_dp = myapi.scn.data_demands.get(dp.get_key());
+            if(myapi.dispatcher!=null)
+                myapi.dispatcher.remove_events_for_recipient(EventDemandChange.class,old_dp);
+            myapi.scn.data_demands.remove(dp.get_key());
+
+            // remove it and its source from the link
+            old_dp.source.link.sources.remove(old_dp.source);
+        }
 
         // add to scenario
         myapi.scn.data_demands.put(dp.get_key(),dp);

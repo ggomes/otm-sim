@@ -33,7 +33,6 @@ public class SourceFluid extends common.AbstractSource {
 
     public void validate(OTMErrorLog errorLog){
 
-
         if(!commodity.pathfull) {
 
             if(link.lanegroups_flwdn.size()!=1)
@@ -53,7 +52,6 @@ public class SourceFluid extends common.AbstractSource {
                 source_demand_vps*((models.ctm.Model_CTM)link.model).dt
         );
     }
-
 
     private Map<Long,Map<KeyCommPathOrLink,Double>> split_demand(double flow_veh_per_timestep){
 

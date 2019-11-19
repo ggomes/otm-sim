@@ -10,13 +10,12 @@ import profiles.DemandProfile;
 
 public abstract class AbstractSource {
 
-
     // TODO: The child classes for this class are Fluid vs. Vehicle, but could also be
     // Pathfull vs. Pathless. Pathfull can be speeded up by caching the candidate lane groups,
     // which do not change. This is already done in the fluid source.
 
-    public Link link;
     public DemandProfile profile;   // profile that created this source
+    public Link link;
     public Path path;
     public Commodity commodity;
 
