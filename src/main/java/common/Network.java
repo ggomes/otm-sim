@@ -31,6 +31,7 @@ public class Network {
 
     public Scenario scenario;
     public Map<String,AbstractModel> models;
+    public boolean node_positions_in_meters;    // true->meters, false->gps
     public Map<Long,Node> nodes;
     public Map<Long,Link> links;
     public Map<Long, RoadGeometry> road_geoms;
@@ -47,11 +48,12 @@ public class Network {
         links = new HashMap<>();
     }
 
-    public Network(Scenario scenario,List<jaxb.Model> jaxb_models,List<jaxb.Node> jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadgeoms jaxb_geoms, jaxb.Roadconnections jaxb_conns, jaxb.Roadparams jaxb_params) throws OTMException {
+    public Network(Scenario scenario,List<jaxb.Model> jaxb_models,jaxb.Nodes jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadgeoms jaxb_geoms, jaxb.Roadconnections jaxb_conns, jaxb.Roadparams jaxb_params) throws OTMException {
 
         this(scenario);
 
-        nodes = read_nodes(jaxb_nodes,this);
+        node_positions_in_meters = jaxb_nodes.getGpsOrMeters().equalsIgnoreCase("meters");
+        nodes = read_nodes(jaxb_nodes.getNode(),this);
         road_params = read_params(jaxb_params);
         road_geoms = read_geoms(jaxb_geoms,road_params);
 
@@ -373,7 +375,7 @@ public class Network {
 
         // absent road connections: create them, if it is not a sink
         if (out_rcs.isEmpty() && !link.is_sink)
-            throw new OTMException("THIS SHOULD NOT HAPPEN.");
+            throw new OTMException("out_rcs.isEmpty() && !link.is_sink FOR LINK "+link.id);
 
         // create lanegroups
         link.set_long_lanegroups(create_dnflw_lanegroups(link, out_rcs));

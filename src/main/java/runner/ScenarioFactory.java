@@ -156,7 +156,7 @@ public class ScenarioFactory {
         common.Network network = new common.Network(
                 scenario ,
                 jaxb_models==null ? null : jaxb_models.getModel(),
-                jaxb_network.getNodes().getNode(),
+                jaxb_network.getNodes(),
                 jaxb_network.getLinks().getLink(),
                 jaxb_network.getRoadgeoms() ,
                 jaxb_network.getRoadconnections() ,
