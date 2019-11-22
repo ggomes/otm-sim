@@ -56,7 +56,7 @@ public class Model_None extends AbstractModel {
 
     @Override
     public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
-        return null;
+        return new SourceNone(origin,demand_profile,commodity,path);
     }
 
     @Override

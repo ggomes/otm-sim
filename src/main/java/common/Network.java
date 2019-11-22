@@ -198,12 +198,20 @@ public class Network {
 
     private static Map<String,AbstractModel> generate_models(List<jaxb.Model> jaxb_models, Map<Long,Link> links) throws OTMException {
 
-        if(jaxb_models==null)
-            return new HashMap<>();
+        if(jaxb_models==null) {
+            jaxb_models = new ArrayList<>();
+            jaxb.Model jaxb_model = new jaxb.Model();
+            jaxb_models.add(jaxb_model);
+            jaxb_model.setType("none");
+            jaxb_model.setName("default none");
+            jaxb_model.setIsDefault(true);
+        }
 
         Map<String,AbstractModel> models = new HashMap<>();
         Map<String,Set<Link>> model2links = new HashMap<>();
-        Set<Link> all_links = new HashSet<>();
+        Set<Link> assigned_links = new HashSet<>();
+        Model_None nonemodel = null;
+
 
         boolean has_default_model = false;
 
@@ -231,7 +239,7 @@ public class Network {
                                         jaxb_model.getModelParams().getMaxCellLength());
                     break;
 
-                case "point_queue":
+                case "spaceq":
                     model = new Model_PQ(jaxb_model.getName(),
                                         jaxb_model.isIsDefault(),
                                         process);
@@ -248,6 +256,7 @@ public class Network {
                     model = new Model_None(jaxb_model.getName(),
                                         jaxb_model.isIsDefault(),
                                         process);
+                    nonemodel = (Model_None) model;
                     break;
 
                 default:
@@ -270,10 +279,28 @@ public class Network {
                     my_links.add(links.get(link_id));
                 }
             }
-            all_links.addAll(my_links);
+            assigned_links.addAll(my_links);
 
             model2links.put(model.name,my_links);
 
+        }
+
+        // assign 'none' model to remaining links
+        if(assigned_links.size()<links.values().size()){
+            Set<Link> my_links = new HashSet<>();
+            my_links.addAll(links.values());
+            my_links.removeAll(assigned_links);
+
+            if(nonemodel==null) {
+                if(models.containsKey("none"))
+                    throw new OTMException("'none' is a prohibited name for a model.");
+                nonemodel = new Model_None("none", false, StochasticProcess.deterministic);
+                models.put("none", nonemodel);
+                model2links.put("none",my_links);
+            } else {
+                my_links.addAll(model2links.get(nonemodel.name));
+                model2links.put(nonemodel.name,my_links);
+            }
         }
 
         for( AbstractModel model : models.values())

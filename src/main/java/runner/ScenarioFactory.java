@@ -116,19 +116,21 @@ public class ScenarioFactory {
 
         // commodities
         scenario.commodities = new HashMap<>();
-        for (jaxb.Commodity jaxb_comm : js.getCommodities().getCommodity())
-            scenario.commodities.put( jaxb_comm.getId(),  new Commodity( jaxb_comm,null,scenario) );
+        if(js.getCommodities()!=null)
+            for (jaxb.Commodity jaxb_comm : js.getCommodities().getCommodity())
+                scenario.commodities.put( jaxb_comm.getId(),  new Commodity( jaxb_comm,null,scenario) );
 
         // OD node map
         Map<Long,Long> origin_nodes = new HashMap<>();
         Map<Long,Long> destination_nodes = new HashMap<>();
-        for(jaxb.Subnetwork subnetwork : js.getSubnetworks().getSubnetwork() ){
-            List<Long> link_ids = OTMUtils.csv2longlist(subnetwork.getContent());
-            Link origin_link = scenario.network.links.get(link_ids.get(0));
-            origin_nodes.put(subnetwork.getId(), origin_link.start_node.getId());
-            Link destination_link = scenario.network.links.get(link_ids.get(link_ids.size()-1));
-            destination_nodes.put(subnetwork.getId(),destination_link.end_node.getId());
-        }
+        if(js.getSubnetworks()!=null)
+            for(jaxb.Subnetwork subnetwork : js.getSubnetworks().getSubnetwork() ){
+                List<Long> link_ids = OTMUtils.csv2longlist(subnetwork.getContent());
+                Link origin_link = scenario.network.links.get(link_ids.get(0));
+                origin_nodes.put(subnetwork.getId(), origin_link.start_node.getId());
+                Link destination_link = scenario.network.links.get(link_ids.get(link_ids.size()-1));
+                destination_nodes.put(subnetwork.getId(),destination_link.end_node.getId());
+            }
 
         // demands ..........................................................
         scenario.data_demands = new HashMap<>();

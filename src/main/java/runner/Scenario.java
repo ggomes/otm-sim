@@ -4,6 +4,9 @@ import actuator.AbstractActuator;
 import commodity.Commodity;
 import commodity.Subnetwork;
 import common.Link;
+import models.AbstractFluidModel;
+import models.AbstractModel;
+import models.ctm.Model_CTM;
 import traveltime.LinkTravelTimeManager;
 import control.AbstractController;
 import error.OTMErrorLog;
@@ -24,6 +27,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -74,6 +78,23 @@ public class Scenario {
             actuators.values().stream().forEach(x -> x.validate(errorLog));
         if( data_demands!=null )
             data_demands.values().stream().forEach(x -> x.validate(errorLog));
+
+        // check if there are CFL violations, and if so report the max step time
+        if(errorLog.haserror()){
+            Map<String,Double> maxdt = new HashMap<>();
+            for(AbstractModel model : network.models.values())
+                maxdt.put(model.name,Double.POSITIVE_INFINITY);
+            for(String str : errorLog.getErrors().stream().filter(e->e.description.contains("CFL")).map(e->e.description).collect(toSet())) {
+                String[] tokens = str.split(" ");
+                long linkid = Long.parseLong(tokens[3]);
+                AbstractFluidModel model = (AbstractFluidModel) network.links.get(linkid).model;
+                double cfl = Double.parseDouble(tokens[6]);
+                maxdt.put(model.name,Math.min(maxdt.get(model.name),model.dt/cfl));
+            }
+            for(Map.Entry<String,Double> e : maxdt.entrySet())
+                errorLog.addError(String.format("The maximum step size for model `%s' is %f",e.getKey(),e.getValue()));
+        }
+
         return errorLog;
     }
 
