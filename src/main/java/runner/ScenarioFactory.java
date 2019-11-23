@@ -405,18 +405,23 @@ public class ScenarioFactory {
             long commodity_id = jaxb_split_node.getCommodityId();
             long link_in_id = jaxb_split_node.getLinkIn();
 
+            if(!network.links.containsKey(link_in_id))
+                continue;
             if(!network.nodes.containsKey(node_id))
                 continue;
-
             Node node = network.nodes.get(node_id);
+            if(node.is_source)
+                continue;
 
             KeyCommodityLink key = new KeyCommodityLink(commodity_id,link_in_id);
             float start_time = jaxb_split_node.getStartTime();
             Float dt = jaxb_split_node.getDt();
             SplitMatrixProfile smp = new SplitMatrixProfile(commodity_id,node,link_in_id,start_time,dt);
 
-            for(jaxb.Split jaxb_split : jaxb_split_node.getSplit())
-                smp.add_split(jaxb_split);
+            for(jaxb.Split jaxb_split : jaxb_split_node.getSplit()) {
+                if(network.links.containsKey(jaxb_split.getLinkOut()))
+                    smp.add_split(jaxb_split);
+            }
 
             node.add_split(key,smp);
         }

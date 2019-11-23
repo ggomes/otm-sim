@@ -116,8 +116,10 @@ public abstract class AbstractFluidModel extends AbstractModel {
     // node model exchange packets
     public void update_fluid_flux_part_II(float timestamp) throws OTMException {
 
+
         // add to source links
         for(Link link : source_links){
+
             for(AbstractSource asource : link.sources){
                 SourceFluid source = (SourceFluid) asource;
                 for(Map.Entry<Long,Map<KeyCommPathOrLink,Double>> e : source.source_flows.entrySet()){
@@ -130,6 +132,7 @@ public abstract class AbstractFluidModel extends AbstractModel {
 
         // release from sink links
         for(Link link : sink_links){
+
             for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
                 models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
                 Map<KeyCommPathOrLink,Double> flow_dwn = lg.get_dnstream_cell().demand_dwn;
@@ -143,11 +146,11 @@ public abstract class AbstractFluidModel extends AbstractModel {
 
         }
 
+
         // node models exchange packets
         for(NodeModel node_model : node_models.values()) {
 
-            // flows on road connections arrive to links on give lanes
-            // convert to packets and send
+            // flows on road connections arrive to links on give lanes convert to packets and send
             for(models.ctm.RoadConnection rc : node_model.rcs.values()) {
                 Link link = rc.rc.get_end_link();
                 link.model.add_vehicle_packet(link,timestamp, new PacketLink(rc.f_rs, rc.rc));
@@ -162,7 +165,9 @@ public abstract class AbstractFluidModel extends AbstractModel {
                     if(e.getValue()>0)
                         ulg.lg.update_flow_accummulators(e.getKey(),e.getValue());
             }
+
         }
+
     }
 
     // intra link flows and states

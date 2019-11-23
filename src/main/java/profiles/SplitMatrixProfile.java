@@ -74,8 +74,12 @@ public class SplitMatrixProfile {
                 errorLog.addError("!commodity.subnetwork.links.contains(link_in)");
         }
 
+//        // road connections are good
+//        if(!node.road_connections.stream().allMatch(rc -> rc.start_link!=null && rc.end_link!=null))
+//            errorLog.addError(String.format("Split matrix profile on %d has a bad road connection",node.getId()));
+
         Set<Long> reachable_outlinks = node.road_connections.stream()
-                .filter(rc->rc.start_link.getId().equals(link_in_id))
+                .filter(rc->rc.start_link!=null && rc.end_link!=null && rc.start_link.getId().equals(link_in_id))
                 .map(z->z.end_link.getId())
                 .collect(Collectors.toSet());
 

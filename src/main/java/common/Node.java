@@ -22,6 +22,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     public Set<RoadConnection> road_connections;
 
     public boolean is_source;
+    public boolean is_vsource;
     public boolean is_sink;
 
     public boolean is_many2one;
@@ -41,11 +42,12 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     // construction
     ///////////////////////////////////////////
 
-    public Node(Network network,Long id,Float xcoord, Float ycoord){
+    public Node(Network network,Long id,Float xcoord, Float ycoord, boolean is_vsource){
         this.network = network;
         this.id = id;
         this.xcoord = xcoord;
         this.ycoord = ycoord;
+        this.is_vsource = is_vsource;
 
         this.in_links = new HashMap<>();
         this.out_links = new HashMap<>();
@@ -57,7 +59,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     }
 
     public Node(Network network,jaxb.Node jn){
-        this(network,jn.getId(),jn.getX(),jn.getY());
+        this(network,jn.getId(),jn.getX(),jn.getY(),jn.isVsource());
     }
 
     public void delete(){

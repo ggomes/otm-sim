@@ -260,7 +260,8 @@ public class Network {
                     break;
 
                 default:
-                    continue;
+                    throw new OTMException("Bad model type: " + jaxb_model.getType());
+
             }
             models.put(jaxb_model.getName(),model);
 

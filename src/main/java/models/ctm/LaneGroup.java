@@ -63,9 +63,9 @@ public class LaneGroup extends AbstractLaneGroup {
 
         if (!link.is_source) {
             if (ffspeed_cell_per_dt < 0)
-                errorLog.addError("non-negativity");
+                errorLog.addError("ffspeed_cell_per_dt < 0 (link " + link.getId() + ")");
             if (wspeed_cell_per_dt < 0)
-                errorLog.addError("non-negativity");
+                errorLog.addError("wspeed_cell_per_dt < 0 (link " + link.getId() + ")");
             if (wspeed_cell_per_dt > 1)
                 errorLog.addError("CFL violated: link " + link.getId() + " wspeed_cell_per_dt = " + wspeed_cell_per_dt);
             if (ffspeed_cell_per_dt > 1)
@@ -120,11 +120,11 @@ public class LaneGroup extends AbstractLaneGroup {
         // When the link is a model source, then the packet first goes into a buffer.
         // From there it is "processed", meaning that some part goes into the upstream cell.
         if(link.is_model_source_link) {
-
             // add packet to buffer
             buffer.add_packet(vp);
             process_buffer(timestamp);
         }
+
 
         // otherwise, this is an internal link, and the packet is guaranteed to be
         // purely fluid.
@@ -139,7 +139,6 @@ public class LaneGroup extends AbstractLaneGroup {
                 cell.add_vehicles(key,e.getValue());
             }
         }
-
         update_supply();
     }
 
