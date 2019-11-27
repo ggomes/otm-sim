@@ -4,9 +4,8 @@ import actuator.AbstractActuator;
 import commodity.Commodity;
 import commodity.Subnetwork;
 import common.Link;
-import models.AbstractFluidModel;
-import models.AbstractModel;
-import models.ctm.Model_CTM;
+import models.FluidModel;
+import models.BaseModel;
 import traveltime.LinkTravelTimeManager;
 import control.AbstractController;
 import error.OTMErrorLog;
@@ -27,7 +26,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -82,12 +80,12 @@ public class Scenario {
         // check if there are CFL violations, and if so report the max step time
         if(errorLog.haserror()){
             Map<String,Double> maxdt = new HashMap<>();
-            for(AbstractModel model : network.models.values())
+            for(BaseModel model : network.models.values())
                 maxdt.put(model.name,Double.POSITIVE_INFINITY);
             for(String str : errorLog.getErrors().stream().filter(e->e.description.contains("CFL")).map(e->e.description).collect(toSet())) {
                 String[] tokens = str.split(" ");
                 long linkid = Long.parseLong(tokens[3]);
-                AbstractFluidModel model = (AbstractFluidModel) network.links.get(linkid).model;
+                FluidModel model = (FluidModel) network.links.get(linkid).model;
                 double cfl = Double.parseDouble(tokens[6]);
                 maxdt.put(model.name,Math.min(maxdt.get(model.name),model.dt/cfl));
             }

@@ -7,7 +7,7 @@ import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
+import models.BaseLaneGroup;
 import packet.PacketLaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
@@ -15,7 +15,7 @@ import utils.OTMUtils;
 
 import java.util.*;
 
-public class LaneGroup extends AbstractLaneGroup {
+public class LaneGroup extends BaseLaneGroup {
 
     public double cell_length_meters;
 

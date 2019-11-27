@@ -7,7 +7,7 @@ import dispatch.*;
 import error.OTMException;
 import keys.KeyCommPathOrLink;
 import models.ctm.Cell;
-import models.ctm.SourceFluid;
+import models.ctm.FluidSource;
 import models.ctm.UpLaneGroup;
 import packet.PacketLink;
 import runner.Scenario;
@@ -19,14 +19,14 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public abstract class AbstractFluidModel extends AbstractModel {
+public abstract class FluidModel extends BaseModel {
 
     public float dt;
     private Set<Link> source_links;
     private Set<Link> sink_links;
     private Map<Long,NodeModel> node_models;
 
-    public AbstractFluidModel(String name, boolean is_default, float dt, StochasticProcess process) {
+    public FluidModel(String name, boolean is_default, float dt, StochasticProcess process) {
         super(name, is_default,process);
         this.dt = dt;
     }
@@ -121,7 +121,7 @@ public abstract class AbstractFluidModel extends AbstractModel {
         for(Link link : source_links){
 
             for(AbstractSource asource : link.sources){
-                SourceFluid source = (SourceFluid) asource;
+                FluidSource source = (FluidSource) asource;
                 for(Map.Entry<Long,Map<KeyCommPathOrLink,Double>> e : source.source_flows.entrySet()){
                     models.ctm.LaneGroup lg = (models.ctm.LaneGroup) link.lanegroups_flwdn.get(e.getKey());
                     Cell upcell = lg.cells.get(0);
@@ -133,7 +133,7 @@ public abstract class AbstractFluidModel extends AbstractModel {
         // release from sink links
         for(Link link : sink_links){
 
-            for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+            for(BaseLaneGroup alg : link.lanegroups_flwdn.values()) {
                 models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
                 Map<KeyCommPathOrLink,Double> flow_dwn = lg.get_dnstream_cell().demand_dwn;
 

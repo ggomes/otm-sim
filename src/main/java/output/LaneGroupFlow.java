@@ -1,13 +1,12 @@
 package output;
 
 import error.OTMException;
-import models.AbstractLaneGroup;
+import models.BaseLaneGroup;
 import runner.Scenario;
 import common.FlowAccumulatorState;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class LaneGroupFlow extends AbstractOutputTimedLanegroup  {
@@ -42,7 +41,7 @@ public class LaneGroupFlow extends AbstractOutputTimedLanegroup  {
     }
 
     @Override
-    protected double get_value_for_lanegroup(AbstractLaneGroup lg){
+    protected double get_value_for_lanegroup(BaseLaneGroup lg){
         if(!lgprofiles.containsKey(lg.id))
             return Double.NaN;
         if(commodity==null)

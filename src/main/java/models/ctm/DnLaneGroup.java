@@ -1,6 +1,6 @@
 package models.ctm;
 
-import models.AbstractLaneGroup;
+import models.BaseLaneGroup;
 import keys.KeyCommPathOrLink;
 import models.NodeModel;
 
@@ -18,7 +18,7 @@ public class DnLaneGroup {
         }
     }
 
-    public AbstractLaneGroup lg;
+    public BaseLaneGroup lg;
     public Map<Long,RoadConnection> rcs;                  // incoming road connections
 
     public double s_h;                                    // supply
@@ -30,7 +30,7 @@ public class DnLaneGroup {
     // construction
     ////////////////////////////////////////////
 
-    public DnLaneGroup(AbstractLaneGroup lg){
+    public DnLaneGroup(BaseLaneGroup lg){
         this.lg = lg;
         this.state_infos = new HashMap<>();
         this.rcs = new HashMap<>();

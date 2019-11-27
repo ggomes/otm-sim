@@ -1,9 +1,8 @@
 package dispatch;
 
 import error.OTMException;
-import models.pq.LaneGroup;
-import models.pq.Queue;
-import models.pq.Vehicle;
+import models.spatialq.LaneGroup;
+import models.spatialq.Vehicle;
 import output.InterfaceVehicleListener;
 
 public class EventTransitToWaiting extends AbstractEvent {

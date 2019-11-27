@@ -11,9 +11,9 @@ import utils.StochasticProcess;
 
 import java.util.*;
 
-public abstract class AbstractVehicleModel extends AbstractModel {
+public abstract class VehicleModel extends BaseModel {
 
-    public AbstractVehicleModel(String name, boolean is_default, StochasticProcess process) {
+    public VehicleModel(String name, boolean is_default, StochasticProcess process) {
         super(name, is_default,process);
     }
 
@@ -26,7 +26,7 @@ public abstract class AbstractVehicleModel extends AbstractModel {
 
     @Override
     public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
-        return new SourceVehicle(origin,demand_profile,commodity,path);
+        return new VehicleSource(origin,demand_profile,commodity,path);
     }
 
 //    @Override
@@ -39,14 +39,14 @@ public abstract class AbstractVehicleModel extends AbstractModel {
     //////////////////////////////////////////////////
 
     @Override
-    public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
+    public Map<BaseLaneGroup,Double> lanegroup_proportions(Collection<? extends BaseLaneGroup> candidate_lanegroups) {
 
         // put the whole packet i the lanegroup with the most space.
-        Optional<? extends AbstractLaneGroup> best_lanegroup = candidate_lanegroups.stream()
-                .max(Comparator.comparing(AbstractLaneGroup::get_supply_per_lane));
+        Optional<? extends BaseLaneGroup> best_lanegroup = candidate_lanegroups.stream()
+                .max(Comparator.comparing(BaseLaneGroup::get_supply_per_lane));
 
         if(best_lanegroup.isPresent()) {
-            Map<AbstractLaneGroup,Double> A = new HashMap<>();
+            Map<BaseLaneGroup,Double> A = new HashMap<>();
             A.put(best_lanegroup.get(),1d);
             return A;
         } else

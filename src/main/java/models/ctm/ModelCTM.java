@@ -7,8 +7,8 @@ import common.RoadConnection;
 import error.OTMException;
 import geometry.FlowPosition;
 import jaxb.OutputRequest;
-import models.AbstractFluidModel;
-import models.AbstractLaneGroup;
+import models.BaseLaneGroup;
+import models.FluidModel;
 import common.Link;
 import error.OTMErrorLog;
 import geometry.Side;
@@ -23,11 +23,11 @@ import utils.StochasticProcess;
 
 import java.util.*;
 
-public class Model_CTM extends AbstractFluidModel {
+public class ModelCTM extends FluidModel {
 
     public float max_cell_length;
 
-    public Model_CTM(String name, boolean is_default, Float dt, StochasticProcess process,Float max_cell_length) {
+    public ModelCTM(String name, boolean is_default, Float dt, StochasticProcess process, Float max_cell_length) {
         super(name,is_default,dt==null ? -1 : dt,process);
         this.max_cell_length = max_cell_length==null ? -1 : max_cell_length;
     }
@@ -49,7 +49,7 @@ public class Model_CTM extends AbstractFluidModel {
         float dt_hr = dt/3600f;
         float capacity_vehperlane = r.getCapacity()*dt_hr;
 
-        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+        for(BaseLaneGroup alg : link.lanegroups_flwdn.values()) {
 
             models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
             float cell_length = lg.length / lg.cells.size() / 1000f;
@@ -78,7 +78,7 @@ public class Model_CTM extends AbstractFluidModel {
 
     @Override
     public void reset(Link link) {
-        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
+        for(BaseLaneGroup alg : link.lanegroups_flwdn.values()){
             LaneGroup lg = (LaneGroup) alg;
             lg.cells.forEach(x->x.reset());
         }
@@ -96,7 +96,7 @@ public class Model_CTM extends AbstractFluidModel {
     //////////////////////////////////////////////////////////////
 
     @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+    public BaseLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         return new models.ctm.LaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
     }
 
@@ -107,7 +107,7 @@ public class Model_CTM extends AbstractFluidModel {
 
     @Override
     public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
-        return new SourceFluid(origin,demand_profile,commodity,path);
+        return new FluidSource(origin,demand_profile,commodity,path);
     }
 
     @Override
@@ -135,10 +135,10 @@ public class Model_CTM extends AbstractFluidModel {
     //////////////////////////////////////////////////////////////
 
     @Override
-    public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
-        Map<AbstractLaneGroup,Double> A = new HashMap<>();
+    public Map<BaseLaneGroup,Double> lanegroup_proportions(Collection<? extends BaseLaneGroup> candidate_lanegroups) {
+        Map<BaseLaneGroup,Double> A = new HashMap<>();
         double total_supply = candidate_lanegroups.stream().mapToDouble(x->x.get_supply()).sum();
-        for(AbstractLaneGroup laneGroup : candidate_lanegroups)
+        for(BaseLaneGroup laneGroup : candidate_lanegroups)
             A.put(laneGroup , laneGroup.get_supply() / total_supply);
         return A;
     }
@@ -162,7 +162,7 @@ public class Model_CTM extends AbstractFluidModel {
     @Override
     public void update_link_state(Link link,float timestamp) throws OTMException {
 
-        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+        for(BaseLaneGroup alg : link.lanegroups_flwdn.values()) {
 
             models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
 
@@ -248,7 +248,7 @@ public class Model_CTM extends AbstractFluidModel {
             Map<Long, Double> gamma = new HashMap<>();
 
             // compute total flows reduction for each lane group
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+            for (BaseLaneGroup alg : link.lanegroups_flwdn.values()) {
                 models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
                 Cell cell = lg.cells.get(i);
                 double demand_to_me = 0d;
@@ -266,7 +266,7 @@ public class Model_CTM extends AbstractFluidModel {
             // WARNING: This assumes that no state has vehicles going in both directions.
             // ie a flow that goes left does not also go right. Otherwise I think there may
             // be "data races", where the result depends on the order of lgs.
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+            for (BaseLaneGroup alg : link.lanegroups_flwdn.values()) {
                 models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
                 double my_gamma = gamma.get(lg.id);
 
@@ -366,7 +366,7 @@ public class Model_CTM extends AbstractFluidModel {
     // call update_supply_demand on each cell
     private void update_supply_for_all_cells(Link link,float timestamp) {
 
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+        for(BaseLaneGroup lg : link.lanegroups_flwdn.values()) {
             LaneGroup ctmlg = (LaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_supply());
@@ -376,7 +376,7 @@ public class Model_CTM extends AbstractFluidModel {
 
     private void update_demand(Link link,float timestamp) {
 
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+        for(BaseLaneGroup lg : link.lanegroups_flwdn.values()) {
             LaneGroup ctmlg = (LaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_demand());
@@ -389,7 +389,7 @@ public class Model_CTM extends AbstractFluidModel {
         // construct cells
 
         // create cells
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+        for(BaseLaneGroup lg : link.lanegroups_flwdn.values()) {
 
             float r = lg.length/max_cell_length;
             boolean is_source_or_sink = link.is_source || link.is_sink;

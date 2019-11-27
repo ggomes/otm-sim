@@ -1,11 +1,11 @@
 package output.animation.micro;
 
-import models.AbstractLaneGroup;
+import models.BaseLaneGroup;
 import output.animation.AbstractLaneGroupInfo;
 
 public class LaneGroupInfo extends AbstractLaneGroupInfo {
 
-    public LaneGroupInfo(AbstractLaneGroup lg) {
+    public LaneGroupInfo(BaseLaneGroup lg) {
         super(lg);
     }
 

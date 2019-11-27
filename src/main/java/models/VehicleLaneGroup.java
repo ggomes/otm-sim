@@ -13,9 +13,9 @@ import runner.Scenario;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
+public class VehicleLaneGroup extends BaseLaneGroup {
 
-    public AbstractLaneGroupVehicles(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+    public VehicleLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side, flwpos, length, num_lanes, start_lane, out_rcs);
     }
 
@@ -41,7 +41,7 @@ public abstract class AbstractLaneGroupVehicles extends AbstractLaneGroup {
 
         Set<AbstractVehicle> vehs = new HashSet<>();
 
-        AbstractVehicleModel model = (AbstractVehicleModel) link.model;
+        VehicleModel model = (VehicleModel) link.model;
 
         // process 'vehicle' part
         if(!vp.vehicles.isEmpty())

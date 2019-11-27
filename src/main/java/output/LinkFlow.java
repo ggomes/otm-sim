@@ -1,7 +1,7 @@
 package output;
 
 import common.FlowAccumulatorState;
-import models.AbstractLaneGroup;
+import models.BaseLaneGroup;
 import error.OTMException;
 import profiles.Profile1D;
 import runner.Scenario;
@@ -28,7 +28,7 @@ public class LinkFlow extends AbstractOutputTimedLink {
         for(LinkProfile linkProfile : linkprofiles.values()) {
             Set<FlowAccumulatorState> flw_acc_set = new HashSet<>();
             flw_acc_sets.put(linkProfile.link.getId(),flw_acc_set);
-            for(AbstractLaneGroup lg : linkProfile.link.lanegroups_flwdn.values())
+            for(BaseLaneGroup lg : linkProfile.link.lanegroups_flwdn.values())
                 flw_acc_set.add(lg.request_flow_accumulator(commodity==null ? null : commodity.getId()));
         }
     }

@@ -1,11 +1,11 @@
 package output.animation;
 
-import models.AbstractLaneGroup;
+import models.BaseLaneGroup;
 
 public abstract class AbstractLaneGroupInfo implements InterfaceLaneGroupInfo {
     public Long lg_id;
 
-    public AbstractLaneGroupInfo(AbstractLaneGroup lg) {
+    public AbstractLaneGroupInfo(BaseLaneGroup lg) {
         this.lg_id = lg.id;
     }
 

@@ -1,11 +1,11 @@
-package models.micro;
+package models.newell;
 
 import common.Link;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.InterfacePokable;
 import error.OTMException;
-import models.AbstractLaneGroup;
+import models.BaseLaneGroup;
 import output.AbstractOutput;
 import runner.RunParameters;
 import runner.Scenario;
@@ -15,7 +15,7 @@ import java.io.*;
 public class OutputTrajectories extends AbstractOutput implements InterfacePokable {
 
     public float outDt;			// output frequency in seconds
-    Model_Micro model;
+    ModelNewell model;
 
     @Override
     public void register(RunParameters props, Dispatcher dispatcher) throws OTMException {
@@ -26,7 +26,7 @@ public class OutputTrajectories extends AbstractOutput implements InterfacePokab
     // construction
     //////////////////////////////////////////////////////
 
-    public OutputTrajectories(Scenario scenario,Model_Micro model,String prefix,String output_folder,Float outDt) throws OTMException{
+    public OutputTrajectories(Scenario scenario, ModelNewell model, String prefix, String output_folder, Float outDt) throws OTMException{
         super(scenario,prefix,output_folder);
         this.outDt = outDt==null ? -1 : outDt;
         this.model = model;
@@ -50,8 +50,8 @@ public class OutputTrajectories extends AbstractOutput implements InterfacePokab
         if(write_to_file){
             try {
                 for(Link link : model.links){
-                    for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
-                        models.micro.LaneGroup lg = (models.micro.LaneGroup) alg;
+                    for(BaseLaneGroup alg : link.lanegroups_flwdn.values()){
+                        models.newell.LaneGroup lg = (models.newell.LaneGroup) alg;
                         for(Vehicle vehicle : lg.vehicles)
                             writer.write(String.format("%.2f\t%d\t%d\t%.2f\n",timestamp,vehicle.getId(), lg.id,vehicle.pos));
                     }

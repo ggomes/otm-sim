@@ -1,4 +1,4 @@
-package models.pq;
+package models.spatialq;
 
 import common.*;
 import dispatch.EventTransitToWaiting;
@@ -9,8 +9,8 @@ import dispatch.EventReleaseVehicleFromLaneGroup;
 import geometry.FlowPosition;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
-import models.AbstractLaneGroupVehicles;
+import models.BaseLaneGroup;
+import models.VehicleLaneGroup;
 import output.InterfaceVehicleListener;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
@@ -21,10 +21,10 @@ import utils.OTMUtils;
 
 import java.util.*;
 
-public class LaneGroup extends AbstractLaneGroupVehicles {
+public class LaneGroup extends VehicleLaneGroup {
 
-    public models.pq.Queue transit_queue;
-    public models.pq.Queue waiting_queue;
+    public models.spatialq.Queue transit_queue;
+    public models.spatialq.Queue waiting_queue;
 
     public float current_max_flow_rate_vps;
     public float saturation_flow_rate_vps;
@@ -32,8 +32,8 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
     public LaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
         super(link, side,flwpos,length, num_lanes, start_lane, out_rcs);
-        this.transit_queue = new models.pq.Queue(this, models.pq.Queue.Type.transit);
-        this.waiting_queue = new models.pq.Queue(this, models.pq.Queue.Type.waiting);
+        this.transit_queue = new models.spatialq.Queue(this, models.spatialq.Queue.Type.transit);
+        this.waiting_queue = new models.spatialq.Queue(this, models.spatialq.Queue.Type.waiting);
     }
 
     ////////////////////////////////////////////
@@ -202,7 +202,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
             OptionalDouble next_supply_o = rc.out_lanegroups.stream()
-                    .mapToDouble(AbstractLaneGroup::get_supply)
+                    .mapToDouble(BaseLaneGroup::get_supply)
                     .max();
 
             if(!next_supply_o.isPresent())
@@ -231,7 +231,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                 // TODO This is adhoc for when the next links is a fluid model.
                 // Todo Then the event counter is not getting triggered.
                 // inform the queue counters
-                if( !(next_link.model instanceof Model_PQ) && vehicle.get_event_listeners()!=null) {
+                if( !(next_link.model instanceof ModelSpatialQ) && vehicle.get_event_listeners()!=null) {
                     for (InterfaceVehicleListener ev : vehicle.get_event_listeners())
                         ev.move_from_to_queue(timestamp, vehicle, waiting_queue, null);
                 }

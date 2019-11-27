@@ -1,4 +1,4 @@
-package models.micro;
+package models.newell;
 
 import common.AbstractVehicle;
 import output.InterfaceVehicleListener;

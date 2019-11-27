@@ -1,8 +1,8 @@
 package output;
 
 import error.OTMException;
-import models.pq.Queue;
-import models.pq.Vehicle;
+import models.spatialq.Queue;
+import models.spatialq.Vehicle;
 
 public interface InterfaceVehicleListener {
 

@@ -4,22 +4,20 @@ import commodity.Commodity;
 import commodity.Path;
 import common.AbstractVehicle;
 import common.Link;
-import common.RoadConnection;
 import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import error.OTMException;
 import keys.KeyCommPathOrLink;
 import packet.PacketLaneGroup;
 import profiles.DemandProfile;
-import runner.Scenario;
 
 import java.util.Set;
 
-public class SourceVehicle extends common.AbstractSource {
+public class VehicleSource extends common.AbstractSource {
 
     private boolean vehicle_scheduled;
 
-    public SourceVehicle(Link link, DemandProfile profile, Commodity commodity, Path path) {
+    public VehicleSource(Link link, DemandProfile profile, Commodity commodity, Path path) {
         super(link,profile,commodity,path);
         vehicle_scheduled = false;
     }
@@ -44,7 +42,7 @@ public class SourceVehicle extends common.AbstractSource {
 
     public void insert_vehicle(float timestamp) throws OTMException {
 
-        AbstractVehicleModel model = (AbstractVehicleModel) link.model;
+        VehicleModel model = (VehicleModel) link.model;
 
         // create a vehicle
         AbstractVehicle vehicle = model.create_vehicle(commodity.getId(),commodity.vehicle_event_listeners);
@@ -60,10 +58,10 @@ public class SourceVehicle extends common.AbstractSource {
         Long next_link = commodity.pathfull ? link.path2outlink.get(path.getId()).getId() : key.pathOrlink_id;
 
         // candidate lane groups
-        Set<AbstractLaneGroup> candidate_lane_groups = link.outlink2lanegroups.get(next_link);
+        Set<BaseLaneGroup> candidate_lane_groups = link.outlink2lanegroups.get(next_link);
 
         // pick from among the eligible lane groups
-        AbstractLaneGroup join_lanegroup = link.model.lanegroup_proportions(candidate_lane_groups).keySet().iterator().next();
+        BaseLaneGroup join_lanegroup = link.model.lanegroup_proportions(candidate_lane_groups).keySet().iterator().next();
 
         // package and add to joinlanegroup
         join_lanegroup.add_vehicle_packet(timestamp,new PacketLaneGroup(vehicle),next_link);

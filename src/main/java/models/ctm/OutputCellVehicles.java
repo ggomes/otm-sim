@@ -2,7 +2,7 @@ package models.ctm;
 
 import common.Link;
 import error.OTMException;
-import models.AbstractLaneGroup;
+import models.BaseLaneGroup;
 import output.AbstractOutputTimed;
 import profiles.Profile1D;
 import runner.Scenario;
@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class OutputCellVehicles extends AbstractOutputTimed {
 
-    Model_CTM model;
+    ModelCTM model;
     public ArrayList<models.ctm.LaneGroup> ordered_lgs;               // An ordered map would be really helpful here
     public Map<Long, LaneGroupProfile> lgprofiles;
 
@@ -22,13 +22,13 @@ public class OutputCellVehicles extends AbstractOutputTimed {
     // construction
     //////////////////////////////////////////////////////
 
-    public OutputCellVehicles(Scenario scenario, Model_CTM model,String prefix, String output_folder, Long commodity_id, Float outDt) throws OTMException {
+    public OutputCellVehicles(Scenario scenario, ModelCTM model, String prefix, String output_folder, Long commodity_id, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, commodity_id, outDt);
         this.model = model;
         ordered_lgs = new ArrayList<>();
         lgprofiles = new HashMap<>();
         for(Link link : model.links){
-            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() ){
+            for(BaseLaneGroup lg : link.lanegroups_flwdn.values() ){
                 ordered_lgs.add((models.ctm.LaneGroup)lg);
                 lgprofiles.put(lg.id, new LaneGroupProfile((models.ctm.LaneGroup)lg));
             }

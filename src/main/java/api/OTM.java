@@ -4,7 +4,7 @@ import dispatch.Dispatcher;
 import dispatch.EventStopSimulation;
 import error.OTMException;
 import jaxb.OutputRequests;
-import models.AbstractModel;
+import models.BaseModel;
 import output.*;
 import runner.RunParameters;
 import runner.ScenarioFactory;
@@ -262,7 +262,7 @@ public class OTM {
             if(jaxb_or.getModel()!=null){
                 if(!scenario.network.models.containsKey(jaxb_or.getModel()))
                     throw new OTMException("Bad model name in output : " + jaxb_or.getModel());
-                AbstractModel model = scenario.network.models.get(jaxb_or.getModel());
+                BaseModel model = scenario.network.models.get(jaxb_or.getModel());
                 output = model.create_output_object(scenario,prefix,output_folder,jaxb_or);
             }
 

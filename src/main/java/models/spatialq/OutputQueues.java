@@ -1,21 +1,18 @@
-package models.pq;
+package models.spatialq;
 
 import common.Link;
 import error.OTMException;
-import models.AbstractLaneGroup;
+import models.BaseLaneGroup;
 import output.AbstractOutputTimed;
-import profiles.Profile1D;
 import runner.Scenario;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class OutputQueues extends AbstractOutputTimed {
 
-    Model_PQ model;
-    public ArrayList<models.pq.LaneGroup> ordered_lgs;               // An ordered map would be really helpful here
+    ModelSpatialQ model;
+    public ArrayList<models.spatialq.LaneGroup> ordered_lgs;               // An ordered map would be really helpful here
 
     public OutputQueues(Scenario scenario, String prefix, String output_folder, Long commodity_id, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, commodity_id, outDt);
@@ -25,13 +22,13 @@ public class OutputQueues extends AbstractOutputTimed {
     // construction
     //////////////////////////////////////////////////////
 
-    public OutputQueues(Scenario scenario, Model_PQ model,String prefix, String output_folder, Long commodity_id, Float outDt) throws OTMException {
+    public OutputQueues(Scenario scenario, ModelSpatialQ model, String prefix, String output_folder, Long commodity_id, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, commodity_id, outDt);
         this.model = model;
         ordered_lgs = new ArrayList<>();
         for(Link link : model.links)
-            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() )
-                ordered_lgs.add((models.pq.LaneGroup)lg);
+            for(BaseLaneGroup lg : link.lanegroups_flwdn.values() )
+                ordered_lgs.add((models.spatialq.LaneGroup)lg);
     }
 
     @Override
@@ -54,7 +51,7 @@ public class OutputQueues extends AbstractOutputTimed {
                 if(filename!=null) {
                     String subfilename = filename.substring(0,filename.length()-4);
                     Writer cells_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_queues.txt"));
-                    for(models.pq.LaneGroup lg: ordered_lgs)
+                    for(models.spatialq.LaneGroup lg: ordered_lgs)
                         cells_writer.write(String.format("%dt\n%dw\n",lg.id,lg.id));
                     cells_writer.close();
                 }
@@ -81,7 +78,7 @@ public class OutputQueues extends AbstractOutputTimed {
             super.write(timestamp,null);
             try {
                 boolean isfirst=true;
-                for(models.pq.LaneGroup lg : ordered_lgs) {
+                for(models.spatialq.LaneGroup lg : ordered_lgs) {
                     if(!isfirst)
                         writer.write(AbstractOutputTimed.delim);
                     isfirst = false;

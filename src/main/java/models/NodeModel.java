@@ -9,7 +9,6 @@ import runner.Scenario;
 import utils.OTMUtils;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -101,8 +100,8 @@ public class NodeModel {
                 continue;
 
             // incoming fluid lane groups
-            Set<AbstractLaneGroup> in_fluid_lgs = xrc.in_lanegroups.stream()
-                    .filter(x -> x.link.model instanceof AbstractFluidModel)
+            Set<BaseLaneGroup> in_fluid_lgs = xrc.in_lanegroups.stream()
+                    .filter(x -> x.link.model instanceof FluidModel)
                     .collect(toSet());
 
             if( in_fluid_lgs.isEmpty() )
@@ -112,7 +111,7 @@ public class NodeModel {
             rcs.put(xrc.getId(),rc);
 
             // go through its upstream lanegroups
-            for (AbstractLaneGroup xup_lg : in_fluid_lgs) {
+            for (BaseLaneGroup xup_lg : in_fluid_lgs) {
 
                 UpLaneGroup ulg;
                 if (!up_lgs_map.containsKey(xup_lg.id)) {
@@ -126,7 +125,7 @@ public class NodeModel {
             }
 
             // go through its downstream lanegroups
-            for (AbstractLaneGroup xdn_lg : xrc.out_lanegroups) {
+            for (BaseLaneGroup xdn_lg : xrc.out_lanegroups) {
                 DnLaneGroup dlg;
                 if (!dn_lgs_map.containsKey(xdn_lg.id)) {
                     dlg = new DnLaneGroup(xdn_lg);

@@ -1,4 +1,4 @@
-package models.pq;
+package models.spatialq;
 
 import error.OTMException;
 import common.AbstractVehicle;

@@ -15,7 +15,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import keys.DemandType;
 import keys.KeyCommodityDemandTypeId;
-import models.AbstractLaneGroup;
+import models.BaseLaneGroup;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;
 import sensor.AbstractSensor;
@@ -271,7 +271,7 @@ public class Scenario {
     public Set<Long> get_in_lanegroups_for_road_connection(long rcid){
         RoadConnection rc = myapi.scn.network.get_road_connection(rcid);
         Set<Long> lgids = new HashSet<>();
-        for(AbstractLaneGroup lg : rc.in_lanegroups)
+        for(BaseLaneGroup lg : rc.in_lanegroups)
             lgids.add(lg.id);
         return lgids;
     }
@@ -284,7 +284,7 @@ public class Scenario {
     public Set<Long> get_out_lanegroups_for_road_connection(long rcid){
         RoadConnection rc = myapi.scn.network.get_road_connection(rcid);
         Set<Long> lgids = new HashSet<>();
-        for(AbstractLaneGroup lg : rc.out_lanegroups)
+        for(BaseLaneGroup lg : rc.out_lanegroups)
             lgids.add(lg.id);
         return lgids;
     }

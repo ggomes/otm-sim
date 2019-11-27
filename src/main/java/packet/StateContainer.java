@@ -4,9 +4,8 @@ import commodity.Commodity;
 import commodity.Path;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
-import models.AbstractLaneGroupVehicles;
-import models.AbstractVehicleModel;
+import models.BaseLaneGroup;
+import models.VehicleModel;
 import runner.Scenario;
 
 import java.util.HashMap;
@@ -36,9 +35,9 @@ public class StateContainer {
         return amount.values().stream().allMatch(x->x==0d);
     }
 
-    public Set<AbstractVehicle> add_packet_and_extract_vehicles(StateContainer container, AbstractLaneGroup lg){
+    public Set<AbstractVehicle> add_packet_and_extract_vehicles(StateContainer container, BaseLaneGroup lg){
 
-        AbstractVehicleModel model = (AbstractVehicleModel) lg.link.model;
+        VehicleModel model = (VehicleModel) lg.link.model;
 
         Set<AbstractVehicle> vehicles = new HashSet<>();
 

@@ -1,11 +1,10 @@
 package output;
 
-import models.AbstractLaneGroup;
+import models.BaseLaneGroup;
 import error.OTMException;
 import runner.Scenario;
 
 import java.util.Collection;
-import java.util.List;
 
 public class LaneGroupVehicles extends AbstractOutputTimedLanegroup {
 
@@ -29,7 +28,7 @@ public class LaneGroupVehicles extends AbstractOutputTimedLanegroup {
     }
 
     @Override
-    protected double get_value_for_lanegroup(AbstractLaneGroup lg){
+    protected double get_value_for_lanegroup(BaseLaneGroup lg){
         if(!lgprofiles.containsKey(lg.id))
             return Double.NaN;
         else {

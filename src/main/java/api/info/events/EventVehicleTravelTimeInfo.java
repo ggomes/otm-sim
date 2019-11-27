@@ -1,6 +1,6 @@
 package api.info.events;
 
-import models.pq.Queue;
+import models.spatialq.Queue;
 
 public class EventVehicleTravelTimeInfo extends AbstractEventInfo {
 

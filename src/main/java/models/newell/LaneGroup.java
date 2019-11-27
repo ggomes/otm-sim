@@ -1,4 +1,4 @@
-package models.micro;
+package models.newell;
 
 import common.AbstractVehicle;
 import common.Link;
@@ -8,8 +8,8 @@ import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.Roadparam;
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
-import models.AbstractLaneGroupVehicles;
+import models.BaseLaneGroup;
+import models.VehicleLaneGroup;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
 import runner.RunParameters;
@@ -19,9 +19,9 @@ import utils.OTMUtils;
 
 import java.util.*;
 
-public class LaneGroup extends AbstractLaneGroupVehicles {
+public class LaneGroup extends VehicleLaneGroup {
 
-    public List<models.micro.Vehicle> vehicles;
+    public List<models.newell.Vehicle> vehicles;
     public double dv;   // vf*dt [meters per dt]
     public double dw;   // w*dt [meters per dt]
     public double dc;   // capcity*dt [veh per dt]
@@ -45,9 +45,9 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
     @Override
     public void set_road_params(Roadparam r) {
         super.set_road_params(r);
-        dv = r.getSpeed() * ((Model_Micro)link.model).dt / 3.6d;
-        dw = max_cong_speed_kph * ((Model_Micro)link.model).dt / 3.6d;
-        dc = r.getCapacity() * num_lanes * ((Model_Micro)link.model).dt / 3600d;
+        dv = r.getSpeed() * ((ModelNewell)link.model).dt / 3.6d;
+        dw = max_cong_speed_kph * ((ModelNewell)link.model).dt / 3.6d;
+        dc = r.getCapacity() * num_lanes * ((ModelNewell)link.model).dt / 3600d;
     }
 
     @Override
@@ -81,7 +81,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
 
         for(AbstractVehicle aveh : create_vehicles_from_packet(vp,next_link_id)){
 
-            models.micro.Vehicle vehicle = (models.micro.Vehicle)aveh;
+            models.newell.Vehicle vehicle = (models.newell.Vehicle)aveh;
 
             vehicle.lg = this;
 
@@ -167,7 +167,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
             OptionalDouble next_supply_o = rc.out_lanegroups.stream()
-                    .mapToDouble(AbstractLaneGroup::get_supply)
+                    .mapToDouble(BaseLaneGroup::get_supply)
                     .max();
 
             assert(next_supply_o.isPresent());
@@ -197,7 +197,7 @@ public class LaneGroup extends AbstractLaneGroupVehicles {
                 next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
 
                 // possibly disconnect from follower
-                if(!(next_link.model instanceof models.micro.Model_Micro) && vehicle.follower!=null)
+                if(!(next_link.model instanceof ModelNewell) && vehicle.follower!=null)
                     vehicle.follower.leader = null;
 
                 released = true;

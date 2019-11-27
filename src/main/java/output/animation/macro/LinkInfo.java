@@ -1,6 +1,6 @@
 package output.animation.macro;
 
-import models.AbstractLaneGroup;
+import models.BaseLaneGroup;
 import common.Link;
 import output.animation.AbstractLaneGroupInfo;
 import output.animation.AbstractLinkInfo;
@@ -12,7 +12,7 @@ public class LinkInfo extends AbstractLinkInfo {
     }
 
     @Override
-    public AbstractLaneGroupInfo newLaneGroupInfo(AbstractLaneGroup lg) {
+    public AbstractLaneGroupInfo newLaneGroupInfo(BaseLaneGroup lg) {
         return new LaneGroupInfo(lg);
     }
 

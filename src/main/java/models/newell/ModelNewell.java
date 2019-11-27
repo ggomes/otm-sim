@@ -1,4 +1,4 @@
-package models.micro;
+package models.newell;
 
 import common.AbstractVehicle;
 import common.Link;
@@ -11,8 +11,8 @@ import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.OutputRequest;
-import models.AbstractLaneGroup;
-import models.AbstractVehicleModel;
+import models.BaseLaneGroup;
+import models.VehicleModel;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
@@ -21,11 +21,11 @@ import utils.StochasticProcess;
 
 import java.util.*;
 
-public class Model_Micro extends AbstractVehicleModel implements InterfacePokable {
+public class ModelNewell extends VehicleModel implements InterfacePokable {
 
     public float dt;
 
-    public Model_Micro(String name, boolean is_default, Float dt, StochasticProcess process) {
+    public ModelNewell(String name, boolean is_default, Float dt, StochasticProcess process) {
         super(name, is_default,process);
         this.dt = dt==null ? -1 : dt;
     }
@@ -52,7 +52,7 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
 
     @Override
     public AbstractVehicle create_vehicle(Long comm_id,Set<InterfaceVehicleListener> event_listeners) {
-        return new models.micro.Vehicle(comm_id,event_listeners);
+        return new models.newell.Vehicle(comm_id,event_listeners);
     }
 
     @Override
@@ -71,8 +71,8 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
 
     // SIMILAR AS PQ
     @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        return new models.micro.LaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
+    public BaseLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        return new models.newell.LaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
     }
 
     @Override
@@ -82,10 +82,10 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
 
     @Override
     public AbstractVehicle translate_vehicle(AbstractVehicle that){
-        if(that instanceof models.micro.Vehicle)
+        if(that instanceof models.newell.Vehicle)
             return that;
         else
-            return new models.micro.Vehicle(that);
+            return new models.newell.Vehicle(that);
     }
 
     //////////////////////////////////////////////////
@@ -107,9 +107,9 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
 
         // apply Newell's update formula to all vehicles
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                models.micro.LaneGroup lg = (models.micro.LaneGroup) alg;
-                for( models.micro.Vehicle vehicle : lg.vehicles ) {
+            for (BaseLaneGroup alg : link.lanegroups_flwdn.values()) {
+                models.newell.LaneGroup lg = (models.newell.LaneGroup) alg;
+                for( models.newell.Vehicle vehicle : lg.vehicles ) {
                     double dx = Math.min(lg.dv, vehicle.headway - lg.dw);
                     dx = Math.min( dx , vehicle.headway * lg.dc);
                     dx = Math.max( dx , 0d );
@@ -120,8 +120,8 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
 
         // move vehicles to new link
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                models.micro.LaneGroup lg = (models.micro.LaneGroup) alg;
+            for (BaseLaneGroup alg : link.lanegroups_flwdn.values()) {
+                models.newell.LaneGroup lg = (models.newell.LaneGroup) alg;
                 Iterator<Vehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
                     Vehicle vehicle = it.next();
@@ -139,8 +139,8 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
 
         // update position
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                models.micro.LaneGroup lg = (models.micro.LaneGroup) alg;
+            for (BaseLaneGroup alg : link.lanegroups_flwdn.values()) {
+                models.newell.LaneGroup lg = (models.newell.LaneGroup) alg;
                 Iterator<Vehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
                     Vehicle vehicle = it.next();
@@ -151,8 +151,8 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
 
         // update headway
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                models.micro.LaneGroup lg = (models.micro.LaneGroup) alg;
+            for (BaseLaneGroup alg : link.lanegroups_flwdn.values()) {
+                models.newell.LaneGroup lg = (models.newell.LaneGroup) alg;
                 Iterator<Vehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
                     Vehicle vehicle = it.next();
@@ -162,7 +162,7 @@ public class Model_Micro extends AbstractVehicleModel implements InterfacePokabl
                             vehicle.headway = Double.POSITIVE_INFINITY;
                         else{
 
-                            Collection<AbstractLaneGroup> next_lgs = link.network.links.get(vehicle.get_next_link_id()).lanegroups_flwdn.values();
+                            Collection<BaseLaneGroup> next_lgs = link.network.links.get(vehicle.get_next_link_id()).lanegroups_flwdn.values();
                             OptionalDouble next_vehicle_position = next_lgs.stream()
                                     .mapToDouble(x->x.get_upstream_vehicle_position())
                                     .min();

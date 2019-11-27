@@ -1,4 +1,4 @@
-package models.pq;
+package models.spatialq;
 
 import common.Link;
 import error.OTMErrorLog;
@@ -62,7 +62,7 @@ public class Queue {
 
         // process any lane change requests
         Link link = lanegroup.link;
-        ((Model_PQ)link.model).process_lane_change_request(link,timestamp,lane_change_requests.poll());
+        ((ModelSpatialQ)link.model).process_lane_change_request(link,timestamp,lane_change_requests.poll());
 
     }
 

@@ -1,13 +1,16 @@
 package common;
 
 import error.OTMErrorLog;
-import models.AbstractLaneGroup;
+import keys.KeyCommPathOrLink;
+import models.BaseLaneGroup;
 import runner.InterfaceScenarioElement;
 import runner.ScenarioElementType;
 import utils.OTMUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 public class RoadConnection implements Comparable<RoadConnection>, InterfaceScenarioElement {
 
@@ -20,8 +23,8 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     public final int end_link_from_lane;
     public final int end_link_to_lane;
 
-    public Set<AbstractLaneGroup> in_lanegroups;
-    public Set<AbstractLaneGroup> out_lanegroups;
+    public Set<BaseLaneGroup> in_lanegroups;
+    public Set<BaseLaneGroup> out_lanegroups;
 
     // control
     public float external_max_flow_vps;
@@ -128,7 +131,7 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
             if(out_lanegroups.stream().anyMatch(x->x==null))
                 errorLog.addError("null out_lanegroups in road connection " + this.getId());
 
-            Set<Link> all_outlink = out_lanegroups.stream().map(x->x.link).collect(Collectors.toSet());
+            Set<Link> all_outlink = out_lanegroups.stream().map(x->x.link).collect(toSet());
             if(all_outlink.size()>1)
                 errorLog.addError("all_outlink.size()>1");
             if(all_outlink.iterator().next().id!=end_link.id)
@@ -143,7 +146,7 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         this.external_max_flow_vps = rate_vps;
 
         // tell the incoming lanegroups
-        for(AbstractLaneGroup in_lanegroup : in_lanegroups)
+        for(BaseLaneGroup in_lanegroup : in_lanegroups)
             in_lanegroup.exiting_roadconnection_capacity_has_been_modified(timestamp);
     }
 
@@ -200,6 +203,18 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
 
     public Long get_end_link_id(){
         return end_link==null ? null : end_link.getId();
+    }
+
+    public Set<KeyCommPathOrLink> get_states(){
+
+        Set<KeyCommPathOrLink> upstr_states = in_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
+        Set<KeyCommPathOrLink> dnstr_states = out_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
+
+        // keep those pathfull states that are also present in the downstream lane groups
+        // and  those pathless states that are going to a downstream link
+        return upstr_states.stream()
+                .filter(k-> ( k.isPath && dnstr_states.contains(k) ) || (!k.isPath && k.pathOrlink_id==end_link.id))
+                .collect(toSet());
     }
 
     ///////////////////////////////////////////

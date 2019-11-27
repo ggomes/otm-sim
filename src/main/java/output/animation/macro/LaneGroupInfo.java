@@ -1,6 +1,6 @@
 package output.animation.macro;
 
-import models.AbstractLaneGroup;
+import models.BaseLaneGroup;
 import keys.KeyCommPathOrLink;
 import models.ctm.LaneGroup;
 import output.animation.AbstractLaneGroupInfo;
@@ -18,7 +18,7 @@ public class LaneGroupInfo extends AbstractLaneGroupInfo {
     // contsruction
     //////////////////////////////////////////////////
 
-    public LaneGroupInfo(AbstractLaneGroup lg) {
+    public LaneGroupInfo(BaseLaneGroup lg) {
         super(lg);
 
         LaneGroup ctm_lg = (LaneGroup) lg;

@@ -4,8 +4,8 @@ import api.info.events.EventVehicleTravelTimeInfo;
 import commodity.Commodity;
 import dispatch.Dispatcher;
 import error.OTMException;
-import models.pq.Queue;
-import models.pq.Vehicle;
+import models.spatialq.Queue;
+import models.spatialq.Vehicle;
 import runner.RunParameters;
 import runner.Scenario;
 
