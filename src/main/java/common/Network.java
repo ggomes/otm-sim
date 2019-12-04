@@ -677,9 +677,9 @@ public class Network {
     public jaxb.Network to_jaxb(){
         jaxb.Network jnet = new jaxb.Network();
 
-
         // network: nodes
         jaxb.Nodes jnodes = new jaxb.Nodes();
+        jnodes.setGpsOrMeters(node_positions_in_meters ? "meters" : "gps");
         jnet.setNodes(jnodes);
         for(Node node : nodes.values())
             jnodes.getNode().add(node.to_jaxb());

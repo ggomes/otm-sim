@@ -135,8 +135,16 @@ public class Commodity implements InterfaceScenarioElement {
         jcomm.setName(name);
         jcomm.setPathfull(pathfull);
         jcomm.setPvequiv(pvequiv);
-        String str = OTMUtils.comma_format(subnetworks.stream().map(x->x.getId()).collect(Collectors.toList()));
-        jcomm.setSubnetworks(str);
+
+        List<Long> subnets = subnetworks.stream().map(x->x.getId()).collect(Collectors.toList());
+
+        // exclude subnetwork 0
+        subnets.remove(0l);
+
+        if(!subnets.isEmpty()) {
+            String str = OTMUtils.comma_format(subnetworks.stream().map(x -> x.getId()).collect(Collectors.toList()));
+            jcomm.setSubnetworks(str);
+        }
         return jcomm;
     }
 

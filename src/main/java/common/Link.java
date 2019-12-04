@@ -27,7 +27,7 @@ import static java.util.stream.Collectors.toSet;
 
 public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
-    public enum RoadType {none,offramp,onramp,freeway,connector}
+    public enum RoadType {none,offramp,onramp,freeway,connector,bridge}
 
     // basics ........................................
     protected final long id;
@@ -769,7 +769,8 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         if(this.road_geom!=null)
             jlink.setRoadgeom(this.road_geom.id);
         jlink.setRoadparam(this.road_param.getId());
-        jlink.setRoadType(this.road_type.toString());
+        if(!road_type.equals(RoadType.none))
+            jlink.setRoadType(this.road_type.toString());
         jaxb.Points jpoints = new jaxb.Points();
         jlink.setPoints(jpoints);
         for(common.Point point : this.shape){

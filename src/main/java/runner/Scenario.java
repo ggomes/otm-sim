@@ -202,7 +202,8 @@ public class Scenario {
         jaxb.Subnetworks jsubs = new jaxb.Subnetworks();
         jsc.setSubnetworks(jsubs);
         for(commodity.Subnetwork subnetwork : subnetworks.values())
-            jsubs.getSubnetwork().add(subnetwork.to_jaxb());
+            if(subnetwork.getId()!=0l)
+                jsubs.getSubnetwork().add(subnetwork.to_jaxb());
 
         // demands
         jaxb.Demands jdems = new jaxb.Demands();

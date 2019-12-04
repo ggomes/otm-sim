@@ -1,5 +1,6 @@
 package api;
 
+import commodity.Commodity;
 import dispatch.Dispatcher;
 import dispatch.EventStopSimulation;
 import error.OTMException;
@@ -10,6 +11,7 @@ import runner.RunParameters;
 import runner.ScenarioFactory;
 import utils.OTMUtils;
 import xml.JaxbLoader;
+import xml.JaxbWriter;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -63,6 +65,16 @@ public class OTM {
         this.scn =  ScenarioFactory.create_scenario(jscn,validate);
         scenario = new Scenario(this);
         output = new Output(this);
+    }
+
+    public void save(String file)  {
+        try {
+            JaxbWriter.save_scenario(scn.to_jaxb(),file);
+        } catch (OTMException e) {
+            System.err.println("ERROR");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void load_test(String configname) throws OTMException  {

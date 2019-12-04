@@ -301,6 +301,15 @@ public class Scenario {
         return lk2lgs;
     }
 
+    public void set_road_type(long link_id,String str){
+        if(!myapi.scn.network.links.containsKey(link_id))
+            return;
+        Link link = myapi.scn.network.links.get(link_id);
+        Link.RoadType new_road_type = Link.RoadType.valueOf(str);
+        if(new_road_type!=null)
+            link.road_type = new_road_type;
+    }
+
     ////////////////////////////////////////////////////////
     // demands / splits
     ////////////////////////////////////////////////////////

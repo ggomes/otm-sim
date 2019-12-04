@@ -44,16 +44,13 @@ public class BaseModel {
 
     // called Link.validate
     public void validate(OTMErrorLog errorLog){
-
     }
 
     // NOT USED
     public void reset(Link link){
-
     }
 
     public void build(){
-
     }
 
     //////////////////////////////////////////////////
