@@ -6,6 +6,7 @@ import api.info.*;
 import commodity.Commodity;
 import commodity.Subnetwork;
 import common.Link;
+import common.Network;
 import common.Node;
 import common.RoadConnection;
 import control.AbstractController;
@@ -308,6 +309,11 @@ public class Scenario {
         Link.RoadType new_road_type = Link.RoadType.valueOf(str);
         if(new_road_type!=null)
             link.road_type = new_road_type;
+    }
+
+    public Node create_node(float xcoord,float ycoord){
+        long id = myapi.scn.network.nodes.keySet().stream().max(Comparator.naturalOrder()).get();
+        return new common.Node(myapi.scn.network,id,xcoord,ycoord,false);
     }
 
     ////////////////////////////////////////////////////////

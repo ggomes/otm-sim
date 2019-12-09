@@ -55,7 +55,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
 
         this.is_sink = true;
         this.is_source = true;
-        this.is_many2one = true;
+        this.is_many2one = false;
     }
 
     public Node(Network network,jaxb.Node jn){
