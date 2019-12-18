@@ -5,10 +5,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import utils.OTMUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -26,6 +23,11 @@ public class Path extends Subnetwork {
         create_ordered_links();
     }
 
+    public Path(Subnetwork subnet) {
+        super(subnet);
+        create_ordered_links();
+    }
+
     private void create_ordered_links(){
 
         // generate ordered links ..........
@@ -35,24 +37,22 @@ public class Path extends Subnetwork {
                 .filter(x->x.is_source)
                 .collect(toList());
         Link current = sources.get(0);
+
+        Set<Link> unchecked = new HashSet<>();
+        unchecked.addAll(links);
+        unchecked.remove(current);
+
         ordered_links = new ArrayList<>();
         ordered_links.add(current);
 
-        while(true){
+        while(!unchecked.isEmpty()){
+
             Collection<Link> next_links = current.end_node.out_links.values();
             Set<Link> next_link = OTMUtils.intersect(next_links,links);
 
-            if(next_link.size()>1) {
-                System.err.println("Not able to construct this path");
-                return;
-            }
-
             current = next_link.iterator().next();
             ordered_links.add(current);
-            if(ordered_links.size()>=links.size())
-                break;
-            if(current.is_sink)
-                break;
+            unchecked.remove(current);
         }
     }
 

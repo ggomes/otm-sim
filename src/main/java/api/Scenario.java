@@ -9,6 +9,7 @@ import common.Link;
 import common.Network;
 import common.Node;
 import common.RoadConnection;
+import common.SplitInfo;
 import control.AbstractController;
 import dispatch.EventCreateVehicle;
 import dispatch.EventDemandChange;
@@ -19,6 +20,7 @@ import keys.KeyCommodityDemandTypeId;
 import models.BaseLaneGroup;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;
+import profiles.SplitMatrixProfile;
 import sensor.AbstractSensor;
 
 import java.util.*;
@@ -325,10 +327,19 @@ public class Scenario {
      * @return A set of DemandInfo
      * @see DemandInfo
      */
-    public Set<DemandInfo> get_demands(){
-        Set<DemandInfo> x = new HashSet<>();
-        for(AbstractDemandProfile y : myapi.scn.data_demands.values())
-            x.add(new DemandInfo(y));
+    public Map<Long,Set<DemandInfo>> get_demands(){
+        Map<Long,Set<DemandInfo>> x = new HashMap<>();
+        for(AbstractDemandProfile p : myapi.scn.data_demands.values()) {
+            long link_id = p.source.link.getId();
+            Set<DemandInfo> y;
+            if(x.containsKey(link_id))
+                y = x.get(link_id);
+            else {
+                y = new HashSet<>();
+                x.put(link_id,y);
+            }
+            y.add(new DemandInfo(p));
+        }
         return x;
     }
 
@@ -470,6 +481,17 @@ public class Scenario {
         return myapi.scn.data_demands.values().stream()
                 .map(x->x.get_total_trips())
                 .reduce(0.0,Double::sum);
+    }
+
+    public Map<Long,Set<api.info.SplitInfo>> get_splits(){
+        Map<Long,Set<api.info.SplitInfo>> x = new HashMap<>();
+        for(Node node : myapi.scn.network.nodes.values().stream().filter(n->n.splits!=null).collect(Collectors.toSet())) {
+            Set<api.info.SplitInfo> y = new HashSet<>();
+            x.put(node.getId(),y);
+            for (SplitMatrixProfile p : node.splits.values())
+                y.add(new api.info.SplitInfo(p));
+        }
+        return x;
     }
 
     ////////////////////////////////////////////////////////

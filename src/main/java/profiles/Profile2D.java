@@ -2,7 +2,6 @@ package profiles;
 
 import error.OTMErrorLog;
 import error.OTMException;
-import runner.Scenario;
 import utils.OTMUtils;
 
 import java.util.*;

@@ -24,6 +24,17 @@ public class Subnetwork {
     // construction
     ///////////////////////////////////////////////////
 
+    public Subnetwork(Subnetwork that){
+        this.id = that.getId();
+        this.name = that.getName();
+        this.links = new HashSet<>();
+        this.links.addAll(that.links);
+        this.used_by_comm = new HashSet<>();
+        this.used_by_comm.addAll(that.used_by_comm);
+        this.is_global = that.is_global;
+        this.is_path = that.is_path;
+    }
+
     public Subnetwork(jaxb.Subnetwork js,Network network) throws OTMException{
         this.id = js.getId();
         this.name = js.getName();
@@ -110,9 +121,35 @@ public class Subnetwork {
     // private
     ///////////////////////////////////////////////////
 
+//    private boolean check_is_path(){
+//
+//        // get all sources in the subnetwork
+//        List<Link> sources = this.links.stream()
+//                .filter(x->x.is_source)
+//                .collect(toList());
+//
+//        if(sources.size()!=1)
+//            return false;
+//
+//        // construct path
+//        Link current = sources.get(0);
+//        int num_checked = 1;
+//        while(true){
+//            Collection<Link> next_links = current.end_node.out_links.values();
+//            Set<Link> next_link = OTMUtils.intersect(next_links,this.links);
+//            if(next_link.size()!=1)
+//                return false;
+//            num_checked++;
+//            if(num_checked>=this.links.size())
+//                return true;
+//            if(current.is_sink)
+//                return false;
+//        }
+//    }
+
     private boolean check_is_path(){
 
-        // get all sources in the subnetwork
+        // check that there is exactly one source in links
         List<Link> sources = this.links.stream()
                 .filter(x->x.is_source)
                 .collect(toList());
@@ -122,17 +159,22 @@ public class Subnetwork {
 
         // construct path
         Link current = sources.get(0);
-        int num_checked = 1;
+        Set<Link> unchecked = new HashSet<>();
+        unchecked.addAll(links);
+        unchecked.remove(current);
+
         while(true){
+
+            if(unchecked.isEmpty())
+                return true;
+
             Collection<Link> next_links = current.end_node.out_links.values();
             Set<Link> next_link = OTMUtils.intersect(next_links,this.links);
-            if(next_link.size()!=1)
+            if(next_link.size()<0)
                 return false;
-            num_checked++;
-            if(num_checked>=this.links.size())
-                return true;
-            if(current.is_sink)
-                return false;
+            current = next_link.iterator().next();
+            unchecked.remove(current);
+
         }
     }
 

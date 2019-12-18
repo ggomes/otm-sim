@@ -72,7 +72,8 @@ public class ScenarioFactory {
                 .collect(toSet());
 
         for(Subnetwork subnet : used_paths){
-            assert(subnet.is_path);
+            if(!subnet.is_path)
+                throw new OTMException(String.format("ERROR: Subnetwork %d is assigned to a pathfull commodity, but it is not a linear path",subnet.getId()));
             Path path = (Path) subnet;
             for(int i=0;i<path.ordered_links.size()-1;i++){
                 Link link = path.ordered_links.get(i);
@@ -281,7 +282,8 @@ public class ScenarioFactory {
                 if (subnetworks.containsKey(jaxb_subnet.getId()))
                     throw new OTMException("Repeated subnetwork id");
                 Subnetwork subnet = new Subnetwork(jaxb_subnet,network);
-                subnetworks.put(jaxb_subnet.getId(), subnet.is_path ? new Path(jaxb_subnet,network) : subnet );
+//                subnetworks.put(jaxb_subnet.getId(), subnet.is_path ? new Path(jaxb_subnet,network) : subnet );
+                subnetworks.put(jaxb_subnet.getId(), subnet.is_path ? new Path(subnet) : subnet );
             }
         }
 
