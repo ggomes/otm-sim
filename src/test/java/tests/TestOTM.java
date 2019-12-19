@@ -160,12 +160,12 @@ public class TestOTM extends AbstractTest {
     // demands / splits
     ////////////////////////////////////////////////////////
 
-    @Test
-    public void test_get_demands(){
-        DemandInfo demands = otm.scenario.get_demands().iterator().next();
-        assertEquals((long)demands.getCommodity_id(),1l);
-        assertEquals(demands.getLink_id(),1l);
-    }
+//    @Test
+//    public void test_get_demands(){
+//        DemandInfo demands = otm.scenario.get_demands().iterator().next();
+//        assertEquals((long)demands.getCommodity_id(),1l);
+//        assertEquals(demands.getLink_id(),1l);
+//    }
 
     @Test
     @Ignore
