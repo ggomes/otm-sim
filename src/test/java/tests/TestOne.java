@@ -2,17 +2,13 @@ package tests;
 
 import api.OTMdev;
 import api.info.*;
-import control.ControllerCapacity;
 import error.OTMException;
 import org.junit.Ignore;
 import org.junit.Test;
 import output.*;
-import profiles.Profile1D;
 import runner.OTM;
-import xml.JaxbLoader;
 
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -163,7 +159,7 @@ public class TestOne extends AbstractTest {
             List<Double> values = new ArrayList<>();
             for(int i=0;i<10;i++)
                 values.add(1000d);
-            otm.scenario().set_demand_on_path_in_vph(path_id, comm_id, start_time,sample_dt, values);
+            otm.scenario().add_pathfull_demand(path_id, comm_id, start_time,sample_dt, values);
 
 
             otm.run(0f,1800f);

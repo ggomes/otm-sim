@@ -385,7 +385,7 @@ public class Scenario {
     /**
      * Set or override a demand value for a path.
      * Use this method to set a demand profile of a given commodity on a given path.
-     * The profile is a piecewise continuous function starting a time "start_time" and with
+     * The profile is a piecewise constant function starting a time "start_time" and with
      * sample time "dt". The values are given by the "values" array. The value before
      * before "start_time" is zero, and the last value in the array is held into positive
      * infinity time.
@@ -398,7 +398,7 @@ public class Scenario {
      * @param values : [array of doubles] list of values for the piecewise continuous profile.
      * @throws OTMException Undocumented
      */
-    public void set_demand_on_path_in_vph(long path_id,long commodity_id,float start_time,float dt,List<Double> values) throws OTMException {
+    public void add_pathfull_demand(long path_id, long commodity_id, float start_time, float dt, List<Double> values) throws OTMException {
 
         // create a demand profile
         Subnetwork path = myapi.scn.subnetworks.get(path_id);
@@ -409,36 +409,38 @@ public class Scenario {
         if(commodity==null)
             throw new OTMException("Bad commodity id");
 
-        DemandProfile dp = new DemandProfile(path,commodity,start_time, dt, values);
+        add_demand( new DemandProfile(path,commodity,start_time, dt, values) );
 
-        // validate
-        OTMErrorLog errorLog = new OTMErrorLog();
-        dp.validate(errorLog);
-        if (errorLog.haserror())
-            throw new OTMException(errorLog.format_errors());
+    }
 
-        // if a similar demand already exists, then delete it
-        if(myapi.scn.data_demands.containsKey(dp.get_key())){
-            AbstractDemandProfile old_dp = myapi.scn.data_demands.get(dp.get_key());
-            if(myapi.dispatcher!=null)
-                myapi.dispatcher.remove_events_for_recipient(EventDemandChange.class,old_dp);
-            myapi.scn.data_demands.remove(dp.get_key());
+    /**
+     * Set or override a demand on a source.
+     * Use this method to set a demand profile of a given commodity on a given source link..
+     * The profile is a piecewise constant function starting a time "start_time" and with
+     * sample time "dt". The values are given by the "values" array. The value before
+     * before "start_time" is zero, and the last value in the array is held into positive
+     * infinity time.
+     * This method will override any existing demands for that commodity and source.
+     *
+     * @param link_id : [long] integer id of the source link
+     * @param commodity_id : [long] integer id of the commodity
+     * @param start_time : [float] start time for the demand profile in seconds after midnight.
+     * @param dt : [float] step time for the profile in seconds.
+     * @param values : [array of doubles] list of values for the piecewise continuous profile.
+     * @throws OTMException Undocumented
+     */
+    public void add_pathless_demand(long link_id, long commodity_id, float start_time, float dt, List<Double> values) throws OTMException {
 
-            // remove it and its source from the link
-            old_dp.source.link.sources.remove(old_dp.source);
-        }
+        // create a demand profile
+        Link link = myapi.scn.network.links.get(link_id);
+        if(link==null)
+            throw new OTMException("Bad link id");
 
-        // add to scenario
-        myapi.scn.data_demands.put(dp.get_key(),dp);
+        Commodity commodity = myapi.scn.commodities.get(commodity_id);
+        if(commodity==null)
+            throw new OTMException("Bad commodity id");
 
-        if(myapi.scn.is_initialized) {
-            // initialize
-            dp.initialize(myapi.scn);
-
-            // send to dispatcher
-            dp.register_with_dispatcher(myapi.scn.dispatcher);
-        }
-
+        add_demand(new DemandProfile(link,commodity,start_time, dt, values));
     }
 
     /**
@@ -492,6 +494,25 @@ public class Scenario {
                 y.add(new api.info.SplitInfo(p));
         }
         return x;
+    }
+
+    public void add_splits(long in_link_id,long commodity_id,float start_time,float dt,Map<Long,List<Double>> outlink2splits) throws OTMException {
+
+        Link inlink = myapi.scn.network.links.get(in_link_id);
+        if(inlink==null)
+            throw new OTMException("Bad link id");
+
+        Commodity commodity = myapi.scn.commodities.get(commodity_id);
+        if(commodity==null)
+            throw new OTMException("Bad commodity id");
+
+        Node node = inlink.end_node;
+
+        SplitMatrixProfile smp = new SplitMatrixProfile(commodity_id,node,in_link_id,start_time,dt);
+        for(Map.Entry<Long,List<Double>> e : outlink2splits.entrySet())
+            smp.add_splits(e.getKey(),e.getValue());
+
+        node.set_node_split();
     }
 
     ////////////////////////////////////////////////////////
@@ -633,6 +654,38 @@ public class Scenario {
     ////////////////////////////////////////////////////////
     // private
     ////////////////////////////////////////////////////////
+
+    private void add_demand(DemandProfile dp) throws OTMException {
+
+        // validate
+        OTMErrorLog errorLog = new OTMErrorLog();
+        dp.validate(errorLog);
+        if (errorLog.haserror())
+            throw new OTMException(errorLog.format_errors());
+
+        // if a similar demand already exists, then delete it
+        if(myapi.scn.data_demands.containsKey(dp.get_key())){
+            AbstractDemandProfile old_dp = myapi.scn.data_demands.get(dp.get_key());
+            if(myapi.dispatcher!=null)
+                myapi.dispatcher.remove_events_for_recipient(EventDemandChange.class,old_dp);
+            myapi.scn.data_demands.remove(dp.get_key());
+
+            // remove it and its source from the link
+            old_dp.source.link.sources.remove(old_dp.source);
+        }
+
+        // add to scenario
+        myapi.scn.data_demands.put(dp.get_key(),dp);
+
+        if(myapi.scn.is_initialized) {
+            // initialize
+            dp.initialize(myapi.scn);
+
+            // send to dispatcher
+            dp.register_with_dispatcher(myapi.scn.dispatcher);
+        }
+
+    }
 
     private ActuatorInfo create_actuator_info(AbstractActuator actuator){
 

@@ -36,6 +36,16 @@ public class DemandProfile extends AbstractDemandProfile {
         create_pathfull_demand((Path)subnetwork,commodity,start_time,dt,values);
     }
 
+    public DemandProfile(Link link,Commodity commodity,float start_time,float dt,List<Double> values) throws OTMException{
+        if(link==null)
+            throw new OTMException("bad source link.");
+        if(commodity==null)
+            throw new OTMException("Bad commodity");
+        if(!link.is_source)
+            throw new OTMException("Lionk is not a source");
+        create_pathless_demand(link,commodity,start_time,dt,values);
+    }
+
     public DemandProfile(jaxb.Demand jd, Network network) throws OTMException {
         Commodity comm = network.scenario.commodities.get(jd.getCommodityId());
         if(comm==null)

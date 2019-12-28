@@ -1,16 +1,13 @@
 package tests;
 
 import api.OTM;
-import api.OTMdev;
 import api.info.CommodityInfo;
-import api.info.DemandInfo;
 import api.info.LinkInfo;
 import api.info.SubnetworkInfo;
 import error.OTMException;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import xml.JaxbLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -176,7 +173,7 @@ public class TestOTM extends AbstractTest {
             float start_time = 0;
             float dt = 10f;
             List<Double> values = new ArrayList<>();
-            otm.scenario.set_demand_on_path_in_vph(path_id,commodity_id,start_time,dt,values);
+            otm.scenario.add_pathfull_demand(path_id,commodity_id,start_time,dt,values);
         } catch (OTMException e) {
             e.printStackTrace();
         }
