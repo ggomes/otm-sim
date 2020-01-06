@@ -86,7 +86,6 @@ public class FluidSource extends common.AbstractSource {
                 return source_flows;
             }
 
-
             // Otherwise...
             Map<Long,Double> outlink2split = link.get_splits_for_commodity(comm_id);
 

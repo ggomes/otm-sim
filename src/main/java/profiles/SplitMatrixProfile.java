@@ -3,7 +3,6 @@ package profiles;
 import commodity.Commodity;
 import commodity.Subnetwork;
 import common.Link;
-import common.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
@@ -14,8 +13,6 @@ import utils.OTMUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toSet;
 
 public class SplitMatrixProfile {
 
@@ -97,7 +94,7 @@ public class SplitMatrixProfile {
 
     public void initialize(float now) throws OTMException {
         Map<Long,Double> value = splits.get_value_for_time(now);
-        node.set_node_split(commodity_id,link_in_id,value);
+        node.send_splits_to_inlinks(commodity_id,link_in_id,value);
     }
 
     public void add_split(jaxb.Split jaxb_split) throws OTMException{

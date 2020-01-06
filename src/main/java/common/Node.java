@@ -115,7 +115,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     // get / set
     ///////////////////////////////////////////
 
-    public void set_node_split(long commodity_id, long linkinid, Map<Long,Double> outlink2value) throws OTMException {
+    public void send_splits_to_inlinks(long commodity_id, long linkinid, Map<Long,Double> outlink2value) throws OTMException {
         Link linkin = in_links.get(linkinid);
         if(linkin!=null)
            linkin.set_splits(commodity_id,outlink2value);

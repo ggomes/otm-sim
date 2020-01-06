@@ -58,7 +58,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
         this.type = is_inbuilt(controller_type) ? Algorithm.valueOf(controller_type) : Algorithm.plugin;
         this.dt = jaxb_controller.getDt();
         this.start_time = jaxb_controller.getStartTime();
-        this.end_time = jaxb_controller.getEndTime();
+        this.end_time = jaxb_controller.getEndTime()==null ? Float.POSITIVE_INFINITY : jaxb_controller.getEndTime();
 
         // below this does not apply for scenario-less controllers  ..............................
         if(scenario==null)

@@ -3,6 +3,7 @@ package output;
 import common.FlowAccumulatorState;
 import models.BaseLaneGroup;
 import error.OTMException;
+import org.jfree.data.xy.XYSeries;
 import profiles.Profile1D;
 import runner.Scenario;
 
@@ -51,6 +52,14 @@ public class LinkFlow extends AbstractOutputTimedLink {
     public double get_value_for_link(Long link_id) {
         Set<FlowAccumulatorState> fas = flw_acc_sets.get(link_id);
         return fas.stream().mapToDouble(x->x.get_total_count()).sum();
+    }
+
+    @Override
+    public XYSeries get_series_for_linkid(Long link_id) {
+        if(!linkprofiles.containsKey(link_id))
+            return null;
+//        return linkprofiles.get(link_id).profile.get_series(String.format("%d",link_id));
+        return get_flow_profile_for_link_in_vph(link_id).get_series(String.format("%d",link_id));
     }
 
     //////////////////////////////////////////////////////

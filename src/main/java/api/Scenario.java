@@ -496,24 +496,24 @@ public class Scenario {
         return x;
     }
 
-    public void add_splits(long in_link_id,long commodity_id,float start_time,float dt,Map<Long,List<Double>> outlink2splits) throws OTMException {
-
-        Link inlink = myapi.scn.network.links.get(in_link_id);
-        if(inlink==null)
-            throw new OTMException("Bad link id");
-
-        Commodity commodity = myapi.scn.commodities.get(commodity_id);
-        if(commodity==null)
-            throw new OTMException("Bad commodity id");
-
-        Node node = inlink.end_node;
-
-        SplitMatrixProfile smp = new SplitMatrixProfile(commodity_id,node,in_link_id,start_time,dt);
-        for(Map.Entry<Long,List<Double>> e : outlink2splits.entrySet())
-            smp.add_splits(e.getKey(),e.getValue());
-
-        node.set_node_split();
-    }
+//    public void add_splits(long in_link_id,long commodity_id,float start_time,float dt,Map<Long,List<Double>> outlink2splits) throws OTMException {
+//
+//        Link inlink = myapi.scn.network.links.get(in_link_id);
+//        if(inlink==null)
+//            throw new OTMException("Bad link id");
+//
+//        Commodity commodity = myapi.scn.commodities.get(commodity_id);
+//        if(commodity==null)
+//            throw new OTMException("Bad commodity id");
+//
+//        Node node = inlink.end_node;
+//
+//        SplitMatrixProfile smp = new SplitMatrixProfile(commodity_id,node,in_link_id,start_time,dt);
+//        for(Map.Entry<Long,List<Double>> e : outlink2splits.entrySet())
+//            smp.add_splits(e.getKey(),e.getValue());
+//
+//        node.set_node_split();
+//    }
 
     ////////////////////////////////////////////////////////
     // sensors

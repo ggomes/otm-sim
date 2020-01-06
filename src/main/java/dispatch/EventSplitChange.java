@@ -25,7 +25,7 @@ public class EventSplitChange extends AbstractEvent {
             for(Map.Entry e : outlink2value.entrySet())
                 System.out.println("\t\toutlinkid = " + e.getKey() + " , value=" + e.getValue());
         }
-        ((common.Node)recipient).set_node_split(commodity_id,linkinid,outlink2value);
+        ((common.Node)recipient).send_splits_to_inlinks(commodity_id,linkinid,outlink2value);
         splitProfile.register_next_change(dispatcher,timestamp);
     }
 
