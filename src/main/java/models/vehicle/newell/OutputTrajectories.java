@@ -1,16 +1,17 @@
-package models.newell;
+package models.vehicle.newell;
 
 import common.Link;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.InterfacePokable;
 import error.OTMException;
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 import output.AbstractOutput;
 import runner.RunParameters;
 import runner.Scenario;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 
 public class OutputTrajectories extends AbstractOutput implements InterfacePokable {
 
@@ -50,8 +51,8 @@ public class OutputTrajectories extends AbstractOutput implements InterfacePokab
         if(write_to_file){
             try {
                 for(Link link : model.links){
-                    for(BaseLaneGroup alg : link.lanegroups_flwdn.values()){
-                        models.newell.LaneGroup lg = (models.newell.LaneGroup) alg;
+                    for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
+                        LaneGroup lg = (LaneGroup) alg;
                         for(Vehicle vehicle : lg.vehicles)
                             writer.write(String.format("%.2f\t%d\t%d\t%.2f\n",timestamp,vehicle.getId(), lg.id,vehicle.pos));
                     }

@@ -2,13 +2,12 @@ package common;
 
 import error.OTMErrorLog;
 import keys.KeyCommPathOrLink;
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 import runner.InterfaceScenarioElement;
 import runner.ScenarioElementType;
 import utils.OTMUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -23,8 +22,8 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     public final int end_link_from_lane;
     public final int end_link_to_lane;
 
-    public Set<BaseLaneGroup> in_lanegroups;
-    public Set<BaseLaneGroup> out_lanegroups;
+    public Set<AbstractLaneGroup> in_lanegroups;
+    public Set<AbstractLaneGroup> out_lanegroups;
 
     // control
     public float external_max_flow_vps;
@@ -146,7 +145,7 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         this.external_max_flow_vps = rate_vps;
 
         // tell the incoming lanegroups
-        for(BaseLaneGroup in_lanegroup : in_lanegroups)
+        for(AbstractLaneGroup in_lanegroup : in_lanegroups)
             in_lanegroup.exiting_roadconnection_capacity_has_been_modified(timestamp);
     }
 

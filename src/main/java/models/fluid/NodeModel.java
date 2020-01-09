@@ -1,10 +1,10 @@
-package models;
+package models.fluid;
 
 import common.Link;
 import common.Node;
 import error.OTMErrorLog;
 import keys.KeyCommPathOrLink;
-import models.ctm.*;
+import models.AbstractLaneGroup;
 import runner.Scenario;
 import utils.OTMUtils;
 
@@ -100,7 +100,7 @@ public class NodeModel {
                 continue;
 
             // incoming fluid lane groups
-            Set<BaseLaneGroup> in_fluid_lgs = xrc.in_lanegroups.stream()
+            Set<AbstractLaneGroup> in_fluid_lgs = xrc.in_lanegroups.stream()
                     .filter(x -> x.link.model instanceof FluidModel)
                     .collect(toSet());
 
@@ -111,7 +111,7 @@ public class NodeModel {
             rcs.put(xrc.getId(),rc);
 
             // go through its upstream lanegroups
-            for (BaseLaneGroup xup_lg : in_fluid_lgs) {
+            for (AbstractLaneGroup xup_lg : in_fluid_lgs) {
 
                 UpLaneGroup ulg;
                 if (!up_lgs_map.containsKey(xup_lg.id)) {
@@ -125,7 +125,7 @@ public class NodeModel {
             }
 
             // go through its downstream lanegroups
-            for (BaseLaneGroup xdn_lg : xrc.out_lanegroups) {
+            for (AbstractLaneGroup xdn_lg : xrc.out_lanegroups) {
                 DnLaneGroup dlg;
                 if (!dn_lgs_map.containsKey(xdn_lg.id)) {
                     dlg = new DnLaneGroup(xdn_lg);

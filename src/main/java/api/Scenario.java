@@ -6,10 +6,8 @@ import api.info.*;
 import commodity.Commodity;
 import commodity.Subnetwork;
 import common.Link;
-import common.Network;
 import common.Node;
 import common.RoadConnection;
-import common.SplitInfo;
 import control.AbstractController;
 import dispatch.EventCreateVehicle;
 import dispatch.EventDemandChange;
@@ -17,7 +15,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import keys.DemandType;
 import keys.KeyCommodityDemandTypeId;
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 import output.animation.AnimationInfo;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;
@@ -275,7 +273,7 @@ public class Scenario {
     public Set<Long> get_in_lanegroups_for_road_connection(long rcid){
         RoadConnection rc = myapi.scn.network.get_road_connection(rcid);
         Set<Long> lgids = new HashSet<>();
-        for(BaseLaneGroup lg : rc.in_lanegroups)
+        for(AbstractLaneGroup lg : rc.in_lanegroups)
             lgids.add(lg.id);
         return lgids;
     }
@@ -288,7 +286,7 @@ public class Scenario {
     public Set<Long> get_out_lanegroups_for_road_connection(long rcid){
         RoadConnection rc = myapi.scn.network.get_road_connection(rcid);
         Set<Long> lgids = new HashSet<>();
-        for(BaseLaneGroup lg : rc.out_lanegroups)
+        for(AbstractLaneGroup lg : rc.out_lanegroups)
             lgids.add(lg.id);
         return lgids;
     }

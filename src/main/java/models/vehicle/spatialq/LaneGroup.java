@@ -1,4 +1,4 @@
-package models.spatialq;
+package models.vehicle.spatialq;
 
 import common.*;
 import dispatch.EventTransitToWaiting;
@@ -9,8 +9,8 @@ import dispatch.EventReleaseVehicleFromLaneGroup;
 import geometry.FlowPosition;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import models.BaseLaneGroup;
-import models.VehicleLaneGroup;
+import models.AbstractLaneGroup;
+import models.vehicle.VehicleLaneGroup;
 import output.InterfaceVehicleListener;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
@@ -23,8 +23,8 @@ import java.util.*;
 
 public class LaneGroup extends VehicleLaneGroup {
 
-    public models.spatialq.Queue transit_queue;
-    public models.spatialq.Queue waiting_queue;
+    public Queue transit_queue;
+    public Queue waiting_queue;
 
     public float current_max_flow_rate_vps;
     public float saturation_flow_rate_vps;
@@ -32,8 +32,8 @@ public class LaneGroup extends VehicleLaneGroup {
 
     public LaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
         super(link, side,flwpos,length, num_lanes, start_lane, out_rcs);
-        this.transit_queue = new models.spatialq.Queue(this, models.spatialq.Queue.Type.transit);
-        this.waiting_queue = new models.spatialq.Queue(this, models.spatialq.Queue.Type.waiting);
+        this.transit_queue = new Queue(this, Queue.Type.transit);
+        this.waiting_queue = new Queue(this, Queue.Type.waiting);
     }
 
     ////////////////////////////////////////////
@@ -88,7 +88,7 @@ public class LaneGroup extends VehicleLaneGroup {
     /**
      * A packet arrives at this lanegroup.
      * Vehicles do not know their next_link. It is assumed that the packet fits in this lanegroup.
-     * 1. convert the packet to models.ctm.micro, models.ctm.pq, or models.ctm. This involves memory kept in the lanegroup.
+     * 1. convert the packet to models.fluid.ctm.micro, models.fluid.ctm.pq, or models.fluid.ctm. This involves memory kept in the lanegroup.
      * 2. tag it with next_link and target lanegroups.
      * 3. add the packet to this lanegroup.
      */
@@ -202,7 +202,7 @@ public class LaneGroup extends VehicleLaneGroup {
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
             OptionalDouble next_supply_o = rc.out_lanegroups.stream()
-                    .mapToDouble(BaseLaneGroup::get_supply)
+                    .mapToDouble(AbstractLaneGroup::get_supply)
                     .max();
 
             if(!next_supply_o.isPresent())

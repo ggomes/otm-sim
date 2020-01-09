@@ -1,21 +1,24 @@
-package models.ctm;
+package models.fluid;
 
-import common.*;
+import common.Link;
 import common.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 import packet.PacketLaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
 import utils.OTMUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class LaneGroup extends BaseLaneGroup {
+public class LaneGroup extends AbstractLaneGroup {
 
     public double cell_length_meters;
 
@@ -246,7 +249,7 @@ public class LaneGroup extends BaseLaneGroup {
 //
 //    @Override
 //    public float get_current_travel_time() {
-//        double sim_dt = ((models.ctm.Model_CTM)link.model).dt;
+//        double sim_dt = ((models.fluid.ctm.Model_CTM)link.model).dt;
 //        float sum = 0f;
 //        for(int i=0;i<cells.size();i++){
 //            Cell cell = cells.get(i);
@@ -287,7 +290,7 @@ public class LaneGroup extends BaseLaneGroup {
         return (float) cells.stream().mapToDouble(c->c.get_veh_out_for_commodity(comm_id)).sum();
     }
 
-    protected void process_buffer(float timestamp){
+    public void process_buffer(float timestamp){
         assert(link.is_model_source_link);
 
         double buffer_size = buffer.get_total_veh();

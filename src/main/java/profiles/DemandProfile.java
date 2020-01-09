@@ -11,7 +11,7 @@ import dispatch.EventDemandChange;
 import common.Link;
 import keys.DemandType;
 import keys.KeyCommodityDemandTypeId;
-import models.VehicleSource;
+import models.vehicle.VehicleSource;
 import runner.Scenario;
 import utils.OTMUtils;
 

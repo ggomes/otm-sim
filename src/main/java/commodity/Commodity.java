@@ -1,6 +1,6 @@
 package commodity;
 
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 import common.Link;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -110,7 +110,7 @@ public class Commodity implements InterfaceScenarioElement {
         return x;
     }
 
-    public Set<Subnetwork> get_subnetworks_for_lanegroup(BaseLaneGroup lg){
+    public Set<Subnetwork> get_subnetworks_for_lanegroup(AbstractLaneGroup lg){
         Link link = lg.link;
         Set<Long> next_link_ids = lg.get_dwn_links();
         Set<Subnetwork> x = new HashSet<>();
@@ -167,7 +167,7 @@ public class Commodity implements InterfaceScenarioElement {
         if(comm.pathfull) {
             Link next_link = ((Path) subnet).get_link_following(link);
             Long next_link_id = next_link==null ? null : next_link.getId();
-            for (BaseLaneGroup lg : link.lanegroups_flwdn.values())
+            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
                 lg.add_state(comm.getId(), subnet.getId(),next_link_id, true);
         }
 
@@ -175,7 +175,7 @@ public class Commodity implements InterfaceScenarioElement {
 
             // for pathless/sink, next link id is same as this id
             if (link.is_sink) {
-                for (BaseLaneGroup lg : link.lanegroups_flwdn.values())
+                for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
                     lg.add_state(comm.getId(), null,link.getId(), false);
 
             } else {
@@ -184,7 +184,7 @@ public class Commodity implements InterfaceScenarioElement {
                 for( Long next_link_id : link.outlink2lanegroups.keySet()  ){
                     if (!subnet.has_link_id(next_link_id))
                         continue;
-                    for (BaseLaneGroup lg : link.lanegroups_flwdn.values())
+                    for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
                         lg.add_state(comm.getId(), null,next_link_id, false);
                 }
             }

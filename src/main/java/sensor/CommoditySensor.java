@@ -1,7 +1,7 @@
 package sensor;
 
 import common.FlowAccumulatorState;
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 import common.Link;
 import dispatch.Dispatcher;
 import error.OTMException;
@@ -17,7 +17,7 @@ public class CommoditySensor extends AbstractSensor {
     private float position;
     public int start_lane;
     public int end_lane;
-    private Map<BaseLaneGroup,SubSensor> subsensors;  // because a fixed sensor may span several lanegroups
+    private Map<AbstractLaneGroup,SubSensor> subsensors;  // because a fixed sensor may span several lanegroups
 
     private Map<Long,Measurement> measurements; // comm_id -> measurement
 
@@ -54,7 +54,7 @@ public class CommoditySensor extends AbstractSensor {
         // create subsensors
         subsensors = new HashMap<>();
         for(int lane=start_lane;lane<=end_lane;lane++){
-            BaseLaneGroup lg = link.get_lanegroup_for_dn_lane(lane);
+            AbstractLaneGroup lg = link.get_lanegroup_for_dn_lane(lane);
             SubSensor subsensor;
             if(subsensors.containsKey(lg)){
                 subsensor = subsensors.get(lg);
@@ -87,8 +87,8 @@ public class CommoditySensor extends AbstractSensor {
 
             double total_count = 0d;
             double total_vehicles = 0d;
-            for(Map.Entry<BaseLaneGroup, SubSensor> e2 :  subsensors.entrySet()){
-                BaseLaneGroup lg = e2.getKey();
+            for(Map.Entry<AbstractLaneGroup, SubSensor> e2 :  subsensors.entrySet()){
+                AbstractLaneGroup lg = e2.getKey();
                 SubSensor subsensor = e2.getValue();
                 total_count += subsensor.flow_accumulator.get_count_for_commodity(comm_id);
                 total_vehicles += lg.get_total_vehicles();
@@ -139,7 +139,7 @@ public class CommoditySensor extends AbstractSensor {
     public class SubSensor {
         public Set<Integer> lanes;
         public FlowAccumulatorState flow_accumulator; // commodity->fa
-        public SubSensor(BaseLaneGroup lg){
+        public SubSensor(AbstractLaneGroup lg){
             lanes = new HashSet<>();
             flow_accumulator = lg.request_flow_accumulator(null);
         }

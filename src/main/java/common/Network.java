@@ -7,11 +7,12 @@ import geometry.FlowPosition;
 import geometry.RoadGeometry;
 import geometry.Side;
 import jaxb.Roadparam;
-import models.BaseLaneGroup;
-import models.BaseModel;
-import models.ctm.ModelCTM;
-import models.newell.ModelNewell;
-import models.spatialq.ModelSpatialQ;
+import models.AbstractLaneGroup;
+import models.AbstractModel;
+import models.fluid.ctm.ModelCTM;
+import models.none.ModelNone;
+import models.vehicle.newell.ModelNewell;
+import models.vehicle.spatialq.ModelSpatialQ;
 import runner.RunParameters;
 import runner.Scenario;
 import utils.OTMUtils;
@@ -29,7 +30,7 @@ public class Network {
     public static Long max_rcid;
 
     public Scenario scenario;
-    public Map<String, BaseModel> models;
+    public Map<String, AbstractModel> models;
     public boolean node_positions_in_meters;    // true->meters, false->gps
     public Map<Long,Node> nodes;
     public Map<Long,Link> links;
@@ -195,7 +196,7 @@ public class Network {
         return road_geoms;
     }
 
-    private static Map<String, BaseModel> generate_models(List<jaxb.Model> jaxb_models, Map<Long,Link> links) throws OTMException {
+    private static Map<String, AbstractModel> generate_models(List<jaxb.Model> jaxb_models, Map<Long,Link> links) throws OTMException {
 
         if(jaxb_models==null) {
             jaxb_models = new ArrayList<>();
@@ -206,10 +207,10 @@ public class Network {
             jaxb_model.setIsDefault(true);
         }
 
-        Map<String, BaseModel> models = new HashMap<>();
+        Map<String, AbstractModel> models = new HashMap<>();
         Map<String,Set<Link>> model2links = new HashMap<>();
         Set<Link> assigned_links = new HashSet<>();
-        BaseModel nonemodel = null;
+        ModelNone nonemodel = null;
 
         boolean has_default_model = false;
 
@@ -227,7 +228,7 @@ public class Network {
                 process = StochasticProcess.poisson;
             }
 
-            BaseModel model;
+            AbstractModel model;
             switch(jaxb_model.getType()){
                 case "ctm":
                     model = new ModelCTM( jaxb_model.getName(),
@@ -251,10 +252,10 @@ public class Network {
                     break;
 
                 case "none":
-                    model = new BaseModel(jaxb_model.getName(),
+                    model = new ModelNone(jaxb_model.getName(),
                                         jaxb_model.isIsDefault(),
                                         process);
-                    nonemodel = (BaseModel) model;
+                    nonemodel = (ModelNone) model;
                     break;
 
                 default:
@@ -293,7 +294,7 @@ public class Network {
             if(nonemodel==null) {
                 if(models.containsKey("none"))
                     throw new OTMException("'none' is a prohibited name for a model.");
-                nonemodel = new BaseModel("none", false, StochasticProcess.deterministic);
+                nonemodel = new ModelNone("none", false, StochasticProcess.deterministic);
                 models.put("none", nonemodel);
                 model2links.put("none",my_links);
             } else {
@@ -302,11 +303,11 @@ public class Network {
             }
         }
 
-        for( BaseModel model : models.values())
+        for( AbstractModel model : models.values())
             model.set_links(model2links.get(model.name));
 
         // set link models (links will choose new over default, so this determines the link list for each model)
-        for( BaseModel model : models.values()) {
+        for( AbstractModel model : models.values()) {
             for (Link link : model2links.get(model.name)) {
 
                 // determine whether link is a relative source link
@@ -418,7 +419,7 @@ public class Network {
             }
         }
 
-        for (BaseLaneGroup lg : link.lanegroups_flwdn.values()) {
+        for (AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
             switch (lg.side) {
                 case in:
                     if(link.road_geom.in_is_full_length())
@@ -438,13 +439,13 @@ public class Network {
 
         // .................. lat lanegroups = {up addlane}
         if(link.lanegroup_up_in !=null){
-            BaseLaneGroup inner_full = link.get_inner_full_lanegroup();
+            AbstractLaneGroup inner_full = link.get_inner_full_lanegroup();
             link.lanegroup_up_in.neighbor_out = inner_full;
             inner_full.neighbor_up_in = link.lanegroup_up_in;
         }
 
         if (link.lanegroup_up_out != null) {
-            BaseLaneGroup outer_full = link.get_outer_full_lanegroup();
+            AbstractLaneGroup outer_full = link.get_outer_full_lanegroup();
             link.lanegroup_up_out.neighbor_in = outer_full;
             outer_full.neighbor_up_out = link.lanegroup_up_out;
         }
@@ -452,12 +453,12 @@ public class Network {
         // ................... long lanegroups = {dn addlane, stay lgs}
         int num_dn_lanes = link.get_num_dn_lanes();
         if(num_dn_lanes>1) {
-            List<BaseLaneGroup> long_lgs = IntStream.rangeClosed(1, link.get_num_dn_lanes())
+            List<AbstractLaneGroup> long_lgs = IntStream.rangeClosed(1, link.get_num_dn_lanes())
                     .mapToObj(lane -> link.dnlane2lanegroup.get(lane)).collect(toList());
-            BaseLaneGroup prev_lg = null;
+            AbstractLaneGroup prev_lg = null;
             for (int lane = 1; lane <= num_dn_lanes; lane++) {
 
-                BaseLaneGroup lg = long_lgs.get(lane - 1);
+                AbstractLaneGroup lg = long_lgs.get(lane - 1);
                 if (prev_lg == null)
                     prev_lg = lg;
                 if (lg != prev_lg) {
@@ -469,7 +470,7 @@ public class Network {
 
             prev_lg = null;
             for(int lane=num_dn_lanes;lane>=1;lane--){
-                BaseLaneGroup lg = long_lgs.get(lane-1);
+                AbstractLaneGroup lg = long_lgs.get(lane-1);
                 if(prev_lg==null)
                     prev_lg = lg;
                 if(lg!=prev_lg) {
@@ -481,10 +482,10 @@ public class Network {
         }
     }
 
-    private static Set<BaseLaneGroup> create_dnflw_lanegroups(Link link, Set<RoadConnection> out_rcs) throws OTMException {
+    private static Set<AbstractLaneGroup> create_dnflw_lanegroups(Link link, Set<RoadConnection> out_rcs) throws OTMException {
         // Find unique subsets of road connections, and create a lane group for each one.
 
-        Set<BaseLaneGroup> lanegroups = new HashSet<>();
+        Set<AbstractLaneGroup> lanegroups = new HashSet<>();
 
         // empty out_rc <=> sink
         assert(out_rcs.isEmpty()==link.is_sink);
@@ -574,7 +575,7 @@ public class Network {
         return lanegroups;
     }
 
-    private static BaseLaneGroup create_dnflw_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
+    private static AbstractLaneGroup create_dnflw_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
 
         // Determine whether it is an addlane lanegroup or a full lane lane group.
         Set<Side> sides = new HashSet<>();
@@ -613,7 +614,7 @@ public class Network {
             link.lanegroup_up_out = create_up_side_lanegroup(link,link.road_geom.up_out);
     }
 
-    private static BaseLaneGroup create_up_side_lanegroup(Link link, AddLanes addlanes) {
+    private static AbstractLaneGroup create_up_side_lanegroup(Link link, AddLanes addlanes) {
         float length = addlanes.length;
         int num_lanes = addlanes.lanes;
         Side side = addlanes.side;
@@ -648,7 +649,7 @@ public class Network {
         for(Node node: nodes.values())
             node.initialize(scenario,runParams);
 
-        for(BaseModel model : models.values())
+        for(AbstractModel model : models.values())
             model.initialize(scenario);
 
     }
@@ -657,7 +658,7 @@ public class Network {
     // get / set
     ///////////////////////////////////////////
 
-    public Set<BaseLaneGroup> get_lanegroups(){
+    public Set<AbstractLaneGroup> get_lanegroups(){
         return links.values().stream().flatMap(link->link.lanegroups_flwdn.values().stream()).collect(toSet());
     }
 

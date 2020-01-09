@@ -1,4 +1,4 @@
-package models;
+package models.vehicle;
 
 import commodity.Commodity;
 import commodity.Path;
@@ -8,6 +8,7 @@ import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import error.OTMException;
 import keys.KeyCommPathOrLink;
+import models.AbstractLaneGroup;
 import packet.PacketLaneGroup;
 import profiles.DemandProfile;
 
@@ -58,10 +59,10 @@ public class VehicleSource extends common.AbstractSource {
         Long next_link = commodity.pathfull ? link.path2outlink.get(path.getId()).getId() : key.pathOrlink_id;
 
         // candidate lane groups
-        Set<BaseLaneGroup> candidate_lane_groups = link.outlink2lanegroups.get(next_link);
+        Set<AbstractLaneGroup> candidate_lane_groups = link.outlink2lanegroups.get(next_link);
 
         // pick from among the eligible lane groups
-        BaseLaneGroup join_lanegroup = link.model.lanegroup_proportions(candidate_lane_groups).keySet().iterator().next();
+        AbstractLaneGroup join_lanegroup = link.model.lanegroup_proportions(candidate_lane_groups).keySet().iterator().next();
 
         // package and add to joinlanegroup
         join_lanegroup.add_vehicle_packet(timestamp,new PacketLaneGroup(vehicle),next_link);

@@ -1,8 +1,8 @@
-package models.ctm;
+package models.fluid;
 
 import common.Link;
 import error.OTMException;
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 import output.AbstractOutputTimed;
 import profiles.Profile1D;
 import runner.Scenario;
@@ -14,23 +14,23 @@ import java.util.Map;
 
 public class OutputCellVehicles extends AbstractOutputTimed {
 
-    ModelCTM model;
-    public ArrayList<models.ctm.LaneGroup> ordered_lgs;               // An ordered map would be really helpful here
+    FluidModel model;
+    public ArrayList<models.fluid.LaneGroup> ordered_lgs;               // An ordered map would be really helpful here
     public Map<Long, LaneGroupProfile> lgprofiles;
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
-    public OutputCellVehicles(Scenario scenario, ModelCTM model, String prefix, String output_folder, Long commodity_id, Float outDt) throws OTMException {
+    public OutputCellVehicles(Scenario scenario, FluidModel model, String prefix, String output_folder, Long commodity_id, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, commodity_id, outDt);
         this.model = model;
         ordered_lgs = new ArrayList<>();
         lgprofiles = new HashMap<>();
         for(Link link : model.links){
-            for(BaseLaneGroup lg : link.lanegroups_flwdn.values() ){
-                ordered_lgs.add((models.ctm.LaneGroup)lg);
-                lgprofiles.put(lg.id, new LaneGroupProfile((models.ctm.LaneGroup)lg));
+            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() ){
+                ordered_lgs.add((models.fluid.LaneGroup)lg);
+                lgprofiles.put(lg.id, new LaneGroupProfile((models.fluid.LaneGroup)lg));
             }
         }
     }
@@ -55,7 +55,7 @@ public class OutputCellVehicles extends AbstractOutputTimed {
                 if(filename!=null) {
                     String subfilename = filename.substring(0,filename.length()-4);
                     Writer cells_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_cells.txt"));
-                    for(models.ctm.LaneGroup lg: ordered_lgs)
+                    for(models.fluid.LaneGroup lg: ordered_lgs)
                         for(int i=0;i<lg.cells.size();i++)
                             cells_writer.write(lg.id+" "+i+"\n");
                     cells_writer.close();
@@ -83,7 +83,7 @@ public class OutputCellVehicles extends AbstractOutputTimed {
             super.write(timestamp,null);
             try {
                 boolean isfirst=true;
-                for(models.ctm.LaneGroup lg : ordered_lgs){
+                for(models.fluid.LaneGroup lg : ordered_lgs){
                     for(int i=0;i<lg.cells.size();i++){
                         if(!isfirst)
                             writer.write(AbstractOutputTimed.delim);
@@ -104,7 +104,7 @@ public class OutputCellVehicles extends AbstractOutputTimed {
         }
     }
 
-    private double get_value_for_cell(models.ctm.LaneGroup lg,int i){
+    private double get_value_for_cell(models.fluid.LaneGroup lg, int i){
         return lg.cells.get(i).get_veh_for_commodity(commodity==null? null : commodity.getId());
     }
 
@@ -113,9 +113,9 @@ public class OutputCellVehicles extends AbstractOutputTimed {
     //////////////////////////////////////////////////////
 
     public class LaneGroupProfile {
-        public models.ctm.LaneGroup lg;
+        public models.fluid.LaneGroup lg;
         public ArrayList<Profile1D> cell_profile;
-        public LaneGroupProfile(models.ctm.LaneGroup lg){
+        public LaneGroupProfile(models.fluid.LaneGroup lg){
             this.lg = lg;
         }
         public void initialize(float outDt){

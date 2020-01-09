@@ -1,7 +1,6 @@
-package models.ctm;
+package models.fluid;
 
 import keys.KeyCommPathOrLink;
-import models.NodeModel;
 
 import java.util.HashMap;
 import java.util.HashSet;

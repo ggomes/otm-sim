@@ -1,7 +1,7 @@
 package output;
 
 import common.FlowAccumulatorState;
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 import error.OTMException;
 import org.jfree.data.xy.XYSeries;
 import profiles.Profile1D;
@@ -29,7 +29,7 @@ public class LinkFlow extends AbstractOutputTimedLink {
         for(LinkProfile linkProfile : linkprofiles.values()) {
             Set<FlowAccumulatorState> flw_acc_set = new HashSet<>();
             flw_acc_sets.put(linkProfile.link.getId(),flw_acc_set);
-            for(BaseLaneGroup lg : linkProfile.link.lanegroups_flwdn.values())
+            for(AbstractLaneGroup lg : linkProfile.link.lanegroups_flwdn.values())
                 flw_acc_set.add(lg.request_flow_accumulator(commodity==null ? null : commodity.getId()));
         }
     }

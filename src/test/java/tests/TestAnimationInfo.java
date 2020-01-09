@@ -1,14 +1,13 @@
 package tests;
 
 import error.OTMException;
-import models.FluidModel;
+import models.fluid.FluidModel;
 import org.junit.Test;
 import output.animation.AbstractLinkInfo;
 import output.animation.AnimationInfo;
 import output.animation.macro.LaneGroupInfo;
 import runner.ModelType;
 
-import java.util.Collection;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;

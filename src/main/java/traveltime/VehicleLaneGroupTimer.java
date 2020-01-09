@@ -2,7 +2,7 @@ package traveltime;
 
 import common.AbstractVehicle;
 import common.Link;
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,7 @@ public class VehicleLaneGroupTimer extends AbstractLaneGroupTimer {
 
     public Map<Long,Float> entry_time = new HashMap<>();
 
-    public VehicleLaneGroupTimer(BaseLaneGroup lg, float outDt) {
+    public VehicleLaneGroupTimer(AbstractLaneGroup lg, float outDt) {
         super(lg,outDt);
         num_samples = 0;
         sum_time = 0d;

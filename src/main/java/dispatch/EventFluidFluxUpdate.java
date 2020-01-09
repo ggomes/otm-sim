@@ -1,7 +1,7 @@
 package dispatch;
 
 import error.OTMException;
-import models.FluidModel;
+import models.fluid.FluidModel;
 
 public class EventFluidFluxUpdate extends AbstractEvent {
 
@@ -16,7 +16,7 @@ public class EventFluidFluxUpdate extends AbstractEvent {
 
         FluidModel model = (FluidModel)recipient;
 
-        // update the models.ctm state
+        // update the models.fluid.ctm state
         model.update_fluid_flux(timestamp);
 
         // register next clock tick

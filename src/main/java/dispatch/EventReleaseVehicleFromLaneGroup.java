@@ -1,7 +1,7 @@
 package dispatch;
 
 import error.OTMException;
-import models.VehicleLaneGroup;
+import models.vehicle.VehicleLaneGroup;
 
 public class EventReleaseVehicleFromLaneGroup extends AbstractEvent {
 

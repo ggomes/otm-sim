@@ -1,7 +1,6 @@
-package models.ctm;
+package models.fluid;
 
 import keys.KeyCommPathOrLink;
-import models.NodeModel;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -105,7 +104,7 @@ public class RoadConnection {
         else if(rc.external_max_flow_vps< NodeModel.eps)
             fbar = 0d;
         else {
-            float dt = ((ModelCTM)this.rc.get_start_link().model).dt;
+            float dt = ((FluidModel)this.rc.get_start_link().model).dt;
             fbar = rc.external_max_flow_vps * dt;
         }
     }

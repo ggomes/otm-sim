@@ -1,4 +1,4 @@
-package models;
+package models.vehicle;
 
 import common.AbstractVehicle;
 import common.Link;
@@ -6,6 +6,7 @@ import common.RoadConnection;
 import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
+import models.AbstractLaneGroup;
 import packet.*;
 import runner.RunParameters;
 import runner.Scenario;
@@ -13,7 +14,7 @@ import runner.Scenario;
 import java.util.HashSet;
 import java.util.Set;
 
-public class VehicleLaneGroup extends BaseLaneGroup {
+public abstract class VehicleLaneGroup extends AbstractLaneGroup {
 
     public VehicleLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side, flwpos, length, num_lanes, start_lane, out_rcs);

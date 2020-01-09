@@ -1,16 +1,28 @@
-package models;
+package models.fluid;
 
+import commodity.Commodity;
+import commodity.Path;
 import common.AbstractSource;
 import common.Link;
 import common.Node;
-import dispatch.*;
+import dispatch.Dispatcher;
+import dispatch.EventFluidFluxUpdate;
+import dispatch.EventFluidStateUpdate;
+import error.OTMErrorLog;
 import error.OTMException;
+import geometry.FlowPosition;
+import geometry.Side;
+import jaxb.OutputRequest;
 import keys.KeyCommPathOrLink;
-import models.ctm.Cell;
-import models.ctm.FluidSource;
-import models.ctm.UpLaneGroup;
+import models.AbstractModel;
+import models.AbstractLaneGroup;
+import output.AbstractOutput;
+import output.animation.AbstractLinkInfo;
 import packet.PacketLink;
+import profiles.DemandProfile;
+import runner.ModelType;
 import runner.Scenario;
+import utils.OTMUtils;
 import utils.StochasticProcess;
 
 import java.util.HashMap;
@@ -19,21 +31,95 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public abstract class FluidModel extends BaseModel {
+public abstract class FluidModel extends AbstractModel {
 
+    public float max_cell_length;
     public float dt;
     private Set<Link> source_links;
     private Set<Link> sink_links;
-    private Map<Long,NodeModel> node_models;
+    private Map<Long, NodeModel> node_models;
 
-    public FluidModel(String name, boolean is_default, float dt, StochasticProcess process) {
+    public FluidModel(String name, boolean is_default, float dt, StochasticProcess process, Float max_cell_length) {
         super(name, is_default,process);
         this.dt = dt;
+        this.type = ModelType.Fluid;
+        this.max_cell_length = max_cell_length==null ? -1 : max_cell_length;
     }
 
     //////////////////////////////////////////////////////////////
     // load
     //////////////////////////////////////////////////////////////
+
+    @Override
+    public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
+        return new FluidSource(origin,demand_profile,commodity,path);
+    }
+
+    @Override
+    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<common.RoadConnection> out_rcs) {
+        return new models.fluid.LaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
+    }
+
+    @Override
+    public AbstractLinkInfo get_link_info(Link link) {
+        return new output.animation.macro.LinkInfo(link);
+    }
+
+    @Override
+    public void build() {
+        links.forEach(link->create_cells(link,max_cell_length));
+        node_models.values().forEach(m->m.build());
+    }
+
+
+    @Override
+    public void reset(Link link) {
+        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
+            LaneGroup lg = (LaneGroup) alg;
+            lg.cells.forEach(x->x.reset());
+        }
+    }
+
+    private void create_cells(Link link,float max_cell_length){
+
+        // construct cells
+
+        // create cells
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+
+            float r = lg.length/max_cell_length;
+            boolean is_source_or_sink = link.is_source || link.is_sink;
+
+            int cells_per_lanegroup = is_source_or_sink ?
+                    1 :
+                    OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
+            float cell_length_meters = is_source_or_sink ?
+                    lg.length :
+                    lg.length/cells_per_lanegroup;
+
+            ((LaneGroup) lg).create_cells(cells_per_lanegroup, cell_length_meters);
+        }
+    }
+
+    @Override
+    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
+        AbstractOutput output = null;
+        switch (jaxb_or.getQuantity()) {
+            case "cell_veh":
+                Long commodity_id = jaxb_or.getCommodity();
+                Float outDt = jaxb_or.getDt();
+                output = new OutputCellVehicles(scenario, this,prefix, output_folder, commodity_id, outDt);
+                break;
+            default:
+                throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
+        }
+        return output;
+    }
+
+    @Override
+    public void validate(OTMErrorLog errorLog) {
+
+    }
 
     @Override
     public void set_links(Set<Link> links) {
@@ -61,12 +147,6 @@ public abstract class FluidModel extends BaseModel {
         }
     }
 
-    @Override
-    public void build() {
-
-        // build node models
-        node_models.values().forEach(m->m.build());
-    }
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
@@ -123,7 +203,7 @@ public abstract class FluidModel extends BaseModel {
             for(AbstractSource asource : link.sources){
                 FluidSource source = (FluidSource) asource;
                 for(Map.Entry<Long,Map<KeyCommPathOrLink,Double>> e : source.source_flows.entrySet()){
-                    models.ctm.LaneGroup lg = (models.ctm.LaneGroup) link.lanegroups_flwdn.get(e.getKey());
+                    models.fluid.LaneGroup lg = (models.fluid.LaneGroup) link.lanegroups_flwdn.get(e.getKey());
                     Cell upcell = lg.cells.get(0);
                     upcell.add_vehicles(e.getValue(),null,null);
                 }
@@ -133,8 +213,8 @@ public abstract class FluidModel extends BaseModel {
         // release from sink links
         for(Link link : sink_links){
 
-            for(BaseLaneGroup alg : link.lanegroups_flwdn.values()) {
-                models.ctm.LaneGroup lg = (models.ctm.LaneGroup) alg;
+            for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+                models.fluid.LaneGroup lg = (models.fluid.LaneGroup) alg;
                 Map<KeyCommPathOrLink,Double> flow_dwn = lg.get_dnstream_cell().demand_dwn;
 
                 lg.release_vehicles(flow_dwn);
@@ -151,7 +231,7 @@ public abstract class FluidModel extends BaseModel {
         for(NodeModel node_model : node_models.values()) {
 
             // flows on road connections arrive to links on give lanes convert to packets and send
-            for(models.ctm.RoadConnection rc : node_model.rcs.values()) {
+            for(models.fluid.RoadConnection rc : node_model.rcs.values()) {
                 Link link = rc.rc.get_end_link();
                 link.model.add_vehicle_packet(link,timestamp, new PacketLink(rc.f_rs, rc.rc));
             }

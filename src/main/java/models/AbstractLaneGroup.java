@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
 
-public class BaseLaneGroup implements Comparable<BaseLaneGroup> {
+public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup> {
 
     public final long id;
     public Link link;
@@ -36,10 +36,10 @@ public class BaseLaneGroup implements Comparable<BaseLaneGroup> {
     public double max_vehicles;
     public double max_cong_speed_kph;
 
-    public BaseLaneGroup neighbor_in;       // lanegroup down and in
-    public BaseLaneGroup neighbor_out;      // lanegroup down and out
-    public BaseLaneGroup neighbor_up_in;    // lanegroup up and in (stay lanes only)
-    public BaseLaneGroup neighbor_up_out;   // lanegroup up and out (stay lanes only)
+    public AbstractLaneGroup neighbor_in;       // lanegroup down and in
+    public AbstractLaneGroup neighbor_out;      // lanegroup down and out
+    public AbstractLaneGroup neighbor_up_in;    // lanegroup up and in (stay lanes only)
+    public AbstractLaneGroup neighbor_up_out;   // lanegroup up and out (stay lanes only)
 
     // set of keys for states in this lanegroup
     public Set<KeyCommPathOrLink> states;   // TODO MOVE THIS TO DISCRETE TIME ONLY?
@@ -69,17 +69,17 @@ public class BaseLaneGroup implements Comparable<BaseLaneGroup> {
     // abstract methods
     ///////////////////////////////////////////////////
 
-    public Double get_upstream_vehicle_position(){ return Double.NaN; }
-    public void allocate_state(){}
-    public void update_supply(){}
-    public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) throws OTMException{}
-    public void exiting_roadconnection_capacity_has_been_modified(float timestamp){}
+    public abstract Double get_upstream_vehicle_position();
+    public abstract void allocate_state();
+    public abstract void update_supply();
+    public abstract void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) throws OTMException;
+    public abstract void exiting_roadconnection_capacity_has_been_modified(float timestamp);
 
     // Return the total number of vehicles in this lane group with the given commodity id.
     // commodity_id==null means return total over all commodities.
-    public float vehs_dwn_for_comm(Long comm_id){ return 0f; }
-    public float vehs_in_for_comm(Long comm_id){ return 0f; }
-    public float vehs_out_for_comm(Long comm_id){ return 0f; }
+    public abstract float vehs_dwn_for_comm(Long comm_id);
+    public abstract float vehs_in_for_comm(Long comm_id);
+    public abstract float vehs_out_for_comm(Long comm_id);
 
 //    abstract public float get_current_travel_time();
 
@@ -88,13 +88,13 @@ public class BaseLaneGroup implements Comparable<BaseLaneGroup> {
     // 2. check what portion of each of these packets will be accepted. Reduce the packets if necessary.
     // 3. call next_link.add_vehicle_packet for each reduces packet.
     // 4. remove the vehicle packets from this lanegroup.
-    public void release_vehicle_packets(float timestamp) throws OTMException{}
+    public abstract void release_vehicle_packets(float timestamp) throws OTMException;
 
     ///////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////
 
-    public BaseLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
+    public AbstractLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
         this.link = link;
         this.side = side;
         this.flwpos = flwpos;
@@ -119,9 +119,7 @@ public class BaseLaneGroup implements Comparable<BaseLaneGroup> {
         flw_acc = null;
     }
 
-    public void validate(OTMErrorLog errorLog) {
-
-    }
+    public void validate(OTMErrorLog errorLog){};
 
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
 
@@ -170,7 +168,7 @@ public class BaseLaneGroup implements Comparable<BaseLaneGroup> {
                 state2roadconnection.put(state, rc.getId());
 
                 // state2lanechangedirection
-                Set<BaseLaneGroup> target_lgs = rc.in_lanegroups;
+                Set<AbstractLaneGroup> target_lgs = rc.in_lanegroups;
                 Set<Side> sides = target_lgs.stream().map(x -> x.get_side_with_respect_to_lg(this)).collect(Collectors.toSet());
 
                 if(sides.contains(Side.middle))
@@ -213,7 +211,7 @@ public class BaseLaneGroup implements Comparable<BaseLaneGroup> {
         return IntStream.range(start_lane_up,start_lane_up+num_lanes).boxed().collect(toList());
     }
 
-    public final Side get_side_with_respect_to_lg(BaseLaneGroup lg){
+    public final Side get_side_with_respect_to_lg(AbstractLaneGroup lg){
 
         // This is more complicated with up addlanes
         assert(lg.flwpos == FlowPosition.dn);
@@ -262,7 +260,7 @@ public class BaseLaneGroup implements Comparable<BaseLaneGroup> {
     // update
     ///////////////////////////////////////////////////
 
-    protected void update_flow_accummulators(KeyCommPathOrLink key,double num_vehicles){
+    public void update_flow_accummulators(KeyCommPathOrLink key,double num_vehicles){
         if(flw_acc!=null)
             flw_acc.increment(key,num_vehicles);
     }
@@ -282,7 +280,7 @@ public class BaseLaneGroup implements Comparable<BaseLaneGroup> {
     }
 
     @Override
-    public int compareTo(BaseLaneGroup that) {
+    public int compareTo(AbstractLaneGroup that) {
 
         int this_start = this.start_lane_up;
         int that_start = that.start_lane_up;

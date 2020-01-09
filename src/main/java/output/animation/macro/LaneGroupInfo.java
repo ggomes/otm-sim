@@ -1,8 +1,8 @@
 package output.animation.macro;
 
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 import keys.KeyCommPathOrLink;
-import models.ctm.LaneGroup;
+import models.fluid.LaneGroup;
 import output.animation.AbstractLaneGroupInfo;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class LaneGroupInfo extends AbstractLaneGroupInfo {
     // contsruction
     //////////////////////////////////////////////////
 
-    public LaneGroupInfo(BaseLaneGroup lg) {
+    public LaneGroupInfo(AbstractLaneGroup lg) {
         super(lg);
 
         LaneGroup ctm_lg = (LaneGroup) lg;

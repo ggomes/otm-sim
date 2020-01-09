@@ -1,4 +1,4 @@
-package models.spatialq;
+package models.vehicle.spatialq;
 
 import error.OTMException;
 import common.AbstractVehicle;
@@ -64,8 +64,8 @@ public class Vehicle extends AbstractVehicle {
     }
 
 //    public void move_to_lanegroup(float timestamp, AbstractLaneGroup lanegroup) throws OTMException {
-//        if(lanegroup.link.model_type==Link.ModelType.models.ctm.pq)
-//            assign_queue(timestamp,((models.ctm.pq.LaneGroup) lanegroup).transit_queue);
+//        if(lanegroup.link.model_type==Link.ModelType.models.fluid.ctm.pq)
+//            assign_queue(timestamp,((models.fluid.ctm.pq.LaneGroup) lanegroup).transit_queue);
 //    }
 
     ////////////////////////////////////////////////

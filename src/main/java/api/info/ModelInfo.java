@@ -1,7 +1,7 @@
 package api.info;
 
-import models.FluidModel;
-import models.BaseModel;
+import models.AbstractModel;
+import models.fluid.FluidModel;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,7 +12,7 @@ public class ModelInfo {
     public String name;
     public float dt;
 
-    public ModelInfo(BaseModel model){
+    public ModelInfo(AbstractModel model){
         this.link_ids = model.links.stream().map(link->link.getId()).collect(Collectors.toSet());
         this.name = model.name;
         this.dt = (model instanceof FluidModel) ?  ((FluidModel) model).dt : Float.NaN;

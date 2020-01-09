@@ -1,4 +1,4 @@
-package models.spatialq;
+package models.vehicle.spatialq;
 
 import common.AbstractVehicle;
 import common.RoadConnection;
@@ -10,6 +10,7 @@ import jaxb.OutputRequest;
 import models.*;
 import common.Link;
 import error.OTMException;
+import models.vehicle.VehicleModel;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
@@ -67,21 +68,21 @@ public class ModelSpatialQ extends VehicleModel {
     }
 
     @Override
-    public BaseLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        return new models.spatialq.LaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
+    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        return new LaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
     }
 
     @Override
     public AbstractVehicle create_vehicle(Long comm_id,Set<InterfaceVehicleListener> event_listeners) {
-        return new models.spatialq.Vehicle(comm_id,event_listeners);
+        return new Vehicle(comm_id,event_listeners);
     }
 
     @Override
     public AbstractVehicle translate_vehicle(AbstractVehicle that){
-        if(that instanceof models.spatialq.Vehicle)
+        if(that instanceof Vehicle)
             return that;
         else
-            return new models.spatialq.Vehicle(that);
+            return new Vehicle(that);
     }
 
     //////////////////////////////////////////////////
@@ -114,7 +115,7 @@ public class ModelSpatialQ extends VehicleModel {
         x.requester.move_to_queue(timestamp,x.to_queue);
 
         // remove all of its requests by this vehicle in this link
-        for (BaseLaneGroup lanegroup : link.lanegroups_flwdn.values()) {
+        for (AbstractLaneGroup lanegroup : link.lanegroups_flwdn.values()) {
             LaneGroup lg = (LaneGroup) lanegroup;
             lg.transit_queue.remove_lane_change_requests_for_vehicle(x.requester);
             lg.waiting_queue.remove_lane_change_requests_for_vehicle(x.requester);

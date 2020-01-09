@@ -1,6 +1,6 @@
 package output.animation.meso;
 
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 import common.Link;
 import output.animation.AbstractLaneGroupInfo;
 import output.animation.AbstractLinkInfo;
@@ -12,7 +12,7 @@ public class LinkInfo extends AbstractLinkInfo {
     }
 
     @Override
-    public AbstractLaneGroupInfo newLaneGroupInfo(BaseLaneGroup lg) {
+    public AbstractLaneGroupInfo newLaneGroupInfo(AbstractLaneGroup lg) {
         return null;
     }
 }

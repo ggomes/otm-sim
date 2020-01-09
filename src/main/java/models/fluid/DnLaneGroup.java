@@ -1,8 +1,7 @@
-package models.ctm;
+package models.fluid;
 
-import models.BaseLaneGroup;
 import keys.KeyCommPathOrLink;
-import models.NodeModel;
+import models.AbstractLaneGroup;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +17,7 @@ public class DnLaneGroup {
         }
     }
 
-    public BaseLaneGroup lg;
+    public AbstractLaneGroup lg;
     public Map<Long,RoadConnection> rcs;                  // incoming road connections
 
     public double s_h;                                    // supply
@@ -30,7 +29,7 @@ public class DnLaneGroup {
     // construction
     ////////////////////////////////////////////
 
-    public DnLaneGroup(BaseLaneGroup lg){
+    public DnLaneGroup(AbstractLaneGroup lg){
         this.lg = lg;
         this.state_infos = new HashMap<>();
         this.rcs = new HashMap<>();

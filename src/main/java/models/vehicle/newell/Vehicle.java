@@ -1,4 +1,4 @@
-package models.newell;
+package models.vehicle.newell;
 
 import common.AbstractVehicle;
 import output.InterfaceVehicleListener;

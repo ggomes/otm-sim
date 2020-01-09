@@ -1,7 +1,7 @@
 package output.animation.macro;
 
 import keys.KeyCommPathOrLink;
-import models.ctm.Cell;
+import models.fluid.Cell;
 
 import java.util.*;
 
@@ -14,7 +14,7 @@ public class CellInfo {
     // construction
     //////////////////////////////////////////////////
 
-    public CellInfo(Cell cell,int index){
+    public CellInfo(Cell cell, int index){
         this.index = index;
 
         Set<KeyCommPathOrLink> keySet = new HashSet<>();

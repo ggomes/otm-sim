@@ -2,7 +2,7 @@ package common;
 
 import commodity.Path;
 import keys.KeyCommPathOrLink;
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 import output.InterfaceVehicleListener;
 import utils.OTMUtils;
 
@@ -14,7 +14,7 @@ public abstract class AbstractVehicle {
     private long id;
     private Long comm_id;
     private KeyCommPathOrLink key;
-    public BaseLaneGroup lg;
+    public AbstractLaneGroup lg;
     public Path path;
 
     // dispatch listeners
@@ -56,7 +56,7 @@ public abstract class AbstractVehicle {
         return comm_id;
     }
 
-    public BaseLaneGroup get_lanegroup(){
+    public AbstractLaneGroup get_lanegroup(){
         return lg;
     }
 

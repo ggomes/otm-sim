@@ -2,7 +2,7 @@ package dispatch;
 
 import common.AbstractSource;
 import error.OTMException;
-import models.VehicleSource;
+import models.vehicle.VehicleSource;
 
 public class EventCreateVehicle extends AbstractEvent {
 

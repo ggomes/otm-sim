@@ -1,4 +1,4 @@
-package models.newell;
+package models.vehicle.newell;
 
 import common.AbstractVehicle;
 import common.Link;
@@ -8,8 +8,8 @@ import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.Roadparam;
 import keys.KeyCommPathOrLink;
-import models.BaseLaneGroup;
-import models.VehicleLaneGroup;
+import models.AbstractLaneGroup;
+import models.vehicle.VehicleLaneGroup;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
 import runner.RunParameters;
@@ -21,7 +21,7 @@ import java.util.*;
 
 public class LaneGroup extends VehicleLaneGroup {
 
-    public List<models.newell.Vehicle> vehicles;
+    public List<models.vehicle.newell.Vehicle> vehicles;
     public double dv;   // vf*dt [meters per dt]
     public double dw;   // w*dt [meters per dt]
     public double dc;   // capcity*dt [veh per dt]
@@ -81,7 +81,7 @@ public class LaneGroup extends VehicleLaneGroup {
 
         for(AbstractVehicle aveh : create_vehicles_from_packet(vp,next_link_id)){
 
-            models.newell.Vehicle vehicle = (models.newell.Vehicle)aveh;
+            models.vehicle.newell.Vehicle vehicle = (models.vehicle.newell.Vehicle)aveh;
 
             vehicle.lg = this;
 
@@ -126,7 +126,7 @@ public class LaneGroup extends VehicleLaneGroup {
         throw new OTMException("NOT IMPLEMENTED awpirg -jqig");
     }
 
-    public boolean release_vehicle(float timestamp, Iterator<Vehicle> it,Vehicle vehicle) throws OTMException {
+    public boolean release_vehicle(float timestamp, Iterator<Vehicle> it, Vehicle vehicle) throws OTMException {
 
         boolean released = false;
 
@@ -167,7 +167,7 @@ public class LaneGroup extends VehicleLaneGroup {
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
             OptionalDouble next_supply_o = rc.out_lanegroups.stream()
-                    .mapToDouble(BaseLaneGroup::get_supply)
+                    .mapToDouble(AbstractLaneGroup::get_supply)
                     .max();
 
             assert(next_supply_o.isPresent());

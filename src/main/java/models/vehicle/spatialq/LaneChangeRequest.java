@@ -1,4 +1,4 @@
-package models.spatialq;
+package models.vehicle.spatialq;
 
 import error.OTMException;
 

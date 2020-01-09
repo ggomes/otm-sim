@@ -1,6 +1,6 @@
 package api.info;
 
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 
 import java.util.*;
 
@@ -22,7 +22,7 @@ public class LaneGroupInfo {
     /** Id for an actuator on this lane group. */
     public Long actuator_id;
 
-    public LaneGroupInfo(BaseLaneGroup x){
+    public LaneGroupInfo(AbstractLaneGroup x){
         this.id = x.id;
         this.length = x.length;
         this.lanes = x.get_dn_lanes();

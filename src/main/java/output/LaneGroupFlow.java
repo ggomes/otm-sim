@@ -1,7 +1,7 @@
 package output;
 
 import error.OTMException;
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 import runner.Scenario;
 import common.FlowAccumulatorState;
 
@@ -41,7 +41,7 @@ public class LaneGroupFlow extends AbstractOutputTimedLanegroup  {
     }
 
     @Override
-    protected double get_value_for_lanegroup(BaseLaneGroup lg){
+    protected double get_value_for_lanegroup(AbstractLaneGroup lg){
         if(!lgprofiles.containsKey(lg.id))
             return Double.NaN;
         if(commodity==null)

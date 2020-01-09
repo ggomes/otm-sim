@@ -1,9 +1,9 @@
 package output.animation;
 
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 
 public interface InterfaceLinkInfo {
 
-    AbstractLaneGroupInfo newLaneGroupInfo(BaseLaneGroup lg);
+    AbstractLaneGroupInfo newLaneGroupInfo(AbstractLaneGroup lg);
 
 }

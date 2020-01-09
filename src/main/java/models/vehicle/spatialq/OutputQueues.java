@@ -1,8 +1,8 @@
-package models.spatialq;
+package models.vehicle.spatialq;
 
 import common.Link;
 import error.OTMException;
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 import output.AbstractOutputTimed;
 import runner.Scenario;
 
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class OutputQueues extends AbstractOutputTimed {
 
     ModelSpatialQ model;
-    public ArrayList<models.spatialq.LaneGroup> ordered_lgs;               // An ordered map would be really helpful here
+    public ArrayList<LaneGroup> ordered_lgs;               // An ordered map would be really helpful here
 
     public OutputQueues(Scenario scenario, String prefix, String output_folder, Long commodity_id, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, commodity_id, outDt);
@@ -27,8 +27,8 @@ public class OutputQueues extends AbstractOutputTimed {
         this.model = model;
         ordered_lgs = new ArrayList<>();
         for(Link link : model.links)
-            for(BaseLaneGroup lg : link.lanegroups_flwdn.values() )
-                ordered_lgs.add((models.spatialq.LaneGroup)lg);
+            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() )
+                ordered_lgs.add((LaneGroup)lg);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class OutputQueues extends AbstractOutputTimed {
                 if(filename!=null) {
                     String subfilename = filename.substring(0,filename.length()-4);
                     Writer cells_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_queues.txt"));
-                    for(models.spatialq.LaneGroup lg: ordered_lgs)
+                    for(LaneGroup lg: ordered_lgs)
                         cells_writer.write(String.format("%dt\n%dw\n",lg.id,lg.id));
                     cells_writer.close();
                 }
@@ -78,7 +78,7 @@ public class OutputQueues extends AbstractOutputTimed {
             super.write(timestamp,null);
             try {
                 boolean isfirst=true;
-                for(models.spatialq.LaneGroup lg : ordered_lgs) {
+                for(LaneGroup lg : ordered_lgs) {
                     if(!isfirst)
                         writer.write(AbstractOutputTimed.delim);
                     isfirst = false;

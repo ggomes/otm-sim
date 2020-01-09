@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-public class BaseModel {
+public abstract class AbstractModel {
 
     public ModelType type;
     public String name;
@@ -34,64 +34,24 @@ public class BaseModel {
     public Set<Link> links;
     public StochasticProcess stochastic_process; // move this to meso models
 
-    public BaseModel(String name, boolean is_default, StochasticProcess process){
+    public AbstractModel(String name, boolean is_default, StochasticProcess process){
         this.type = ModelType.Unknown;
         this.name = name;
         this.is_default = is_default;
         this.stochastic_process = process;
     }
 
-    //////////////////////////////////////////////////
-    // load
-    //////////////////////////////////////////////////
+    public abstract void validate(OTMErrorLog errorLog);
+    public abstract void reset(Link link);
+    public abstract void build();
+    public abstract AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException;
+    public abstract AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs);
+    public abstract AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path);
+    public abstract AbstractLinkInfo get_link_info(Link link);
 
-    // called Link.validate
-    public void validate(OTMErrorLog errorLog){
-    }
+    public abstract void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time);
+    public abstract Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups);
 
-    // NOT USED
-    public void reset(Link link){
-    }
-
-    public void build(){
-    }
-
-    //////////////////////////////////////////////////
-    // factory
-    //////////////////////////////////////////////////
-
-    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException{
-        return null;
-    }
-
-    public BaseLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
-        return new BaseLaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
-    }
-
-    public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path){
-        return new BaseSourceNone(origin,demand_profile,commodity,path);
-    }
-
-    public AbstractLinkInfo get_link_info(Link link){
-        return null;
-    }
-
-    //////////////////////////////////////////////////
-    // run
-    //////////////////////////////////////////////////
-
-    // called by OTM.advance
-    public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time){
-    }
-
-    // called by AbstractModel.add_vehicle_packet
-    public Map<BaseLaneGroup,Double> lanegroup_proportions(Collection<? extends BaseLaneGroup> candidate_lanegroups){
-        return null;
-    }
-
-    //////////////////////////////////////////////////
-    // partial implementation
-    //////////////////////////////////////////////////
 
     public void set_links(Set<Link> links){
         this.links = links;
@@ -100,7 +60,7 @@ public class BaseModel {
     public void initialize(Scenario scenario) throws OTMException {
 
         for(Link link : links){
-            for(BaseLaneGroup lg : link.lanegroups_flwdn.values())
+            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
                 lg.allocate_state();
         }
     }
@@ -108,7 +68,7 @@ public class BaseModel {
     // called by Network constructor
     public void set_road_param(Link link, jaxb.Roadparam r){
         link.road_param = r;
-        for(BaseLaneGroup lg : link.lanegroups_flwdn.values())
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
             lg.set_road_params(r);
     }
 
@@ -138,7 +98,7 @@ public class BaseModel {
 
         // 2. Compute the proportions to apply to the split packets to distribute
         // amongst lane groups
-        Map<BaseLaneGroup,Double> lg_prop = lanegroup_proportions(vp.road_connection.out_lanegroups);
+        Map<AbstractLaneGroup,Double> lg_prop = lanegroup_proportions(vp.road_connection.out_lanegroups);
 
         // 3. distribute the packets
         for(Map.Entry<Long, PacketLaneGroup> e1 : split_packets.entrySet()){
@@ -148,8 +108,8 @@ public class BaseModel {
             if(packet.isEmpty())
                 continue;
 
-            for(Map.Entry<BaseLaneGroup,Double> e2 : lg_prop.entrySet()){
-                BaseLaneGroup join_lg = e2.getKey();
+            for(Map.Entry<AbstractLaneGroup,Double> e2 : lg_prop.entrySet()){
+                AbstractLaneGroup join_lg = e2.getKey();
                 Double prop = e2.getValue();
                 if (prop <= 0d)
                     continue;

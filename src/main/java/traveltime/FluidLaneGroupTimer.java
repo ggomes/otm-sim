@@ -1,12 +1,12 @@
 package traveltime;
 
-import models.BaseLaneGroup;
+import models.AbstractLaneGroup;
 
 public class FluidLaneGroupTimer extends AbstractLaneGroupTimer {
 
     private double travel_time_sec;
 
-    public FluidLaneGroupTimer(BaseLaneGroup lg, float outDt) {
+    public FluidLaneGroupTimer(AbstractLaneGroup lg, float outDt) {
         super(lg,outDt);
     }
 
