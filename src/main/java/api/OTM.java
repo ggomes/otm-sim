@@ -7,6 +7,7 @@ import error.OTMException;
 import jaxb.OutputRequests;
 import models.BaseModel;
 import output.*;
+import runner.ModelType;
 import runner.RunParameters;
 import runner.ScenarioFactory;
 import utils.OTMUtils;

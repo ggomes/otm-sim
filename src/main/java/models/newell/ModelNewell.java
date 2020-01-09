@@ -16,6 +16,7 @@ import models.VehicleModel;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
+import runner.ModelType;
 import runner.Scenario;
 import utils.StochasticProcess;
 
@@ -27,6 +28,7 @@ public class ModelNewell extends VehicleModel implements InterfacePokable {
 
     public ModelNewell(String name, boolean is_default, Float dt, StochasticProcess process) {
         super(name, is_default,process);
+        this.type = ModelType.VehicleMicro;
         this.dt = dt==null ? -1 : dt;
     }
 

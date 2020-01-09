@@ -13,6 +13,7 @@ import error.OTMException;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
+import runner.ModelType;
 import runner.Scenario;
 import utils.StochasticProcess;
 
@@ -22,6 +23,7 @@ public class ModelSpatialQ extends VehicleModel {
 
     public ModelSpatialQ(String name, boolean is_default, StochasticProcess process) {
         super(name,is_default,process);
+        this.type = ModelType.VehicleMeso;
     }
 
     //////////////////////////////////////////////////

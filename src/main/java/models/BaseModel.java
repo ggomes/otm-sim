@@ -17,6 +17,7 @@ import output.animation.AbstractLinkInfo;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
 import profiles.DemandProfile;
+import runner.ModelType;
 import runner.Scenario;
 import utils.OTMUtils;
 import utils.StochasticProcess;
@@ -27,12 +28,14 @@ import java.util.Set;
 
 public class BaseModel {
 
-    public Set<Link> links;
+    public ModelType type;
     public String name;
     public boolean is_default;
-    private StochasticProcess stochastic_process;
+    public Set<Link> links;
+    public StochasticProcess stochastic_process; // move this to meso models
 
     public BaseModel(String name, boolean is_default, StochasticProcess process){
+        this.type = ModelType.Unknown;
         this.name = name;
         this.is_default = is_default;
         this.stochastic_process = process;

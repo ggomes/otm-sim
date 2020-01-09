@@ -80,7 +80,7 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "/home/gomes/Desktop/test2/scenario_25_nodes.xml";
+            String configfile = "/home/gomes/Desktop/elsie/network_v3.xml";
             api.OTM otm = new api.OTM(configfile,true,false);
             assertNotNull(otm);
         } catch (OTMException e) {
@@ -174,10 +174,10 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "/home/gomes/Desktop/test/seven_links.xml";
+            String configfile = "/home/gomes/code/opt/src/test/resources/scenario_saved.xml";
 
-            float duration = 1800f;
-            float outdt = 10f;
+            float duration = 4000f;
+            float outdt = 30f;
             String prefix = "test";
             String output_folder = "temp/";
 

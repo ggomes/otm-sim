@@ -49,22 +49,21 @@ public class AnimationInfo {
     private Map<Long,AbstractLinkInfo> populate_link_info(Collection<Link> links) throws OTMException {
         Map<Long,AbstractLinkInfo> x = new HashMap<>();
         for(Link link : links){
-//            switch(link.model_type){
-//                case mn:
-//                case ctm:
-//                    x.put(link.getId(),new output.animation.macro.LinkInfo(link));
-//                    break;
-//                case pq:
-//                    System.err.println("This is not implemented");
-//                    x.put(link.getId(),new output.animation.meso.LinkInfo(link));
-//                    break;
-//                case micro:
-//                    System.err.println("This is not implemented");
-//                    x.put(link.getId(),new output.animation.micro.LinkInfo(link));
-//                    break;
-//                default:
-//                    throw new OTMException("Unknown model_type");
-//            }
+            switch(link.model.type){
+                case Fluid:
+                    x.put(link.getId(),new output.animation.macro.LinkInfo(link));
+                    break;
+                case VehicleMeso:
+                    System.err.println("This is not implemented");
+                    x.put(link.getId(),new output.animation.meso.LinkInfo(link));
+                    break;
+                case VehicleMicro:
+                    System.err.println("This is not implemented");
+                    x.put(link.getId(),new output.animation.micro.LinkInfo(link));
+                    break;
+                default:
+                    throw new OTMException("Unknown or missing model type");
+            }
             x.put(link.getId(),link.model.get_link_info(link));
         }
         return x;

@@ -7,7 +7,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import runner.Scenario;
 
-public class ActuatorRampMeter extends AbstractActuator {
+public class ActuatorRampMeter extends ActuatorCapacity {
 
     public enum Color {green,red}
 

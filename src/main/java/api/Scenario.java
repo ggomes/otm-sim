@@ -18,6 +18,7 @@ import error.OTMException;
 import keys.DemandType;
 import keys.KeyCommodityDemandTypeId;
 import models.BaseLaneGroup;
+import output.animation.AnimationInfo;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;
 import profiles.SplitMatrixProfile;
@@ -632,24 +633,24 @@ public class Scenario {
     // animation info
     ////////////////////////////////////////////////////////
 
-//    /**
-//     *
-//     * @param link_ids Undocumented
-//     * @return Undocumented
-//     * @throws OTMException Undocumented
-//     */
-//    public AnimationInfo get_animation_info(List<Long> link_ids) throws OTMException {
-//        return new AnimationInfo(scenario,link_ids);
-//    }
-//
-//    /**
-//     * Undocumented
-//     * @return Undocumented
-//     * @throws OTMException Undocumented
-//     */
-//    public AnimationInfo get_animation_info() throws OTMException {
-//        return new AnimationInfo(scenario);
-//    }
+    /**
+     *
+     * @param link_ids Undocumented
+     * @return Undocumented
+     * @throws OTMException Undocumented
+     */
+    public AnimationInfo get_animation_info(List<Long> link_ids) throws OTMException {
+        return new AnimationInfo(myapi.scn,link_ids);
+    }
+
+    /**
+     * Undocumented
+     * @return Undocumented
+     * @throws OTMException Undocumented
+     */
+    public AnimationInfo get_animation_info() throws OTMException {
+        return new AnimationInfo(myapi.scn);
+    }
 
     ////////////////////////////////////////////////////////
     // private

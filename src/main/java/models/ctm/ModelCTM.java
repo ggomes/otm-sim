@@ -16,6 +16,7 @@ import keys.KeyCommPathOrLink;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
+import runner.ModelType;
 import runner.Scenario;
 import traveltime.FluidLaneGroupTimer;
 import utils.OTMUtils;
@@ -29,6 +30,7 @@ public class ModelCTM extends FluidModel {
 
     public ModelCTM(String name, boolean is_default, Float dt, StochasticProcess process, Float max_cell_length) {
         super(name,is_default,dt==null ? -1 : dt,process);
+        this.type = ModelType.Fluid;
         this.max_cell_length = max_cell_length==null ? -1 : max_cell_length;
     }
 

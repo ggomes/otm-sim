@@ -1,6 +1,9 @@
 package runner;
 
 public enum ModelType {
-    Macro,
-    Meso
+    Fluid,
+    VehicleMeso,
+    VehicleMicro,
+    Unknown,
+    Other
 }
