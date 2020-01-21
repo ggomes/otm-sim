@@ -20,6 +20,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
     public enum Algorithm {
         sig_pretimed,
         alinea,
+        tod,
         capacity,
         plugin
     }
@@ -28,6 +29,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
     static {
         map_algorithm_actuator.put( Algorithm.sig_pretimed  , AbstractActuator.Type.signal );
         map_algorithm_actuator.put( Algorithm.alinea  , AbstractActuator.Type.capacity );
+        map_algorithm_actuator.put( Algorithm.tod  , AbstractActuator.Type.capacity );
         map_algorithm_actuator.put( Algorithm.capacity  , AbstractActuator.Type.capacity );
     }
 
