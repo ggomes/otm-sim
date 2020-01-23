@@ -54,19 +54,24 @@ public class TestOne extends AbstractTest {
 
             float start_time = 0f;
             float duration = 3600f;
-            float advance_time = 300f;
+            float advance_time = 1f;
 
-            String configfile = "C:\\Users\\gomes\\Desktop\\traffic_master\\XML files\\Capstone_0314.xml";
-            OTMdev otm = new api.OTMdev(configfile);
+            String configfile = "/home/gomes/Desktop/miami/2/var_dem_miami_cfg_0.xml";
+            String prefix = "test";
+            String output_folder = "/home/gomes/Desktop/miami/2/";
 
-            otm.otm.initialize(start_time);
+            System.out.println("Loading.");
+            api.OTM otm = new api.OTM();
+            otm.load(configfile,true,false);
+
+            System.out.println("Initializing.");
+            otm.initialize(start_time);
 
             float time = start_time;
             float end_time = start_time+duration;
             while(time<end_time){
-                otm.otm.advance(advance_time);
-                System.out.println(otm.otm.get_current_time());
-                System.out.println(otm.scenario.network.links.get(0l).get_veh());
+                otm.advance(advance_time);
+                System.out.println(otm.get_current_time());
                 time += advance_time;
             }
 
@@ -148,50 +153,23 @@ public class TestOne extends AbstractTest {
 
     @Ignore
     @Test
-    public void TempTest() {
-        try {
-            api.OTM otm = new api.OTM("/home/gomes/Desktop/test/seven_links.xml",true,false);
-
-            long path_id = 1l;
-            long comm_id = 1l;
-            float start_time = 0f;
-            float sample_dt = 10f;
-            List<Double> values = new ArrayList<>();
-            for(int i=0;i<10;i++)
-                values.add(1000d);
-            otm.scenario().add_pathfull_demand(path_id, comm_id, start_time,sample_dt, values);
-
-
-            otm.run(0f,1800f);
-        } catch (OTMException e) {
-            System.out.print(e);
-            fail();
-        }
-    }
-
-    @Ignore
-    @Test
     public void run_one() {
         try {
 
-            String configfile = "/home/gomes/code/opt/src/test/resources/scenario_saved.xml";
+            String configfile = "/home/gomes/Desktop/miami/2/var_dem_miami_cfg_0.xml";
 
-            float duration = 4000f;
-            float outdt = 30f;
+            float duration = 7200f;
+            float outdt = 10f;
             String prefix = "test";
-            String output_folder = "temp/";
+            String output_folder = "/home/gomes/Desktop/miami/2/";
 
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);
 
-
             // Output requests .....................
             Set<Long> link_ids = otm.scenario.get_link_ids();
-//            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
-//            otm.output.request_links_veh(prefix,output_folder,null, link_ids, outdt);
-
-            otm.output.request_links_flow(null, link_ids, outdt);
-            otm.output.request_links_veh(null, link_ids, outdt);
+            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
+            otm.output.request_links_veh(prefix,output_folder,null, link_ids, outdt);
 
 //
 //            List<ODInfo> od_infos = api.get_od_info();
@@ -328,61 +306,6 @@ public class TestOne extends AbstractTest {
             e.printStackTrace();
         }
 
-    }
-
-    @Ignore
-    @Test
-    public void run_one_test() {
-        try {
-            float duration = 1000f;
-            float outdt = 10f;
-            String prefix = "test";
-            String output_folder = "temp/";
-
-            // Load ..............................
-            api.OTM api = null;
-//            try {
-////                api = OTM.load_test("signal_nopocket",true);
-////                api = OTM.load("C:\\Users\\gomes\\vbox_shared\\all_cfgs\\100.xml",true,"ctm");
-//            } catch (OTMException e) {
-//                e.printStackTrace();
-//            }
-
-            // Output requests .....................
-            api.output.request_links_flow(prefix,output_folder,null, api.scenario.get_link_ids(), outdt);
-            api.output.request_links_veh(prefix,output_folder,null, api.scenario.get_link_ids(), outdt);
-
-//            api.request_links_flow(null, api.get_link_ids(), outdt);
-//            api.request_links_veh(null, api.get_link_ids(), outdt);
-
-//            api.request_controller(1L);
-//            api.request_actuator(1L);
-
-            // Run .................................
-            api.run(0,duration);
-
-            // Print output .........................
-            String outfolder = "temp/";
-            for(AbstractOutput output :  api.output.get_data()){
-
-                if (output instanceof EventsActuator)
-                    ((EventsActuator) output).plot(String.format("%sactuator%d.png",outfolder,((EventsActuator) output).actuator_id));
-
-                if (output instanceof EventsController)
-                    ((EventsController) output).plot(String.format("%scontroller%d.png",outfolder,((EventsController) output).controller_id));
-
-                if (output instanceof LinkFlow)
-                    ((LinkFlow) output).plot_for_links(null,String.format("%sflow.png",outfolder));
-
-                if (output instanceof LinkVehicles)
-                    ((LinkVehicles) output).plot_for_links(null,String.format("%sveh.png",outfolder));
-
-            }
-
-        } catch (OTMException e) {
-            System.out.print(e);
-            fail();
-        }
     }
 
     @Test
