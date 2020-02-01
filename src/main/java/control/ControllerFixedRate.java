@@ -10,7 +10,7 @@ import runner.Scenario;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ControllerCapacity extends AbstractController  {
+public class ControllerFixedRate extends AbstractController  {
 
     public Map<Long,Float> actuator_rate_vph;
 
@@ -18,7 +18,7 @@ public class ControllerCapacity extends AbstractController  {
     // construction
     ///////////////////////////////////////////////////
 
-    public ControllerCapacity(Scenario scenario, Controller jaxb_controller) throws OTMException {
+    public ControllerFixedRate(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
         actuator_rate_vph = new HashMap<>();
         for(AbstractActuator actuator : actuators.values()){

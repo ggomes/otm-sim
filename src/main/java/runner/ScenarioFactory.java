@@ -240,17 +240,14 @@ public class ScenarioFactory {
             if(controllers.containsKey(jaxb_controller.getId()))
                 throw new OTMException("Duplicate controller id found: " + jaxb_controller.getId());
             switch(controller_type){
-                case "irm_tod":
-                    controller = null;
-                    break;
                 case "sig_pretimed":
                     controller = new ControllerSignalPretimed(scenario,jaxb_controller);
                     break;
                 case "alinea":
                     controller = new ControllerAlinea(scenario,jaxb_controller);
                     break;
-                case "capacity":
-                    controller = new ControllerCapacity(scenario,jaxb_controller);
+                case "fixed_rate":
+                    controller = new ControllerFixedRate(scenario,jaxb_controller);
                     break;
                 default:
 
