@@ -106,17 +106,28 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
                     + " end_link.start_node = " + end_link.start_node.getId() );
         }
 
-        if( start_link_from_lane<=0 | start_link_to_lane<=0 |  end_link_from_lane<=0 |  end_link_to_lane<=0 )
-            errorLog.addError("positivity");
+        if( start_link_from_lane<=0 )
+            errorLog.addError(String.format("Road connection %d: non-positive start link from lane number.",id));
+
+        if( start_link_to_lane<=0 )
+            errorLog.addError(String.format("Road connection %d: non-positive start link to lane number.",id));
+
+        if( end_link_from_lane<=0 )
+            errorLog.addError(String.format("Road connection %d: non-positive end link from lane number.",id));
+
+        if( end_link_to_lane<=0 )
+            errorLog.addError(String.format("Road connection %d: non-positive end link to lane number.",id));
+
         if(start_link_from_lane>start_link_to_lane)
-            errorLog.addError("start_link_from_lane>start_link_to_lane");
+            errorLog.addError(String.format("Road connection %d: start_link_from_lane>start_link_to_lane.",id));
+
         if(end_link_from_lane>end_link_to_lane)
-            errorLog.addError("end_link_from_lane>end_link_to_lane");
+            errorLog.addError(String.format("Road connection %d: end_link_from_lane>end_link_to_lane.",id));
 
         if(start_link!=null && end_link!=null){
             Node node = start_link.end_node;
             if(!node.out_links.containsKey(end_link.id))
-                errorLog.addError("!node.out_links.containsKey(end_link.id)");
+                errorLog.addError(String.format("Road connection %d: end link not an outlink of inlink's end node.",id));
         }
 
 //        if(out_lanegroups.isEmpty() || out_lanegroup_probability.isEmpty())

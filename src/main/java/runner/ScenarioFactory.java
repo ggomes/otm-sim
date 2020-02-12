@@ -97,7 +97,7 @@ public class ScenarioFactory {
         return scenario;
     }
 
-    public static runner.Scenario create_scenario_for_static_traffic_assignment(jaxb.Scenario js) throws OTMException {
+    public static runner.Scenario create_unrunnable_scenario(jaxb.Scenario js) throws OTMException {
 
         OTMUtils.reset_counters();
 
@@ -144,7 +144,7 @@ public class ScenarioFactory {
                 Long destination_node = destination_nodes.get(subnetwork_id);
 
                 DemandProfileOD dp = new DemandProfileOD(jaxb_demand,comm,origin_node,destination_node);
-                KeyCommodityDemandTypeId key = new KeyCommodityDemandTypeId(comm.getId(),subnetwork_id,DemandType.pathfull);
+                KeyCommodityDemandTypeId key = new KeyCommodityDemandTypeId(comm.getId(),subnetwork_id,comm.get_demand_type());
                 scenario.data_demands.put(key,dp);
             }
 

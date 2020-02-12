@@ -1,5 +1,6 @@
 package commodity;
 
+import keys.DemandType;
 import models.AbstractLaneGroup;
 import common.Link;
 import error.OTMErrorLog;
@@ -81,6 +82,10 @@ public class Commodity implements InterfaceScenarioElement {
     ///////////////////////////////////////////////////
     // get  / set
     ///////////////////////////////////////////////////
+
+    public DemandType get_demand_type(){
+        return pathfull ? DemandType.pathfull : DemandType.pathless;
+    }
 
     public boolean travels_on_link(Link link){
         return all_links.contains(link);
