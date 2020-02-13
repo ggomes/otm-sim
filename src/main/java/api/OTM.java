@@ -53,7 +53,7 @@ public class OTM {
     public void load(String configfile, boolean validate, boolean jaxb_only) throws OTMException {
         jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,validate);
         if(jaxb_only)
-            this.scn =  ScenarioFactory.create_scenario_for_static_traffic_assignment(jaxb_scenario);
+            this.scn =  ScenarioFactory.create_unrunnable_scenario(jaxb_scenario);
         else
             this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,validate);
         scenario = new api.Scenario(this);

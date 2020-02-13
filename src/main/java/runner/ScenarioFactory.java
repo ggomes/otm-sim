@@ -97,7 +97,7 @@ public class ScenarioFactory {
         return scenario;
     }
 
-    public static runner.Scenario create_scenario_for_static_traffic_assignment(jaxb.Scenario js) throws OTMException {
+    public static runner.Scenario create_unrunnable_scenario(jaxb.Scenario js) throws OTMException {
 
         OTMUtils.reset_counters();
 
@@ -144,7 +144,7 @@ public class ScenarioFactory {
                 Long destination_node = destination_nodes.get(subnetwork_id);
 
                 DemandProfileOD dp = new DemandProfileOD(jaxb_demand,comm,origin_node,destination_node);
-                KeyCommodityDemandTypeId key = new KeyCommodityDemandTypeId(comm.getId(),subnetwork_id,DemandType.pathfull);
+                KeyCommodityDemandTypeId key = new KeyCommodityDemandTypeId(comm.getId(),subnetwork_id,comm.get_demand_type());
                 scenario.data_demands.put(key,dp);
             }
 
@@ -240,17 +240,14 @@ public class ScenarioFactory {
             if(controllers.containsKey(jaxb_controller.getId()))
                 throw new OTMException("Duplicate controller id found: " + jaxb_controller.getId());
             switch(controller_type){
-                case "irm_tod":
-                    controller = null;
-                    break;
                 case "sig_pretimed":
                     controller = new ControllerSignalPretimed(scenario,jaxb_controller);
                     break;
                 case "alinea":
                     controller = new ControllerAlinea(scenario,jaxb_controller);
                     break;
-                case "capacity":
-                    controller = new ControllerCapacity(scenario,jaxb_controller);
+                case "fixed_rate":
+                    controller = new ControllerFixedRate(scenario,jaxb_controller);
                     break;
                 default:
 

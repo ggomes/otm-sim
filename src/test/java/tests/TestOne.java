@@ -81,11 +81,11 @@ public class TestOne extends AbstractTest {
         }
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void load_one() {
         try {
-            String configfile = "/home/gomes/Desktop/elsie/network_v3.xml";
+            String configfile = "/home/gomes/code/opt/after.xml";
             api.OTM otm = new api.OTM(configfile,true,false);
             assertNotNull(otm);
         } catch (OTMException e) {
@@ -156,7 +156,7 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "/home/gomes/Desktop/miami/2/var_dem_miami_cfg_0.xml";
+            String configfile = "/home/gomes/code/opt/after.xml";
 
             float duration = 7200f;
             float outdt = 10f;
@@ -166,10 +166,10 @@ public class TestOne extends AbstractTest {
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);
 
-            // Output requests .....................
-            Set<Long> link_ids = otm.scenario.get_link_ids();
-            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
-            otm.output.request_links_veh(prefix,output_folder,null, link_ids, outdt);
+//            // Output requests .....................
+//            Set<Long> link_ids = otm.scenario.get_link_ids();
+//            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
+//            otm.output.request_links_veh(prefix,output_folder,null, link_ids, outdt);
 
 //
 //            List<ODInfo> od_infos = api.get_od_info();
