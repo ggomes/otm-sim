@@ -50,4 +50,8 @@ public class LaneGroupFlow extends AbstractOutputTimedLanegroup  {
             return flw_accs.get(lg.id).get_count_for_commodity(commodity.getId());
     }
 
+    @Override
+    public String get_yaxis_label() {
+        return "flow";
+    }
 }

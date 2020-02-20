@@ -106,7 +106,6 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
         return linkprofiles.values().iterator().next().profile.get_times();
     }
 
-    abstract public String get_yaxis_label();
     abstract public double get_value_for_link(Long link_id);
 
     public List<Long> get_link_ids(){

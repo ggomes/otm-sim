@@ -490,7 +490,10 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
                 // pathfull case
                 if(key.isPath){
-                    if(path2outlink.containsKey(key.pathOrlink_id)){
+                    if(is_sink){
+                        add_to_lanegroup_packets(split_packets,null,key,vehicle);
+                    }
+                    else if(path2outlink.containsKey(key.pathOrlink_id)){
                         Link next_link = path2outlink.get(key.pathOrlink_id);
                         add_to_lanegroup_packets(split_packets,next_link.getId(),key,vehicle);
                     }

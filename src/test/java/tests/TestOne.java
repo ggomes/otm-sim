@@ -20,35 +20,6 @@ public class TestOne extends AbstractTest {
 
     @Ignore
     @Test
-    public void test_load_for_static_traffic_assignment() {
-        try {
-
-            // TODO Add large network to test configurations
-            String configfile = "C:\\Users\\gomes\\Dropbox\\gabriel\\work\\beats\\beats_share\\MetroManila_unfiltered.xml";
-
-            api.OTM otm = new api.OTM(configfile,true,true);
-            
-            System.out.println(otm.scenario.get_node_ids().size());
-            System.out.println(otm.scenario.get_link_connectivity().size());
-
-            LinkInfo link = otm.scenario.get_link_with_id(107948L);
-
-            System.out.println(link.getFull_length());
-
-//            Set<ODInfo> odinfo = otm.scenario.get_od_info();
-
-//            Profile1DInfo profile = odinfo.get(0).get_total_demand_vps();
-
-//            System.out.println(profile);
-
-        } catch (OTMException e) {
-            System.out.print(e);
-            fail();
-        }
-    }
-
-    @Ignore
-    @Test
     public void run_step_by_step() {
         try {
 

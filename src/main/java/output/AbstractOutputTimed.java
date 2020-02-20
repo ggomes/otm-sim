@@ -18,6 +18,8 @@ public abstract class AbstractOutputTimed extends AbstractOutput {
     public Writer time_writer;
     public static String delim = ",";
 
+    abstract public String get_yaxis_label();
+
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////

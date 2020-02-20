@@ -4,20 +4,24 @@ import commodity.Subnetwork;
 import common.Link;
 import error.OTMErrorLog;
 import error.OTMException;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import profiles.Profile1D;
 import runner.Scenario;
 
 import java.io.*;
+import java.util.Set;
 
 public abstract class AbstractOutputTimedSubnetwork extends AbstractOutputTimed {
 
     public Subnetwork subnetwork;
+    public Profile1D profile;
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
-    public AbstractOutputTimedSubnetwork(Scenario scenario, String prefix, String output_folder, Long commodity_id, Long subnetwork_id, Float outDt) throws OTMException
-    {
+    public AbstractOutputTimedSubnetwork(Scenario scenario, String prefix, String output_folder, Long commodity_id, Long subnetwork_id, Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,outDt);
 
         // get subnetwork
@@ -65,4 +69,19 @@ public abstract class AbstractOutputTimedSubnetwork extends AbstractOutputTimed 
             }
         }
     }
+
+    /////////////////////////
+    // plotting
+    /////////////////////////
+
+    public XYSeries get_series() {
+        return profile.get_series(String.format("%d",get_subnetwork_id()));
+    }
+
+    public void plot(String filename) throws OTMException {
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(get_series());
+        make_time_chart(dataset,get_yaxis_label(),filename);
+    }
+
 }

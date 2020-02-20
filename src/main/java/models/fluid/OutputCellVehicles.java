@@ -127,4 +127,9 @@ public class OutputCellVehicles extends AbstractOutputTimed {
         }
     }
 
+    @Override
+    public String get_yaxis_label() {
+        return "veh";
+    }
+
 }

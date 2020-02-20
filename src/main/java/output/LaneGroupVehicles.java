@@ -36,4 +36,8 @@ public class LaneGroupVehicles extends AbstractOutputTimedLanegroup {
         }
     }
 
+    @Override
+    public String get_yaxis_label() {
+        return "veh";
+    }
 }

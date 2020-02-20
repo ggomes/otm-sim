@@ -21,9 +21,11 @@ public abstract class AbstractOutput implements InterfaceOutput {
 
     public enum Type {
         link_flw,
-        link_veh,vht,
+        link_veh,
+        vht,
         lanegroup_flw,
         lanegroup_veh,
+        path_travel_time,
         vehicle_events,
         vehicle_class,
         vehicle_travel_time,
@@ -105,6 +107,13 @@ public abstract class AbstractOutput implements InterfaceOutput {
         }
     }
 
+    //////////////////////////////////////////////////////
+    // get
+    //////////////////////////////////////////////////////
+
+    public Type getType() {
+        return type;
+    }
 
     //////////////////////////////////////////////////////
     // plotting

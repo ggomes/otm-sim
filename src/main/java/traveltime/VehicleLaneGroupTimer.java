@@ -35,7 +35,7 @@ public class VehicleLaneGroupTimer extends AbstractLaneGroupTimer {
         entry_time.remove(vehicle);
     }
 
-    public void add_sample(double travel_time_sample){
+    private void add_sample(double travel_time_sample){
         num_samples++;
         sum_time += travel_time_sample;
     }
@@ -46,10 +46,10 @@ public class VehicleLaneGroupTimer extends AbstractLaneGroupTimer {
 
     @Override
     public double get_mean_and_clear(){
-//        double mean = sum_time / ((double) num_samples);
-//        num_samples = 0;
-//        sum_time = 0;
-        return 42d;
+        double mean = sum_time / ((double) num_samples);
+        num_samples = 0;
+        sum_time = 0;
+        return mean;
     }
 
 }
