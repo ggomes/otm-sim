@@ -16,10 +16,12 @@ import error.OTMException;
 import keys.DemandType;
 import keys.KeyCommodityDemandTypeId;
 import models.AbstractLaneGroup;
+import models.vehicle.spatialq.Vehicle;
 import output.animation.AnimationInfo;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;
 import profiles.SplitMatrixProfile;
+import runner.ModelType;
 import sensor.AbstractSensor;
 
 import java.util.*;
@@ -315,6 +317,38 @@ public class Scenario {
     public Node create_node(float xcoord,float ycoord){
         long id = myapi.scn.network.nodes.keySet().stream().max(Comparator.naturalOrder()).get();
         return new common.Node(myapi.scn.network,id,xcoord,ycoord,false);
+    }
+
+    /** Set the number of vehicles in a link
+     * This only works for a single commodity scenarios, and single lane group links.
+     * @param link_id
+     * @param numvehs
+     */
+    public void set_link_vehicles(long link_id, int numvehs) throws Exception {
+
+        if(myapi.scn.commodities.size()>1)
+            throw new Exception("Cannot call set_link_vehicles on multi-commodity networks");
+
+        if(!myapi.scn.network.links.containsKey(link_id))
+            throw new Exception("Bad link id");
+
+        Link link = myapi.scn.network.links.get(link_id);
+
+        if(link.lanegroups_flwdn.size()>1)
+            throw new Exception("Cannot call set_link_vehicles on multi-lane group links");
+
+        if(link.model.type!= ModelType.VehicleMeso)
+            throw new Exception("Cannot call set_link_vehicles on non-meso models");
+
+        long comm_id = myapi.scn.commodities.keySet().iterator().next();
+        models.vehicle.spatialq.LaneGroup lg = (models.vehicle.spatialq.LaneGroup) link.lanegroups_flwdn.values().iterator().next();
+        models.vehicle.spatialq.Queue wq = lg.waiting_queue;
+
+        wq.clear();
+        Set<models.vehicle.spatialq.Vehicle> vehs = new HashSet<>();
+        for(int i=0;i<numvehs;i++)
+            vehs.add(new models.vehicle.spatialq.Vehicle(comm_id,null));
+        wq.add_vehicles(vehs);
     }
 
     ////////////////////////////////////////////////////////

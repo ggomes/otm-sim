@@ -7,6 +7,7 @@ import error.OTMException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -68,6 +69,14 @@ public class Queue {
 
     public void add_vehicle(Vehicle v) {
         this.vehicles.add(v);
+    }
+
+    public void add_vehicles(Set<Vehicle> v) {
+        this.vehicles.addAll(v);
+    }
+
+    public void clear() {
+        this.vehicles.clear();
     }
 
     public long num_vehicles_for_commodity(Long c) {
