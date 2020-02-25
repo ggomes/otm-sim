@@ -64,14 +64,14 @@ public class Profile2D {
         }
 
         // sum to 1
-        if(allequal)
-            for(int i=0;i<L;i++){
-                double x = 0d;
-                for(List<Double> list : values.values())
-                    x += list.get(i);
-                if(!OTMUtils.approximately_equals(x,1d))
-                    errorLog.addError(str + " : splits not adding to 1");
-            }
+//        if(allequal)
+//            for(int i=0;i<L;i++){
+//                double x = 0d;
+//                for(List<Double> list : values.values())
+//                    x += list.get(i);
+//                if(!OTMUtils.approximately_equals(x,1d))
+//                    errorLog.addError(str + " : splits not adding to 1");
+//            }
 
     }
 
