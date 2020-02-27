@@ -1,6 +1,8 @@
 package api;
 
 import error.OTMException;
+import models.vehicle.spatialq.OutputQueues;
+import models.vehicle.spatialq.Queue;
 import output.*;
 import runner.Scenario;
 
@@ -161,6 +163,31 @@ public class Output {
         }
     }
 
+    /**
+     * Request vehicles in a mesoscopic queue.
+     * @param commodity_id Id for the requested vehicle type.
+     * @param link_ids Collection of requested link ids
+     * @param outDt Output sampling time in seconds.
+     */
+    public void request_link_queues(Long commodity_id, Collection<Long> link_ids, Float outDt){
+        try {
+            this.myapi.scn.outputs.add(new OutputQueues(myapi.scn,null,null,commodity_id,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * Request vehicles in a mesoscopic queue.
+     * @param link_ids Collection of requested link ids
+     * @param outDt Output sampling time in seconds.
+     */
+    public void request_link_queues(Collection<Long> link_ids, Float outDt){
+        try {
+            this.myapi.scn.outputs.add(new OutputQueues(myapi.scn,null,null,null,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
     // lanegroups ==============================================
 
     /**

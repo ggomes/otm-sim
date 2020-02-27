@@ -62,6 +62,13 @@ public class Profile1D {
         values.add(x);
     }
 
+    public void add(Profile1D x){
+        if(start_time!=x.start_time || dt!=x.dt || values.size()!=x.values.size())
+            return;
+        for(int i=0;i<values.size();i++)
+            this.values.set(i,values.get(i)+x.values.get(i));
+    }
+
     public void multiply(double x){
         if(OTMUtils.approximately_equals(x,1.0))
             return;
