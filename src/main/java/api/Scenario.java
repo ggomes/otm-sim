@@ -322,9 +322,10 @@ public class Scenario {
     /** Set the number of vehicles in a link
      * This only works for a single commodity scenarios, and single lane group links.
      * @param link_id
-     * @param numvehs
+     * @param numvehs_waiting
+     * @param numvehs_transit
      */
-    public void set_link_vehicles(long link_id, int numvehs) throws Exception {
+    public void set_link_vehicles(long link_id, int numvehs_waiting,int numvehs_transit) throws Exception {
 
         if(myapi.scn.commodities.size()>1)
             throw new Exception("Cannot call set_link_vehicles on multi-commodity networks");
@@ -342,13 +343,22 @@ public class Scenario {
 
         long comm_id = myapi.scn.commodities.keySet().iterator().next();
         models.vehicle.spatialq.LaneGroup lg = (models.vehicle.spatialq.LaneGroup) link.lanegroups_flwdn.values().iterator().next();
-        models.vehicle.spatialq.Queue wq = lg.waiting_queue;
 
+        // waiting queue
+        models.vehicle.spatialq.Queue wq = lg.waiting_queue;
         wq.clear();
-        Set<models.vehicle.spatialq.Vehicle> vehs = new HashSet<>();
-        for(int i=0;i<numvehs;i++)
-            vehs.add(new models.vehicle.spatialq.Vehicle(comm_id,null));
-        wq.add_vehicles(vehs);
+        Set<models.vehicle.spatialq.Vehicle> vehs_waiting = new HashSet<>();
+        for(int i=0;i<numvehs_waiting;i++)
+            vehs_waiting.add(new models.vehicle.spatialq.Vehicle(comm_id,null));
+        wq.add_vehicles(vehs_waiting);
+
+        // transit queue
+        models.vehicle.spatialq.Queue tq = lg.transit_queue;
+        tq.clear();
+        Set<models.vehicle.spatialq.Vehicle> vehs_transit = new HashSet<>();
+        for(int i=0;i<numvehs_transit;i++)
+            vehs_transit.add(new models.vehicle.spatialq.Vehicle(comm_id,null));
+        tq.add_vehicles(vehs_transit);
     }
 
     ////////////////////////////////////////////////////////
