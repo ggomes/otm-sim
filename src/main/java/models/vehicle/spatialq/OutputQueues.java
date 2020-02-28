@@ -4,7 +4,6 @@ import common.Link;
 import error.OTMException;
 import models.AbstractLaneGroup;
 import output.AbstractOutputTimed;
-import output.AbstractOutputTimedLanegroup;
 import profiles.Profile1D;
 import runner.Scenario;
 
@@ -162,7 +161,6 @@ public class OutputQueues extends AbstractOutputTimed {
         }
         return profile.get_values();
     }
-
 
     public class QueueInfo {
         public Profile1D waiting_profile;

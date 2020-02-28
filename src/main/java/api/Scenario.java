@@ -319,6 +319,26 @@ public class Scenario {
         return new common.Node(myapi.scn.network,id,xcoord,ycoord,false);
     }
 
+    ////////////////////////////////////////////////////////
+    // STATE getters and setters -- may be model specific
+    ////////////////////////////////////////////////////////
+
+    public class Queues {
+        int waiting, transit;
+        public Queues(int waiting, int transit){
+            this.waiting = waiting;
+            this.transit = transit;
+        }
+        public int waiting(){ return waiting ;}
+        public int transit(){ return transit ;}
+    }
+
+    public Queues get_link_queues(long link_id) throws Exception {
+        Link link = myapi.scn.network.links.get(link_id);
+        models.vehicle.spatialq.LaneGroup lg = (models.vehicle.spatialq.LaneGroup) link.lanegroups_flwdn.values().iterator().next();
+        return new Queues(lg.waiting_queue.num_vehicles(),lg.transit_queue.num_vehicles());
+    }
+
     /** Set the number of vehicles in a link
      * This only works for a single commodity scenarios, and single lane group links.
      * @param link_id
