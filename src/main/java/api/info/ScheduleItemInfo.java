@@ -1,8 +1,10 @@
 package api.info;
 
 import control.sigint.ScheduleItem;
+import control.sigint.Stage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ScheduleItemInfo {
@@ -17,8 +19,9 @@ public class ScheduleItemInfo {
         this.offset = x.offset;
         this.start_time = x.start_time;
         this.stages = new ArrayList<>();
-//        for(Stage stage : x.stages)
-//            this.stages.add(new StageInfo(stage));
+        for(Stage stage : x.stages.queue)
+            this.stages.add(new StageInfo(stage));
+        Collections.sort(stages);
     }
 
     public float getCycle() {

@@ -9,6 +9,7 @@ import common.Link;
 import common.Node;
 import common.RoadConnection;
 import control.AbstractController;
+import control.sigint.ControllerSignalPretimed;
 import dispatch.EventCreateVehicle;
 import dispatch.EventDemandChange;
 import error.OTMErrorLog;
@@ -38,15 +39,6 @@ public class Scenario {
 
     protected Scenario(api.OTM myapi){
         this.myapi = myapi;
-    }
-
-    /**
-     * Get scenario information.
-     * @return a ScenarioInfo object.
-     * @see ScenarioInfo
-     */
-    public ScenarioInfo get_info(){
-        return myapi.scn !=null ? new ScenarioInfo(myapi.scn) : null;
     }
 
     ////////////////////////////////////////////////////////
@@ -631,10 +623,16 @@ public class Scenario {
      * @see ControllerInfo
      */
     public Set<ControllerInfo> get_controllers(){
-        Set<ControllerInfo> x = new HashSet<>();
-        for(AbstractController y : myapi.scn.controllers.values())
-            x.add(new ControllerInfo(y));
-        return x;
+        Set<ControllerInfo> X = new HashSet<>();
+        for(AbstractController cntrl : myapi.scn.controllers.values()) {
+            if( cntrl instanceof ControllerSignalPretimed) {
+                X.add(new ControllerSignalPretimedInfo((ControllerSignalPretimed)cntrl));
+            }
+            else {
+                X.add(new ControllerInfo(cntrl));
+            }
+        }
+        return X;
     }
 
     /**

@@ -21,8 +21,8 @@ public class ControllerInfo {
 
     // additional information for specific controllers
 
-    /** Additional information for pretimed signal controllers. */
-    ControllerSignalPretimedInfo pretimed_signal_info;
+//    /** Additional information for pretimed signal controllers. */
+//    ControllerSignalPretimedInfo pretimed_signal_info;
 
     public ControllerInfo(AbstractController x){
         this.id = x.id;
@@ -51,9 +51,9 @@ public class ControllerInfo {
         return dt;
     }
 
-    public ControllerSignalPretimedInfo getPretimed_signal_info() {
-        return pretimed_signal_info;
-    }
+//    public ControllerSignalPretimedInfo getPretimed_signal_info() {
+//        return pretimed_signal_info;
+//    }
 
     @Override
     public String toString() {
@@ -62,7 +62,6 @@ public class ControllerInfo {
                 ", myType=" + type +
                 ", actuators_ids=" + actuators_ids +
                 ", dt=" + dt +
-                ", pretimed_signal_info=" + pretimed_signal_info +
                 '}';
     }
 }
