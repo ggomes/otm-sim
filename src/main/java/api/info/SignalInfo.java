@@ -21,7 +21,7 @@ public class SignalInfo extends ActuatorInfo {
             signal_phases.add(new SignalPhaseInfo(s));
     }
 
-    public List<SignalPhaseInfo> getSignal_phases() {
+    public List<SignalPhaseInfo> get_phases() {
         return signal_phases;
     }
 

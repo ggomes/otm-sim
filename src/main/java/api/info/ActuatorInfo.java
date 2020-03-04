@@ -11,9 +11,12 @@ public class ActuatorInfo {
     /** Type of the actuator. */
     public AbstractActuator.Type type;
 
+    public Long target_id;
+
     public ActuatorInfo(AbstractActuator x){
         this.id = x.id;
         this.type = x.getType();
+        this.target_id = x.target==null ? null : x.target.getId();
     }
 
     public long getId() {
@@ -22,6 +25,10 @@ public class ActuatorInfo {
 
     public AbstractActuator.Type getType() {
         return type;
+    }
+
+    public Long getTarget_id(){
+        return target_id;
     }
 
     @Override

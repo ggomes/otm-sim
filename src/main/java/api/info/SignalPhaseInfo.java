@@ -2,14 +2,14 @@ package api.info;
 
 import actuator.sigint.SignalPhase;
 
-import java.util.List;
+import java.util.Set;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 public class SignalPhaseInfo {
 
     public long id;
-    public List<Long> road_connections;
+    public Set<Long> road_connections;
     public float yellow_time;
     public float red_clear_time;
     public float min_green_time;
@@ -19,14 +19,14 @@ public class SignalPhaseInfo {
         this.yellow_time = x.yellow_time;
         this.red_clear_time = x.red_clear_time;
         this.min_green_time = x.min_green_time;
-        this.road_connections = x.road_connections.stream().map(z->z.getId()).collect(toList());
+        this.road_connections = x.road_connections.stream().map(z->z.getId()).collect(toSet());
     }
 
     public long getId() {
         return id;
     }
 
-    public List<Long> getRoad_connections() {
+    public Set<Long> getRoad_connections() {
         return road_connections;
     }
 
