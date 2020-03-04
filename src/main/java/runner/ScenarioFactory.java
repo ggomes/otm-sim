@@ -13,7 +13,6 @@ import control.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
-import keys.DemandType;
 import keys.KeyCommodityDemandTypeId;
 import keys.KeyCommodityLink;
 import plugin.PluginLoader;

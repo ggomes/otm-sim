@@ -1,7 +1,6 @@
 package actuator.sigint;
 
 import actuator.AbstractActuator;
-import control.sigint.ScheduleItem;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -13,7 +12,7 @@ import java.util.Map;
 public class ActuatorSignalSimple extends AbstractActuator {
 
     public Map<Long, SignalPhaseSimple> signal_phases;
-    public ScheduleItem current_schedule_item;
+//    public ScheduleItem current_schedule_item;
 
     ///////////////////////////////////////////////////
     // construction

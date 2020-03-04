@@ -17,7 +17,6 @@ import error.OTMException;
 import keys.DemandType;
 import keys.KeyCommodityDemandTypeId;
 import models.AbstractLaneGroup;
-import models.vehicle.spatialq.Vehicle;
 import output.animation.AnimationInfo;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;

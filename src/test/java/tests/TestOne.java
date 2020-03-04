@@ -56,7 +56,7 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "/home/gomes/code/opt/after.xml";
+            String configfile = "/home/gomes/Dropbox/gabriel/work/MEng/2019-2020/_supervised/traffic/capstone-project/cfg/network_v6.xml";
             api.OTM otm = new api.OTM(configfile,true,false);
             assertNotNull(otm);
         } catch (OTMException e) {
@@ -127,22 +127,25 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "/home/gomes/code/opt/after.xml";
+            String configfile = "/home/gomes/Dropbox/gabriel/work/MEng/2019-2020/_supervised/traffic/capstone-project/cfg/network_v3.xml";
 
-            float duration = 7200f;
+            float duration = 3600f;
             float outdt = 10f;
-            String prefix = "test";
-            String output_folder = "/home/gomes/Desktop/miami/2/";
+            String prefix = null; //""x";
+            String output_folder = "/home/gomes/Dropbox/gabriel/work/MEng/2019-2020/_supervised/traffic/capstone-project/output/";
 
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);
 
-//            // Output requests .....................
-//            Set<Long> link_ids = otm.scenario.get_link_ids();
+            // Output requests .....................
+            Set<Long> link_ids = otm.scenario.get_link_ids();
 //            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
 //            otm.output.request_links_veh(prefix,output_folder,null, link_ids, outdt);
 
-//
+            otm.output.request_links_flow(null, link_ids, outdt);
+            otm.output.request_links_veh(null, link_ids, outdt);
+
+            //
 //            List<ODInfo> od_infos = api.get_od_info();
 //            ODInfo od_info = od_infos.get(0);
 //            List<SubnetworkInfo> paths = od_info.get_subnetworks();
@@ -161,7 +164,6 @@ public class TestOne extends AbstractTest {
             otm.run(0,duration);
 
             // Print output .........................
-            String outfolder = "temp/";
             for(AbstractOutput output :  otm.output.get_data()){
 
 //                if (output instanceof EventsActuator)
@@ -171,17 +173,16 @@ public class TestOne extends AbstractTest {
 //                    ((EventsController) output).plot(String.format("%scontroller%d.png",outfolder,((EventsController) output).controller_id));
 
                 if (output instanceof LinkFlow)
-                    ((LinkFlow) output).plot_for_links(null, String.format("%sflow.png", outfolder));
+                    ((LinkFlow) output).plot_for_links(null, String.format("%sflow.png", output_folder));
 
                 if (output instanceof LinkVehicles)
-                    ((LinkVehicles) output).plot_for_links(null, String.format("%sveh.png", outfolder));
+                    ((LinkVehicles) output).plot_for_links(null, String.format("%sveh.png", output_folder));
 
-
-                if(output instanceof PathTravelTimeWriter){
-                    PathTravelTimeWriter ptt = (PathTravelTimeWriter) output;
-                    List<Double> travel_times = ptt.get_travel_times_sec();
-                    System.out.println(travel_times);
-                }
+//                if(output instanceof PathTravelTimeWriter){
+//                    PathTravelTimeWriter ptt = (PathTravelTimeWriter) output;
+//                    List<Double> travel_times = ptt.get_travel_times_sec();
+//                    System.out.println(travel_times);
+//                }
 
             }
 
