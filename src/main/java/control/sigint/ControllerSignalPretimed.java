@@ -9,10 +9,11 @@ import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Controller;
 import runner.Scenario;
-import utils.CircularList;
 import utils.OTMUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ControllerSignalPretimed extends AbstractController {
@@ -20,9 +21,8 @@ public class ControllerSignalPretimed extends AbstractController {
     public float cycle = Float.NaN;
     public float offset = Float.NaN;
     public float start_time = Float.NaN;
-
+    public List<Stage> stages = new ArrayList<>();
     public int curr_stage_index;
-    public CircularList<Stage> stages = new CircularList<>();
 
     ///////////////////////////////////////////////////
     // construction
@@ -49,14 +49,13 @@ public class ControllerSignalPretimed extends AbstractController {
         }
 
         // stages
-        int index = 0;
         if(jaxb_controller.getStages()!=null)
             for (jaxb.Stage stage : jaxb_controller.getStages().getStage())
-                stages.add(new Stage(index++,stage));
+                stages.add(new Stage(stage));
 
         // set start_time
         float relstarttime = 0f;
-        for(Stage stage : stages.queue){
+        for(Stage stage : stages){
             stage.cycle_starttime = relstarttime%cycle;
             relstarttime += stage.duration;
         }
@@ -85,16 +84,16 @@ public class ControllerSignalPretimed extends AbstractController {
         if(offset>=cycle)
             errorLog.addError("offset>=cycle");
 
-        if(stages.queue.isEmpty()){
+        if(stages.isEmpty()){
             errorLog.addError("stages.queue.isEmpty()");
         } else {
 
             // cycle = sum durations
-            double total_duration = stages.queue.stream().mapToDouble(x->x.duration).sum();
+            double total_duration = stages.stream().mapToDouble(x->x.duration).sum();
             if(!OTMUtils.approximately_equals(cycle,total_duration))
                 errorLog.addError("cycle does not equal total stage durations: cycle=" + cycle + " , total_duration=" + total_duration);
 
-            for (Stage stage : stages.queue)
+            for (Stage stage : stages)
                 stage.validate(errorLog);
         }
     }
@@ -110,19 +109,13 @@ public class ControllerSignalPretimed extends AbstractController {
 
     @Override
     public void update_controller(Dispatcher dispatcher, float timestamp) throws OTMException {
-        
+
         StageindexReltime x = get_stage_for_time(timestamp);
 
-        ActuatorSignal signal = (ActuatorSignal) actuators.values().iterator().next();
-
-        Map<Long,BulbColor> c = get_command_for_stage_index(x.index);
-        command.put(signal.id , c);
-
-        // this actuator is not on a dt, need to manually process
-        signal.process_controller_command(c,dispatcher,timestamp);
+        set_stage_index(x.index,dispatcher,timestamp);
 
         // register next poke
-        float next_stage_start = timestamp - x.reltime + stages.peek().duration;
+        float next_stage_start = timestamp - x.reltime + stages.get(x.index).duration;
         dispatcher.register_event(new EventPoke(dispatcher,2,next_stage_start,this));
 
     }
@@ -143,7 +136,6 @@ public class ControllerSignalPretimed extends AbstractController {
     // setter
     ///////////////////////////////////////////////////
 
-
     public Map<Long,BulbColor> get_command_for_stage_index(int index) {
         Map<Long, BulbColor> command = new HashMap<>();
         for(Long phase_id : stages.get(index).phase_ids)
@@ -151,23 +143,17 @@ public class ControllerSignalPretimed extends AbstractController {
         return command;
     }
 
-    public void set_stage_index(float timestamp,int index, Dispatcher dispatcher) throws OTMException {
+    public void set_stage_index(int index,Dispatcher dispatcher, float timestamp) throws OTMException {
 
         curr_stage_index = index;
-        stages.point_to_index(index);
 
-        // build the command
-        Map<Long, BulbColor> command = new HashMap<>();
-        Stage stage = stages.peek();
-        for(Long phase_id : stage.phase_ids)
-            command.put(phase_id,BulbColor.GREEN);
+        ActuatorSignal signal = get_signal();
+        Map<Long,BulbColor> c = get_command_for_stage_index(index);
+        command.put(signal.id , c);
 
         // send command to actuator
-        get_signal().process_controller_command(command,dispatcher,timestamp);
+        get_signal().process_controller_command(c,dispatcher,timestamp);
 
-        //  inform output writer
-//        if(event_listener !=null)
-//            event_listener.write(timestamp, new EventControllerXXX(timestamp,id,current_schedule_item_index));
     }
 
     ///////////////////////////////////////////////////
@@ -185,12 +171,15 @@ public class ControllerSignalPretimed extends AbstractController {
         float reltime = (time-offset)%cycle;
         float start_time = 0f;
         float end_time;
-        for(int e=0;e<stages.queue.size();e++){
-            end_time = start_time + stages.queue.get(e).duration;
+
+        for(int index=0;index<stages.size();index++){
+            Stage stage = stages.get(index);
+            end_time = start_time + stage.duration;
             if(end_time>reltime)
-                return new StageindexReltime(e,reltime-start_time);
+                return new StageindexReltime(index,reltime-start_time);
             start_time = end_time;
         }
+
         return new StageindexReltime(0,0);
     }
 
