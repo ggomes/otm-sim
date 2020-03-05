@@ -3,7 +3,7 @@ package control;
 import actuator.AbstractActuator;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
-import dispatch.InterfacePokable;
+import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
 import output.EventsController;
@@ -15,7 +15,7 @@ import utils.OTMUtils;
 
 import java.util.*;
 
-public abstract class AbstractController implements InterfacePokable, InterfaceScenarioElement {
+public abstract class AbstractController implements Pokable, InterfaceScenarioElement {
 
     public enum Algorithm {
         sig_pretimed,
@@ -36,6 +36,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
     public float dt;
     public float start_time;
     public float end_time;
+
 
     public Map<Long,AbstractActuator> actuators;
     public Map<String,AbstractActuator> actuator_by_usage;
@@ -167,7 +168,7 @@ public abstract class AbstractController implements InterfacePokable, InterfaceS
         return false;
     }
 
-    public Object get_command_for_actuator_id(Long act_id){
+    public final Object get_command_for_actuator_id(Long act_id){
         return command.get(act_id);
     }
 

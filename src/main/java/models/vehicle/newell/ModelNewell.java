@@ -5,7 +5,7 @@ import common.Link;
 import common.RoadConnection;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
-import dispatch.InterfacePokable;
+import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.FlowPosition;
@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.OptionalDouble;
 import java.util.Set;
 
-public class ModelNewell extends VehicleModel implements InterfacePokable {
+public class ModelNewell extends VehicleModel implements Pokable {
 
     public float dt;
 

@@ -2,7 +2,7 @@ package sensor;
 
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
-import dispatch.InterfacePokable;
+import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
 import output.EventsSensor;
@@ -11,7 +11,7 @@ import runner.RunParameters;
 import runner.Scenario;
 import runner.ScenarioElementType;
 
-public abstract class AbstractSensor implements InterfacePokable, InterfaceScenarioElement {
+public abstract class AbstractSensor implements Pokable, InterfaceScenarioElement {
 
     public enum Type {
         fixed,

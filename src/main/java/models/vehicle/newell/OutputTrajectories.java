@@ -3,7 +3,7 @@ package models.vehicle.newell;
 import common.Link;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
-import dispatch.InterfacePokable;
+import dispatch.Pokable;
 import error.OTMException;
 import models.AbstractLaneGroup;
 import output.AbstractOutput;
@@ -13,7 +13,7 @@ import runner.Scenario;
 import java.io.File;
 import java.io.IOException;
 
-public class OutputTrajectories extends AbstractOutput implements InterfacePokable {
+public class OutputTrajectories extends AbstractOutput implements Pokable {
 
     public float outDt;			// output frequency in seconds
     ModelNewell model;

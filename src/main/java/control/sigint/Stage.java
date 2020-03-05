@@ -19,15 +19,14 @@ public class Stage implements Comparable<Stage> {
     // construction
     ///////////////////////////////////////////////////
 
-    public Stage(jaxb.Stage jaxb_stage){
-        this.index = jaxb_stage.getIndex();
+    public Stage(int index,jaxb.Stage jaxb_stage){
+        this.index = index;
         this.duration = jaxb_stage.getDuration();
-
-        phase_ids = new HashSet<>();
-        phase_ids.addAll(OTMUtils.csv2longlist(jaxb_stage.getPhases()));
+        this.phase_ids = new HashSet<>();
+        this.phase_ids.addAll(OTMUtils.csv2longlist(jaxb_stage.getPhases()));
     }
 
-    public Stage(int index, float duration, Long[] phase_ids){
+    public Stage(int index,float duration, Long[] phase_ids){
         this.index = index;
         this.duration = duration;
         List<Long> phase_array = Arrays.asList(phase_ids);

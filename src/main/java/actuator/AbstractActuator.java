@@ -3,7 +3,7 @@ package actuator;
 import control.AbstractController;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
-import dispatch.InterfacePokable;
+import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
 import output.EventsActuator;
@@ -11,7 +11,7 @@ import runner.InterfaceScenarioElement;
 import runner.Scenario;
 import runner.ScenarioElementType;
 
-public abstract class AbstractActuator implements InterfacePokable, InterfaceScenarioElement {
+public abstract class AbstractActuator implements Pokable, InterfaceScenarioElement {
 
     public enum Type {
         signal,
@@ -56,7 +56,12 @@ public abstract class AbstractActuator implements InterfacePokable, InterfaceSce
     abstract public void initialize(Scenario scenario) throws OTMException;
 
     public void register_with_dispatcher(Dispatcher dispatcher){
-        dispatcher.register_event(new EventPoke(dispatcher,3,dispatcher.current_time,this));
+
+        // DONT DO THIS. Dont automatically register the actuator with poke. If it is
+        // not a dt based actuator, then this will produce an unwanted update.
+        // This is a reason to create separate classes for timed vs event based actuators,
+        // controllers and sensors.
+//        dispatcher.register_event(new EventPoke(dispatcher,3,dispatcher.current_time,this));
     }
 
     /////////////////////////////////////////////////////////////////////
