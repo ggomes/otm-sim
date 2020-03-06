@@ -26,7 +26,7 @@ public class ActuatorVSL extends AbstractActuator {
     }
 
     @Override
-    public void process_controller_command(Object command, Dispatcher dispatcher, float timestamp) {
+    public void process_controller_command(Object command, float timestamp) {
 
     }
 }

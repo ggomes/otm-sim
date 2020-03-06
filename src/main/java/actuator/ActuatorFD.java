@@ -23,7 +23,7 @@ public class ActuatorFD extends AbstractActuator {
     }
 
     @Override
-    public void process_controller_command(Object command, Dispatcher dispatcher, float timestamp) throws OTMException {
+    public void process_controller_command(Object command, float timestamp) throws OTMException {
         if(command==null)
             return;
         Link link = (Link) target;

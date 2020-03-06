@@ -23,7 +23,6 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         fixed_rate,
         plugin
     }
-
     public static final Map<Algorithm, AbstractActuator.Type> map_algorithm_actuator = new HashMap<>();
     static {
         map_algorithm_actuator.put( Algorithm.sig_pretimed  , AbstractActuator.Type.signal );
@@ -31,12 +30,11 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         map_algorithm_actuator.put( Algorithm.fixed_rate  , AbstractActuator.Type.capacity );
     }
 
-    public long id;
-    public Algorithm type;
-    public float dt;
-    public float start_time;
-    public float end_time;
-
+    public final long id;
+    public final Algorithm type;
+    public final float dt;
+    public final float start_time;
+    public final float end_time;
 
     public Map<Long,AbstractActuator> actuators;
     public Map<String,AbstractActuator> actuator_by_usage;

@@ -68,14 +68,14 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     // update
     /////////////////////////////////////////////////////////////////////
 
-    abstract public void process_controller_command(Object command, Dispatcher dispatcher, float timestamp) throws OTMException;
+    abstract public void process_controller_command(Object command, float timestamp) throws OTMException;
 
     @Override
     public void poke(Dispatcher dispatcher, float timestamp) throws OTMException {
 
         // process the command
         if(myController!=null)
-            process_controller_command(myController.get_command_for_actuator_id(id),dispatcher,timestamp);
+            process_controller_command(myController.get_command_for_actuator_id(id),timestamp);
 
         // wake up in dt, if dt is defined
         if(dt>0)

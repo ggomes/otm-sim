@@ -82,7 +82,7 @@ public class ActuatorSignalSimple extends AbstractActuator {
     ///////////////////////////////////////////////////
 
     @Override
-    public void process_controller_command(Object command, Dispatcher dispatcher, float timestamp) throws OTMException {
+    public void process_controller_command(Object command, float timestamp) throws OTMException {
 
         if (command != null){
             enable_phase((long) command, timestamp);

@@ -112,7 +112,7 @@ public class ControllerSignalPretimed extends AbstractController {
 
         StageindexReltime x = get_stage_for_time(timestamp);
 
-        set_stage_index(x.index,dispatcher,timestamp);
+        set_stage_index(x.index,timestamp);
 
         // register next poke
         float next_stage_start = timestamp - x.reltime + stages.get(x.index).duration;
@@ -143,7 +143,7 @@ public class ControllerSignalPretimed extends AbstractController {
         return command;
     }
 
-    public void set_stage_index(int index,Dispatcher dispatcher, float timestamp) throws OTMException {
+    public void set_stage_index(int index, float timestamp) throws OTMException {
 
         curr_stage_index = index;
 
@@ -152,8 +152,13 @@ public class ControllerSignalPretimed extends AbstractController {
         command.put(signal.id , c);
 
         // send command to actuator
-        get_signal().process_controller_command(c,dispatcher,timestamp);
+        get_signal().process_controller_command(c,timestamp);
 
+    }
+
+    /** TEMPORARY **/
+    public void set_stage_index(int index) throws OTMException {
+        set_stage_index(index,Float.NaN);
     }
 
     ///////////////////////////////////////////////////

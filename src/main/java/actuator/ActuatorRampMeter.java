@@ -28,7 +28,7 @@ public class ActuatorRampMeter extends ActuatorCapacity {
     }
 
     @Override
-    public void process_controller_command(Object command, Dispatcher dispatcher, float timestamp) {
+    public void process_controller_command(Object command, float timestamp) {
         if(command==null)
             return;
         Link link = (Link) target;

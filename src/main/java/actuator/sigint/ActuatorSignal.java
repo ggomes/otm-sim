@@ -73,7 +73,7 @@ public class ActuatorSignal extends AbstractActuator {
     ///////////////////////////////////////////////////
 
     @Override
-    public void process_controller_command(Object obj, Dispatcher dispatcher, float timestamp) throws OTMException {
+    public void process_controller_command(Object obj, float timestamp) throws OTMException {
 
         // The command is a map from signal phase to color.
         // anything not in the map should be set to red

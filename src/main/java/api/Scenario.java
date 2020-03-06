@@ -621,7 +621,7 @@ public class Scenario {
      * @return a set of ControllerInfo
      * @see ControllerInfo
      */
-    public Set<ControllerInfo> get_controllers(){
+    public Set<ControllerInfo> get_controller_infos(){
         Set<ControllerInfo> X = new HashSet<>();
         for(AbstractController cntrl : myapi.scn.controllers.values()) {
             if( cntrl instanceof ControllerSignalPretimed) {
@@ -635,24 +635,24 @@ public class Scenario {
     }
 
     /**
-     * Get information for a specific myController.
-     * @param id : [long] integer id of the myController.
+     * Get information for a specific controller.
+     * @param id : unique id of the controller.
      * @return A ControllerInfo object
      * @see ControllerInfo
      */
-    public ControllerInfo get_controller_with_id(long id){
+    public ControllerInfo get_controller_info(long id){
         AbstractController controller = myapi.scn.controllers.get(id);
         return controller==null ? null : new ControllerInfo(controller);
     }
 
-//    /**
-//     *
-//     * @param id Undocumented
-//     * @return Undocumented
-//     */
-//    public AbstractController get_actual_controller_with_id(long id){
-//        return scenario.controllers.get(id);
-//    }
+    /**
+     * Get a controller object. This object can then be used to modify the control algorithm.
+     * @param id : unique id of the controller.
+     * @return AbstractController
+     */
+    public AbstractController get_actual_controller_with_id(long id){
+        return myapi.scn.controllers.containsKey(id) ? myapi.scn.controllers.get(id) : null;
+    }
 
     ////////////////////////////////////////////////////////
     // actuators
