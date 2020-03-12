@@ -128,6 +128,10 @@ public class ControllerSignalPretimed extends AbstractController {
         return (ActuatorSignal) actuators.values().iterator().next();
     }
 
+    public Integer get_stage_index(){
+        return curr_stage_index;
+    }
+
     public float get_cycle_time(float time){
         return (time-offset)%cycle;
     }
