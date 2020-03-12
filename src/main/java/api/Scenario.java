@@ -654,6 +654,10 @@ public class Scenario {
         return myapi.scn.controllers.containsKey(id) ? myapi.scn.controllers.get(id) : null;
     }
 
+    public Set<Long> get_controller_ids(){
+        return myapi.scn.controllers.keySet();
+    }
+
     ////////////////////////////////////////////////////////
     // actuators
     ////////////////////////////////////////////////////////

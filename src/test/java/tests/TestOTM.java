@@ -210,14 +210,8 @@ public class TestOTM extends AbstractTest {
 
     @Test
     @Ignore
-    public void test_get_controllers(){
-        System.out.println(otm.scenario.get_controllers());
-    }
-
-    @Test
-    @Ignore
     public void test_get_controller_with_id(){
-        System.out.println(otm.scenario.get_controller_with_id(1l));
+        System.out.println(otm.scenario.get_controller_info(1l));
     }
 
     ////////////////////////////////////////////////////////
