@@ -39,7 +39,7 @@ public abstract class AbstractVehicle {
     }
 
     public void set_next_link_id(Long nextlink_id){
-        if(key.isPath)
+        if(key!=null && key.isPath)
             return;
         key = new KeyCommPathOrLink(comm_id,nextlink_id,false);
     }

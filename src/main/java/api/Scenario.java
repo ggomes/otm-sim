@@ -10,11 +10,14 @@ import common.Node;
 import common.RoadConnection;
 import control.AbstractController;
 import control.sigint.ControllerSignalPretimed;
+import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import dispatch.EventDemandChange;
+import dispatch.EventTransitToWaiting;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.DemandType;
+import keys.KeyCommPathOrLink;
 import keys.KeyCommodityDemandTypeId;
 import models.AbstractLaneGroup;
 import output.animation.AnimationInfo;
@@ -23,6 +26,7 @@ import profiles.DemandProfile;
 import profiles.SplitMatrixProfile;
 import runner.ModelType;
 import sensor.AbstractSensor;
+import utils.OTMUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -314,7 +318,7 @@ public class Scenario {
     // STATE getters and setters -- may be model specific
     ////////////////////////////////////////////////////////
 
-    public class Queues {
+    public static class Queues {
         int waiting, transit;
         public Queues(int waiting, int transit){
             this.waiting = waiting;
@@ -354,22 +358,50 @@ public class Scenario {
 
         long comm_id = myapi.scn.commodities.keySet().iterator().next();
         models.vehicle.spatialq.LaneGroup lg = (models.vehicle.spatialq.LaneGroup) link.lanegroups_flwdn.values().iterator().next();
+        common.SplitInfo splitinfo = lg.link.commodity2split.get(comm_id);
 
-        // waiting queue
-        models.vehicle.spatialq.Queue wq = lg.waiting_queue;
-        wq.clear();
-        Set<models.vehicle.spatialq.Vehicle> vehs_waiting = new HashSet<>();
-        for(int i=0;i<numvehs_waiting;i++)
-            vehs_waiting.add(new models.vehicle.spatialq.Vehicle(comm_id,null));
-        wq.add_vehicles(vehs_waiting);
-
-        // transit queue
+        // transit queue ................
         models.vehicle.spatialq.Queue tq = lg.transit_queue;
         tq.clear();
-        Set<models.vehicle.spatialq.Vehicle> vehs_transit = new HashSet<>();
-        for(int i=0;i<numvehs_transit;i++)
-            vehs_transit.add(new models.vehicle.spatialq.Vehicle(comm_id,null));
-        tq.add_vehicles(vehs_transit);
+        for(int i=0;i<numvehs_transit;i++) {
+            models.vehicle.spatialq.Vehicle vehicle = new models.vehicle.spatialq.Vehicle(comm_id, null);
+
+            // sample the split ratio to decide where the vehicle will go
+            Long next_link_id = splitinfo.sample_output_link();
+            vehicle.set_next_link_id(next_link_id);
+
+            // set the vehicle's lane group and key
+            vehicle.lg = lg;
+            vehicle.my_queue = tq;
+
+            // add to lane group (as in lg.add_vehicle_packet)
+            tq.add_vehicle(vehicle);
+
+            // register_with_dispatcher dispatch to go to waiting queue
+            Dispatcher dispatcher = myapi.scn.dispatcher;
+            float timestamp = myapi.scn.get_current_time();
+            float transit_time_sec = (float) OTMUtils.random_zero_to_one()*lg.transit_time_sec;
+            dispatcher.register_event(new EventTransitToWaiting(dispatcher,timestamp + transit_time_sec,vehicle));
+        }
+
+        // waiting queue .................
+        models.vehicle.spatialq.Queue wq = lg.waiting_queue;
+        wq.clear();
+        for(int i=0;i<numvehs_waiting;i++) {
+            models.vehicle.spatialq.Vehicle vehicle = new models.vehicle.spatialq.Vehicle(comm_id, null);
+
+            // sample the split ratio to decide where the vehicle will go
+            Long next_link_id = splitinfo.sample_output_link();
+            vehicle.set_next_link_id(next_link_id);
+
+            // set the vehicle's lane group and key
+            vehicle.lg = lg;
+            vehicle.my_queue = wq;
+
+            // add to lane group (as in lg.add_vehicle_packet)
+            wq.add_vehicle(vehicle);
+        }
+
     }
 
     ////////////////////////////////////////////////////////
