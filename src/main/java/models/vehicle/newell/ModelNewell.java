@@ -12,11 +12,10 @@ import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.OutputRequest;
 import models.AbstractLaneGroup;
-import models.vehicle.VehicleModel;
+import models.vehicle.AbstractVehicleModel;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
-import runner.ModelType;
 import runner.Scenario;
 import utils.StochasticProcess;
 
@@ -25,13 +24,12 @@ import java.util.Iterator;
 import java.util.OptionalDouble;
 import java.util.Set;
 
-public class ModelNewell extends VehicleModel implements Pokable {
+public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
     public float dt;
 
     public ModelNewell(String name, boolean is_default, Float dt, StochasticProcess process) {
         super(name, is_default,process);
-        this.type = ModelType.VehicleMicro;
         this.dt = dt==null ? -1 : dt;
     }
 

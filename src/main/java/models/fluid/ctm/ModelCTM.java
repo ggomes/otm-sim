@@ -14,8 +14,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ModelCTM extends FluidModel {
-
+public class ModelCTM extends AbstractFluidModel {
 
     public ModelCTM(String name, boolean is_default, Float dt, StochasticProcess process, Float max_cell_length) {
         super(name,is_default,dt==null ? -1 : dt,process,max_cell_length);

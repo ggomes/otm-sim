@@ -24,7 +24,6 @@ import output.animation.AnimationInfo;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;
 import profiles.SplitMatrixProfile;
-import runner.ModelType;
 import sensor.AbstractSensor;
 import utils.OTMUtils;
 
@@ -353,8 +352,8 @@ public class Scenario {
         if(link.lanegroups_flwdn.size()>1)
             throw new Exception("Cannot call set_link_vehicles on multi-lane group links");
 
-        if(link.model.type!= ModelType.VehicleMeso)
-            throw new Exception("Cannot call set_link_vehicles on non-meso models");
+//        if(link.model.type!= ModelType.VehicleMeso)
+//            throw new Exception("Cannot call set_link_vehicles on non-meso models");
 
         long comm_id = myapi.scn.commodities.keySet().iterator().next();
         models.vehicle.spatialq.LaneGroup lg = (models.vehicle.spatialq.LaneGroup) link.lanegroups_flwdn.values().iterator().next();

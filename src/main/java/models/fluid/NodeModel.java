@@ -101,7 +101,7 @@ public class NodeModel {
 
             // incoming fluid lane groups
             Set<AbstractLaneGroup> in_fluid_lgs = xrc.in_lanegroups.stream()
-                    .filter(x -> x.link.model instanceof FluidModel)
+                    .filter(x -> x.link.model instanceof AbstractFluidModel)
                     .collect(toSet());
 
             if( in_fluid_lgs.isEmpty() )

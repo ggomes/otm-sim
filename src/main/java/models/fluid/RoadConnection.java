@@ -104,7 +104,7 @@ public class RoadConnection {
         else if(rc.external_max_flow_vps< NodeModel.eps)
             fbar = 0d;
         else {
-            float dt = ((FluidModel)this.rc.get_start_link().model).dt;
+            float dt = ((AbstractFluidModel)this.rc.get_start_link().model).dt;
             fbar = rc.external_max_flow_vps * dt;
         }
     }

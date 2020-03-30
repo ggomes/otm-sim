@@ -53,11 +53,7 @@ public class AnimationInfo {
                 case Fluid:
                     x.put(link.getId(),new output.animation.macro.LinkInfo(link));
                     break;
-                case VehicleMeso:
-                    System.err.println("This is not implemented");
-                    x.put(link.getId(),new output.animation.meso.LinkInfo(link));
-                    break;
-                case VehicleMicro:
+                case Vehicle:
                     System.err.println("This is not implemented");
                     x.put(link.getId(),new output.animation.micro.LinkInfo(link));
                     break;

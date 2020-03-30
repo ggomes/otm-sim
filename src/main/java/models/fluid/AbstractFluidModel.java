@@ -20,7 +20,6 @@ import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import packet.PacketLink;
 import profiles.DemandProfile;
-import runner.ModelType;
 import runner.Scenario;
 import utils.OTMUtils;
 import utils.StochasticProcess;
@@ -31,18 +30,17 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public abstract class FluidModel extends AbstractModel {
+public abstract class AbstractFluidModel extends AbstractModel {
 
-    public float max_cell_length;
-    public float dt;
+    public final float max_cell_length;
+    public final float dt;
     private Set<Link> source_links;
     private Set<Link> sink_links;
     private Map<Long, NodeModel> node_models;
 
-    public FluidModel(String name, boolean is_default, float dt, StochasticProcess process, Float max_cell_length) {
-        super(name, is_default,process);
+    public AbstractFluidModel(String name, boolean is_default, float dt, StochasticProcess process, Float max_cell_length) {
+        super(AbstractModel.Type.Fluid,name, is_default,process);
         this.dt = dt;
-        this.type = ModelType.Fluid;
         this.max_cell_length = max_cell_length==null ? -1 : max_cell_length;
     }
 

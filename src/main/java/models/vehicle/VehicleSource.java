@@ -43,7 +43,7 @@ public class VehicleSource extends common.AbstractSource {
 
     public void insert_vehicle(float timestamp) throws OTMException {
 
-        VehicleModel model = (VehicleModel) link.model;
+        AbstractVehicleModel model = (AbstractVehicleModel) link.model;
 
         // create a vehicle
         AbstractVehicle vehicle = model.create_vehicle(commodity.getId(),commodity.vehicle_event_listeners);

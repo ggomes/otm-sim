@@ -5,7 +5,7 @@ import commodity.Path;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
-import models.vehicle.VehicleModel;
+import models.vehicle.AbstractVehicleModel;
 import runner.Scenario;
 
 import java.util.HashMap;
@@ -37,7 +37,7 @@ public class StateContainer {
 
     public Set<AbstractVehicle> add_packet_and_extract_vehicles(StateContainer container, AbstractLaneGroup lg){
 
-        VehicleModel model = (VehicleModel) lg.link.model;
+        AbstractVehicleModel model = (AbstractVehicleModel) lg.link.model;
 
         Set<AbstractVehicle> vehicles = new HashSet<>();
 

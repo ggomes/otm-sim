@@ -1,12 +1,12 @@
 package tests;
 
 import error.OTMException;
-import models.fluid.FluidModel;
+import models.AbstractModel;
+import models.fluid.AbstractFluidModel;
 import org.junit.Test;
 import output.animation.AbstractLinkInfo;
 import output.animation.AnimationInfo;
 import output.animation.macro.LaneGroupInfo;
-import runner.ModelType;
 
 import java.util.Set;
 
@@ -27,8 +27,8 @@ public class TestAnimationInfo {
             otm.load_test("line");
 
             Set<Float> sim_dts = (new api.OTMdev(otm)).scenario.network.models.values().stream()
-                    .filter(m->m.type== ModelType.Fluid)
-                    .map(m->((FluidModel)m).dt)
+                    .filter(m->m.type== AbstractModel.Type.Fluid)
+                    .map(m->((AbstractFluidModel)m).dt)
                     .collect(toSet());
 
             if(sim_dts.size()!=1)

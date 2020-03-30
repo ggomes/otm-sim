@@ -50,7 +50,7 @@ public class FluidSource extends AbstractSource {
     public void set_demand_vps(Dispatcher dispatcher, float time, double value) throws OTMException {
         super.set_demand_vps(dispatcher, time, value);
         source_flows = split_demand(
-                source_demand_vps*((FluidModel)link.model).dt
+                source_demand_vps*((AbstractFluidModel)link.model).dt
         );
     }
 

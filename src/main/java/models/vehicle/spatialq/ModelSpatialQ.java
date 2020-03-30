@@ -10,22 +10,20 @@ import jaxb.OutputRequest;
 import models.*;
 import common.Link;
 import error.OTMException;
-import models.vehicle.VehicleModel;
+import models.vehicle.AbstractVehicleModel;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
-import runner.ModelType;
 import runner.Scenario;
 import utils.StochasticProcess;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ModelSpatialQ extends VehicleModel {
+public class ModelSpatialQ extends AbstractVehicleModel {
 
     public ModelSpatialQ(String name, boolean is_default, StochasticProcess process) {
         super(name,is_default,process);
-        this.type = ModelType.VehicleMeso;
     }
 
     //////////////////////////////////////////////////

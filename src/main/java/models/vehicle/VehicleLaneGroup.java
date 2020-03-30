@@ -42,7 +42,7 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
 
         Set<AbstractVehicle> vehs = new HashSet<>();
 
-        VehicleModel model = (VehicleModel) link.model;
+        AbstractVehicleModel model = (AbstractVehicleModel) link.model;
 
         // process 'vehicle' part
         if(!vp.vehicles.isEmpty())

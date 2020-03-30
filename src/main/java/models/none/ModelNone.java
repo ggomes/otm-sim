@@ -25,9 +25,8 @@ import java.util.Set;
 
 public class ModelNone extends AbstractModel {
 
-
     public ModelNone(String name, boolean is_default, StochasticProcess process) {
-        super(name, is_default, process);
+        super(AbstractModel.Type.None,name, is_default, process);
     }
 
     @Override

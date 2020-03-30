@@ -2,8 +2,8 @@ package traveltime;
 
 import common.Link;
 import models.AbstractLaneGroup;
-import models.fluid.FluidModel;
-import models.vehicle.VehicleModel;
+import models.fluid.AbstractFluidModel;
+import models.vehicle.AbstractVehicleModel;
 
 public class LinkTravelTimer {
 
@@ -14,12 +14,12 @@ public class LinkTravelTimer {
         this.link = link;
 
         // create FluidLaneGroupTimer
-        if( link.model instanceof FluidModel)
+        if( link.model instanceof AbstractFluidModel)
             for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
                 lg.travel_timer = new FluidLaneGroupTimer(lg,outDt);
 
         // create VehicleLaneGroupTimer
-        if( link.model instanceof VehicleModel)
+        if( link.model instanceof AbstractVehicleModel)
             for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
                 lg.travel_timer = new VehicleLaneGroupTimer(lg,outDt);
 

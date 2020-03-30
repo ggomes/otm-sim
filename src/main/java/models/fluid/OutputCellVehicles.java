@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class OutputCellVehicles extends AbstractOutputTimed {
 
-    FluidModel model;
+    AbstractFluidModel model;
     public ArrayList<models.fluid.LaneGroup> ordered_lgs;               // An ordered map would be really helpful here
     public Map<Long, LaneGroupProfile> lgprofiles;
 
@@ -22,7 +22,7 @@ public class OutputCellVehicles extends AbstractOutputTimed {
     // construction
     //////////////////////////////////////////////////////
 
-    public OutputCellVehicles(Scenario scenario, FluidModel model, String prefix, String output_folder, Long commodity_id, Float outDt) throws OTMException {
+    public OutputCellVehicles(Scenario scenario, AbstractFluidModel model, String prefix, String output_folder, Long commodity_id, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, commodity_id, outDt);
         this.model = model;
         ordered_lgs = new ArrayList<>();

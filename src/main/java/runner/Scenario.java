@@ -5,7 +5,7 @@ import commodity.Commodity;
 import commodity.Subnetwork;
 import common.Link;
 import models.AbstractModel;
-import models.fluid.FluidModel;
+import models.fluid.AbstractFluidModel;
 import traveltime.LinkTravelTimeManager;
 import control.AbstractController;
 import error.OTMErrorLog;
@@ -85,7 +85,7 @@ public class Scenario {
             for(String str : errorLog.getErrors().stream().filter(e->e.description.contains("CFL")).map(e->e.description).collect(toSet())) {
                 String[] tokens = str.split(" ");
                 long linkid = Long.parseLong(tokens[3]);
-                FluidModel model = (FluidModel) network.links.get(linkid).model;
+                AbstractFluidModel model = (AbstractFluidModel) network.links.get(linkid).model;
                 double cfl = Double.parseDouble(tokens[6]);
                 maxdt.put(model.name,Math.min(maxdt.get(model.name),model.dt/cfl));
             }

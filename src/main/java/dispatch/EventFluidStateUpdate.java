@@ -1,7 +1,7 @@
 package dispatch;
 
 import error.OTMException;
-import models.fluid.FluidModel;
+import models.fluid.AbstractFluidModel;
 
 public class EventFluidStateUpdate extends AbstractEvent  {
 
@@ -14,7 +14,7 @@ public class EventFluidStateUpdate extends AbstractEvent  {
 
         super.action(verbose);
 
-        FluidModel model = (FluidModel)recipient;
+        AbstractFluidModel model = (AbstractFluidModel)recipient;
 
         // update the models.fluid.ctm state
         model.update_fluid_state(timestamp);

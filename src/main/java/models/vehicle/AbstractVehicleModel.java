@@ -13,10 +13,10 @@ import utils.StochasticProcess;
 
 import java.util.*;
 
-public abstract class VehicleModel extends AbstractModel {
+public abstract class AbstractVehicleModel extends AbstractModel {
 
-    public VehicleModel(String name, boolean is_default, StochasticProcess process) {
-        super(name, is_default,process);
+    public AbstractVehicleModel(String name, boolean is_default, StochasticProcess process) {
+        super(AbstractModel.Type.Vehicle,name, is_default,process);
     }
 
     //////////////////////////////////////////////////
