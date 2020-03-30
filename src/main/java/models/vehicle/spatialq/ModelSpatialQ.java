@@ -26,30 +26,13 @@ public class ModelSpatialQ extends AbstractVehicleModel {
         super(name,is_default,process);
     }
 
-    //////////////////////////////////////////////////
-    // load
-    //////////////////////////////////////////////////
-
-    @Override
-    public void set_road_param(Link link,jaxb.Roadparam r) {
-        super.set_road_param(link,r);
-    }
+    //////////////////////////////////////////////////////////////
+    // InterfaceModel
+    //////////////////////////////////////////////////////////////
 
     @Override
     public void validate(OTMErrorLog errorLog) {
     }
-
-    @Override
-    public void reset(Link link) {
-    }
-
-    @Override
-    public void build() {
-    }
-
-    //////////////////////////////////////////////////
-    // factory
-    //////////////////////////////////////////////////
 
     @Override
     public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
@@ -72,9 +55,31 @@ public class ModelSpatialQ extends AbstractVehicleModel {
     }
 
     @Override
-    public AbstractVehicle create_vehicle(Long comm_id,Set<InterfaceVehicleListener> event_listeners) {
-        return new Vehicle(comm_id,event_listeners);
+    public Map<AbstractLaneGroup, Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
+        return std_lanegroup_proportions(candidate_lanegroups);
     }
+
+    @Override
+    public AbstractLinkInfo get_link_info(Link link) {
+        return new output.animation.meso.LinkInfo(link);
+    }
+
+    //////////////////////////////////////////////////////////////
+    // Completions from AbstractModel
+    //////////////////////////////////////////////////////////////
+
+    @Override
+    public void set_road_param(Link link,jaxb.Roadparam r) {
+        super.set_road_param(link,r);
+    }
+
+    @Override
+    public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time) {
+    }
+
+    //////////////////////////////////////////////////////////////
+    // InterfaceVehicleModel
+    //////////////////////////////////////////////////////////////
 
     @Override
     public AbstractVehicle translate_vehicle(AbstractVehicle that){
@@ -84,24 +89,16 @@ public class ModelSpatialQ extends AbstractVehicleModel {
             return new Vehicle(that);
     }
 
-    //////////////////////////////////////////////////
-    // run
-    //////////////////////////////////////////////////
-
     @Override
-    public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time) {
-    }
-
-    @Override
-    public AbstractLinkInfo get_link_info(Link link) {
-        return new output.animation.meso.LinkInfo(link);
+    public AbstractVehicle create_vehicle(Long comm_id,Set<InterfaceVehicleListener> event_listeners) {
+        return new Vehicle(comm_id,event_listeners);
     }
 
     //////////////////////////////////////////////////////////////
-    // protected
+    // static protected
     //////////////////////////////////////////////////////////////
 
-    protected void process_lane_change_request(Link link,float timestamp,LaneChangeRequest x) throws OTMException {
+    static protected void process_lane_change_request(Link link,float timestamp,LaneChangeRequest x) throws OTMException {
 
         if(x==null)
             return;

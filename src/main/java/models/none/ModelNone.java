@@ -29,14 +29,33 @@ public class ModelNone extends AbstractModel {
         super(AbstractModel.Type.None,name, is_default, process);
     }
 
-    @Override
-    public void validate(OTMErrorLog errorLog){ }
+    //////////////////////////////////////////////////////////////
+    // abstract in AbstractModel
+    //////////////////////////////////////////////////////////////
 
     @Override
     public void reset(Link link){ }
 
     @Override
     public void build(){ }
+
+    @Override
+    public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time){
+    }
+
+    @Override
+    public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path){
+        return new NoneSource(origin,demand_profile,commodity,path);
+    }
+
+    //////////////////////////////////////////////////////////////
+    // InterfaceModel
+    //////////////////////////////////////////////////////////////
+
+    @Override
+    public void validate(OTMErrorLog errorLog) {
+
+    }
 
     @Override
     public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException{
@@ -49,21 +68,12 @@ public class ModelNone extends AbstractModel {
     }
 
     @Override
-    public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path){
-        return new NoneSource(origin,demand_profile,commodity,path);
-    }
-
-    @Override
-    public AbstractLinkInfo get_link_info(Link link){
+    public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups){
         return null;
     }
 
     @Override
-    public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time){
-    }
-
-    @Override
-    public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups){
+    public AbstractLinkInfo get_link_info(Link link){
         return null;
     }
 

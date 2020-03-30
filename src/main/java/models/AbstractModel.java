@@ -5,15 +5,8 @@ import commodity.Commodity;
 import commodity.Path;
 import common.AbstractSource;
 import common.Link;
-import common.RoadConnection;
 import dispatch.Dispatcher;
-import error.OTMErrorLog;
 import error.OTMException;
-import geometry.FlowPosition;
-import geometry.Side;
-import jaxb.OutputRequest;
-import output.AbstractOutput;
-import output.animation.AbstractLinkInfo;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
 import profiles.DemandProfile;
@@ -21,11 +14,17 @@ import runner.Scenario;
 import utils.OTMUtils;
 import utils.StochasticProcess;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractModel {
+/**
+ * This is the base class for all models in OTM. It is not directly extended
+ * by concrete models. Instead these should use one of its children classes:
+ * AbstractFluidModel or AbstractVehicleModel. The user need not implement anything
+ * from this class directly. All of the abstract methods of AbstractModel have
+ * partial implementations in the child classes.
+ */
+public abstract class AbstractModel implements InterfaceModel {
 
     public enum Type { None, Fluid, Vehicle }
 
@@ -44,17 +43,13 @@ public abstract class AbstractModel {
 
     //////////////////////////////////////////////////
     // abstract methods
+    // These should be fully implemented by AbstractFluidModel and AbstractVehicleModel
     //////////////////////////////////////////////////
 
-    public abstract void validate(OTMErrorLog errorLog);
     public abstract void reset(Link link);
     public abstract void build();
-    public abstract AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException;
-    public abstract AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs);
-    public abstract AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path);
-    public abstract AbstractLinkInfo get_link_info(Link link);
     public abstract void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time);
-    public abstract Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups);
+    public abstract AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path);
 
     //////////////////////////////////////////////////
     // partially implemented methods

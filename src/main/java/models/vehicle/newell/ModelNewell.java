@@ -19,10 +19,7 @@ import output.animation.AbstractLinkInfo;
 import runner.Scenario;
 import utils.StochasticProcess;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.OptionalDouble;
-import java.util.Set;
+import java.util.*;
 
 public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
@@ -33,29 +30,12 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
         this.dt = dt==null ? -1 : dt;
     }
 
-    //////////////////////////////////////////////////
-    // load
-    //////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////
+    // InterfaceModel
+    //////////////////////////////////////////////////////////////
 
     @Override
     public void validate(OTMErrorLog errorLog) {
-    }
-
-    @Override
-    public void reset(Link link) {
-    }
-
-    @Override
-    public void build() {
-    }
-
-    //////////////////////////////////////////////////
-    // factory
-    //////////////////////////////////////////////////
-
-    @Override
-    public AbstractVehicle create_vehicle(Long comm_id,Set<InterfaceVehicleListener> event_listeners) {
-        return new Vehicle(comm_id,event_listeners);
     }
 
     @Override
@@ -72,16 +52,24 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
         return output;
     }
 
-    // SIMILAR AS PQ
     @Override
     public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         return new LaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
     }
 
     @Override
+    public Map<AbstractLaneGroup, Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
+        return std_lanegroup_proportions(candidate_lanegroups);
+    }
+
+    @Override
     public AbstractLinkInfo get_link_info(Link link) {
         return null;
     }
+
+    //////////////////////////////////////////////////////////////
+    // InterfaceVehicleModel
+    //////////////////////////////////////////////////////////////
 
     @Override
     public AbstractVehicle translate_vehicle(AbstractVehicle that){
@@ -91,14 +79,23 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
             return new Vehicle(that);
     }
 
+    @Override
+    public AbstractVehicle create_vehicle(Long comm_id,Set<InterfaceVehicleListener> event_listeners) {
+        return new Vehicle(comm_id,event_listeners);
+    }
+
     //////////////////////////////////////////////////
-    // run
+    // Completions from AbstractModel
     //////////////////////////////////////////////////
 
     @Override
     public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time) {
         dispatcher.register_event(new EventPoke(dispatcher, 6,start_time + dt, this));
     }
+
+    //////////////////////////////////////////////////
+    // State update (Pokable)
+    //////////////////////////////////////////////////
 
     @Override
     public void poke(Dispatcher dispatcher, float timestamp) throws OTMException {

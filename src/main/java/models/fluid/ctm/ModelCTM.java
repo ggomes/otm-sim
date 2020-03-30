@@ -1,11 +1,18 @@
 package models.fluid.ctm;
 
 import common.Link;
+import common.RoadConnection;
+import error.OTMErrorLog;
 import error.OTMException;
+import geometry.FlowPosition;
 import geometry.Side;
+import jaxb.OutputRequest;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import models.fluid.*;
+import output.AbstractOutput;
+import output.animation.AbstractLinkInfo;
+import runner.Scenario;
 import traveltime.FluidLaneGroupTimer;
 import utils.OTMUtils;
 import utils.StochasticProcess;
@@ -13,12 +20,60 @@ import utils.StochasticProcess;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ModelCTM extends AbstractFluidModel {
 
     public ModelCTM(String name, boolean is_default, Float dt, StochasticProcess process, Float max_cell_length) {
         super(name,is_default,dt==null ? -1 : dt,process,max_cell_length);
     }
+
+    //////////////////////////////////////////////////////////////
+    // InterfaceModel
+    //////////////////////////////////////////////////////////////
+
+    @Override
+    public void validate(OTMErrorLog errorLog) {
+
+    }
+
+    @Override
+    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
+        AbstractOutput output = null;
+        switch (jaxb_or.getQuantity()) {
+            case "cell_veh":
+                Long commodity_id = jaxb_or.getCommodity();
+                Float outDt = jaxb_or.getDt();
+                output = new OutputCellVehicles(scenario, this,prefix, output_folder, commodity_id, outDt);
+                break;
+            default:
+                throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
+        }
+        return output;
+    }
+
+    @Override
+    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+        return new LaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
+    }
+
+    @Override
+    public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
+        Map<AbstractLaneGroup,Double> A = new HashMap<>();
+        double total_supply = candidate_lanegroups.stream().mapToDouble(x->x.get_supply()).sum();
+        for(AbstractLaneGroup laneGroup : candidate_lanegroups)
+            A.put(laneGroup , laneGroup.get_supply() / total_supply);
+        return A;
+    }
+
+    @Override
+    public AbstractLinkInfo get_link_info(Link link) {
+        return new output.animation.macro.LinkInfo(link);
+    }
+
+    //////////////////////////////////////////////////////////////
+    // Completions from AbstractModel
+    //////////////////////////////////////////////////////////////
 
     @Override
     public void set_road_param(Link link,jaxb.Roadparam r) {
@@ -59,22 +114,12 @@ public class ModelCTM extends AbstractFluidModel {
         }
     }
 
-
     //////////////////////////////////////////////////////////////
-    // run
+    // InterfaceFluidModel
     //////////////////////////////////////////////////////////////
 
     @Override
-    public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
-        Map<AbstractLaneGroup,Double> A = new HashMap<>();
-        double total_supply = candidate_lanegroups.stream().mapToDouble(x->x.get_supply()).sum();
-        for(AbstractLaneGroup laneGroup : candidate_lanegroups)
-            A.put(laneGroup , laneGroup.get_supply() / total_supply);
-        return A;
-    }
-
-    @Override
-    public void update_link_flux_part_I(Link link, float timestamp) throws OTMException {
+    public void compute_lanechange_demand_supply(Link link, float timestamp) throws OTMException {
 
         // TODO: should update_flux I and II be passed the link as in update_state?
         // TODO What is the point of that?
@@ -309,6 +354,5 @@ public class ModelCTM extends AbstractFluidModel {
                 ctmlg.cells.forEach(cell -> cell.update_demand());
         }
     }
-
 
 }
