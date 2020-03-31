@@ -64,6 +64,17 @@ public class TestOne extends AbstractTest {
         }
     }
 
+    @Test
+    public void load_with_plugin() {
+        try {
+            String configfile = "/home/gomes/code/otm-models/cfg/line.xml";
+            api.OTM otm = new api.OTM(configfile,true,false);
+            assertNotNull(otm);
+        } catch (OTMException e) {
+            fail(e.getMessage());
+        }
+    }
+
     @Ignore
     @Test
     public void load_for_traffic_assignment() {

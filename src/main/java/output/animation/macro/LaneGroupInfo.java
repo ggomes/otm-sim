@@ -2,7 +2,7 @@ package output.animation.macro;
 
 import models.AbstractLaneGroup;
 import keys.KeyCommPathOrLink;
-import models.fluid.LaneGroup;
+import models.fluid.delete.LaneGroup;
 import output.animation.AbstractLaneGroupInfo;
 
 import java.util.ArrayList;

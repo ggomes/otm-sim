@@ -1,4 +1,4 @@
-package models.fluid;
+package models.fluid.nodemodel;
 
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
@@ -18,7 +18,7 @@ public class DnLaneGroup {
     }
 
     public AbstractLaneGroup lg;
-    public Map<Long,RoadConnection> rcs;                  // incoming road connections
+    public Map<Long, RoadConnection> rcs;                  // incoming road connections
 
     public double s_h;                                    // supply
     public boolean is_blocked;                            // sh==0

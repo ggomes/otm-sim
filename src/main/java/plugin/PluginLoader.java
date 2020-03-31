@@ -38,8 +38,6 @@ public class PluginLoader {
     }
 
     public static AbstractController get_controller_instance(String plugin_name, Scenario scenario, jaxb.Controller jaxb_controller) throws OTMException {
-//        try {
-
 
         try {
             Class[] cArg = new Class[2];

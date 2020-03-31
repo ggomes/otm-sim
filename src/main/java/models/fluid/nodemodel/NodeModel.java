@@ -1,10 +1,12 @@
-package models.fluid;
+package models.fluid.nodemodel;
 
 import common.Link;
 import common.Node;
 import error.OTMErrorLog;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
+import models.fluid.*;
+import models.fluid.delete.LaneGroup;
 import runner.Scenario;
 import utils.OTMUtils;
 
@@ -21,7 +23,7 @@ public class NodeModel {
     public static double eps = 1e-3;
     public Node node;
 
-    public Map<Long,UpLaneGroup> ulgs;  // upstrm lane groups.
+    public Map<Long, UpLaneGroup> ulgs;  // upstrm lane groups.
     public Map<Long, RoadConnection> rcs;  // road connections.
     public Map<Long, DnLaneGroup> dlgs; /// dnstrm lane groups.
 

@@ -1,6 +1,7 @@
-package models.fluid;
+package models.fluid.nodemodel;
 
 import keys.KeyCommPathOrLink;
+import models.fluid.AbstractFluidModel;
 
 import java.util.HashMap;
 import java.util.HashSet;

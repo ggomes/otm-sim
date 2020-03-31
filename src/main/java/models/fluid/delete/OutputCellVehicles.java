@@ -1,8 +1,9 @@
-package models.fluid;
+package models.fluid.delete;
 
 import common.Link;
 import error.OTMException;
 import models.AbstractLaneGroup;
+import models.fluid.AbstractFluidModel;
 import output.AbstractOutputTimed;
 import profiles.Profile1D;
 import runner.Scenario;
@@ -15,7 +16,7 @@ import java.util.Map;
 public class OutputCellVehicles extends AbstractOutputTimed {
 
     AbstractFluidModel model;
-    public ArrayList<models.fluid.LaneGroup> ordered_lgs;               // An ordered map would be really helpful here
+    public ArrayList<LaneGroup> ordered_lgs;               // An ordered map would be really helpful here
     public Map<Long, LaneGroupProfile> lgprofiles;
 
     //////////////////////////////////////////////////////
@@ -29,8 +30,8 @@ public class OutputCellVehicles extends AbstractOutputTimed {
         lgprofiles = new HashMap<>();
         for(Link link : model.links){
             for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() ){
-                ordered_lgs.add((models.fluid.LaneGroup)lg);
-                lgprofiles.put(lg.id, new LaneGroupProfile((models.fluid.LaneGroup)lg));
+                ordered_lgs.add((LaneGroup)lg);
+                lgprofiles.put(lg.id, new LaneGroupProfile((LaneGroup)lg));
             }
         }
     }
@@ -55,7 +56,7 @@ public class OutputCellVehicles extends AbstractOutputTimed {
                 if(filename!=null) {
                     String subfilename = filename.substring(0,filename.length()-4);
                     Writer cells_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_cells.txt"));
-                    for(models.fluid.LaneGroup lg: ordered_lgs)
+                    for(LaneGroup lg: ordered_lgs)
                         for(int i=0;i<lg.cells.size();i++)
                             cells_writer.write(lg.id+" "+i+"\n");
                     cells_writer.close();
@@ -83,7 +84,7 @@ public class OutputCellVehicles extends AbstractOutputTimed {
             super.write(timestamp,null);
             try {
                 boolean isfirst=true;
-                for(models.fluid.LaneGroup lg : ordered_lgs){
+                for(LaneGroup lg : ordered_lgs){
                     for(int i=0;i<lg.cells.size();i++){
                         if(!isfirst)
                             writer.write(AbstractOutputTimed.delim);
@@ -104,7 +105,7 @@ public class OutputCellVehicles extends AbstractOutputTimed {
         }
     }
 
-    private double get_value_for_cell(models.fluid.LaneGroup lg, int i){
+    private double get_value_for_cell(LaneGroup lg, int i){
         return lg.cells.get(i).get_veh_for_commodity(commodity==null? null : commodity.getId());
     }
 
@@ -113,9 +114,9 @@ public class OutputCellVehicles extends AbstractOutputTimed {
     //////////////////////////////////////////////////////
 
     public class LaneGroupProfile {
-        public models.fluid.LaneGroup lg;
+        public LaneGroup lg;
         public ArrayList<Profile1D> cell_profile;
-        public LaneGroupProfile(models.fluid.LaneGroup lg){
+        public LaneGroupProfile(LaneGroup lg){
             this.lg = lg;
         }
         public void initialize(float outDt){

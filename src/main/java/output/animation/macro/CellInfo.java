@@ -1,7 +1,7 @@
 package output.animation.macro;
 
 import keys.KeyCommPathOrLink;
-import models.fluid.Cell;
+import models.fluid.delete.Cell;
 
 import java.util.*;
 

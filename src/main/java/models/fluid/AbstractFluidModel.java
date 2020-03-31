@@ -12,6 +12,11 @@ import error.OTMException;
 import keys.KeyCommPathOrLink;
 import models.AbstractModel;
 import models.AbstractLaneGroup;
+import models.fluid.delete.Cell;
+import models.fluid.delete.LaneGroup;
+import models.fluid.nodemodel.NodeModel;
+import models.fluid.nodemodel.RoadConnection;
+import models.fluid.nodemodel.UpLaneGroup;
 import packet.PacketLink;
 import profiles.DemandProfile;
 import runner.Scenario;
@@ -142,7 +147,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
             for(AbstractSource asource : link.sources){
                 FluidSource source = (FluidSource) asource;
                 for(Map.Entry<Long,Map<KeyCommPathOrLink,Double>> e : source.source_flows.entrySet()){
-                    models.fluid.LaneGroup lg = (models.fluid.LaneGroup) link.lanegroups_flwdn.get(e.getKey());
+                    LaneGroup lg = (LaneGroup) link.lanegroups_flwdn.get(e.getKey());
                     Cell upcell = lg.cells.get(0);
                     upcell.add_vehicles(e.getValue(),null,null);
                 }
@@ -153,7 +158,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
         for(Link link : sink_links){
 
             for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                models.fluid.LaneGroup lg = (models.fluid.LaneGroup) alg;
+                LaneGroup lg = (LaneGroup) alg;
                 Map<KeyCommPathOrLink,Double> flow_dwn = lg.get_dnstream_cell().demand_dwn;
 
                 lg.release_vehicles(flow_dwn);
@@ -169,7 +174,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
         for(NodeModel node_model : node_models.values()) {
 
             // flows on road connections arrive to links on give lanes convert to packets and send
-            for(models.fluid.RoadConnection rc : node_model.rcs.values()) {
+            for(RoadConnection rc : node_model.rcs.values()) {
                 Link link = rc.rc.get_end_link();
                 link.model.add_vehicle_packet(link,timestamp, new PacketLink(rc.f_rs, rc.rc));
             }

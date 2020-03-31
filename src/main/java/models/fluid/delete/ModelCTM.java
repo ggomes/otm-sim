@@ -1,4 +1,4 @@
-package models.fluid.ctm;
+package models.fluid.delete;
 
 import common.Link;
 import common.RoadConnection;
@@ -94,7 +94,7 @@ public class ModelCTM extends AbstractFluidModel {
 
         for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
 
-            models.fluid.LaneGroup lg = (models.fluid.LaneGroup) alg;
+            LaneGroup lg = (LaneGroup) alg;
             float cell_length = lg.length / lg.cells.size() / 1000f;
             float jam_density_vehperlane = r.getJamDensity() * cell_length;
             float ffspeed_veh = r.getSpeed() * dt_hr / cell_length;
@@ -139,7 +139,7 @@ public class ModelCTM extends AbstractFluidModel {
 
         for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
 
-            models.fluid.LaneGroup lg = (models.fluid.LaneGroup) alg;
+            LaneGroup lg = (LaneGroup) alg;
 
             if(lg.states.isEmpty())
                 continue;
@@ -224,7 +224,7 @@ public class ModelCTM extends AbstractFluidModel {
 
             // compute total flows reduction for each lane group
             for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                models.fluid.LaneGroup lg = (models.fluid.LaneGroup) alg;
+                LaneGroup lg = (LaneGroup) alg;
                 Cell cell = lg.cells.get(i);
                 double demand_to_me = 0d;
                 if (lg.neighbor_in != null)
@@ -242,7 +242,7 @@ public class ModelCTM extends AbstractFluidModel {
             // ie a flow that goes left does not also go right. Otherwise I think there may
             // be "data races", where the result depends on the order of lgs.
             for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                models.fluid.LaneGroup lg = (models.fluid.LaneGroup) alg;
+                LaneGroup lg = (LaneGroup) alg;
                 double my_gamma = gamma.get(lg.id);
 
                 if (lg.neighbor_in != null) {

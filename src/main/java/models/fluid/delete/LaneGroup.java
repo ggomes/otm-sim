@@ -1,4 +1,4 @@
-package models.fluid;
+package models.fluid.delete;
 
 import common.Link;
 import common.RoadConnection;
@@ -8,6 +8,7 @@ import geometry.FlowPosition;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
+import models.fluid.delete.Cell;
 import packet.PacketLaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
