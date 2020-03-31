@@ -12,8 +12,6 @@ import error.OTMException;
 import keys.KeyCommPathOrLink;
 import models.AbstractModel;
 import models.AbstractLaneGroup;
-import models.fluid.delete.Cell;
-import models.fluid.delete.LaneGroup;
 import models.fluid.nodemodel.NodeModel;
 import models.fluid.nodemodel.RoadConnection;
 import models.fluid.nodemodel.UpLaneGroup;
@@ -23,6 +21,7 @@ import runner.Scenario;
 import utils.OTMUtils;
 import utils.StochasticProcess;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -50,15 +49,17 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     @Override
     public void reset(Link link) {
         for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
-            LaneGroup lg = (LaneGroup) alg;
+            FluidLaneGroup lg = (FluidLaneGroup) alg;
             lg.cells.forEach(x->x.reset());
         }
     }
 
     @Override
-    public void build() {
-        links.forEach(link->create_cells(link,max_cell_length));
-        node_models.values().forEach(m->m.build());
+    public void build() throws OTMException {
+        for(Link link : links)
+            create_cells(link,max_cell_length);
+        for(NodeModel nm : node_models.values())
+            nm.build();
     }
 
     @Override
@@ -147,8 +148,8 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
             for(AbstractSource asource : link.sources){
                 FluidSource source = (FluidSource) asource;
                 for(Map.Entry<Long,Map<KeyCommPathOrLink,Double>> e : source.source_flows.entrySet()){
-                    LaneGroup lg = (LaneGroup) link.lanegroups_flwdn.get(e.getKey());
-                    Cell upcell = lg.cells.get(0);
+                    FluidLaneGroup lg = (FluidLaneGroup) link.lanegroups_flwdn.get(e.getKey());
+                    AbstractCell upcell = lg.cells.get(0);
                     upcell.add_vehicles(e.getValue(),null,null);
                 }
             }
@@ -158,8 +159,8 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
         for(Link link : sink_links){
 
             for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                LaneGroup lg = (LaneGroup) alg;
-                Map<KeyCommPathOrLink,Double> flow_dwn = lg.get_dnstream_cell().demand_dwn;
+                FluidLaneGroup lg = (FluidLaneGroup) alg;
+                Map<KeyCommPathOrLink,Double> flow_dwn = lg.get_demand();
 
                 lg.release_vehicles(flow_dwn);
 
@@ -212,21 +213,35 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     // private
     //////////////////////////////////////////////////////////////
 
-    private void create_cells(Link link,float max_cell_length){
+    private void create_cells(Link link,float max_cell_length) throws OTMException {
+
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
 
+            FluidLaneGroup flg = (FluidLaneGroup) lg;
+
+            // compute cell length
             float r = lg.length/max_cell_length;
             boolean is_source_or_sink = link.is_source || link.is_sink;
 
-            int cells_per_lanegroup = is_source_or_sink ?
+            int num_cells = is_source_or_sink ?
                     1 :
                     OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
-            float cell_length_meters = is_source_or_sink ?
-                    lg.length :
-                    lg.length/cells_per_lanegroup;
 
-            ((LaneGroup) lg).create_cells(cells_per_lanegroup, cell_length_meters);
+            flg.cell_length_meters = is_source_or_sink ?
+                    lg.length :
+                    lg.length/num_cells;
+
+            // create the cells
+            flg.cells = new ArrayList<>();
+            for(int i=0;i<num_cells;i++)
+                flg.cells.add(create_cell(flg.cell_length_meters, flg));
+
+            // designate first and last
+            flg.cells.get(0).am_upstrm = true;
+            flg.cells.get(num_cells-1).am_dnstrm = true;
         }
+
     }
+
 
 }

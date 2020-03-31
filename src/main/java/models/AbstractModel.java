@@ -47,7 +47,7 @@ public abstract class AbstractModel implements InterfaceModel {
     //////////////////////////////////////////////////
 
     public abstract void reset(Link link);
-    public abstract void build();
+    public abstract void build() throws OTMException;
     public abstract void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time);
     public abstract AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path);
 

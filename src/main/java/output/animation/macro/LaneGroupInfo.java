@@ -2,7 +2,7 @@ package output.animation.macro;
 
 import models.AbstractLaneGroup;
 import keys.KeyCommPathOrLink;
-import models.fluid.delete.LaneGroup;
+import models.fluid.FluidLaneGroup;
 import output.animation.AbstractLaneGroupInfo;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class LaneGroupInfo extends AbstractLaneGroupInfo {
     public LaneGroupInfo(AbstractLaneGroup lg) {
         super(lg);
 
-        LaneGroup ctm_lg = (LaneGroup) lg;
+        FluidLaneGroup ctm_lg = (FluidLaneGroup) lg;
         this.cell_info = new ArrayList<>();
         for(int i=0;i<ctm_lg.cells.size();i++)
             cell_info.add(new CellInfo(ctm_lg.cells.get(i),i));

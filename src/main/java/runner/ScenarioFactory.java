@@ -252,6 +252,9 @@ public class ScenarioFactory {
 
                     // it might be a plugin
                     controller = PluginLoader.get_controller_instance(controller_type,scenario,jaxb_controller);
+
+                    if(controller==null)
+                        throw new OTMException("Bad controller type: " + controller_type);
                     break;
             }
             controllers.put(jaxb_controller.getId(),controller);

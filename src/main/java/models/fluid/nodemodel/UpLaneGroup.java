@@ -1,7 +1,7 @@
 package models.fluid.nodemodel;
 
 import keys.KeyCommPathOrLink;
-import models.fluid.delete.LaneGroup;
+import models.fluid.FluidLaneGroup;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,12 +34,12 @@ public class UpLaneGroup {
             this.state = state;
         }
         public void reset(){
-            d_gs = lg.get_demand_in_target_for_state(state);
+            d_gs = lg.get_demand().get(state);
             delta_gs = Double.NaN;
         }
     }
 
-    public LaneGroup lg;
+    public FluidLaneGroup lg;
 
     public boolean is_empty_or_blocked;
     public double gamma_g;
@@ -51,7 +51,7 @@ public class UpLaneGroup {
     // construction
     ////////////////////////////////////////////
 
-    public UpLaneGroup(LaneGroup lg){
+    public UpLaneGroup(FluidLaneGroup lg){
         this.lg = lg;
         this.is_empty_or_blocked = false;
         this.gamma_g = Double.NaN;

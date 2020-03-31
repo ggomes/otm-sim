@@ -1,4 +1,4 @@
-package models.fluid.delete;
+package models.fluid;
 
 import common.Link;
 import common.RoadConnection;
@@ -8,49 +8,32 @@ import geometry.FlowPosition;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
-import models.fluid.delete.Cell;
 import packet.PacketLaneGroup;
 import runner.RunParameters;
 import runner.Scenario;
 import utils.OTMUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class LaneGroup extends AbstractLaneGroup {
+public class FluidLaneGroup extends AbstractLaneGroup {
 
-    public double cell_length_meters;
+    public float cell_length_meters;
 
     public double wspeed_cell_per_dt;          // [-]
     public double ffspeed_cell_per_dt;         // [-]
     public double jam_density_veh_per_cell;
     public double capacity_veh_per_dt;
 
-    public List<Cell> cells;     // sequence of cells
+    public List<AbstractCell> cells;     // sequence of cells
 
     ////////////////////////////////////////////
     // load
     ///////////////////////////////////////////
 
-    public LaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+    public FluidLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side, flwpos,length, num_lanes, start_lane, out_rcs);
-    }
-
-    public void create_cells(int num_cells,double cell_length_meters){
-
-        this.cells = new ArrayList<>();
-
-        this.cell_length_meters = cell_length_meters;
-
-        for(int i=0;i<num_cells;i++)
-            this.cells.add(new Cell(cell_length_meters, this));
-
-        // designate first and last
-        this.cells.get(0).am_upstrm = true;
-        this.cells.get(num_cells-1).am_dnstrm = true;
-
     }
 
     @Override
@@ -82,11 +65,12 @@ public class LaneGroup extends AbstractLaneGroup {
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
         super.initialize(scenario,runParams);
 
+        // THIS CAN PROBABLY BE REMOVED .........................
 //        // populate in target boundary flows
 //        flow_stay = new ArrayList<>();
 //        for(int i=0;i<cells.size()+1;i++)
 //            flow_stay.add(new HashMap<>());
-
+//
 //        // Configuration for lane changing
 //        if(neighbor_in!=null){
 //            this.flow_lc_in = new ArrayList<>();
@@ -99,6 +83,7 @@ public class LaneGroup extends AbstractLaneGroup {
 //            for(int i=0;i<cells.size()+1;i++)
 //                flow_lc_out.add(new HashMap<>());
 //        }
+        // .........................................................
 
     }
 
@@ -119,7 +104,7 @@ public class LaneGroup extends AbstractLaneGroup {
     @Override
     public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) {
 
-        Cell cell = cells.get(0);
+        AbstractCell cell = cells.get(0);
 
         // When the link is a model source, then the packet first goes into a buffer.
         // From there it is "processed", meaning that some part goes into the upstream cell.
@@ -159,6 +144,7 @@ public class LaneGroup extends AbstractLaneGroup {
             update_supply();
     }
 
+    // THIS CAN PROBABLY BE REMOVED .........................
 //    protected void update_dwn_flow(){
 //        // set flow_stay and flot_notin_target for internal boundaries and
 ////        // downstream boundary for sinks
@@ -202,6 +188,7 @@ public class LaneGroup extends AbstractLaneGroup {
 ////            for(int i=0;i<cells.size();i++)
 ////                flow_lc_out.set(i,null);
 //    }
+    // ..............................................................
 
     @Override
     public void update_supply(){
@@ -210,7 +197,7 @@ public class LaneGroup extends AbstractLaneGroup {
         if(link.is_model_source_link && buffer.get_total_veh()>=1d)
             supply = 0d;
         else {
-            Cell upcell = get_upstream_cell();
+            AbstractCell upcell = get_upstream_cell();
             upcell.update_supply();
             supply = upcell.supply;
         }
@@ -221,18 +208,19 @@ public class LaneGroup extends AbstractLaneGroup {
     // get
     ////////////////////////////////////////////
 
-    public Cell get_upstream_cell(){
+    public AbstractCell get_upstream_cell(){
         return cells.get(0);
     }
 
-    public Cell get_dnstream_cell(){
+    public AbstractCell get_dnstream_cell(){
         return cells.get(cells.size()-1);
     }
 
-    public Double get_demand_in_target_for_state(KeyCommPathOrLink state){
-        return get_dnstream_cell().demand_dwn.get(state);
+    public Map<KeyCommPathOrLink,Double> get_demand(){
+        return get_dnstream_cell().get_demand();
     }
 
+    // THIS CAN PROBABLY BE REMOVED .........................
 //    public double get_total_outgoing_flow(){
 //        return flow_stay ==null || flow_stay.size()<cells.size()+1 || flow_stay.get(cells.size())==null ? 0d : OTMUtils.sum(flow_stay.get(cells.size()));
 //    }
@@ -275,6 +263,7 @@ public class LaneGroup extends AbstractLaneGroup {
 //        }
 //        return sum;
 //    }
+    // .............................................................
 
     @Override
     public float vehs_dwn_for_comm(Long comm_id) {
@@ -299,7 +288,7 @@ public class LaneGroup extends AbstractLaneGroup {
         if(buffer_size < OTMUtils.epsilon )
             return;
 
-        Cell cell = cells.get(0);
+        AbstractCell cell = cells.get(0);
                     double total_space = cell.supply;
 //        double total_space = jam_density_veh_per_cell - cell.get_vehicles();
         double factor = Math.min( 1d , total_space / buffer_size );

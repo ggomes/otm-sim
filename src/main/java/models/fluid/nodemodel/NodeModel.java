@@ -3,10 +3,11 @@ package models.fluid.nodemodel;
 import common.Link;
 import common.Node;
 import error.OTMErrorLog;
+import error.OTMException;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import models.fluid.*;
-import models.fluid.delete.LaneGroup;
+import models.fluid.FluidLaneGroup;
 import runner.Scenario;
 import utils.OTMUtils;
 
@@ -31,7 +32,7 @@ public class NodeModel {
         this.node = node;
     }
 
-    public void build(){
+    public void build() throws OTMException {
 
         rcs = new HashMap<>();
 
@@ -58,11 +59,11 @@ public class NodeModel {
 
             // there is only one upstream lanegroup
             assert(up_link.lanegroups_flwdn.size()==1);
-            LaneGroup up_lanegroup = (LaneGroup) up_link.lanegroups_flwdn.values().iterator().next();
+            FluidLaneGroup up_lanegroup = (FluidLaneGroup) up_link.lanegroups_flwdn.values().iterator().next();
 
             // there is only one dnstream lanegroup
             assert(dn_link.lanegroups_flwdn.size()==1);
-            LaneGroup dn_lanegroup = (LaneGroup) dn_link.lanegroups_flwdn.values().iterator().next();
+            FluidLaneGroup dn_lanegroup = (FluidLaneGroup) dn_link.lanegroups_flwdn.values().iterator().next();
 
             // add a fictitious road connection with id 0
             RoadConnection rc = new RoadConnection(0L,null);
@@ -117,7 +118,7 @@ public class NodeModel {
 
                 UpLaneGroup ulg;
                 if (!up_lgs_map.containsKey(xup_lg.id)) {
-                    ulg = new UpLaneGroup((LaneGroup) xup_lg);
+                    ulg = new UpLaneGroup((FluidLaneGroup) xup_lg);
                     up_lgs_map.put(xup_lg.id, ulg);
                 } else
                     ulg = up_lgs_map.get(xup_lg.id);

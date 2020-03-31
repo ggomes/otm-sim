@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class ModelNone extends AbstractModel {
 
-    public ModelNone(String name, boolean is_default, StochasticProcess process) {
+    public ModelNone(String name, boolean is_default, StochasticProcess process, jaxb.ModelParams param) {
         super(AbstractModel.Type.None,name, is_default, process);
     }
 
@@ -37,7 +37,7 @@ public class ModelNone extends AbstractModel {
     public void reset(Link link){ }
 
     @Override
-    public void build(){ }
+    public void build() throws OTMException { }
 
     @Override
     public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time){

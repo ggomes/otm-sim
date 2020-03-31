@@ -9,10 +9,11 @@ import geometry.Side;
 import jaxb.Roadparam;
 import models.AbstractLaneGroup;
 import models.AbstractModel;
-import models.fluid.delete.ModelCTM;
+import models.fluid.ctm.ModelCTM;
 import models.none.ModelNone;
 import models.vehicle.newell.ModelNewell;
 import models.vehicle.spatialq.ModelSpatialQ;
+import plugin.PluginLoader;
 import runner.RunParameters;
 import runner.Scenario;
 import utils.OTMUtils;
@@ -109,7 +110,8 @@ public class Network {
         links.values().forEach(link->link.populate_outlink2lanegroups());
 
         // models .................................................
-        models.values().forEach(x->x.build());
+        for(AbstractModel model : models.values())
+            model.build();
 
         // assign road params
         assign_road_params(jaxb_links,links,road_params);
@@ -231,35 +233,44 @@ public class Network {
             AbstractModel model;
             switch(jaxb_model.getType()){
                 case "ctm":
-                    model = new ModelCTM( jaxb_model.getName(),
-                                        jaxb_model.isIsDefault(),
-                                        jaxb_model.getModelParams().getSimDt(),
-                                        process,
-                                        jaxb_model.getModelParams().getMaxCellLength());
+                    model = new ModelCTM(jaxb_model.getName(),
+                                         jaxb_model.isIsDefault(),
+                                         process,
+                                         jaxb_model.getModelParams());
                     break;
 
                 case "spaceq":
                     model = new ModelSpatialQ(jaxb_model.getName(),
                                         jaxb_model.isIsDefault(),
-                                        process);
+                                        process,
+                                        null);
                     break;
 
                 case "micro":
                     model = new ModelNewell(jaxb_model.getName(),
-                                        jaxb_model.isIsDefault(),
-                                        jaxb_model.getModelParams().getSimDt(),
-                                        process);
+                            jaxb_model.isIsDefault(),
+                            process,
+                            jaxb_model.getModelParams() );
+
                     break;
 
                 case "none":
                     model = new ModelNone(jaxb_model.getName(),
                                         jaxb_model.isIsDefault(),
-                                        process);
+                                        process,
+                                        null );
+
                     nonemodel = (ModelNone) model;
                     break;
 
                 default:
-                    throw new OTMException("Bad model type: " + jaxb_model.getType());
+
+                    // it might be a plugin
+                    model = PluginLoader.get_model_instance(jaxb_model,process);
+
+                    if(model==null)
+                        throw new OTMException("Bad model type: " + jaxb_model.getType());
+                    break;
 
             }
             models.put(jaxb_model.getName(),model);
@@ -294,7 +305,7 @@ public class Network {
             if(nonemodel==null) {
                 if(models.containsKey("none"))
                     throw new OTMException("'none' is a prohibited name for a model.");
-                nonemodel = new ModelNone("none", false, StochasticProcess.deterministic);
+                nonemodel = new ModelNone("none", false, StochasticProcess.deterministic,null);
                 models.put("none", nonemodel);
                 model2links.put("none",my_links);
             } else {

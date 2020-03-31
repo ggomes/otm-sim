@@ -1,4 +1,4 @@
-package models.fluid.delete;
+package models.fluid.ctm;
 
 import common.Link;
 import common.RoadConnection;
@@ -24,8 +24,8 @@ import java.util.Set;
 
 public class ModelCTM extends AbstractFluidModel {
 
-    public ModelCTM(String name, boolean is_default, Float dt, StochasticProcess process, Float max_cell_length) {
-        super(name,is_default,dt==null ? -1 : dt,process,max_cell_length);
+    public ModelCTM(String name, boolean is_default, StochasticProcess process, jaxb.ModelParams param) {
+        super(name,is_default,param.getSimDt()==null ? -1 : param.getSimDt(),process,param.getMaxCellLength());
     }
 
     //////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ public class ModelCTM extends AbstractFluidModel {
 
     @Override
     public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        return new LaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
+        return new FluidLaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class ModelCTM extends AbstractFluidModel {
 
         for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
 
-            LaneGroup lg = (LaneGroup) alg;
+            FluidLaneGroup lg = (FluidLaneGroup) alg;
             float cell_length = lg.length / lg.cells.size() / 1000f;
             float jam_density_vehperlane = r.getJamDensity() * cell_length;
             float ffspeed_veh = r.getSpeed() * dt_hr / cell_length;
@@ -139,7 +139,7 @@ public class ModelCTM extends AbstractFluidModel {
 
         for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
 
-            LaneGroup lg = (LaneGroup) alg;
+            FluidLaneGroup lg = (FluidLaneGroup) alg;
 
             if(lg.states.isEmpty())
                 continue;
@@ -148,8 +148,8 @@ public class ModelCTM extends AbstractFluidModel {
 
             for(int i=0;i<lg.cells.size()-1;i++) {
 
-                Cell upcell = lg.cells.get(i);
-                Cell dncell = lg.cells.get(i + 1);
+                CTMCell upcell = (CTMCell) lg.cells.get(i);
+                CTMCell dncell = (CTMCell) lg.cells.get(i + 1);
 
                 Map<KeyCommPathOrLink, Double> dem_dwn = upcell.demand_dwn;
                 Map<KeyCommPathOrLink, Double> dem_out = upcell.demand_out;
@@ -207,6 +207,11 @@ public class ModelCTM extends AbstractFluidModel {
         }
     }
 
+    @Override
+    public AbstractCell create_cell(float cell_length_meters, FluidLaneGroup lg) throws OTMException {
+        return new CTMCell(cell_length_meters,lg);
+    }
+
     ///////////////////////////////////////////
     // private
     ///////////////////////////////////////////
@@ -215,7 +220,7 @@ public class ModelCTM extends AbstractFluidModel {
 
         // WARNING: THIS ASSUMES NO ADDLANES (lanegroups_flwdn=all lanegroups)
 
-        int cells_in_full_lg = ((LaneGroup)link.lanegroups_flwdn.values().iterator().next()).cells.size();
+        int cells_in_full_lg = ((FluidLaneGroup)link.lanegroups_flwdn.values().iterator().next()).cells.size();
 
         // scan cross section from upstream to downstream
         for (int i = 0; i < cells_in_full_lg; i++) {
@@ -224,13 +229,13 @@ public class ModelCTM extends AbstractFluidModel {
 
             // compute total flows reduction for each lane group
             for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                LaneGroup lg = (LaneGroup) alg;
-                Cell cell = lg.cells.get(i);
+                FluidLaneGroup lg = (FluidLaneGroup) alg;
+                CTMCell cell = (CTMCell) lg.cells.get(i);
                 double demand_to_me = 0d;
                 if (lg.neighbor_in != null)
-                    demand_to_me += ((LaneGroup) lg.neighbor_in).cells.get(i).total_vehs_out;
+                    demand_to_me += ((CTMCell)((FluidLaneGroup) lg.neighbor_in).cells.get(i)).total_vehs_out;
                 if (lg.neighbor_out != null)
-                    demand_to_me += ((LaneGroup) lg.neighbor_out).cells.get(i).total_vehs_in;
+                    demand_to_me += ((CTMCell)((FluidLaneGroup) lg.neighbor_out).cells.get(i)).total_vehs_in;
 
                 // TODO: extract xi as a parameter
                 double supply = 0.9d * (1d - lg.wspeed_cell_per_dt) * cell.supply;
@@ -242,13 +247,13 @@ public class ModelCTM extends AbstractFluidModel {
             // ie a flow that goes left does not also go right. Otherwise I think there may
             // be "data races", where the result depends on the order of lgs.
             for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                LaneGroup lg = (LaneGroup) alg;
+                FluidLaneGroup lg = (FluidLaneGroup) alg;
                 double my_gamma = gamma.get(lg.id);
 
                 if (lg.neighbor_in != null) {
 
-                    LaneGroup from_lg = (LaneGroup) lg.neighbor_in;
-                    Cell from_cell = from_lg.cells.get(i);
+                    FluidLaneGroup from_lg = (FluidLaneGroup) lg.neighbor_in;
+                    CTMCell from_cell = (CTMCell) from_lg.cells.get(i);
                     Map<KeyCommPathOrLink, Double> from_vehs = from_cell.veh_out;
 
                     ///////////////////////////////////////////////////////////////////////////////////////////
@@ -259,7 +264,7 @@ public class ModelCTM extends AbstractFluidModel {
 
                         if (from_veh > OTMUtils.epsilon) {
 
-                            Cell to_cell = lg.cells.get(i);
+                            CTMCell to_cell = (CTMCell) lg.cells.get(i);
                             double flw = my_gamma  * from_veh;
 
                             // remove from this cell
@@ -290,8 +295,8 @@ public class ModelCTM extends AbstractFluidModel {
                 }
                 if (lg.neighbor_out != null) {
 
-                    LaneGroup from_lg = (LaneGroup) lg.neighbor_out;
-                    Cell from_cell = from_lg.cells.get(i);
+                    FluidLaneGroup from_lg = (FluidLaneGroup) lg.neighbor_out;
+                    CTMCell from_cell = (CTMCell) from_lg.cells.get(i);
                     Map<KeyCommPathOrLink, Double> from_vehs = from_cell.veh_in;
 
                     ///////////////////////////////////////////////////////////////////////////////////////////
@@ -302,7 +307,7 @@ public class ModelCTM extends AbstractFluidModel {
 
                         if (from_veh > OTMUtils.epsilon) {
 
-                            Cell to_cell = lg.cells.get(i);
+                            CTMCell to_cell = (CTMCell) lg.cells.get(i);
                             double flw = my_gamma * from_veh;
 
                             // remove from this cell
@@ -341,7 +346,7 @@ public class ModelCTM extends AbstractFluidModel {
     // call update_supply_demand on each cell
     private void update_supply_for_all_cells(Link link,float timestamp) {
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
-            LaneGroup ctmlg = (LaneGroup) lg;
+            FluidLaneGroup ctmlg = (FluidLaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_supply());
         }
@@ -349,7 +354,7 @@ public class ModelCTM extends AbstractFluidModel {
 
     private void update_demand(Link link,float timestamp) {
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
-            LaneGroup ctmlg = (LaneGroup) lg;
+            FluidLaneGroup ctmlg = (FluidLaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_demand());
         }

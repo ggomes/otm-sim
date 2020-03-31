@@ -38,7 +38,7 @@ public abstract class AbstractVehicleModel extends AbstractModel implements Inte
     public void reset(Link link){ }
 
     @Override
-    public void build(){ }
+    public void build() throws OTMException { }
 
     @Override
     public final AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
