@@ -162,7 +162,7 @@ public class ControllerSignalPretimed extends AbstractController {
 
     /** TEMPORARY **/
     public void set_stage_index(int index) throws OTMException {
-        set_stage_index(index,Float.NaN);
+        set_stage_index(index,this.scenario.get_current_time());
     }
 
     ///////////////////////////////////////////////////

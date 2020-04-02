@@ -30,6 +30,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         map_algorithm_actuator.put( Algorithm.fixed_rate  , AbstractActuator.Type.capacity );
     }
 
+    public final Scenario scenario;
     public final long id;
     public final Algorithm type;
     public final float dt;
@@ -51,6 +52,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     ///////////////////////////////////////////////////
 
     public AbstractController(Scenario scenario, jaxb.Controller jaxb_controller) throws OTMException {
+        this.scenario = scenario;
         this.id = jaxb_controller.getId();
 
         String controller_type = jaxb_controller.getType();
