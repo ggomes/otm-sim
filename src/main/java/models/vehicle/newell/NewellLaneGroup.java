@@ -3,6 +3,7 @@ package models.vehicle.newell;
 import common.AbstractVehicle;
 import common.Link;
 import common.RoadConnection;
+import error.OTMErrorLog;
 import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
@@ -19,14 +20,14 @@ import utils.OTMUtils;
 
 import java.util.*;
 
-public class LaneGroup extends VehicleLaneGroup {
+public class NewellLaneGroup extends VehicleLaneGroup {
 
-    public List<models.vehicle.newell.Vehicle> vehicles;
+    public List<NewellVehicle> vehicles;
     public double dv;   // vf*dt [meters per dt]
     public double dw;   // w*dt [meters per dt]
     public double dc;   // capcity*dt [veh per dt]
 
-    public LaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+    public NewellLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side, flwpos, length, num_lanes, start_lane, out_rcs);
         vehicles = new ArrayList<>();
     }
@@ -34,6 +35,11 @@ public class LaneGroup extends VehicleLaneGroup {
     ///////////////////////////////////////////////////
     // load
     ///////////////////////////////////////////////////
+
+    @Override
+    public void validate(OTMErrorLog errorLog) {
+
+    }
 
     @Override
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
@@ -81,13 +87,13 @@ public class LaneGroup extends VehicleLaneGroup {
 
         for(AbstractVehicle aveh : create_vehicles_from_packet(vp,next_link_id)){
 
-            models.vehicle.newell.Vehicle vehicle = (models.vehicle.newell.Vehicle)aveh;
+            NewellVehicle vehicle = (NewellVehicle)aveh;
 
             vehicle.lg = this;
 
             if(!vehicles.isEmpty()) {
 
-                Vehicle leader = vehicles.get(vehicles.size()-1);
+                NewellVehicle leader = vehicles.get(vehicles.size()-1);
                 leader.follower = vehicle;
                 vehicle.leader = leader;
 
@@ -126,7 +132,7 @@ public class LaneGroup extends VehicleLaneGroup {
         throw new OTMException("NOT IMPLEMENTED awpirg -jqig");
     }
 
-    public boolean release_vehicle(float timestamp, Iterator<Vehicle> it, Vehicle vehicle) throws OTMException {
+    public boolean release_vehicle(float timestamp, Iterator<NewellVehicle> it, NewellVehicle vehicle) throws OTMException {
 
         boolean released = false;
 

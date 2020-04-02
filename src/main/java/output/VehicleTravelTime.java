@@ -4,8 +4,8 @@ import api.info.events.EventVehicleTravelTimeInfo;
 import commodity.Commodity;
 import dispatch.Dispatcher;
 import error.OTMException;
+import models.vehicle.spatialq.MesoVehicle;
 import models.vehicle.spatialq.Queue;
-import models.vehicle.spatialq.Vehicle;
 import runner.RunParameters;
 import runner.Scenario;
 
@@ -29,7 +29,7 @@ public class VehicleTravelTime extends AbstractOutputEvent implements InterfaceV
     }
 
     @Override
-    public void move_from_to_queue(float timestamp, Vehicle vehicle, Queue from_queue, Queue to_queue) throws OTMException {
+    public void move_from_to_queue(float timestamp, MesoVehicle vehicle, Queue from_queue, Queue to_queue) throws OTMException {
         write(timestamp,new EventVehicleTravelTimeInfo(timestamp,vehicle.getId(),from_queue,to_queue));
     }
 

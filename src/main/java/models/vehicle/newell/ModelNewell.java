@@ -54,7 +54,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
     @Override
     public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        return new LaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
+        return new NewellLaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
     }
 
     @Override
@@ -73,15 +73,15 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
     @Override
     public AbstractVehicle translate_vehicle(AbstractVehicle that){
-        if(that instanceof Vehicle)
+        if(that instanceof NewellVehicle)
             return that;
         else
-            return new Vehicle(that);
+            return new NewellVehicle(that);
     }
 
     @Override
     public AbstractVehicle create_vehicle(Long comm_id,Set<InterfaceVehicleListener> event_listeners) {
-        return new Vehicle(comm_id,event_listeners);
+        return new NewellVehicle(comm_id,event_listeners);
     }
 
     //////////////////////////////////////////////////
@@ -108,8 +108,8 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
         // apply Newell's update formula to all vehicles
         for(Link link : links) {
             for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                LaneGroup lg = (LaneGroup) alg;
-                for( Vehicle vehicle : lg.vehicles ) {
+                NewellLaneGroup lg = (NewellLaneGroup) alg;
+                for( NewellVehicle vehicle : lg.vehicles ) {
                     double dx = Math.min(lg.dv, vehicle.headway - lg.dw);
                     dx = Math.min( dx , vehicle.headway * lg.dc);
                     dx = Math.max( dx , 0d );
@@ -121,10 +121,10 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
         // move vehicles to new link
         for(Link link : links) {
             for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                LaneGroup lg = (LaneGroup) alg;
-                Iterator<Vehicle> it = lg.vehicles.iterator();
+                NewellLaneGroup lg = (NewellLaneGroup) alg;
+                Iterator<NewellVehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
-                    Vehicle vehicle = it.next();
+                    NewellVehicle vehicle = it.next();
                     // possibly release the vehicle from this lanegroup
                     if (vehicle.new_pos > lg.length) {
                         boolean released = lg.release_vehicle(timestamp, it, vehicle);
@@ -140,10 +140,10 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
         // update position
         for(Link link : links) {
             for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                LaneGroup lg = (LaneGroup) alg;
-                Iterator<Vehicle> it = lg.vehicles.iterator();
+                NewellLaneGroup lg = (NewellLaneGroup) alg;
+                Iterator<NewellVehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
-                    Vehicle vehicle = it.next();
+                    NewellVehicle vehicle = it.next();
                     vehicle.pos = vehicle.new_pos;
                 }
             }
@@ -152,10 +152,10 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
         // update headway
         for(Link link : links) {
             for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                LaneGroup lg = (LaneGroup) alg;
-                Iterator<Vehicle> it = lg.vehicles.iterator();
+                NewellLaneGroup lg = (NewellLaneGroup) alg;
+                Iterator<NewellVehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
-                    Vehicle vehicle = it.next();
+                    NewellVehicle vehicle = it.next();
                     if(vehicle.leader==null) {
 
                         if(vehicle.get_next_link_id()==null)

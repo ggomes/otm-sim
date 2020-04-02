@@ -1,8 +1,8 @@
 package dispatch;
 
 import error.OTMException;
-import models.vehicle.spatialq.LaneGroup;
-import models.vehicle.spatialq.Vehicle;
+import models.vehicle.spatialq.MesoLaneGroup;
+import models.vehicle.spatialq.MesoVehicle;
 import output.InterfaceVehicleListener;
 
 public class EventTransitToWaiting extends AbstractEvent {
@@ -14,8 +14,8 @@ public class EventTransitToWaiting extends AbstractEvent {
     @Override
     public void action(boolean verbose) throws OTMException {
         super.action(verbose);
-        Vehicle vehicle = (Vehicle)recipient;
-        LaneGroup lanegroup = (LaneGroup) vehicle.get_lanegroup();
+        MesoVehicle vehicle = (MesoVehicle)recipient;
+        MesoLaneGroup lanegroup = (MesoLaneGroup) vehicle.get_lanegroup();
         if(verbose)
             System.out.println(String.format("\tvehicle %d, link %d, lanegroup %d",vehicle.getId(),lanegroup.link.getId(),lanegroup.id));
 

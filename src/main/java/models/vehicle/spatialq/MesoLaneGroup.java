@@ -21,7 +21,7 @@ import utils.OTMUtils;
 
 import java.util.*;
 
-public class LaneGroup extends VehicleLaneGroup {
+public class MesoLaneGroup extends VehicleLaneGroup {
 
     public Queue transit_queue;
     public Queue waiting_queue;
@@ -30,7 +30,7 @@ public class LaneGroup extends VehicleLaneGroup {
     public float saturation_flow_rate_vps;
     public float transit_time_sec;
 
-    public LaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
+    public MesoLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
         super(link, side,flwpos,length, num_lanes, start_lane, out_rcs);
         this.transit_queue = new Queue(this, Queue.Type.transit);
         this.waiting_queue = new Queue(this, Queue.Type.waiting);
@@ -49,7 +49,6 @@ public class LaneGroup extends VehicleLaneGroup {
 
     @Override
     public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
         transit_queue.validate(errorLog);
         waiting_queue.validate(errorLog);
     }
@@ -99,7 +98,7 @@ public class LaneGroup extends VehicleLaneGroup {
         Dispatcher dispatcher = link.network.scenario.dispatcher;
         for(AbstractVehicle absveh : create_vehicles_from_packet(vp,next_link_id)){
 
-            Vehicle veh = (Vehicle) absveh;
+            MesoVehicle veh = (MesoVehicle) absveh;
 
             // tell the event listeners
             if(veh.get_event_listeners()!=null)
@@ -166,7 +165,7 @@ public class LaneGroup extends VehicleLaneGroup {
             return;
 
         // otherwise get the first vehicle
-        Vehicle vehicle = waiting_queue.peek_vehicle();
+        MesoVehicle vehicle = waiting_queue.peek_vehicle();
 
         // is this vehicle waiting to change lanes out of its queue?
         // if so, the lane group is blocked

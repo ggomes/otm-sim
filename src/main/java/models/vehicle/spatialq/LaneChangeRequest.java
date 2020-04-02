@@ -5,11 +5,11 @@ import error.OTMException;
 public class LaneChangeRequest {
 
     protected float timestamp;
-    protected Vehicle requester;
+    protected MesoVehicle requester;
     protected Queue from_queue;
     protected Queue to_queue;
 
-    public LaneChangeRequest(float timestamp, Vehicle requester, Queue from_queue, Queue to_queue) throws OTMException {
+    public LaneChangeRequest(float timestamp, MesoVehicle requester, Queue from_queue, Queue to_queue) throws OTMException {
         if(from_queue.lanegroup.link!=to_queue.lanegroup.link)
             throw new OTMException("Lane change must happen within a link");
         this.timestamp = timestamp;

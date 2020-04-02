@@ -17,9 +17,10 @@ import dispatch.EventTransitToWaiting;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.DemandType;
-import keys.KeyCommPathOrLink;
 import keys.KeyCommodityDemandTypeId;
 import models.AbstractLaneGroup;
+import models.vehicle.spatialq.MesoLaneGroup;
+import models.vehicle.spatialq.MesoVehicle;
 import output.animation.AnimationInfo;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;
@@ -329,7 +330,7 @@ public class Scenario {
 
     public Queues get_link_queues(long link_id) throws Exception {
         Link link = myapi.scn.network.links.get(link_id);
-        models.vehicle.spatialq.LaneGroup lg = (models.vehicle.spatialq.LaneGroup) link.lanegroups_flwdn.values().iterator().next();
+        MesoLaneGroup lg = (MesoLaneGroup) link.lanegroups_flwdn.values().iterator().next();
         return new Queues(lg.waiting_queue.num_vehicles(),lg.transit_queue.num_vehicles());
     }
 
@@ -356,14 +357,14 @@ public class Scenario {
 //            throw new Exception("Cannot call set_link_vehicles on non-meso models");
 
         long comm_id = myapi.scn.commodities.keySet().iterator().next();
-        models.vehicle.spatialq.LaneGroup lg = (models.vehicle.spatialq.LaneGroup) link.lanegroups_flwdn.values().iterator().next();
+        MesoLaneGroup lg = (MesoLaneGroup) link.lanegroups_flwdn.values().iterator().next();
         common.SplitInfo splitinfo = lg.link.commodity2split.get(comm_id);
 
         // transit queue ................
         models.vehicle.spatialq.Queue tq = lg.transit_queue;
         tq.clear();
         for(int i=0;i<numvehs_transit;i++) {
-            models.vehicle.spatialq.Vehicle vehicle = new models.vehicle.spatialq.Vehicle(comm_id, null);
+            MesoVehicle vehicle = new MesoVehicle(comm_id, null);
 
             // sample the split ratio to decide where the vehicle will go
             Long next_link_id = splitinfo.sample_output_link();
@@ -387,7 +388,7 @@ public class Scenario {
         models.vehicle.spatialq.Queue wq = lg.waiting_queue;
         wq.clear();
         for(int i=0;i<numvehs_waiting;i++) {
-            models.vehicle.spatialq.Vehicle vehicle = new models.vehicle.spatialq.Vehicle(comm_id, null);
+            MesoVehicle vehicle = new MesoVehicle(comm_id, null);
 
             // sample the split ratio to decide where the vehicle will go
             Long next_link_id = splitinfo.sample_output_link();

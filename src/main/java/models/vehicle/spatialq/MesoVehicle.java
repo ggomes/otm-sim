@@ -6,7 +6,7 @@ import output.InterfaceVehicleListener;
 
 import java.util.Set;
 
-public class Vehicle extends AbstractVehicle {
+public class MesoVehicle extends AbstractVehicle {
 
     public Queue my_queue;
     public boolean waiting_for_lane_change;
@@ -15,12 +15,12 @@ public class Vehicle extends AbstractVehicle {
     // construction
     ///////////////////////////////////////////////////
 
-    public Vehicle(AbstractVehicle that){
+    public MesoVehicle(AbstractVehicle that){
         super(that);
         this.waiting_for_lane_change = false;
     }
 
-    public Vehicle(Long comm_id, Set<InterfaceVehicleListener> event_listeners){
+    public MesoVehicle(Long comm_id, Set<InterfaceVehicleListener> event_listeners){
         super(comm_id,event_listeners);
         this.waiting_for_lane_change = false;
     }

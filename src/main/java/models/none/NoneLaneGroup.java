@@ -2,6 +2,7 @@ package models.none;
 
 import common.Link;
 import common.RoadConnection;
+import error.OTMErrorLog;
 import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
@@ -10,7 +11,13 @@ import packet.PacketLaneGroup;
 
 import java.util.Set;
 
-public class LaneGroup extends AbstractLaneGroup {
+public class NoneLaneGroup extends AbstractLaneGroup {
+
+    @Override
+    public void validate(OTMErrorLog errorLog) {
+
+    }
+
     @Override
     public Double get_upstream_vehicle_position() {
         return null;
@@ -56,7 +63,7 @@ public class LaneGroup extends AbstractLaneGroup {
 
     }
 
-    public LaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
+    public NoneLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side, flwpos, length, num_lanes, start_lane, out_rcs);
     }
 }

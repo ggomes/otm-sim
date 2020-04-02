@@ -52,8 +52,8 @@ public class OutputTrajectories extends AbstractOutput implements Pokable {
             try {
                 for(Link link : model.links){
                     for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
-                        LaneGroup lg = (LaneGroup) alg;
-                        for(Vehicle vehicle : lg.vehicles)
+                        NewellLaneGroup lg = (NewellLaneGroup) alg;
+                        for(NewellVehicle vehicle : lg.vehicles)
                             writer.write(String.format("%.2f\t%d\t%d\t%.2f\n",timestamp,vehicle.getId(), lg.id,vehicle.pos));
                     }
                 }

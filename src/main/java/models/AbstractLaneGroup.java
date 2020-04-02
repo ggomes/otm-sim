@@ -69,6 +69,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // abstract methods
     ///////////////////////////////////////////////////
 
+    public abstract void validate(OTMErrorLog errorLog);
+
     public abstract Double get_upstream_vehicle_position();
     public abstract void allocate_state();
     public abstract void update_supply();
@@ -113,13 +115,15 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         this.state2roadconnection = new HashMap<>();
     }
 
+    ///////////////////////////////////////////////////
+    // overridable
+    ///////////////////////////////////////////////////
+
     public void delete(){
         link = null;
         actuator = null;
         flw_acc = null;
     }
-
-    public void validate(OTMErrorLog errorLog){};
 
     public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
 
@@ -136,7 +140,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         this.max_cong_speed_kph = r.getCapacity() / (r.getJamDensity() - critical_density_vpkpl);
     }
 
-    public FlowAccumulatorState request_flow_accumulator(Long comm_id){
+    ///////////////////////////////////////////////////
+    // final
+    ///////////////////////////////////////////////////
+
+    public final FlowAccumulatorState request_flow_accumulator(Long comm_id){
         if(flw_acc==null)
             flw_acc = new FlowAccumulatorState();
         for(KeyCommPathOrLink key : states)
@@ -145,7 +153,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return flw_acc;
     }
 
-    public void add_state(long comm_id, Long path_id,Long next_link_id, boolean ispathfull) throws OTMException {
+    public final void add_state(long comm_id, Long path_id,Long next_link_id, boolean ispathfull) throws OTMException {
 
         KeyCommPathOrLink state = ispathfull ?
                 new KeyCommPathOrLink(comm_id, path_id, true) :
@@ -183,15 +191,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     }
 
-    ///////////////////////////////////////////////////
-    // get
-    ///////////////////////////////////////////////////
-
     public final float get_total_vehicles() {
         return vehs_dwn_for_comm(null);
     }
 
-    public double get_supply(){
+    public final double get_supply(){
         return supply;
     }
 
@@ -229,38 +233,15 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             return Side.out;
     }
 
-    public Set<Long> get_dwn_links(){
+    public final Set<Long> get_dwn_links(){
         return link.end_node.out_links.keySet();
     }
 
-    public boolean link_is_link_reachable(Long link_id){
+    public final boolean link_is_link_reachable(Long link_id){
         return link.outlink2roadconnection.containsKey(link_id);
     }
 
-
-//    public Set<AbstractLaneGroup> get_accessible_lgs_in_outlink(Link out_link){
-//
-//        // if the end node is one to one, then all lanegroups in the next link are equally accessible
-//        if(link.end_node.is_many2one) {
-//            if (link.outlink2lanegroups.containsKey(out_link.getId()))
-//                return new HashSet<>(out_link.lanegroups_flwdn.values());     // all downstream lanegroups are accessible
-//            else
-//                return null;
-//        }
-//
-//        // otherwise, get the road connection connecting this lg to out_link
-//        RoadConnection rc = outlink2roadconnection.get(out_link.getId());
-//
-//        // return lanegroups connected to by this road connection
-//        return out_link.get_unique_lanegroups_for_up_lanes(rc.end_link_from_lane,rc.end_link_to_lane);
-//
-//    }
-
-    ///////////////////////////////////////////////////
-    // update
-    ///////////////////////////////////////////////////
-
-    public void update_flow_accummulators(KeyCommPathOrLink key,double num_vehicles){
+    public final void update_flow_accummulators(KeyCommPathOrLink key,double num_vehicles){
         if(flw_acc!=null)
             flw_acc.increment(key,num_vehicles);
     }
@@ -280,7 +261,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     }
 
     @Override
-    public int compareTo(AbstractLaneGroup that) {
+    public final int compareTo(AbstractLaneGroup that) {
 
         int this_start = this.start_lane_up;
         int that_start = that.start_lane_up;

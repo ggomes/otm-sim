@@ -96,7 +96,7 @@ public class OutputQueues extends AbstractOutputTimed {
             for(Long link_id : link_ids) {
                 Link link = scenario.network.links.get(link_id);
                 for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                    models.vehicle.spatialq.LaneGroup lg = (models.vehicle.spatialq.LaneGroup) alg;
+                    MesoLaneGroup lg = (MesoLaneGroup) alg;
                     QueueInfo queueInfo = lg2qinfo.get(lg.id);
                     queueInfo.waiting_profile.values.add((double)lg.waiting_queue.num_vehicles());
                     queueInfo.transit_profile.values.add((double)lg.transit_queue.num_vehicles());

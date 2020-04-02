@@ -5,20 +5,20 @@ import output.InterfaceVehicleListener;
 
 import java.util.Set;
 
-public class Vehicle extends AbstractVehicle {
+public class NewellVehicle extends AbstractVehicle {
 
     public double pos;          // meters
     public double headway;      // meters
     public double new_pos;      // meters
 
-    public Vehicle leader;
-    public Vehicle follower;
+    public NewellVehicle leader;
+    public NewellVehicle follower;
 
     ///////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////
 
-    public Vehicle(AbstractVehicle that){
+    public NewellVehicle(AbstractVehicle that){
         super(that);
         this.pos = 0d;
         this.new_pos = 0d;
@@ -27,7 +27,7 @@ public class Vehicle extends AbstractVehicle {
         this.follower = null;
     }
 
-    public Vehicle(Long comm_id, Set<InterfaceVehicleListener> event_listeners){
+    public NewellVehicle(Long comm_id, Set<InterfaceVehicleListener> event_listeners){
         super(comm_id,event_listeners);
         this.pos = 0d;
         this.new_pos = 0d;

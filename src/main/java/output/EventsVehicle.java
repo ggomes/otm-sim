@@ -4,8 +4,8 @@ import api.info.events.EventVehicleFromToQueueInfo;
 import commodity.Commodity;
 import dispatch.Dispatcher;
 import error.OTMException;
+import models.vehicle.spatialq.MesoVehicle;
 import models.vehicle.spatialq.Queue;
-import models.vehicle.spatialq.Vehicle;
 import runner.RunParameters;
 import runner.Scenario;
 
@@ -48,7 +48,7 @@ public class EventsVehicle extends AbstractOutputEvent implements InterfaceVehic
     // write
     //////////////////////////////////////////////////////
 
-    public void move_from_to_queue(float timestamp, Vehicle vehicle, Queue from_queue, Queue to_queue) throws OTMException {
+    public void move_from_to_queue(float timestamp, MesoVehicle vehicle, Queue from_queue, Queue to_queue) throws OTMException {
         this.write(timestamp,new EventVehicleFromToQueueInfo(timestamp,vehicle.getId(),from_queue,to_queue));
     }
 

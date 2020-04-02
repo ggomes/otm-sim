@@ -51,7 +51,7 @@ public class ModelSpatialQ extends AbstractVehicleModel {
 
     @Override
     public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        return new LaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
+        return new MesoLaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
     }
 
     @Override
@@ -83,15 +83,15 @@ public class ModelSpatialQ extends AbstractVehicleModel {
 
     @Override
     public AbstractVehicle translate_vehicle(AbstractVehicle that){
-        if(that instanceof Vehicle)
+        if(that instanceof MesoVehicle)
             return that;
         else
-            return new Vehicle(that);
+            return new MesoVehicle(that);
     }
 
     @Override
     public AbstractVehicle create_vehicle(Long comm_id,Set<InterfaceVehicleListener> event_listeners) {
-        return new Vehicle(comm_id,event_listeners);
+        return new MesoVehicle(comm_id,event_listeners);
     }
 
     //////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ public class ModelSpatialQ extends AbstractVehicleModel {
 
         // remove all of its requests by this vehicle in this link
         for (AbstractLaneGroup lanegroup : link.lanegroups_flwdn.values()) {
-            LaneGroup lg = (LaneGroup) lanegroup;
+            MesoLaneGroup lg = (MesoLaneGroup) lanegroup;
             lg.transit_queue.remove_lane_change_requests_for_vehicle(x.requester);
             lg.waiting_queue.remove_lane_change_requests_for_vehicle(x.requester);
         }
