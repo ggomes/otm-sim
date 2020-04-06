@@ -68,9 +68,10 @@ public class ModelSpatialQ extends AbstractVehicleModel {
     // Completions from AbstractModel
     //////////////////////////////////////////////////////////////
 
+
     @Override
-    public void set_road_param(Link link,jaxb.Roadparam r) {
-        super.set_road_param(link,r);
+    public void reset(Link link) {
+
     }
 
     @Override

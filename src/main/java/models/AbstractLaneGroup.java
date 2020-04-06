@@ -4,12 +4,10 @@ import actuator.AbstractActuator;
 import common.FlowAccumulatorState;
 import common.Link;
 import common.RoadConnection;
-import error.OTMErrorLog;
 import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import packet.PacketLaneGroup;
 import packet.StateContainer;
 import runner.RunParameters;
 import runner.Scenario;
@@ -22,7 +20,7 @@ import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
 
-public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup> {
+public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>, InterfaceLaneGroup {
 
     public final long id;
     public Link link;
@@ -64,33 +62,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public Map<KeyCommPathOrLink,Side> state2lanechangedirection = new HashMap<>();
 
     public AbstractLaneGroupTimer travel_timer;
-
-    ///////////////////////////////////////////////////
-    // abstract methods
-    ///////////////////////////////////////////////////
-
-    public abstract void validate(OTMErrorLog errorLog);
-
-    public abstract Double get_upstream_vehicle_position();
-    public abstract void allocate_state();
-    public abstract void update_supply();
-    public abstract void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) throws OTMException;
-    public abstract void exiting_roadconnection_capacity_has_been_modified(float timestamp);
-
-    // Return the total number of vehicles in this lane group with the given commodity id.
-    // commodity_id==null means return total over all commodities.
-    public abstract float vehs_dwn_for_comm(Long comm_id);
-    public abstract float vehs_in_for_comm(Long comm_id);
-    public abstract float vehs_out_for_comm(Long comm_id);
-
-//    abstract public float get_current_travel_time();
-
-    // An event signals an opportunity to release a vehicle packet. The lanegroup must,
-    // 1. construct packets to be released to each of the lanegroups reached by each of it's road connections.
-    // 2. check what portion of each of these packets will be accepted. Reduce the packets if necessary.
-    // 3. call next_link.add_vehicle_packet for each reduces packet.
-    // 4. remove the vehicle packets from this lanegroup.
-    public abstract void release_vehicle_packets(float timestamp) throws OTMException;
 
     ///////////////////////////////////////////////////
     // construction
@@ -246,14 +217,14 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             flw_acc.increment(key,num_vehicles);
     }
 
-    ///////////////////////////////////////////////////
-    // other
-    ///////////////////////////////////////////////////
-
-    public RoadConnection get_target_road_connection_for_state(KeyCommPathOrLink key){
+    public final RoadConnection get_target_road_connection_for_state(KeyCommPathOrLink key){
         Long outlink_id = key.isPath ? link.path2outlink.get(key.pathOrlink_id).getId() : key.pathOrlink_id;
         return link.outlink2roadconnection.get(outlink_id);
     }
+
+    ///////////////////////////////////////////////////
+    // other
+    ///////////////////////////////////////////////////
 
     @Override
     public String toString() {

@@ -1,15 +1,10 @@
 package models;
 
 import actuator.ActuatorFD;
-import commodity.Commodity;
-import commodity.Path;
-import common.AbstractSource;
 import common.Link;
-import dispatch.Dispatcher;
 import error.OTMException;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
-import profiles.DemandProfile;
 import runner.Scenario;
 import utils.OTMUtils;
 import utils.StochasticProcess;
@@ -41,23 +36,15 @@ public abstract class AbstractModel implements InterfaceModel {
         this.stochastic_process = process;
     }
 
-    //////////////////////////////////////////////////
-    // abstract methods
-    // These should be fully implemented by AbstractFluidModel and AbstractVehicleModel
-    //////////////////////////////////////////////////
-
-    public abstract void reset(Link link);
     public abstract void build() throws OTMException;
-    public abstract void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time);
-    public abstract AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path);
-
-    //////////////////////////////////////////////////
-    // partially implemented methods
-    //////////////////////////////////////////////////
 
     public void set_links(Set<Link> links){
         this.links = links;
     }
+
+    //////////////////////////////////////////////////
+    // extendable
+    //////////////////////////////////////////////////
 
     public void initialize(Scenario scenario) throws OTMException {
         for(Link link : links){

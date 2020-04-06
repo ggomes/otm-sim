@@ -3,33 +3,48 @@ package models.vehicle;
 import common.AbstractVehicle;
 import common.Link;
 import common.RoadConnection;
-import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
 import models.AbstractLaneGroup;
 import packet.*;
-import runner.RunParameters;
-import runner.Scenario;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public abstract class VehicleLaneGroup extends AbstractLaneGroup {
 
+    ////////////////////////////////////////
+    // construction
+    ////////////////////////////////////////
+
     public VehicleLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side, flwpos, length, num_lanes, start_lane, out_rcs);
     }
 
-    @Override
-    public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
-        super.initialize(scenario, runParams);
-    }
+    ////////////////////////////////////////
+    // InterfaceLaneGroup
+    ////////////////////////////////////////
 
     @Override
     public float vehs_out_for_comm(Long comm_id) {
         System.err.println("NOT IMPLEMENTED");
         return Float.NaN;
     }
+
+    @Override
+    public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
+        System.err.println("NOT IMPLEMENTED");
+    }
+
+    @Override
+    public float vehs_in_for_comm(Long comm_id) {
+        System.err.println("NOT IMPLEMENTED");
+        return Float.NaN;
+    }
+
+    ////////////////////////////////////////
+    // helper methods
+    ////////////////////////////////////////
 
     protected Set<AbstractVehicle> create_vehicles_from_packet(PacketLaneGroup vp,Long next_link_id) {
         // + The packet received here can be fluid or vehicle based. It will not be both
@@ -58,23 +73,5 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
 
         return vehs;
     }
-
-//    @Override
-//    public float get_current_travel_time() {
-//        System.err.println("NOT IMPLEMENTED");
-//        return Float.NaN;
-//    }
-
-    @Override
-    public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
-        System.err.println("NOT IMPLEMENTED");
-    }
-
-    @Override
-    public float vehs_in_for_comm(Long comm_id) {
-        System.err.println("NOT IMPLEMENTED");
-        return Float.NaN;
-    }
-
 
 }

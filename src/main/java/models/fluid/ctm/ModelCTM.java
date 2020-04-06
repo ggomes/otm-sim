@@ -1,7 +1,13 @@
 package models.fluid.ctm;
 
+import commodity.Commodity;
+import commodity.Path;
+import common.AbstractSource;
 import common.Link;
 import common.RoadConnection;
+import dispatch.Dispatcher;
+import models.fluid.EventFluidModelUpdate;
+import models.fluid.EventFluidStateUpdate;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.FlowPosition;
@@ -12,6 +18,7 @@ import models.AbstractLaneGroup;
 import models.fluid.*;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
+import profiles.DemandProfile;
 import runner.Scenario;
 import traveltime.FluidLaneGroupTimer;
 import utils.OTMUtils;
@@ -33,8 +40,22 @@ public class ModelCTM extends AbstractFluidModel {
     //////////////////////////////////////////////////////////////
 
     @Override
+    public void reset(Link link) {
+        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
+            FluidLaneGroup lg = (FluidLaneGroup) alg;
+            lg.cells.forEach(x->x.reset());
+        }
+    }
+
+    @Override
     public void validate(OTMErrorLog errorLog) {
 
+    }
+
+    @Override
+    public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time){
+        dispatcher.register_event(new EventFluidModelUpdate(dispatcher, start_time + dt, this));
+        dispatcher.register_event(new EventFluidStateUpdate(dispatcher, start_time + dt, this));
     }
 
     @Override
@@ -58,6 +79,11 @@ public class ModelCTM extends AbstractFluidModel {
     }
 
     @Override
+    public final AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
+        return new FluidSource(origin,demand_profile,commodity,path);
+    }
+
+    @Override
     public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
         Map<AbstractLaneGroup,Double> A = new HashMap<>();
         double total_supply = candidate_lanegroups.stream().mapToDouble(x->x.get_supply()).sum();
@@ -72,7 +98,7 @@ public class ModelCTM extends AbstractFluidModel {
     }
 
     //////////////////////////////////////////////////////////////
-    // Completions from AbstractModel
+    // extend AbstractModel
     //////////////////////////////////////////////////////////////
 
     @Override

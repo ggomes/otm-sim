@@ -1,9 +1,10 @@
-package dispatch;
+package models.fluid;
 
+import dispatch.AbstractEvent;
+import dispatch.Dispatcher;
 import error.OTMException;
-import models.fluid.AbstractFluidModel;
 
-public class EventFluidStateUpdate extends AbstractEvent  {
+public class EventFluidStateUpdate extends AbstractEvent {
 
     public EventFluidStateUpdate(Dispatcher dispatcher, float timestamp, Object model){
         super(dispatcher,6,timestamp,model);

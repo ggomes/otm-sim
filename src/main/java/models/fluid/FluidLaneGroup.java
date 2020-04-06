@@ -9,10 +9,9 @@ import geometry.Side;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import packet.PacketLaneGroup;
-import runner.RunParameters;
-import runner.Scenario;
 import utils.OTMUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,12 +28,40 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     public List<AbstractCell> cells;     // sequence of cells
 
     ////////////////////////////////////////////
-    // load
+    // construction
     ///////////////////////////////////////////
 
     public FluidLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side, flwpos,length, num_lanes, start_lane, out_rcs);
     }
+
+    public final void create_cells(AbstractFluidModel model,float max_cell_length) throws OTMException {
+
+        // compute cell length
+        float r = this.length/max_cell_length;
+        boolean is_source_or_sink = link.is_source || link.is_sink;
+
+        int num_cells = is_source_or_sink ?
+                1 :
+                OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
+
+        this.cell_length_meters = is_source_or_sink ?
+                this.length :
+                this.length/num_cells;
+
+        // create the cells
+        this.cells = new ArrayList<>();
+        for(int i=0;i<num_cells;i++)
+            this.cells.add(model.create_cell(this.cell_length_meters, this));
+
+        // designate first and last
+        this.cells.get(0).am_upstrm = true;
+        this.cells.get(num_cells-1).am_dnstrm = true;
+    }
+
+    ////////////////////////////////////////////
+    // InterfaceLaneGroup
+    ///////////////////////////////////////////
 
     @Override
     public void allocate_state() {
@@ -61,39 +88,9 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
-        super.initialize(scenario,runParams);
-
-        // THIS CAN PROBABLY BE REMOVED .........................
-//        // populate in target boundary flows
-//        flow_stay = new ArrayList<>();
-//        for(int i=0;i<cells.size()+1;i++)
-//            flow_stay.add(new HashMap<>());
-//
-//        // Configuration for lane changing
-//        if(neighbor_in!=null){
-//            this.flow_lc_in = new ArrayList<>();
-//            for(int i=0;i<cells.size();i++)
-//                flow_lc_in.add(new HashMap<>());
-//        }
-//
-//        if(neighbor_out!=null){
-//            this.flow_lc_out = new ArrayList<>();
-//            for(int i=0;i<cells.size()+1;i++)
-//                flow_lc_out.add(new HashMap<>());
-//        }
-        // .........................................................
-
-    }
-
-    @Override
     public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
         // do nothing
     }
-
-    ////////////////////////////////////////////
-    // run
-    ////////////////////////////////////////////
 
     @Override
     public Double get_upstream_vehicle_position(){
@@ -135,60 +132,6 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         throw new OTMException("This should not be called.");
     }
 
-    public void release_vehicles(Map<KeyCommPathOrLink,Double> X){
-        cells.get(cells.size()-1).subtract_vehicles(X,null,null);
-
-        // if this is a single cell lane group, then releasing a vehicle will affect the supply
-        if(cells.size()==1)
-            update_supply();
-    }
-
-    // THIS CAN PROBABLY BE REMOVED .........................
-//    protected void update_dwn_flow(){
-//        // set flow_stay and flot_notin_target for internal boundaries and
-////        // downstream boundary for sinks
-////
-////        if(states.isEmpty())
-////            return;
-////
-//        if(link.end_node.is_sink)
-//            flow_stay.set(cells.size(), cells.get(cells.size()-1).demand_dwn);
-//
-//        // send lanegroup exit flow to flow accumulator
-//        // TODO : NOT IN TARGET VEHICLES ARE NOT BEING COUNTED!!!
-//        for(Map.Entry<KeyCommPathOrLink,Double> e : flow_stay.get(cells.size()).entrySet())
-//            if(e.getValue()>0)
-//                update_flow_accummulators(e.getKey(),e.getValue());
-//    }
-
-//    protected void update_state(float timestamp){
-//
-//        if(states.isEmpty())
-//            return;
-//
-////        for(int i=0;i<cells.size();i++) {
-////            Cell cell = cells.get(i);
-////            cell.update_dwn_state(flow_stay.get(i), flow_stay.get(i + 1));
-////            if(flow_lc_in !=null)
-////                cell.update_in_state(flow_lc_in.get(i), i==cells.size()-1 ? null : flow_lc_in.get(i+1));
-////            if(flow_lc_out !=null)
-////                cell.update_out_state(flow_lc_out.get(i), i==cells.size()-1 ? null : flow_lc_out.get(i+1));
-////        }
-//
-////        // clear boundary flows
-////        // TODO: IS THIS A GOOD IDEA?
-////        for(int i=link.is_source?1:0;i<=cells.size();i++)
-////            flow_stay.set(i,null);
-////
-////        if(flow_lc_in !=null)
-////            for(int i=0;i<cells.size();i++)
-////                flow_lc_in.set(i,null);
-////        if(flow_lc_out !=null)
-////            for(int i=0;i<cells.size();i++)
-////                flow_lc_out.set(i,null);
-//    }
-    // ..............................................................
-
     @Override
     public void update_supply(){
 
@@ -203,26 +146,39 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     }
 
+    @Override
+    public float vehs_dwn_for_comm(Long comm_id) {
+        return (float) cells.stream().mapToDouble(c->c.get_veh_dwn_for_commodity(comm_id)).sum();
+    }
+
+    @Override
+    public float vehs_in_for_comm(Long comm_id) {
+        return (float) cells.stream().mapToDouble(c->c.get_veh_in_for_commodity(comm_id)).sum();
+    }
+
+    @Override
+    public float vehs_out_for_comm(Long comm_id) {
+        return (float) cells.stream().mapToDouble(c->c.get_veh_out_for_commodity(comm_id)).sum();
+    }
+
     ////////////////////////////////////////////
-    // get
+    // helper methods (final)
     ////////////////////////////////////////////
 
-    public AbstractCell get_upstream_cell(){
+    public final AbstractCell get_upstream_cell(){
         return cells.get(0);
     }
 
-    public AbstractCell get_dnstream_cell(){
+    public final AbstractCell get_dnstream_cell(){
         return cells.get(cells.size()-1);
     }
 
-    public Map<KeyCommPathOrLink,Double> get_demand(){
+    public final Map<KeyCommPathOrLink,Double> get_demand(){
         return get_dnstream_cell().get_demand();
     }
 
     // THIS CAN PROBABLY BE REMOVED .........................
-//    public double get_total_outgoing_flow(){
-//        return flow_stay ==null || flow_stay.size()<cells.size()+1 || flow_stay.get(cells.size())==null ? 0d : OTMUtils.sum(flow_stay.get(cells.size()));
-//    }
+
 //
 //    public double get_total_incoming_flow(){
 //        double flow = 0d;
@@ -264,20 +220,18 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 //    }
     // .............................................................
 
-    @Override
-    public float vehs_dwn_for_comm(Long comm_id) {
-        return (float) cells.stream().mapToDouble(c->c.get_veh_dwn_for_commodity(comm_id)).sum();
+    //////////////////////////////////////////
+    // SHOULD THESE BE MOVED TO CTM?
+    ///////////////////////////////////////////
+
+    public void release_vehicles(Map<KeyCommPathOrLink,Double> X){
+        cells.get(cells.size()-1).subtract_vehicles(X,null,null);
+
+        // if this is a single cell lane group, then releasing a vehicle will affect the supply
+        if(cells.size()==1)
+            update_supply();
     }
 
-    @Override
-    public float vehs_in_for_comm(Long comm_id) {
-        return (float) cells.stream().mapToDouble(c->c.get_veh_in_for_commodity(comm_id)).sum();
-    }
-
-    @Override
-    public float vehs_out_for_comm(Long comm_id) {
-        return (float) cells.stream().mapToDouble(c->c.get_veh_out_for_commodity(comm_id)).sum();
-    }
 
     public void process_buffer(float timestamp){
         assert(link.is_model_source_link);

@@ -219,7 +219,8 @@ public class OTM {
         dispatcher.register_event(new EventStopSimulation(scn,dispatcher,now+duration));
 
         // register initial events for each model
-        scn.network.models.values().forEach(m->m.register_with_dispatcher(scn, dispatcher,now));
+        // this is in initialize
+//        scn.network.models.values().forEach(m->m.register_with_dispatcher(scn, dispatcher,now));
 
         // process all events
         dispatcher.dispatch_events_to_stop();

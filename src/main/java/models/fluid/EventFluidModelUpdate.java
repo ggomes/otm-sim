@@ -1,7 +1,8 @@
-package dispatch;
+package models.fluid;
 
+import dispatch.AbstractEvent;
+import dispatch.Dispatcher;
 import error.OTMException;
-import models.fluid.AbstractFluidModel;
 
 public class EventFluidModelUpdate extends AbstractEvent {
 

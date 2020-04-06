@@ -3,21 +3,11 @@ package models.vehicle;
 import commodity.Commodity;
 import commodity.Path;
 import common.AbstractSource;
-import common.AbstractVehicle;
 import common.Link;
-import dispatch.Dispatcher;
-import error.OTMErrorLog;
 import error.OTMException;
-import geometry.FlowPosition;
-import geometry.Side;
-import jaxb.OutputRequest;
 import models.AbstractLaneGroup;
 import models.AbstractModel;
-import output.AbstractOutput;
-import output.InterfaceVehicleListener;
-import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
-import runner.Scenario;
 import utils.StochasticProcess;
 
 import java.util.*;
@@ -28,20 +18,19 @@ public abstract class AbstractVehicleModel extends AbstractModel implements Inte
         super(AbstractModel.Type.Vehicle,name, is_default,process);
     }
 
+    @Override
+    public final void build() throws OTMException { }
+
+    @Override
+    public final void set_links(Set<Link> links) {
+        super.set_links(links);
+    }
+//////////////////////////////////////////////////////////////
+    // sample implementation
     //////////////////////////////////////////////////////////////
-    // abstract in AbstractModel
-    //////////////////////////////////////////////////////////////
-
-    // NOTE: register_with_dispatcher is implemented at the concrete level
 
     @Override
-    public void reset(Link link){ }
-
-    @Override
-    public void build() throws OTMException { }
-
-    @Override
-    public final AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
+    public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
         return new VehicleSource(origin,demand_profile,commodity,path);
     }
 

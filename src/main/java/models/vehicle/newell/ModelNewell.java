@@ -89,6 +89,11 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
     //////////////////////////////////////////////////
 
     @Override
+    public void reset(Link link) {
+
+    }
+
+    @Override
     public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time) {
         dispatcher.register_event(new EventPoke(dispatcher, 6,start_time + dt, this));
     }

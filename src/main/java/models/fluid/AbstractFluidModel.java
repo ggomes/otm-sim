@@ -1,27 +1,20 @@
 package models.fluid;
 
-import commodity.Commodity;
-import commodity.Path;
 import common.AbstractSource;
 import common.Link;
 import common.Node;
-import dispatch.Dispatcher;
-import dispatch.EventFluidModelUpdate;
-import dispatch.EventFluidStateUpdate;
 import error.OTMException;
 import keys.KeyCommPathOrLink;
 import models.AbstractModel;
 import models.AbstractLaneGroup;
+import models.fluid.ctm.CTMCell;
 import models.fluid.nodemodel.NodeModel;
 import models.fluid.nodemodel.RoadConnection;
 import models.fluid.nodemodel.UpLaneGroup;
 import packet.PacketLink;
-import profiles.DemandProfile;
 import runner.Scenario;
-import utils.OTMUtils;
 import utils.StochasticProcess;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -32,9 +25,9 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
     public final float max_cell_length;
     public final float dt;
-    private Set<Link> source_links;
-    private Set<Link> sink_links;
-    private Map<Long, NodeModel> node_models;
+    protected Set<Link> source_links;
+    protected Set<Link> sink_links;
+    protected Map<Long, NodeModel> node_models;
 
     public AbstractFluidModel(String name, boolean is_default, float dt, StochasticProcess process, Float max_cell_length) {
         super(AbstractModel.Type.Fluid,name, is_default,process);
@@ -43,42 +36,19 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     }
 
     //////////////////////////////////////////////////////////////
-    // abstract in AbstractModel
+    // final for fluid models
     //////////////////////////////////////////////////////////////
 
-    @Override
-    public void reset(Link link) {
-        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
-            FluidLaneGroup lg = (FluidLaneGroup) alg;
-            lg.cells.forEach(x->x.reset());
-        }
-    }
-
-    @Override
-    public void build() throws OTMException {
+    public final void build() throws OTMException {
         for(Link link : links)
-            create_cells(link,max_cell_length);
+            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                ((FluidLaneGroup)lg).create_cells(this,max_cell_length);
         for(NodeModel nm : node_models.values())
             nm.build();
     }
 
     @Override
-    public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time){
-        dispatcher.register_event(new EventFluidModelUpdate(dispatcher, start_time + dt, this));
-        dispatcher.register_event(new EventFluidStateUpdate(dispatcher, start_time + dt, this));
-    }
-
-    @Override
-    public final AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
-        return new FluidSource(origin,demand_profile,commodity,path);
-    }
-
-    //////////////////////////////////////////////////////////////
-    // implementation completions from AbstractModel
-    //////////////////////////////////////////////////////////////
-
-    @Override
-    public void set_links(Set<Link> links) {
+    public final void set_links(Set<Link> links) {
         super.set_links(links);
 
         source_links = links.stream().filter(link->link.is_source).collect(toSet());
@@ -99,9 +69,14 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
         for(Node node : all_nodes) {
             NodeModel nm = new NodeModel(node);
             node_models.put(node.getId(),nm);
-//            node.set_node_model(nm);
         }
     }
+
+    //////////////////////////////////////////////////////////////
+    // extendable
+    //////////////////////////////////////////////////////////////
+
+    // MOVE THIS TO MODEL CTM
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
@@ -208,40 +183,5 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     public NodeModel get_node_model_for_node(Long node_id){
         return node_models.get(node_id);
     }
-
-    //////////////////////////////////////////////////////////////
-    // private
-    //////////////////////////////////////////////////////////////
-
-    private void create_cells(Link link,float max_cell_length) throws OTMException {
-
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
-
-            FluidLaneGroup flg = (FluidLaneGroup) lg;
-
-            // compute cell length
-            float r = lg.length/max_cell_length;
-            boolean is_source_or_sink = link.is_source || link.is_sink;
-
-            int num_cells = is_source_or_sink ?
-                    1 :
-                    OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
-
-            flg.cell_length_meters = is_source_or_sink ?
-                    lg.length :
-                    lg.length/num_cells;
-
-            // create the cells
-            flg.cells = new ArrayList<>();
-            for(int i=0;i<num_cells;i++)
-                flg.cells.add(create_cell(flg.cell_length_meters, flg));
-
-            // designate first and last
-            flg.cells.get(0).am_upstrm = true;
-            flg.cells.get(num_cells-1).am_dnstrm = true;
-        }
-
-    }
-
 
 }
