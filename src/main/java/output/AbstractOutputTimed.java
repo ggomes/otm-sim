@@ -6,7 +6,7 @@ import error.OTMException;
 import dispatch.Dispatcher;
 import dispatch.EventTimedWrite;
 import runner.RunParameters;
-import runner.Scenario;
+import common.Scenario;
 
 import java.io.*;
 

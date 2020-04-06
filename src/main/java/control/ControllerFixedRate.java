@@ -5,7 +5,7 @@ import actuator.ActuatorCapacity;
 import dispatch.Dispatcher;
 import error.OTMException;
 import jaxb.Controller;
-import runner.Scenario;
+import common.Scenario;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,8 +26,12 @@ public class ControllerFixedRate extends AbstractController  {
         }
     }
 
+    ///////////////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////////////
+
     @Override
-    public void initialize(Scenario scenario, float now) throws OTMException {
+    public void initialize(Scenario scenario) throws OTMException {
 
     }
 

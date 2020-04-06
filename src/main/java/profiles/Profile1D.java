@@ -210,6 +210,10 @@ public class Profile1D {
         return series;
     }
 
+    ///////////////////////////////////////
+    // toString
+    ///////////////////////////////////////
+
     @Override
     public String toString() {
         return "Profile1D{" +

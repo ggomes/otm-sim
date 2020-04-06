@@ -2,7 +2,7 @@ package output;
 
 import models.AbstractLaneGroup;
 import error.OTMException;
-import runner.Scenario;
+import common.Scenario;
 
 import java.util.Collection;
 

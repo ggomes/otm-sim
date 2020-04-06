@@ -4,7 +4,7 @@ import actuator.AbstractActuator;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import runner.Scenario;
+import common.Scenario;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +34,10 @@ public class ActuatorSignalSimple extends AbstractActuator {
 
     }
 
+    ///////////////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////////////
+
     @Override
     public void validate(OTMErrorLog errorLog) {
         super.validate(errorLog);
@@ -51,6 +55,11 @@ public class ActuatorSignalSimple extends AbstractActuator {
         // set all bulb colors to dark
         for(SignalPhaseSimple p : signal_phases.values() )
             p.initialize(now);
+    }
+
+    @Override
+    public void register_with_dispatcher(Dispatcher dispatcher) {
+
     }
 
     @Override

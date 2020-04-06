@@ -11,7 +11,7 @@ import error.OTMException;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import runner.RunParameters;
-import runner.Scenario;
+import common.Scenario;
 
 public class EventsActuator extends AbstractOutputEvent {
 

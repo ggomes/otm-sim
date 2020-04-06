@@ -1,8 +1,7 @@
 package dispatch;
 
 import error.OTMException;
-import runner.RunParameters;
-import runner.Scenario;
+import common.Scenario;
 
 import java.util.*;
 

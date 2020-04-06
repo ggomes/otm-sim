@@ -1,14 +1,15 @@
 package commodity;
 
+import dispatch.Dispatcher;
 import keys.DemandType;
 import models.AbstractLaneGroup;
 import common.Link;
 import error.OTMErrorLog;
 import error.OTMException;
 import output.InterfaceVehicleListener;
-import runner.InterfaceScenarioElement;
-import runner.Scenario;
-import runner.ScenarioElementType;
+import common.InterfaceScenarioElement;
+import common.Scenario;
+import common.ScenarioElementType;
 import utils.OTMUtils;
 
 import java.util.HashSet;
@@ -70,13 +71,55 @@ public class Commodity implements InterfaceScenarioElement {
         this.vehicle_event_listeners = new HashSet<>();
     }
 
-    public void validate(OTMErrorLog errorLog){
+    ///////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////
+
+    @Override
+    public Long getId() {
+        return id;
     }
 
-    public void initialize() throws OTMException {
+    @Override
+    public ScenarioElementType getType() {
+        return ScenarioElementType.commodity;
+    }
+
+    @Override
+    public void validate(OTMErrorLog errorLog) {
+
+    }
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
         for(Subnetwork subnetwork : subnetworks)
             for(Link link : subnetwork.links)
                 register_commodity(link,this,subnetwork);
+    }
+
+    @Override
+    public void register_with_dispatcher(Dispatcher dispatcher) {
+
+    }
+
+    @Override
+    public jaxb.Commodity to_jaxb(){
+        jaxb.Commodity jcomm = new jaxb.Commodity();
+        jcomm.setId(getId());
+        jcomm.setName(name);
+        jcomm.setPathfull(pathfull);
+        jcomm.setPvequiv(pvequiv);
+
+        List<Long> subnets = subnetworks.stream().map(x->x.getId()).collect(Collectors.toList());
+
+        // exclude subnetwork 0
+        subnets.remove(0l);
+
+        if(!subnets.isEmpty()) {
+            String str = OTMUtils.comma_format(subnetworks.stream().map(x -> x.getId()).collect(Collectors.toList()));
+            jcomm.setSubnetworks(str);
+        }
+        return jcomm;
     }
 
     ///////////////////////////////////////////////////
@@ -134,38 +177,10 @@ public class Commodity implements InterfaceScenarioElement {
 //        return this.path;
 //    }
 
-    public jaxb.Commodity to_jaxb(){
-        jaxb.Commodity jcomm = new jaxb.Commodity();
-        jcomm.setId(getId());
-        jcomm.setName(name);
-        jcomm.setPathfull(pathfull);
-        jcomm.setPvequiv(pvequiv);
-
-        List<Long> subnets = subnetworks.stream().map(x->x.getId()).collect(Collectors.toList());
-
-        // exclude subnetwork 0
-        subnets.remove(0l);
-
-        if(!subnets.isEmpty()) {
-            String str = OTMUtils.comma_format(subnetworks.stream().map(x -> x.getId()).collect(Collectors.toList()));
-            jcomm.setSubnetworks(str);
-        }
-        return jcomm;
-    }
 
     ////////////////////////////////////////////
-    // InterfaceScenarioElement
+    // private
     ///////////////////////////////////////////
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public ScenarioElementType getScenarioElementType() {
-        return ScenarioElementType.commodity;
-    }
 
     private static void register_commodity(Link link,Commodity comm, Subnetwork subnet) throws OTMException {
 

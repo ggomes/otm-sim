@@ -12,7 +12,7 @@ import common.Link;
 import keys.DemandType;
 import keys.KeyCommodityDemandTypeId;
 import models.vehicle.VehicleSource;
-import runner.Scenario;
+import common.Scenario;
 import utils.OTMUtils;
 
 import java.util.List;

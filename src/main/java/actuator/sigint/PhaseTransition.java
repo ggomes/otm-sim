@@ -14,15 +14,27 @@ public class PhaseTransition implements Comparable<PhaseTransition> {
         this.to_color = to_color;
     }
 
-    @Override
-    public String toString() {
-        return String.format("%.1f\t%s\t%s",cycle_time,from_color,to_color);
-    }
+    ///////////////////////////////////////////
+    // Comparable
+    ///////////////////////////////////////////
 
     @Override
     public int compareTo(PhaseTransition other) {
         return Float.compare(this.cycle_time, other.cycle_time);
     }
+
+    ///////////////////////////////////////////
+    // toString
+    ///////////////////////////////////////////
+
+    @Override
+    public String toString() {
+        return String.format("%.1f\t%s\t%s",cycle_time,from_color,to_color);
+    }
+
+    ///////////////////////////////////////////
+    // public static
+    ///////////////////////////////////////////
 
     public static boolean are_equal(PhaseTransition p1, PhaseTransition p2) {
         return OTMUtils.approximately_equals(p1.cycle_time, p2.cycle_time) &&

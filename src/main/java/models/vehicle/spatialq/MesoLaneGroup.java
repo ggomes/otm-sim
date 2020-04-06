@@ -15,7 +15,7 @@ import output.InterfaceVehicleListener;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
 import runner.RunParameters;
-import runner.Scenario;
+import common.Scenario;
 import traveltime.VehicleLaneGroupTimer;
 import utils.OTMUtils;
 
@@ -30,6 +30,10 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     public float saturation_flow_rate_vps;
     public float transit_time_sec;
 
+    ////////////////////////////////////////////
+    // construction
+    ///////////////////////////////////////////
+
     public MesoLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
         super(link, side,flwpos,length, num_lanes, start_lane, out_rcs);
         this.transit_queue = new Queue(this, Queue.Type.transit);
@@ -37,7 +41,31 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     }
 
     ////////////////////////////////////////////
-    // load
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////
+
+    @Override
+    public void validate(OTMErrorLog errorLog) {
+        transit_queue.validate(errorLog);
+        waiting_queue.validate(errorLog);
+    }
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+        transit_queue.initialize();
+        waiting_queue.initialize();
+        current_max_flow_rate_vps = saturation_flow_rate_vps;
+
+        // register first vehicle exit
+        float start_time = scenario.get_current_time();
+        schedule_release_vehicle(start_time,current_max_flow_rate_vps);
+
+        update_supply();
+    }
+
+    ////////////////////////////////////////////
+    // XXX
     ///////////////////////////////////////////
 
     @Override
@@ -47,24 +75,6 @@ public class MesoLaneGroup extends VehicleLaneGroup {
         saturation_flow_rate_vps = r.getCapacity()*num_lanes/3600f;
     }
 
-    @Override
-    public void validate(OTMErrorLog errorLog) {
-        transit_queue.validate(errorLog);
-        waiting_queue.validate(errorLog);
-    }
-
-    @Override
-    public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
-        super.initialize(scenario,runParams);
-        transit_queue.initialize();
-        waiting_queue.initialize();
-        current_max_flow_rate_vps = saturation_flow_rate_vps;
-
-        // register first vehicle exit
-        schedule_release_vehicle(runParams.start_time,current_max_flow_rate_vps);
-
-        update_supply();
-    }
 
     @Override
     public void allocate_state() {

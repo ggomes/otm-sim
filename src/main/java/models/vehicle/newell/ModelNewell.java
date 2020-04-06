@@ -16,7 +16,7 @@ import models.vehicle.AbstractVehicleModel;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
-import runner.Scenario;
+import common.Scenario;
 import utils.StochasticProcess;
 
 import java.util.*;

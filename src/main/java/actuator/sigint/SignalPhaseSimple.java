@@ -7,8 +7,8 @@ import actuator.AbstractActuator;
 import common.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
-import runner.ScenarioElementType;
-import runner.Scenario;
+import common.ScenarioElementType;
+import common.Scenario;
 import utils.OTMUtils;
 
 

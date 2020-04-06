@@ -2,9 +2,7 @@ package api;
 
 import error.OTMException;
 import models.vehicle.spatialq.OutputQueues;
-import models.vehicle.spatialq.Queue;
 import output.*;
-import runner.Scenario;
 
 import java.util.Collection;
 import java.util.HashSet;

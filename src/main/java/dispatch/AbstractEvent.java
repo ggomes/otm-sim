@@ -22,6 +22,10 @@ public abstract class AbstractEvent implements InterfaceEvent {
             System.out.println(String.format("%.2f\t%d\t%s\t%s",timestamp,dispatch_order,getClass().getName(),recipient.getClass().getName()));
     }
 
+    ///////////////////////////////////////
+    // toString
+    ///////////////////////////////////////
+
     @Override
     public String toString() {
         return timestamp + "\t" + dispatch_order + "\t" + this.getClass();

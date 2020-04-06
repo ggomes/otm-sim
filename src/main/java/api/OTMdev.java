@@ -1,7 +1,7 @@
 package api;
 
 import error.OTMException;
-import runner.Scenario;
+import common.Scenario;
 
 /**
  * Superuser API. It provides access to standard API methods and also exposes the internal Scenario class.

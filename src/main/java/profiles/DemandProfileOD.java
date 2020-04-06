@@ -5,7 +5,7 @@ import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.DemandType;
-import runner.Scenario;
+import common.Scenario;
 import utils.OTMUtils;
 
 public class DemandProfileOD extends AbstractDemandProfile {

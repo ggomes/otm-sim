@@ -13,7 +13,7 @@ import keys.KeyCommodityLink;
 import profiles.AbstractDemandProfile;
 import profiles.DemandProfile;
 import profiles.SplitMatrixProfile;
-import runner.Scenario;
+import common.Scenario;
 import utils.OTMUtils;
 
 import javax.xml.bind.JAXBContext;
@@ -353,7 +353,7 @@ public class ScenarioSplitter {
             jact.setId(absact.id);
 //            jact.setActuatorTarget(absact.get_target());
 //            jact.setSignal();
-            jact.setType(absact.getType().toString());
+            jact.setType(absact.getActuatorType().toString());
         }
 
         // sensors

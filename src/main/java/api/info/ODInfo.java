@@ -5,13 +5,10 @@ import commodity.Subnetwork;
 import error.OTMException;
 import keys.DemandType;
 import profiles.AbstractDemandProfile;
-import profiles.DemandProfile;
-import runner.Scenario;
+import common.Scenario;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ODInfo {
 

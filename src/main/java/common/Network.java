@@ -15,7 +15,6 @@ import models.vehicle.newell.ModelNewell;
 import models.vehicle.spatialq.ModelSpatialQ;
 import plugin.PluginLoader;
 import runner.RunParameters;
-import runner.Scenario;
 import utils.OTMUtils;
 import utils.StochasticProcess;
 
@@ -31,12 +30,15 @@ public class Network {
     public static Long max_rcid;
 
     public Scenario scenario;
-    public Map<String, AbstractModel> models;
     public boolean node_positions_in_meters;    // true->meters, false->gps
+
+    public Map<Long,jaxb.Roadparam> road_params;    // keep this for the sake of the scenario splitter
+    public Map<String, AbstractModel> models; // TODO: MAKE THIS A SCENARIO ELEMENT
+
+    // scenario elements
     public Map<Long,Node> nodes;
     public Map<Long,Link> links;
     public Map<Long, RoadGeometry> road_geoms;
-    public Map<Long,jaxb.Roadparam> road_params;    // keep this for the sake of the scenario splitter
     public Map<Long,RoadConnection> road_connections;
 
     ///////////////////////////////////////////
@@ -139,7 +141,68 @@ public class Network {
 
     }
 
-    //////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    // InterfaceScenarioElement-like
+    /////////////////////////////////////////////////
+
+    public void validate(OTMErrorLog errorLog){
+        nodes.values().forEach(x->x.validate(errorLog));
+        links.values().forEach(x->x.validate(errorLog));
+        road_geoms.values().forEach(x->x.validate(errorLog));
+        road_connections.values().forEach(x->x.validate(errorLog));
+        models.values().forEach(x->x.validate(errorLog));
+    }
+
+    public void initialize(Scenario scenario,RunParameters runParams) throws OTMException {
+
+        for(Link link : links.values())
+            link.initialize(scenario);
+
+        for(Node node: nodes.values())
+            node.initialize(scenario);
+
+        for(AbstractModel model : models.values())
+            model.initialize(scenario);
+
+    }
+
+    public jaxb.Network to_jaxb(){
+        jaxb.Network jnet = new jaxb.Network();
+
+        // network: nodes
+        jaxb.Nodes jnodes = new jaxb.Nodes();
+        jnodes.setGpsOrMeters(node_positions_in_meters ? "meters" : "gps");
+        jnet.setNodes(jnodes);
+        for(Node node : nodes.values())
+            jnodes.getNode().add(node.to_jaxb());
+
+        // network: links
+        jaxb.Links jlinks = new jaxb.Links();
+        jnet.setLinks(jlinks);
+        for(Link link : links.values())
+            jlinks.getLink().add(link.to_jaxb());
+
+        // network: roadgeoms
+        jaxb.Roadgeoms jgeoms = new jaxb.Roadgeoms();
+        jnet.setRoadgeoms(jgeoms);
+        for(geometry.RoadGeometry geom : road_geoms.values())
+            jgeoms.getRoadgeom().add(geom.to_jaxb());
+
+        // network: roadconnections
+        jaxb.Roadconnections jconns = new jaxb.Roadconnections();
+        jnet.setRoadconnections(jconns);
+        for(common.RoadConnection rcn : road_connections.values())
+            jconns.getRoadconnection().add(rcn.to_jaxb());
+
+        // network: roadparams
+        jaxb.Roadparams jrpms = new jaxb.Roadparams();
+        jnet.setRoadparams(jrpms);
+        jrpms.getRoadparam().addAll(road_params.values());
+
+        return jnet;
+    }
+
+    /////////////////////////////////////////////////
     // private static
     /////////////////////////////////////////////////
 
@@ -644,27 +707,6 @@ public class Network {
                 new HashSet<>();
     }
 
-    public void validate(Scenario scenario,OTMErrorLog errorLog){
-        nodes.values().forEach(x->x.validate(scenario,errorLog));
-        links.values().forEach(x->x.validate(errorLog));
-        road_geoms.values().forEach(x->x.validate(errorLog));
-        road_connections.values().forEach(x->x.validate(errorLog));
-        models.values().forEach(x->x.validate(errorLog));
-    }
-
-    public void initialize(Scenario scenario,RunParameters runParams) throws OTMException {
-
-        for(Link link : links.values())
-            link.initialize(scenario,runParams);
-
-        for(Node node: nodes.values())
-            node.initialize(scenario,runParams);
-
-        for(AbstractModel model : models.values())
-            model.initialize(scenario);
-
-    }
-
     ////////////////////////////////////////////
     // get / set
     ///////////////////////////////////////////
@@ -681,45 +723,13 @@ public class Network {
         return road_connections.get(id);
     }
 
+    ///////////////////////////////////////////
+    // toString
+    ///////////////////////////////////////////
+
     @Override
     public String toString() {
         return String.format("%d nodes, %d links",nodes.size(),links.size());
-    }
-
-    public jaxb.Network to_jaxb(){
-        jaxb.Network jnet = new jaxb.Network();
-
-        // network: nodes
-        jaxb.Nodes jnodes = new jaxb.Nodes();
-        jnodes.setGpsOrMeters(node_positions_in_meters ? "meters" : "gps");
-        jnet.setNodes(jnodes);
-        for(Node node : nodes.values())
-            jnodes.getNode().add(node.to_jaxb());
-
-        // network: links
-        jaxb.Links jlinks = new jaxb.Links();
-        jnet.setLinks(jlinks);
-        for(Link link : links.values())
-            jlinks.getLink().add(link.to_jaxb());
-
-        // network: roadgeoms
-        jaxb.Roadgeoms jgeoms = new jaxb.Roadgeoms();
-        jnet.setRoadgeoms(jgeoms);
-        for(geometry.RoadGeometry geom : road_geoms.values())
-            jgeoms.getRoadgeom().add(geom.to_jaxb());
-
-        // network: roadconnections
-        jaxb.Roadconnections jconns = new jaxb.Roadconnections();
-        jnet.setRoadconnections(jconns);
-        for(common.RoadConnection rcn : road_connections.values())
-            jconns.getRoadconnection().add(rcn.to_jaxb());
-
-        // network: roadparams
-        jaxb.Roadparams jrpms = new jaxb.Roadparams();
-        jnet.setRoadparams(jrpms);
-        jrpms.getRoadparam().addAll(road_params.values());
-
-        return jnet;
     }
 
 }

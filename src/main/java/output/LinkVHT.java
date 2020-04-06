@@ -2,7 +2,7 @@ package output;
 
 import error.OTMException;
 import common.Link;
-import runner.Scenario;
+import common.Scenario;
 
 public class LinkVHT extends AbstractOutputTimedLink {
 

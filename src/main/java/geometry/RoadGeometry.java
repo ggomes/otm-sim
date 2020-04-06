@@ -1,10 +1,12 @@
 package geometry;
 
+import common.Scenario;
+import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Roadparam;
-import runner.InterfaceScenarioElement;
-import runner.ScenarioElementType;
+import common.InterfaceScenarioElement;
+import common.ScenarioElementType;
 
 import java.util.List;
 import java.util.Map;
@@ -16,6 +18,10 @@ public class RoadGeometry implements InterfaceScenarioElement {
     public AddLanes up_out;
     public AddLanes dn_in;
     public AddLanes dn_out;
+
+    ///////////////////////////////////////////
+    // construction
+    ///////////////////////////////////////////
 
     public RoadGeometry(jaxb.Roadgeom jaxb_geom,Map<Long, Roadparam> road_params) throws OTMException {
 
@@ -48,7 +54,22 @@ public class RoadGeometry implements InterfaceScenarioElement {
         }
     }
 
-    public void validate(OTMErrorLog errorLog){
+    ///////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public ScenarioElementType getType() {
+        return ScenarioElementType.roadgeom;
+    }
+
+    @Override
+    public void validate(OTMErrorLog errorLog) {
 
         if(dn_in!=null || dn_out!=null || up_in!=null || up_out!=null) {
             errorLog.addWarning("Road geometry " + id + ": Addlanes has not been implemented.");
@@ -61,6 +82,17 @@ public class RoadGeometry implements InterfaceScenarioElement {
             dn_out.validate(errorLog);
     }
 
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+
+    }
+
+    @Override
+    public void register_with_dispatcher(Dispatcher dispatcher) {
+
+    }
+
+    @Override
     public jaxb.Roadgeom to_jaxb(){
         jaxb.Roadgeom jgeom = new jaxb.Roadgeom();
         jgeom.setId(this.id);
@@ -76,26 +108,16 @@ public class RoadGeometry implements InterfaceScenarioElement {
         return jgeom;
     }
 
+    ///////////////////////////////////////////
+    // public
+    ///////////////////////////////////////////
+
     public boolean in_is_full_length(){
         return dn_in==null ? false : Float.isNaN(dn_in.length);
     }
 
     public boolean out_is_full_length(){
         return dn_out==null ? false : Float.isNaN(dn_out.length);
-    }
-
-    ////////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public ScenarioElementType getScenarioElementType() {
-        return ScenarioElementType.roadgeom;
     }
 
 }

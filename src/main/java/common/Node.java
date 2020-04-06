@@ -1,15 +1,12 @@
 package common;
 
 import actuator.AbstractActuator;
+import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.KeyCommodityLink;
 import profiles.SplitMatrixProfile;
 import actuator.InterfaceActuatorTarget;
-import runner.InterfaceScenarioElement;
-import runner.RunParameters;
-import runner.Scenario;
-import runner.ScenarioElementType;
 
 import java.util.*;
 
@@ -38,7 +35,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     public Float xcoord;
     public Float ycoord;
 
-    ////////////////////////////////////////////
+    ///////////////////////////////////////////
     // construction
     ///////////////////////////////////////////
 
@@ -61,6 +58,64 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     public Node(Network network,jaxb.Node jn){
         this(network,jn.getId(),jn.getX(),jn.getY(),jn.isVsource());
     }
+
+    ///////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////
+
+    @Override
+    public final Long getId() {
+        return id;
+    }
+
+    @Override
+    public final ScenarioElementType getType() {
+        return ScenarioElementType.node;
+    }
+
+    @Override
+    public void validate(OTMErrorLog errorLog) {
+        Scenario scenario = network.scenario;
+        if(splits!=null){
+            splits.values().stream().forEach(x -> x.validate(scenario,errorLog));
+        }
+    }
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        if(splits!=null)
+            for(SplitMatrixProfile x : splits.values())
+                x.initialize(scenario.dispatcher.current_time);
+    }
+
+    @Override
+    public void register_with_dispatcher(Dispatcher dispatcher) {
+
+    }
+
+    @Override
+    public jaxb.Node to_jaxb(){
+        jaxb.Node jnode = new jaxb.Node();
+        jnode.setId(getId());
+        jnode.setX(xcoord);
+        jnode.setY(ycoord);
+        return jnode;
+    }
+
+    ///////////////////////////////////////////
+    // InterfaceActuatorTarget
+    ///////////////////////////////////////////
+
+    @Override
+    public void register_actuator(AbstractActuator act) throws OTMException {
+        if(this.actuator!=null)
+            throw new OTMException("Multiple actuators on node");
+        this.actuator = act;
+    }
+
+    ///////////////////////////////////////////
+    // XXX
+    ///////////////////////////////////////////
 
     public void delete(){
         network = null;
@@ -92,25 +147,6 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
             splits.put(key,smp);
     }
 
-    @Override
-    public void register_actuator(AbstractActuator act) throws OTMException {
-        if(this.actuator!=null)
-            throw new OTMException("Multiple actuators on node");
-        this.actuator = act;
-    }
-
-    public void validate(Scenario scenario,OTMErrorLog errorLog){
-        if(splits!=null){
-            splits.values().stream().forEach(x -> x.validate(scenario,errorLog));
-        }
-    }
-
-    public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
-        if(splits!=null)
-            for(SplitMatrixProfile x : splits.values())
-                x.initialize(scenario.dispatcher.current_time);
-    }
-
     ////////////////////////////////////////////
     // get / set
     ///////////////////////////////////////////
@@ -129,25 +165,5 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
         return out_links.size();
     }
 
-    public jaxb.Node to_jaxb(){
-        jaxb.Node jnode = new jaxb.Node();
-        jnode.setId(getId());
-        jnode.setX(xcoord);
-        jnode.setY(ycoord);
-        return jnode;
-    }
 
-    ////////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public ScenarioElementType getScenarioElementType() {
-        return ScenarioElementType.node;
-    }
 }

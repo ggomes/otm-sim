@@ -8,7 +8,7 @@ import dispatch.EventPoke;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Controller;
-import runner.Scenario;
+import common.Scenario;
 import utils.OTMUtils;
 
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public class ControllerSignalPretimed extends AbstractController {
     }
 
     ///////////////////////////////////////////////////
-    // initialize
+    // InterfaceScenarioElement
     ///////////////////////////////////////////////////
 
     @Override
@@ -99,7 +99,7 @@ public class ControllerSignalPretimed extends AbstractController {
     }
 
     @Override
-    public void initialize(Scenario scenario, float now) throws OTMException {
+    public void initialize(Scenario scenario) throws OTMException {
 
     }
 

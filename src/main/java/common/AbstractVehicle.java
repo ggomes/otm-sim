@@ -104,6 +104,9 @@ public abstract class AbstractVehicle {
 //            key = new KeyCommPathOrLink(key.commodity_id,next_link_id,false);
 //    }
 
+    ///////////////////////////////////////
+    // toString
+    ///////////////////////////////////////
 
     @Override
     public String toString() {

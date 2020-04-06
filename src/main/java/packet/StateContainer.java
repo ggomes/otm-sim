@@ -6,7 +6,7 @@ import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import models.vehicle.AbstractVehicleModel;
-import runner.Scenario;
+import common.Scenario;
 
 import java.util.HashMap;
 import java.util.HashSet;

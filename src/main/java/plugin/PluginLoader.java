@@ -3,7 +3,7 @@ package plugin;
 import control.AbstractController;
 import error.OTMException;
 import models.AbstractModel;
-import runner.Scenario;
+import common.Scenario;
 import utils.StochasticProcess;
 
 import java.io.File;

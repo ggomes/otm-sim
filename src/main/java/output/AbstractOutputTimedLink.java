@@ -7,7 +7,7 @@ import common.Link;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import profiles.Profile1D;
-import runner.Scenario;
+import common.Scenario;
 
 import java.io.*;
 import java.util.*;

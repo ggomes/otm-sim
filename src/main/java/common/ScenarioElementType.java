@@ -1,12 +1,13 @@
-package runner;
+package common;
 
 /** anything with an id **/
 public enum ScenarioElementType {
     commodity,
-    roadgeom,
-    roadconnection,
+    subnetwork,
     node,
     link,
+    roadgeom,
+    roadconnection,
     controller,
     actuator,
     sensor

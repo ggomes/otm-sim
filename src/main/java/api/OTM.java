@@ -32,7 +32,7 @@ import java.util.*;
 public class OTM {
 
     protected Dispatcher dispatcher;
-    protected runner.Scenario scn;
+    protected common.Scenario scn;
     public api.Scenario scenario;
     public api.Output output;
 
@@ -261,7 +261,7 @@ public class OTM {
         }
     }
 
-    private static Set<AbstractOutput> create_outputs_from_jaxb(runner.Scenario scenario, String prefix, String output_folder, jaxb.OutputRequests jaxb_ors) throws OTMException{
+    private static Set<AbstractOutput> create_outputs_from_jaxb(common.Scenario scenario, String prefix, String output_folder, jaxb.OutputRequests jaxb_ors) throws OTMException{
         Set<AbstractOutput> outputs = new HashSet<>();
         if(jaxb_ors==null)
             return outputs;

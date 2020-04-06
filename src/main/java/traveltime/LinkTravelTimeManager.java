@@ -5,7 +5,7 @@ import dispatch.Dispatcher;
 import dispatch.EventComputeTravelTime;
 import error.OTMException;
 import output.PathTravelTimeWriter;
-import runner.Scenario;
+import common.Scenario;
 
 import java.util.*;
 

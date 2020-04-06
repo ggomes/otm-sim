@@ -5,7 +5,7 @@ import models.AbstractLaneGroup;
 import error.OTMException;
 import org.jfree.data.xy.XYSeries;
 import profiles.Profile1D;
-import runner.Scenario;
+import common.Scenario;
 
 import java.util.*;
 

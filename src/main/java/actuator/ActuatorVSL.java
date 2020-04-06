@@ -1,9 +1,8 @@
 package actuator;
 
 import dispatch.Dispatcher;
-import error.OTMErrorLog;
 import error.OTMException;
-import runner.Scenario;
+import common.Scenario;
 
 public class ActuatorVSL extends AbstractActuator {
 
@@ -16,17 +15,22 @@ public class ActuatorVSL extends AbstractActuator {
         System.err.println("ActuatorVSL is not implemented");
     }
 
+    ///////////////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////////////
+
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
+    public void process_controller_command(Object command, float timestamp) {
+
     }
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
+
     }
 
     @Override
-    public void process_controller_command(Object command, float timestamp) {
+    public void register_with_dispatcher(Dispatcher dispatcher) {
 
     }
 }

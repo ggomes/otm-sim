@@ -3,11 +3,10 @@ package output;
 import common.Link;
 import error.OTMException;
 import profiles.Profile1D;
-import runner.Scenario;
+import common.Scenario;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 public class LinkVehicles extends AbstractOutputTimedLink {
 

@@ -14,7 +14,7 @@ import models.vehicle.VehicleLaneGroup;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
 import runner.RunParameters;
-import runner.Scenario;
+import common.Scenario;
 import traveltime.VehicleLaneGroupTimer;
 import utils.OTMUtils;
 
@@ -42,8 +42,8 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     }
 
     @Override
-    public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
-        super.initialize(scenario, runParams);
+    public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
 
         update_supply();
     }

@@ -8,7 +8,7 @@ import error.OTMException;
 import models.AbstractLaneGroup;
 import output.AbstractOutput;
 import runner.RunParameters;
-import runner.Scenario;
+import common.Scenario;
 
 import java.io.File;
 import java.io.IOException;

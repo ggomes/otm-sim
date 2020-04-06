@@ -7,8 +7,8 @@ import dispatch.Dispatcher;
 import dispatch.EventAdvanceSignalPhase;
 import error.OTMErrorLog;
 import error.OTMException;
-import runner.Scenario;
-import runner.ScenarioElementType;
+import common.Scenario;
+import common.ScenarioElementType;
 import utils.OTMUtils;
 import utils.CircularList;
 

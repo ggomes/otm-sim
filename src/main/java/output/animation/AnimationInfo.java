@@ -2,7 +2,7 @@ package output.animation;
 
 import common.Link;
 import error.OTMException;
-import runner.Scenario;
+import common.Scenario;
 
 import java.util.*;
 import java.util.stream.Collectors;

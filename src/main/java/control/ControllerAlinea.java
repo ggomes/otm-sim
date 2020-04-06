@@ -8,7 +8,7 @@ import error.OTMException;
 import jaxb.Controller;
 import common.Link;
 import jaxb.Roadparam;
-import runner.Scenario;
+import common.Scenario;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,8 +28,12 @@ public class ControllerAlinea extends AbstractController  {
         super(scenario, jaxb_controller);
     }
 
+    ///////////////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////////////
+
     @Override
-    public void initialize(Scenario scenario, float now) throws OTMException {
+    public void initialize(Scenario scenario) throws OTMException {
         params = new HashMap<>();
         for(AbstractActuator abs_act : actuators.values()){
             ActuatorCapacity act = (ActuatorCapacity) abs_act;

@@ -3,11 +3,12 @@ package sensor;
 import common.FlowAccumulatorState;
 import common.Link;
 import dispatch.Dispatcher;
+import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Sensor;
 import models.AbstractLaneGroup;
 import runner.RunParameters;
-import runner.Scenario;
+import common.Scenario;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,9 +25,9 @@ public class FixedSensor extends AbstractSensor {
 
     private Measurement measurement;
 
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////
     // construction
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////
 
     public FixedSensor(Scenario scenario, Sensor jaxb_sensor) {
         super(scenario, jaxb_sensor);
@@ -73,10 +74,20 @@ public class FixedSensor extends AbstractSensor {
 
     }
 
+    ////////////////////////////////
+    // InterfaceScenarioElement
+    ////////////////////////////////
+
     @Override
-    public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
+    public void validate(OTMErrorLog errorLog) {
+
+    }
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
         measurement.initialize();
     }
+
 
     /////////////////////////////////////////////////////////////////
     // implementation

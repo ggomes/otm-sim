@@ -3,9 +3,10 @@ package actuator;
 import common.Link;
 import common.RoadConnection;
 import dispatch.Dispatcher;
+import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
-import runner.Scenario;
+import common.Scenario;
 
 public class ActuatorCapacity extends AbstractActuator  {
 
@@ -27,10 +28,28 @@ public class ActuatorCapacity extends AbstractActuator  {
         min_rate_vps = jact.getMinValue()>=0f ? jact.getMinValue()*num_lanes/3600f : 0f;
     }
 
+    ///////////////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////////////
+
     @Override
     public void initialize(Scenario scenario) throws OTMException {
 //        rate_vps = 0f;
     }
+
+    @Override
+    public void register_with_dispatcher(Dispatcher dispatcher) {
+
+    }
+
+    @Override
+    public OTMErrorLog to_jaxb() {
+        return null;
+    }
+
+    ///////////////////////////////////////////////////
+    // XXX
+    ///////////////////////////////////////////////////
 
     @Override
     public void process_controller_command(Object command, float timestamp) throws OTMException {
@@ -43,7 +62,7 @@ public class ActuatorCapacity extends AbstractActuator  {
     }
 
     ///////////////////////////////////////////////////
-    // API
+    // set
     ///////////////////////////////////////////////////
 
     public void set_rate_vph(float rate_vph){

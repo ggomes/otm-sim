@@ -8,7 +8,7 @@ import error.OTMException;
 import dispatch.Dispatcher;
 import dispatch.EventSplitChange;
 import common.Node;
-import runner.Scenario;
+import common.Scenario;
 import utils.OTMUtils;
 
 import java.util.*;

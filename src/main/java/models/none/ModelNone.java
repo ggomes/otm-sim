@@ -16,7 +16,7 @@ import models.AbstractModel;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
-import runner.Scenario;
+import common.Scenario;
 import utils.StochasticProcess;
 
 import java.util.Collection;

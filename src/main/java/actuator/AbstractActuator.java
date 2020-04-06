@@ -7,9 +7,9 @@ import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
 import output.EventsActuator;
-import runner.InterfaceScenarioElement;
-import runner.Scenario;
-import runner.ScenarioElementType;
+import common.InterfaceScenarioElement;
+import common.Scenario;
+import common.ScenarioElementType;
 
 public abstract class AbstractActuator implements Pokable, InterfaceScenarioElement {
 
@@ -32,9 +32,9 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     public EventsActuator event_listener;
 
-    /////////////////////////////////////////////////////////////////////
-    // construction and update
-    /////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////
+    // construction
+    ///////////////////////////////////////////
 
     public AbstractActuator(Scenario scenario, jaxb.Actuator jaxb_actuator) throws OTMException {
         this.id = jaxb_actuator.getId();
@@ -48,25 +48,38 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         }
     }
 
+    ///////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public ScenarioElementType getType() {
+        return ScenarioElementType.actuator;
+    }
+
+    @Override
     public void validate(OTMErrorLog errorLog) {
         if(target==null)
             errorLog.addWarning("Actuator has no target");
     }
 
-    abstract public void initialize(Scenario scenario) throws OTMException;
-
-    public void register_with_dispatcher(Dispatcher dispatcher){
-
-        // DONT DO THIS. Dont automatically register the actuator with poke. If it is
-        // not a dt based actuator, then this will produce an unwanted update.
-        // This is a reason to create separate classes for timed vs event based actuators,
-        // controllers and sensors.
-//        dispatcher.register_event(new EventPoke(dispatcher,3,dispatcher.current_time,this));
+    @Override
+    public OTMErrorLog to_jaxb() {
+        return null;
     }
 
     /////////////////////////////////////////////////////////////////////
     // update
     /////////////////////////////////////////////////////////////////////
+
+    public Type getActuatorType(){
+        return type;
+    }
 
     abstract public void process_controller_command(Object command, float timestamp) throws OTMException;
 
@@ -90,37 +103,6 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         if(event_listener!=null)
             throw new OTMException("multiple listeners for commodity");
         event_listener = e;
-    }
-
-    /////////////////////////////////////////////////////////////////////
-    // scenario interactions
-    /////////////////////////////////////////////////////////////////////
-
-//    public void register_with_target() throws OTMException {
-//        if(node==null)
-//            return;
-//        node.register_actuator(this);
-//        for(_SignalPhaseNEMA sp : signal_phases.values())
-//            sp.register_with_dispatcher(this);
-//    }
-
-
-    ////////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public ScenarioElementType getScenarioElementType() {
-        return ScenarioElementType.actuator;
-    }
-
-    public Type getType(){
-        return type;
     }
 
 }

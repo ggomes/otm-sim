@@ -2,10 +2,8 @@ package actuator;
 
 import common.Link;
 import common.RoadConnection;
-import dispatch.Dispatcher;
-import error.OTMErrorLog;
 import error.OTMException;
-import runner.Scenario;
+import common.Scenario;
 
 public class ActuatorRampMeter extends ActuatorCapacity {
 

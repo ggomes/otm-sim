@@ -9,6 +9,7 @@ import commodity.Subnetwork;
 import common.Link;
 import common.Network;
 import common.Node;
+import common.Scenario;
 import control.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
@@ -32,7 +33,7 @@ public class ScenarioFactory {
     // public
     ///////////////////////////////////////////
 
-    public static runner.Scenario create_scenario(jaxb.Scenario js, boolean validate) throws OTMException {
+    public static Scenario create_scenario(jaxb.Scenario js, boolean validate) throws OTMException {
 
         OTMUtils.reset_counters();
 
@@ -96,7 +97,7 @@ public class ScenarioFactory {
         return scenario;
     }
 
-    public static runner.Scenario create_unrunnable_scenario(jaxb.Scenario js) throws OTMException {
+    public static Scenario create_unrunnable_scenario(jaxb.Scenario js) throws OTMException {
 
         OTMUtils.reset_counters();
 

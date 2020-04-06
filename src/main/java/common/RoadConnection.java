@@ -1,10 +1,10 @@
 package common;
 
+import dispatch.Dispatcher;
 import error.OTMErrorLog;
+import error.OTMException;
 import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
-import runner.InterfaceScenarioElement;
-import runner.ScenarioElementType;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -27,6 +27,10 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
 
     // control
     public float external_max_flow_vps;
+
+    ///////////////////////////////////////////
+    // construction
+    ///////////////////////////////////////////
 
     public RoadConnection(final Map<Long,Link> links , jaxb.Roadconnection jaxb_rc ){
 
@@ -86,17 +90,22 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         this( id, start_link, 1,start_link.get_num_dn_lanes(),end_link,1,end_link.get_num_up_lanes());
     }
 
-//    public void set_in_out_lanegroups(){
-//        in_lanegroups = start_link !=null ?
-//                start_link.get_unique_lanegroups_for_dn_lanes(start_link_from_lane,start_link_to_lane) :
-//                new HashSet<>();
-//
-//        out_lanegroups = end_link!=null ?
-//                end_link.get_unique_lanegroups_for_up_lanes(end_link_from_lane,end_link_to_lane) :
-//                new HashSet<>();
-//    }
+    ///////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////
 
-    public void validate(OTMErrorLog errorLog){
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public ScenarioElementType getType() {
+        return ScenarioElementType.roadconnection;
+    }
+
+    @Override
+    public void validate(OTMErrorLog errorLog) {
 
         if (start_link!=null && end_link!=null && start_link.end_node!=end_link.start_node ) {
             System.err.println("bad road connection: id=" + id
@@ -152,21 +161,17 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
 //            errorLog.addError("splits don't add to 1");
     }
 
-    public void set_external_max_flow_vps(float timestamp,float rate_vps){
-        this.external_max_flow_vps = rate_vps;
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
 
-        // tell the incoming lanegroups
-        for(AbstractLaneGroup in_lanegroup : in_lanegroups)
-            in_lanegroup.exiting_roadconnection_capacity_has_been_modified(timestamp);
     }
 
     @Override
-    public String toString() {
-        String startstr = start_link==null ? "" : String.format("%d [%d %d]",start_link.getId(), start_link_from_lane, start_link_to_lane);
-        String endstr = end_link==null ? "" : String.format("%d [%d %d]",end_link.getId(),end_link_from_lane,end_link_to_lane);
-        return String.format("%d: %s -> %s",id,startstr,endstr);
+    public void register_with_dispatcher(Dispatcher dispatcher) {
+
     }
 
+    @Override
     public jaxb.Roadconnection to_jaxb(){
         jaxb.Roadconnection jrcn = new jaxb.Roadconnection();
         jrcn.setId(this.getId());
@@ -178,6 +183,10 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         return jrcn;
     }
 
+    ///////////////////////////////////////////////////
+    // Comparable
+    ///////////////////////////////////////////////////
+
     @Override
     public int compareTo(RoadConnection that) {
         if(this.id>that.id)
@@ -186,6 +195,42 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
             return -1;
         return 0;
     }
+
+
+    //    public void set_in_out_lanegroups(){
+//        in_lanegroups = start_link !=null ?
+//                start_link.get_unique_lanegroups_for_dn_lanes(start_link_from_lane,start_link_to_lane) :
+//                new HashSet<>();
+//
+//        out_lanegroups = end_link!=null ?
+//                end_link.get_unique_lanegroups_for_up_lanes(end_link_from_lane,end_link_to_lane) :
+//                new HashSet<>();
+//    }
+
+
+    ///////////////////////////////////////////
+    // XXX
+    ///////////////////////////////////////////
+
+    public void set_external_max_flow_vps(float timestamp,float rate_vps){
+        this.external_max_flow_vps = rate_vps;
+
+        // tell the incoming lanegroups
+        for(AbstractLaneGroup in_lanegroup : in_lanegroups)
+            in_lanegroup.exiting_roadconnection_capacity_has_been_modified(timestamp);
+    }
+
+    ///////////////////////////////////////
+    // toString
+    ///////////////////////////////////////
+
+    @Override
+    public String toString() {
+        String startstr = start_link==null ? "" : String.format("%d [%d %d]",start_link.getId(), start_link_from_lane, start_link_to_lane);
+        String endstr = end_link==null ? "" : String.format("%d [%d %d]",end_link.getId(),end_link_from_lane,end_link_to_lane);
+        return String.format("%d: %s -> %s",id,startstr,endstr);
+    }
+
 
     ///////////////////////////////////////////
     // get
@@ -225,20 +270,6 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         return upstr_states.stream()
                 .filter(k-> ( k.isPath && dnstr_states.contains(k) ) || (!k.isPath && k.pathOrlink_id==end_link.id))
                 .collect(toSet());
-    }
-
-    ///////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public ScenarioElementType getScenarioElementType() {
-        return ScenarioElementType.roadconnection;
     }
 
 }

@@ -1,7 +1,6 @@
 package geometry;
 
 import error.OTMErrorLog;
-import runner.Scenario;
 
 public class Gate implements Comparable<Gate>{
     public float start_pos;

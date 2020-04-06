@@ -7,12 +7,11 @@ import error.OTMException;
 import keys.KeyCommPathOrLink;
 import models.AbstractModel;
 import models.AbstractLaneGroup;
-import models.fluid.ctm.CTMCell;
 import models.fluid.nodemodel.NodeModel;
 import models.fluid.nodemodel.RoadConnection;
 import models.fluid.nodemodel.UpLaneGroup;
 import packet.PacketLink;
-import runner.Scenario;
+import common.Scenario;
 import utils.StochasticProcess;
 
 import java.util.HashMap;

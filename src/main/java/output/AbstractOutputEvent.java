@@ -2,7 +2,7 @@ package output;
 
 import api.info.events.AbstractEventInfo;
 import error.OTMException;
-import runner.Scenario;
+import common.Scenario;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -2,7 +2,7 @@ package output;
 
 import error.OTMException;
 import models.AbstractLaneGroup;
-import runner.Scenario;
+import common.Scenario;
 import common.FlowAccumulatorState;
 
 import java.util.Collection;

@@ -3,6 +3,7 @@ package common;
 import actuator.AbstractActuator;
 import actuator.InterfaceActuatorTarget;
 import commodity.Commodity;
+import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.RoadGeometry;
@@ -15,10 +16,7 @@ import models.AbstractModel;
 import traveltime.LinkTravelTimer;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
-import runner.InterfaceScenarioElement;
 import runner.RunParameters;
-import runner.Scenario;
-import runner.ScenarioElementType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -162,120 +160,23 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
     }
 
-    public void delete(){
-        network = null;
-        start_node = null;
-        end_node = null;
-        if(lanegroups_flwdn !=null)
-            lanegroups_flwdn.values().forEach(lg->lg.delete());
-        lanegroups_flwdn = null;
-        lanegroup_up_out.delete();
-        lanegroup_up_in.delete();
-        lanegroup_up_out = null;
-        lanegroup_up_in = null;
-        dnlane2lanegroup = null;
-        path2outlink = null;
-        outlink2lanegroups = null;
-        commodity2split = null;
-        if(sources!=null)
-            sources.forEach(s->s.delete());
-        sources = null;
-        road_type = null;
-        road_geom = null;
-        model = null;
-//        travel_timers = null;
-        shape = null;
-        outlink2roadconnection = null;
+    ///////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////
+
+    @Override
+    public Long getId() {
+        return id;
     }
 
-//    public void add_travel_timer(PathTravelTimeWriter x){
-//        travel_timers.add(x);
-//    }
-
-    public void set_long_lanegroups(Collection<AbstractLaneGroup> lgs) {
-
-        lanegroups_flwdn = new HashMap<>();
-        dnlane2lanegroup = new HashMap<>();
-
-        if(lgs==null || lgs.isEmpty())
-            return;
-
-        // lanegroups
-        for(AbstractLaneGroup lg : lgs)
-            lanegroups_flwdn.put(lg.id,lg);
-
-        // dnlane2lanegroup
-        for (AbstractLaneGroup lg : lgs)
-            for (int lane=lg.start_lane_dn;lane<lg.start_lane_dn+lg.num_lanes;lane++)                       // iterate through dn lanes
-                dnlane2lanegroup.put(lane, lg);
+    @Override
+    public ScenarioElementType getType() {
+        return ScenarioElementType.link;
     }
 
-    public void populate_outlink2lanegroups(){
+    @Override
+    public void validate(OTMErrorLog errorLog) {
 
-        if(is_sink)
-            return;
-
-        outlink2lanegroups = new HashMap<>();
-        for(Link outlink : end_node.out_links.values()) {
-            Set<AbstractLaneGroup> lgs = lanegroups_flwdn.values().stream()
-                    .filter(lg -> lg.link_is_link_reachable(outlink.getId()))
-                    .collect(Collectors.toSet());
-            if(!lgs.isEmpty())
-                outlink2lanegroups.put(outlink.getId(), lgs);
-        }
-
-    }
-
-    public void populate_commodity2split(Collection<Commodity> commodities){
-        Long trivial_next_link = outlink2lanegroups.keySet().size() == 1 ? outlink2lanegroups.keySet().iterator().next() : null;
-        commodity2split = new HashMap<>();
-        for(Commodity c : commodities)
-            commodity2split.put(c.getId(), new SplitInfo(trivial_next_link));
-    }
-
-//    public void set_lat_lanegroups(Collection<AbstractLaneGroupLateral> lgs) {
-//        lat_lanegroups = new HashMap<>();
-//        if(lgs==null || lgs.isEmpty())
-//            return;
-//        for(AbstractLaneGroupLateral lg : lgs)
-//            lat_lanegroups.put(lg.id,lg);
-//    }
-
-    // called from EventSplitChange cascade, during initialization
-    public void set_splits(long commodity_id,Map<Long,Double> outlink2value){
-        if(commodity2split.containsKey(commodity_id))
-            commodity2split.get(commodity_id).set_splits(outlink2value);
-    }
-
-    public void set_model(AbstractModel newmodel, boolean is_model_source_link) throws OTMException {
-
-        if (model==null){
-            this.model = newmodel;
-            this.is_model_source_link = is_model_source_link;
-            return;
-        }
-
-        if(model.is_default && !newmodel.is_default) {
-            this.model = newmodel;
-            this.is_model_source_link = is_model_source_link;
-            return;
-        }
-
-        if(model.is_default && newmodel.is_default)
-            throw new OTMException("Multiple default models");
-
-        if(!model.is_default && !newmodel.is_default)
-            throw new OTMException("ModelType multiply assigned for link " + this.id);
-    }
-
-//    public FlowAccumulatorSet request_flow_accumulator_set(Long commodity_id){
-//        FlowAccumulatorSet fas = new FlowAccumulatorSet();
-//        for(AbstractLaneGroup lg : lanegroups.values())
-//            fas.add_flow_accumulator(lg.request_flow_accumulator(commodity_id));
-//        return fas;
-//    }
-
-    public void validate(OTMErrorLog errorLog){
         if( length<=0 )
             errorLog.addError("link " + id + ": length<=0");
         if( start_node==null )
@@ -410,12 +311,181 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         if(!dwn_links.containsAll(outlink2roadconnection.keySet()))
             errorLog.addError("some outlinks are not immediately downstream");
 
+
     }
 
-    public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
         for(AbstractLaneGroup lg : lanegroups_flwdn.values())
-            lg.initialize(scenario,runParams);
+            lg.initialize(scenario);
     }
+
+    @Override
+    public void register_with_dispatcher(Dispatcher dispatcher) {
+
+    }
+
+    @Override
+    public jaxb.Link to_jaxb(){
+        jaxb.Link jlink = new jaxb.Link();
+        jlink.setId(this.getId());
+        jlink.setStartNodeId(this.start_node.getId());
+        jlink.setEndNodeId(this.end_node.getId());
+        jlink.setLength(this.length);
+        jlink.setFullLanes(this.full_lanes);
+        if(this.road_geom!=null)
+            jlink.setRoadgeom(this.road_geom.id);
+        jlink.setRoadparam(this.road_param.getId());
+        if(!road_type.equals(RoadType.none))
+            jlink.setRoadType(this.road_type.toString());
+        jaxb.Points jpoints = new jaxb.Points();
+        jlink.setPoints(jpoints);
+        for(common.Point point : this.shape){
+            jaxb.Point jpoint = new jaxb.Point();
+            jpoints.getPoint().add(jpoint);
+            jpoint.setX(point.x);
+            jpoint.setY(point.y);
+        }
+        return jlink;
+    }
+
+    ////////////////////////////////////////////
+    // InterfaceActuatorTarget
+    ///////////////////////////////////////////
+
+    @Override
+    public void register_actuator(AbstractActuator act) throws OTMException {
+
+        if(act instanceof actuator.ActuatorRampMeter) {
+            if(ramp_meter!=null)
+                throw new OTMException("Multiple ramp meters assigned to the same link.");
+            this.ramp_meter = (actuator.ActuatorRampMeter) act;
+        }
+
+        if(act instanceof actuator.ActuatorFD){
+            if(actuator_fd!=null)
+                throw new OTMException("Multiple fd actiuators assigned to the same link.");
+            this.actuator_fd = (actuator.ActuatorFD) act;
+        }
+
+    }
+
+    ///////////////////////////////////////////
+    // XXXXX
+    ///////////////////////////////////////////
+
+    public void delete(){
+        network = null;
+        start_node = null;
+        end_node = null;
+        if(lanegroups_flwdn !=null)
+            lanegroups_flwdn.values().forEach(lg->lg.delete());
+        lanegroups_flwdn = null;
+        lanegroup_up_out.delete();
+        lanegroup_up_in.delete();
+        lanegroup_up_out = null;
+        lanegroup_up_in = null;
+        dnlane2lanegroup = null;
+        path2outlink = null;
+        outlink2lanegroups = null;
+        commodity2split = null;
+        if(sources!=null)
+            sources.forEach(s->s.delete());
+        sources = null;
+        road_type = null;
+        road_geom = null;
+        model = null;
+//        travel_timers = null;
+        shape = null;
+        outlink2roadconnection = null;
+    }
+
+//    public void add_travel_timer(PathTravelTimeWriter x){
+//        travel_timers.add(x);
+//    }
+
+    public void set_long_lanegroups(Collection<AbstractLaneGroup> lgs) {
+
+        lanegroups_flwdn = new HashMap<>();
+        dnlane2lanegroup = new HashMap<>();
+
+        if(lgs==null || lgs.isEmpty())
+            return;
+
+        // lanegroups
+        for(AbstractLaneGroup lg : lgs)
+            lanegroups_flwdn.put(lg.id,lg);
+
+        // dnlane2lanegroup
+        for (AbstractLaneGroup lg : lgs)
+            for (int lane=lg.start_lane_dn;lane<lg.start_lane_dn+lg.num_lanes;lane++)                       // iterate through dn lanes
+                dnlane2lanegroup.put(lane, lg);
+    }
+
+    public void populate_outlink2lanegroups(){
+
+        if(is_sink)
+            return;
+
+        outlink2lanegroups = new HashMap<>();
+        for(Link outlink : end_node.out_links.values()) {
+            Set<AbstractLaneGroup> lgs = lanegroups_flwdn.values().stream()
+                    .filter(lg -> lg.link_is_link_reachable(outlink.getId()))
+                    .collect(Collectors.toSet());
+            if(!lgs.isEmpty())
+                outlink2lanegroups.put(outlink.getId(), lgs);
+        }
+
+    }
+
+    public void populate_commodity2split(Collection<Commodity> commodities){
+        Long trivial_next_link = outlink2lanegroups.keySet().size() == 1 ? outlink2lanegroups.keySet().iterator().next() : null;
+        commodity2split = new HashMap<>();
+        for(Commodity c : commodities)
+            commodity2split.put(c.getId(), new SplitInfo(trivial_next_link));
+    }
+
+//    public void set_lat_lanegroups(Collection<AbstractLaneGroupLateral> lgs) {
+//        lat_lanegroups = new HashMap<>();
+//        if(lgs==null || lgs.isEmpty())
+//            return;
+//        for(AbstractLaneGroupLateral lg : lgs)
+//            lat_lanegroups.put(lg.id,lg);
+//    }
+
+    // called from EventSplitChange cascade, during initialization
+    public void set_splits(long commodity_id,Map<Long,Double> outlink2value){
+        if(commodity2split.containsKey(commodity_id))
+            commodity2split.get(commodity_id).set_splits(outlink2value);
+    }
+
+    public void set_model(AbstractModel newmodel, boolean is_model_source_link) throws OTMException {
+
+        if (model==null){
+            this.model = newmodel;
+            this.is_model_source_link = is_model_source_link;
+            return;
+        }
+
+        if(model.is_default && !newmodel.is_default) {
+            this.model = newmodel;
+            this.is_model_source_link = is_model_source_link;
+            return;
+        }
+
+        if(model.is_default && newmodel.is_default)
+            throw new OTMException("Multiple default models");
+
+        if(!model.is_default && !newmodel.is_default)
+            throw new OTMException("ModelType multiply assigned for link " + this.id);
+    }
+
+//    public FlowAccumulatorSet request_flow_accumulator_set(Long commodity_id){
+//        FlowAccumulatorSet fas = new FlowAccumulatorSet();
+//        for(AbstractLaneGroup lg : lanegroups.values())
+//            fas.add_flow_accumulator(lg.request_flow_accumulator(commodity_id));
+//        return fas;
+//    }
 
     ////////////////////////////////////////////
     // inter-link dynamics
@@ -522,27 +592,6 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         }
 
         return split_packets;
-    }
-
-    ////////////////////////////////////////////
-    // InterfaceActuatorTarget
-    ///////////////////////////////////////////
-
-    @Override
-    public void register_actuator(AbstractActuator act) throws OTMException {
-
-        if(act instanceof actuator.ActuatorRampMeter) {
-            if(ramp_meter!=null)
-                throw new OTMException("Multiple ramp meters assigned to the same link.");
-            this.ramp_meter = (actuator.ActuatorRampMeter) act;
-        }
-
-        if(act instanceof actuator.ActuatorFD){
-            if(actuator_fd!=null)
-                throw new OTMException("Multiple fd actiuators assigned to the same link.");
-            this.actuator_fd = (actuator.ActuatorFD) act;
-        }
-
     }
 
     ////////////////////////////////////////////
@@ -719,22 +768,9 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
                 .sum();
     }
 
-    ////////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public ScenarioElementType getScenarioElementType() {
-        return ScenarioElementType.link;
-    }
 
     ////////////////////////////////////////////
-    // private and other
+    // private
     ///////////////////////////////////////////
 
     private void add_to_lanegroup_packets(Map<Long, PacketLaneGroup> split_packets,Long nextlink_id,KeyCommPathOrLink key,Double vehicles){
@@ -759,32 +795,13 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         new_packet.add_vehicle(key,vehicle);
     }
 
+    ///////////////////////////////////////
+    // toString
+    ///////////////////////////////////////
+
     @Override
     public String toString() {
         return String.format("link %d",id);
-    }
-
-    public jaxb.Link to_jaxb(){
-        jaxb.Link jlink = new jaxb.Link();
-        jlink.setId(this.getId());
-        jlink.setStartNodeId(this.start_node.getId());
-        jlink.setEndNodeId(this.end_node.getId());
-        jlink.setLength(this.length);
-        jlink.setFullLanes(this.full_lanes);
-        if(this.road_geom!=null)
-            jlink.setRoadgeom(this.road_geom.id);
-        jlink.setRoadparam(this.road_param.getId());
-        if(!road_type.equals(RoadType.none))
-            jlink.setRoadType(this.road_type.toString());
-        jaxb.Points jpoints = new jaxb.Points();
-        jlink.setPoints(jpoints);
-        for(common.Point point : this.shape){
-            jaxb.Point jpoint = new jaxb.Point();
-            jpoints.getPoint().add(jpoint);
-            jpoint.setX(point.x);
-            jpoint.setY(point.y);
-        }
-        return jlink;
     }
 
 

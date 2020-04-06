@@ -1,9 +1,9 @@
 package commodity;
 
+import common.*;
+import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import common.Link;
-import common.Network;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
-public class Subnetwork {
+public class Subnetwork implements InterfaceScenarioElement {
 
     protected final Long id;
     protected String name;
@@ -57,10 +57,43 @@ public class Subnetwork {
         this.is_path = check_is_path();
     }
 
-    public void validate(OTMErrorLog errorLog){
-//        if( id<= 0 && !is_global)
-//            scenario.error_log.addError("id<=0 not allowed for subnetworks.");
+    ///////////////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////////////
+
+    public Long getId() {
+        return id;
     }
+
+    @Override
+    public ScenarioElementType getType() {
+        return ScenarioElementType.subnetwork;
+    }
+
+    @Override
+    public void validate(OTMErrorLog errorLog) {
+    }
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+    }
+
+    @Override
+    public void register_with_dispatcher(Dispatcher dispatcher) {
+    }
+
+    @Override
+    public jaxb.Subnetwork to_jaxb(){
+        jaxb.Subnetwork jsub = new jaxb.Subnetwork();
+        jsub.setId(this.getId());
+        jsub.setName(this.getName());
+        jsub.setContent(OTMUtils.comma_format(get_link_ids()));
+        return jsub;
+    }
+
+    ///////////////////////////////////////////////////
+    // get  / set
+    ///////////////////////////////////////////////////
 
 //    public void add_lanegroup(AbstractLaneGroup lg){
 //        if(lanegroups==null)
@@ -82,14 +115,6 @@ public class Subnetwork {
         if(link==null)
             throw new OTMException("Attempted to add null link");
         links.add(link);
-    }
-
-    ///////////////////////////////////////////////////
-    // get  / set
-    ///////////////////////////////////////////////////
-
-    public Long getId() {
-        return id;
     }
 
     public String getName(){
@@ -117,35 +142,10 @@ public class Subnetwork {
         return links;
     }
 
+
     ///////////////////////////////////////////////////
     // private
     ///////////////////////////////////////////////////
-
-//    private boolean check_is_path(){
-//
-//        // get all sources in the subnetwork
-//        List<Link> sources = this.links.stream()
-//                .filter(x->x.is_source)
-//                .collect(toList());
-//
-//        if(sources.size()!=1)
-//            return false;
-//
-//        // construct path
-//        Link current = sources.get(0);
-//        int num_checked = 1;
-//        while(true){
-//            Collection<Link> next_links = current.end_node.out_links.values();
-//            Set<Link> next_link = OTMUtils.intersect(next_links,this.links);
-//            if(next_link.size()!=1)
-//                return false;
-//            num_checked++;
-//            if(num_checked>=this.links.size())
-//                return true;
-//            if(current.is_sink)
-//                return false;
-//        }
-//    }
 
     private boolean check_is_path(){
 
@@ -178,11 +178,4 @@ public class Subnetwork {
         }
     }
 
-    public jaxb.Subnetwork to_jaxb(){
-        jaxb.Subnetwork jsub = new jaxb.Subnetwork();
-        jsub.setId(this.getId());
-        jsub.setName(this.getName());
-        jsub.setContent(OTMUtils.comma_format(get_link_ids()));
-        return jsub;
-    }
 }

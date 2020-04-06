@@ -1,10 +1,9 @@
 package output;
 
 import commodity.Path;
-import common.Link;
 import error.OTMException;
 import profiles.Profile1D;
-import runner.Scenario;
+import common.Scenario;
 
 import java.io.IOException;
 import java.util.List;

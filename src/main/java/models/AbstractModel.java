@@ -5,7 +5,7 @@ import common.Link;
 import error.OTMException;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
-import runner.Scenario;
+import common.Scenario;
 import utils.OTMUtils;
 import utils.StochasticProcess;
 

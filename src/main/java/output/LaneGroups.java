@@ -4,7 +4,7 @@ import models.AbstractLaneGroup;
 import dispatch.Dispatcher;
 import error.OTMException;
 import runner.RunParameters;
-import runner.Scenario;
+import common.Scenario;
 import utils.OTMUtils;
 
 import java.io.IOException;

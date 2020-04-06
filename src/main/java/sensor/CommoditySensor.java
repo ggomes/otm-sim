@@ -1,13 +1,14 @@
 package sensor;
 
 import common.FlowAccumulatorState;
+import error.OTMErrorLog;
 import models.AbstractLaneGroup;
 import common.Link;
 import dispatch.Dispatcher;
 import error.OTMException;
 import jaxb.Sensor;
 import runner.RunParameters;
-import runner.Scenario;
+import common.Scenario;
 
 import java.util.*;
 
@@ -21,9 +22,9 @@ public class CommoditySensor extends AbstractSensor {
 
     private Map<Long,Measurement> measurements; // comm_id -> measurement
 
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////
     // construction
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////
 
     public CommoditySensor(Scenario scenario, Sensor jaxb_sensor) {
         super(scenario, jaxb_sensor);
@@ -67,16 +68,25 @@ public class CommoditySensor extends AbstractSensor {
 
     }
 
+    ////////////////////////////////////////
+    // InterfaceScenarioElement
+    ////////////////////////////////////////
+
     @Override
-    public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
+    public void validate(OTMErrorLog errorLog) {
+
+    }
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
         this.measurements = null;
         measurements = new HashMap<>();
         scenario.commodities.keySet().forEach(c->measurements.put(c,new Measurement()));
     }
 
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////
     // implementation
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////
 
     @Override
     public void take_measurement(Dispatcher dispatcher, float timestamp) {

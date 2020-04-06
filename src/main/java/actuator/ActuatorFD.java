@@ -2,12 +2,15 @@ package actuator;
 
 import common.Link;
 import dispatch.Dispatcher;
-import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
-import runner.Scenario;
+import common.Scenario;
 
 public class ActuatorFD extends AbstractActuator {
+
+    ///////////////////////////////////////////
+    // construction
+    ///////////////////////////////////////////
 
     public ActuatorFD(Scenario scenario, Actuator jaxb_actuator) throws OTMException {
         super(scenario, jaxb_actuator);
@@ -17,10 +20,23 @@ public class ActuatorFD extends AbstractActuator {
             return;
     }
 
+    ///////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////
+
     @Override
     public void initialize(Scenario scenario) throws OTMException {
 
     }
+
+    @Override
+    public void register_with_dispatcher(Dispatcher dispatcher) {
+
+    }
+
+    ///////////////////////////////////////////
+    // XXX
+    ///////////////////////////////////////////
 
     @Override
     public void process_controller_command(Object command, float timestamp) throws OTMException {
@@ -29,6 +45,10 @@ public class ActuatorFD extends AbstractActuator {
         Link link = (Link) target;
         link.model.set_road_param(link,(FDCommand) command);
     }
+
+    ///////////////////////////////////////////
+    // class
+    ///////////////////////////////////////////
 
     /** This is the class for the controller command **/
     public class FDCommand {

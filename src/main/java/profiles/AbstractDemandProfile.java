@@ -6,7 +6,7 @@ import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.DemandType;
-import runner.Scenario;
+import common.Scenario;
 
 public abstract class AbstractDemandProfile {
 

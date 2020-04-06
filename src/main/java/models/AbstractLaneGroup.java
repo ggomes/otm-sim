@@ -9,8 +9,7 @@ import geometry.FlowPosition;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import packet.StateContainer;
-import runner.RunParameters;
-import runner.Scenario;
+import common.Scenario;
 import traveltime.AbstractLaneGroupTimer;
 import utils.OTMUtils;
 
@@ -87,6 +86,31 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     }
 
     ///////////////////////////////////////////////////
+    // Comparable
+    ///////////////////////////////////////////////////
+
+    @Override
+    public final int compareTo(AbstractLaneGroup that) {
+
+        int this_start = this.start_lane_up;
+        int that_start = that.start_lane_up;
+        if(this_start < that_start)
+            return -1;
+        if(that_start < this_start)
+            return 1;
+
+        int this_end = this.start_lane_up + this.num_lanes;
+        int that_end = that.start_lane_up + that.num_lanes;
+        if(this_end < that_end)
+            return -1;
+        if(that_end < this_end)
+            return 1;
+
+        System.err.println("WARNING!! FOUND EQUAL LANE GROUPS IN COMPARE TO.");
+        return 0;
+    }
+
+    ///////////////////////////////////////////////////
     // overridable
     ///////////////////////////////////////////////////
 
@@ -96,7 +120,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         flw_acc = null;
     }
 
-    public void initialize(Scenario scenario, RunParameters runParams) throws OTMException {
+    public void initialize(Scenario scenario) throws OTMException {
 
         if(link.is_model_source_link)
             this.buffer = new StateContainer();
@@ -223,33 +247,12 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     }
 
     ///////////////////////////////////////////////////
-    // other
+    // toString
     ///////////////////////////////////////////////////
 
     @Override
     public String toString() {
         return String.format("link %d, lg %d, lanes %d, start_dn %d, start_up %d",link.getId(),id,num_lanes,start_lane_dn,start_lane_up);
-    }
-
-    @Override
-    public final int compareTo(AbstractLaneGroup that) {
-
-        int this_start = this.start_lane_up;
-        int that_start = that.start_lane_up;
-        if(this_start < that_start)
-            return -1;
-        if(that_start < this_start)
-            return 1;
-
-        int this_end = this.start_lane_up + this.num_lanes;
-        int that_end = that.start_lane_up + that.num_lanes;
-        if(this_end < that_end)
-            return -1;
-        if(that_end < this_end)
-            return 1;
-
-        System.err.println("WARNING!! FOUND EQUAL LANE GROUPS IN COMPARE TO.");
-        return 0;
     }
 
 }

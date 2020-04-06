@@ -1,7 +1,6 @@
 package api.info;
 
 import actuator.AbstractActuator;
-import actuator.InterfaceActuatorTarget;
 
 public class ActuatorInfo {
 
@@ -15,7 +14,7 @@ public class ActuatorInfo {
 
     public ActuatorInfo(AbstractActuator x){
         this.id = x.id;
-        this.type = x.getType();
+        this.type = x.getActuatorType();
         this.target_id = x.target==null ? null : x.target.getId();
     }
 

@@ -1,17 +1,16 @@
-package runner;
+package common;
 
 import actuator.AbstractActuator;
 import commodity.Commodity;
 import commodity.Subnetwork;
-import common.Link;
 import models.AbstractModel;
 import models.fluid.AbstractFluidModel;
+import runner.RunParameters;
 import traveltime.LinkTravelTimeManager;
 import control.AbstractController;
 import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
-import common.Network;
 import jaxb.Split;
 import keys.KeyCommodityDemandTypeId;
 import keys.KeyCommodityLink;
@@ -45,6 +44,8 @@ public class Scenario {
     public Map<Long, AbstractSensor> sensors = new HashMap<>();
 
     // commodity/link -> demand profile
+
+    // WHY DO I NEED THIS IN THE SCENARIO?
     public Map<KeyCommodityDemandTypeId,AbstractDemandProfile> data_demands;
 
     // travel time computation
@@ -67,7 +68,7 @@ public class Scenario {
         if( subnetworks!=null )
             subnetworks.values().forEach(x -> x.validate(errorLog));
         if( network!=null )
-            network.validate(this,errorLog);
+            network.validate(errorLog);
         if( sensors!=null )
             sensors.values().stream().forEach(x -> x.validate(errorLog));
         if( controllers!=null )
@@ -126,7 +127,7 @@ public class Scenario {
             dispatcher.initialize(now);
 
         for(Commodity commodity : commodities.values())
-            commodity.initialize();
+            commodity.initialize(this);
 
         // initialize and register outputs
         for(AbstractOutput x : outputs)
@@ -142,7 +143,7 @@ public class Scenario {
             x.initialize(this);
 
         for(AbstractSensor x : sensors.values())
-            x.initialize(this,runParams);
+            x.initialize(this);
 
         // actuators should come before controllers (signals set
         // bulbs to dark, signal controllers then reset to the
@@ -151,7 +152,7 @@ public class Scenario {
             x.initialize(this);
 
         for(AbstractController x : controllers.values())
-            x.initialize(this,now);
+            x.initialize(this);
 
         // register initial events ......................................
         if(path_tt_manager!=null)
@@ -284,7 +285,7 @@ public class Scenario {
             jact.setId(absact.id);
 //            jact.setActuatorTarget(absact.get_target());
 //            jact.setSignal();
-            jact.setType(absact.getType().toString());
+            jact.setType(absact.getActuatorType().toString());
         }
 
 
@@ -320,7 +321,7 @@ public class Scenario {
         return dispatcher.current_time;
     }
 
-    public InterfaceScenarioElement get_element(ScenarioElementType type,long id){
+    public InterfaceScenarioElement get_element(ScenarioElementType type, long id){
         switch(type){
             case commodity:
                 return commodities.get(id);

@@ -8,7 +8,7 @@ import keys.KeyCommPathOrLink;
 import models.AbstractLaneGroup;
 import models.fluid.*;
 import models.fluid.FluidLaneGroup;
-import runner.Scenario;
+import common.Scenario;
 import utils.OTMUtils;
 
 import java.util.HashMap;

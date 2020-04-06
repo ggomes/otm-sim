@@ -5,7 +5,7 @@ import common.Link;
 import error.OTMErrorLog;
 import error.OTMException;
 import profiles.Profile1D;
-import runner.Scenario;
+import common.Scenario;
 
 import java.io.*;
 import java.util.*;

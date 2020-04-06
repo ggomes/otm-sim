@@ -6,10 +6,10 @@ import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
 import output.EventsSensor;
-import runner.InterfaceScenarioElement;
+import common.InterfaceScenarioElement;
 import runner.RunParameters;
-import runner.Scenario;
-import runner.ScenarioElementType;
+import common.Scenario;
+import common.ScenarioElementType;
 
 public abstract class AbstractSensor implements Pokable, InterfaceScenarioElement {
 
@@ -39,16 +39,28 @@ public abstract class AbstractSensor implements Pokable, InterfaceScenarioElemen
         this.dt_inv = 3600d/dt;
     }
 
-    public void validate(OTMErrorLog errorLog){
+    ////////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////
 
+    @Override
+    public ScenarioElementType getType() {
+        return ScenarioElementType.sensor;
     }
 
-    public void initialize(Scenario scenario, RunParameters runParams) throws OTMException{
-
+    @Override
+    public Long getId() {
+        return id;
     }
 
+    @Override
     public void register_with_dispatcher(Dispatcher dispatcher){
         dispatcher.register_event(new EventPoke(dispatcher,1,dispatcher.current_time,this));
+    }
+
+    @Override
+    public OTMErrorLog to_jaxb() {
+        return null;
     }
 
     /////////////////////////////////////////////////////////////////////
@@ -75,19 +87,4 @@ public abstract class AbstractSensor implements Pokable, InterfaceScenarioElemen
             throw new OTMException("multiple listeners for commodity");
         event_listener = e;
     }
-
-    ////////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public ScenarioElementType getScenarioElementType() {
-        return ScenarioElementType.sensor;
-    }
-
 }

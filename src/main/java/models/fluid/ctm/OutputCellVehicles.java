@@ -7,7 +7,7 @@ import models.fluid.AbstractFluidModel;
 import models.fluid.FluidLaneGroup;
 import output.AbstractOutputTimed;
 import profiles.Profile1D;
-import runner.Scenario;
+import common.Scenario;
 
 import java.io.*;
 import java.util.ArrayList;

@@ -19,7 +19,7 @@ import models.fluid.*;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
-import runner.Scenario;
+import common.Scenario;
 import traveltime.FluidLaneGroupTimer;
 import utils.OTMUtils;
 import utils.StochasticProcess;

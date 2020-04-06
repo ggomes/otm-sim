@@ -7,9 +7,9 @@ import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
 import output.EventsController;
-import runner.InterfaceScenarioElement;
-import runner.Scenario;
-import runner.ScenarioElementType;
+import common.InterfaceScenarioElement;
+import common.Scenario;
+import common.ScenarioElementType;
 import sensor.AbstractSensor;
 import utils.OTMUtils;
 
@@ -133,17 +133,37 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     }
 
-    public void validate(OTMErrorLog errorLog){
+    ///////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public ScenarioElementType getType() {
+        return ScenarioElementType.controller;
+    }
+
+    @Override
+    public void validate(OTMErrorLog errorLog) {
         if(type==null)
             errorLog.addError("myType==null");
         if(actuators.isEmpty())
             errorLog.addError("actuators.isEmpty()");
+
     }
 
-    abstract public void initialize(Scenario scenario,float now) throws OTMException;
-
-    public void register_with_dispatcher(Dispatcher dispatcher){
+    @Override
+    public void register_with_dispatcher(Dispatcher dispatcher) {
         dispatcher.register_event(new EventPoke(dispatcher,2,dispatcher.current_time,this));
+    }
+
+    @Override
+    public OTMErrorLog to_jaxb() {
+        return null;
     }
 
     ///////////////////////////////////////////////////
@@ -193,18 +213,5 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
             dispatcher.register_event(new EventPoke(dispatcher,2,timestamp+ dt,this));
     }
 
-    ////////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public ScenarioElementType getScenarioElementType() {
-        return ScenarioElementType.controller;
-    }
 
 }

@@ -4,7 +4,7 @@ import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import runner.RunParameters;
-import runner.Scenario;
+import common.Scenario;
 import sensor.AbstractSensor;
 
 public class EventsSensor extends AbstractOutputEvent  {
