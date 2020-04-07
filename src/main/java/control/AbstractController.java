@@ -47,7 +47,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     public Map<Long,Object> command;    // actuator id -> command
 
-    abstract public void update_command(Dispatcher dispatcher, float timestamp) throws OTMException;
+    abstract public void update_command(Dispatcher dispatcher) throws OTMException;
 
     ///////////////////////////////////////////
     // construction
@@ -174,7 +174,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     @Override
     public final void poke(Dispatcher dispatcher, float timestamp) throws OTMException  {
-        update_command(dispatcher,timestamp);
+        update_command(dispatcher);
 
         // wake up in dt, if dt is defined
         if(dt >0)

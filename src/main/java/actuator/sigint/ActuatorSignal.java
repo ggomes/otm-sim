@@ -1,7 +1,6 @@
 package actuator.sigint;
 
 import actuator.AbstractActuator;
-import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import common.Scenario;
@@ -85,9 +84,5 @@ public class ActuatorSignal extends AbstractActuator {
     public SignalPhase get_phase(long phase_id){
         return signal_phases.get(phase_id);
     }
-
-//    public float cycle(){
-//        return Float.NaN; //current_scehdule_item==null ? Float.NaN : current_scehdule_item.cycle;
-//    }
 
 }

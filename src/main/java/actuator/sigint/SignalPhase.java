@@ -72,10 +72,6 @@ public class SignalPhase {
         // valid road connections
         if(road_connections.isEmpty())
             errorLog.addError("road_connections.isEmpty()");
-
-        if(road_connections.contains(null))
-            errorLog.addError("road_connections.contains(null)");
-
     }
 
     public void initialize(float now) throws OTMException {

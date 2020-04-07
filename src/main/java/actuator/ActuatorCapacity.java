@@ -2,8 +2,6 @@ package actuator;
 
 import common.Link;
 import common.RoadConnection;
-import dispatch.Dispatcher;
-import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
 import common.Scenario;

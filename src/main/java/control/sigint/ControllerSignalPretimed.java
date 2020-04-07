@@ -108,14 +108,15 @@ public class ControllerSignalPretimed extends AbstractController {
     ///////////////////////////////////////////////////
 
     @Override
-    public void update_command(Dispatcher dispatcher, float timestamp) throws OTMException {
+    public void update_command(Dispatcher dispatcher) throws OTMException {
 
-        StageindexReltime x = get_stage_for_time(timestamp);
+        float now = dispatcher.current_time;
+        StageindexReltime x = get_stage_for_time(now);
 
-        set_stage_index(x.index,timestamp);
+        set_stage_index(x.index,now);
 
         // register next poke
-        float next_stage_start = timestamp - x.reltime + stages.get(x.index).duration;
+        float next_stage_start = now - x.reltime + stages.get(x.index).duration;
         dispatcher.register_event(new EventPoke(dispatcher,2,next_stage_start,this));
 
     }
@@ -160,7 +161,6 @@ public class ControllerSignalPretimed extends AbstractController {
 
     }
 
-    /** TEMPORARY **/
     public void set_stage_index(int index) throws OTMException {
         set_stage_index(index,this.scenario.get_current_time());
     }
