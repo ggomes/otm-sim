@@ -10,7 +10,6 @@ import common.Scenario;
 
 public class ActuatorCapacity extends AbstractActuator  {
 
-//    public float rate_vps;
     public float max_rate_vps;
     public float min_rate_vps;
 
@@ -20,7 +19,6 @@ public class ActuatorCapacity extends AbstractActuator  {
 
     public ActuatorCapacity(Scenario scenario, Actuator jact) throws OTMException {
         super(scenario, jact);
-//        rate_vps = 0f;
 
         // interpret jact.getMaxValue and jact.getMinValue in vphpl
         int num_lanes = ((Link)target).full_lanes;
@@ -34,21 +32,11 @@ public class ActuatorCapacity extends AbstractActuator  {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-//        rate_vps = 0f;
-    }
 
-    @Override
-    public void register_with_dispatcher(Dispatcher dispatcher) {
-
-    }
-
-    @Override
-    public OTMErrorLog to_jaxb() {
-        return null;
     }
 
     ///////////////////////////////////////////////////
-    // XXX
+    // AbstractActuator
     ///////////////////////////////////////////////////
 
     @Override
@@ -57,20 +45,9 @@ public class ActuatorCapacity extends AbstractActuator  {
             return;
         Link link = (Link) target;
         float rate_vps = (float) command;
-        for(RoadConnection rc : link.get_roadconnections_leaving())
+        rate_vps = Math.max(Math.min(rate_vps,max_rate_vps),min_rate_vps);
+        for(RoadConnection rc : link.outlink2roadconnection.values())
             rc.set_external_max_flow_vps(timestamp,rate_vps);
-    }
-
-    ///////////////////////////////////////////////////
-    // set
-    ///////////////////////////////////////////////////
-
-    public void set_rate_vph(float rate_vph){
-        float rate_vps = rate_vph / 3600f;
-
-        Link link = (Link) target;
-        for(RoadConnection rc : link.get_roadconnections_leaving())
-            rc.set_external_max_flow_vps(-1f,rate_vps);
     }
 
 }

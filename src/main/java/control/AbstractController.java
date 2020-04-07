@@ -47,9 +47,11 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     public Map<Long,Object> command;    // actuator id -> command
 
-    ///////////////////////////////////////////////////
+    abstract public void update_command(Dispatcher dispatcher, float timestamp) throws OTMException;
+
+    ///////////////////////////////////////////
     // construction
-    ///////////////////////////////////////////////////
+    ///////////////////////////////////////////
 
     public AbstractController(Scenario scenario, jaxb.Controller jaxb_controller) throws OTMException {
         this.scenario = scenario;
@@ -138,13 +140,18 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     ///////////////////////////////////////////
 
     @Override
-    public Long getId() {
+    public final Long getId() {
         return id;
     }
 
     @Override
-    public ScenarioElementType getType() {
+    public final ScenarioElementType getType() {
         return ScenarioElementType.controller;
+    }
+
+    @Override
+    public void register_with_dispatcher(Dispatcher dispatcher) {
+        dispatcher.register_event(new EventPoke(dispatcher,2,dispatcher.current_time,this));
     }
 
     @Override
@@ -157,13 +164,21 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     }
 
     @Override
-    public void register_with_dispatcher(Dispatcher dispatcher) {
-        dispatcher.register_event(new EventPoke(dispatcher,2,dispatcher.current_time,this));
-    }
-
-    @Override
     public OTMErrorLog to_jaxb() {
         return null;
+    }
+
+    ///////////////////////////////////////////
+    // Pokable
+    ///////////////////////////////////////////
+
+    @Override
+    public final void poke(Dispatcher dispatcher, float timestamp) throws OTMException  {
+        update_command(dispatcher,timestamp);
+
+        // wake up in dt, if dt is defined
+        if(dt >0)
+            dispatcher.register_event(new EventPoke(dispatcher,2,timestamp+dt,this));
     }
 
     ///////////////////////////////////////////////////
@@ -197,21 +212,5 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
             return null;
         return get_command_for_actuator_id(actuator_by_usage.get(act_usage).getId());
     }
-
-    ///////////////////////////////////////////////////
-    // update
-    ///////////////////////////////////////////////////
-
-    abstract public void update_controller(Dispatcher dispatcher, float timestamp) throws OTMException;
-
-    @Override
-    public void poke(Dispatcher dispatcher, float timestamp) throws OTMException  {
-        update_controller(dispatcher,timestamp);
-
-        // wake up in dt, if dt is defined
-        if(dt >0)
-            dispatcher.register_event(new EventPoke(dispatcher,2,timestamp+ dt,this));
-    }
-
 
 }

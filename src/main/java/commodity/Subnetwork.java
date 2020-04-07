@@ -61,12 +61,12 @@ public class Subnetwork implements InterfaceScenarioElement {
     // InterfaceScenarioElement
     ///////////////////////////////////////////////////
 
-    public Long getId() {
+    public final Long getId() {
         return id;
     }
 
     @Override
-    public ScenarioElementType getType() {
+    public final ScenarioElementType getType() {
         return ScenarioElementType.subnetwork;
     }
 

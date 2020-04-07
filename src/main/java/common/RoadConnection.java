@@ -95,12 +95,12 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     ///////////////////////////////////////////
 
     @Override
-    public Long getId() {
+    public final Long getId() {
         return id;
     }
 
     @Override
-    public ScenarioElementType getType() {
+    public final ScenarioElementType getType() {
         return ScenarioElementType.roadconnection;
     }
 
@@ -177,7 +177,6 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         jrcn.setId(this.getId());
         jrcn.setInLink(this.start_link.getId());
         jrcn.setInLinkLanes(this.start_link_from_lane + "#" + this.start_link_to_lane);
-//            jrcn.setLength(rcn);
         jrcn.setOutLink(this.end_link.getId());
         jrcn.setOutLinkLanes(this.end_link_from_lane + "#" + this.end_link_to_lane);
         return jrcn;
@@ -230,7 +229,6 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         String endstr = end_link==null ? "" : String.format("%d [%d %d]",end_link.getId(),end_link_from_lane,end_link_to_lane);
         return String.format("%d: %s -> %s",id,startstr,endstr);
     }
-
 
     ///////////////////////////////////////////
     // get

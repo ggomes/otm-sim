@@ -30,11 +30,13 @@ public class Stage {
         this.phase_ids = new HashSet<>(phase_array);
     }
 
-    public void validate(OTMErrorLog errorLog){
+    ///////////////////////////////////////////////////
+    // InterfaceScenarioElement-like
+    ///////////////////////////////////////////////////
 
+    public void validate(OTMErrorLog errorLog){
         if(cycle_starttime<0)
             errorLog.addError("cycle_starttime<0");
-
     }
 
 }

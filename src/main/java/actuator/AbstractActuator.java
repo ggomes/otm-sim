@@ -32,6 +32,8 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     public EventsActuator event_listener;
 
+    abstract public void process_controller_command(Object command, float timestamp) throws OTMException;
+
     ///////////////////////////////////////////
     // construction
     ///////////////////////////////////////////
@@ -53,12 +55,12 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     ///////////////////////////////////////////
 
     @Override
-    public Long getId() {
+    public final Long getId() {
         return id;
     }
 
     @Override
-    public ScenarioElementType getType() {
+    public final ScenarioElementType getType() {
         return ScenarioElementType.actuator;
     }
 
@@ -66,6 +68,11 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     public void validate(OTMErrorLog errorLog) {
         if(target==null)
             errorLog.addWarning("Actuator has no target");
+    }
+
+    @Override
+    public void register_with_dispatcher(Dispatcher dispatcher) {
+        dispatcher.register_event(new EventPoke(dispatcher,3,dispatcher.current_time,this));
     }
 
     @Override
@@ -80,8 +87,6 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     public Type getActuatorType(){
         return type;
     }
-
-    abstract public void process_controller_command(Object command, float timestamp) throws OTMException;
 
     @Override
     public void poke(Dispatcher dispatcher, float timestamp) throws OTMException {

@@ -63,7 +63,7 @@ public class ControllerAlinea extends AbstractController  {
     }
 
     @Override
-    public void update_controller(Dispatcher dispatcher, float timestamp) throws OTMException {
+    public void update_command(Dispatcher dispatcher, float timestamp) throws OTMException {
         for(AbstractActuator abs_act : this.actuators.values()){
             ActuatorCapacity act = (ActuatorCapacity) abs_act;
             AlineaParams p = params.get(abs_act.id);

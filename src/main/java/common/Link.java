@@ -1,6 +1,7 @@
 package common;
 
 import actuator.AbstractActuator;
+import actuator.ActuatorGreenRed;
 import actuator.InterfaceActuatorTarget;
 import commodity.Commodity;
 import dispatch.Dispatcher;
@@ -16,7 +17,6 @@ import models.AbstractModel;
 import traveltime.LinkTravelTimer;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
-import runner.RunParameters;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -83,7 +83,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     public Set<AbstractSource> sources;
 
     // actuators .........................................
-    public actuator.ActuatorRampMeter ramp_meter;
+    public ActuatorGreenRed ramp_meter;
     public actuator.ActuatorFD actuator_fd;
 
     // travel timer
@@ -165,12 +165,12 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     ///////////////////////////////////////////
 
     @Override
-    public Long getId() {
+    public final Long getId() {
         return id;
     }
 
     @Override
-    public ScenarioElementType getType() {
+    public final ScenarioElementType getType() {
         return ScenarioElementType.link;
     }
 
@@ -356,10 +356,10 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     @Override
     public void register_actuator(AbstractActuator act) throws OTMException {
 
-        if(act instanceof actuator.ActuatorRampMeter) {
+        if(act instanceof ActuatorGreenRed) {
             if(ramp_meter!=null)
                 throw new OTMException("Multiple ramp meters assigned to the same link.");
-            this.ramp_meter = (actuator.ActuatorRampMeter) act;
+            this.ramp_meter = (ActuatorGreenRed) act;
         }
 
         if(act instanceof actuator.ActuatorFD){
@@ -767,7 +767,6 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
                 .mapToDouble(x->x.vehs_dwn_for_comm(commodity_id))
                 .sum();
     }
-
 
     ////////////////////////////////////////////
     // private

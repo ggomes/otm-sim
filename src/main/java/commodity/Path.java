@@ -13,6 +13,10 @@ public class Path extends Subnetwork {
 
     public ArrayList<Link> ordered_links;
 
+    ///////////////////////////////////////////////////
+    // construction
+    ///////////////////////////////////////////////////
+
     public Path(jaxb.Subnetwork js, Network network) throws OTMException {
         super(js, network);
         create_ordered_links();
@@ -28,34 +32,11 @@ public class Path extends Subnetwork {
         create_ordered_links();
     }
 
-    private void create_ordered_links(){
+    ///////////////////////////////////////////////////
+    // InterfaceScenarioElement
+    ///////////////////////////////////////////////////
 
-        // generate ordered links ..........
-        // get all sources in the subnetwork
-        // guaranteed to be single source because it is a path
-        List<Link> sources = this.links.stream()
-                .filter(x->x.is_source)
-                .collect(toList());
-        Link current = sources.get(0);
-
-        Set<Link> unchecked = new HashSet<>();
-        unchecked.addAll(links);
-        unchecked.remove(current);
-
-        ordered_links = new ArrayList<>();
-        ordered_links.add(current);
-
-        while(!unchecked.isEmpty()){
-
-            Collection<Link> next_links = current.end_node.out_links.values();
-            Set<Link> next_link = OTMUtils.intersect(next_links,links);
-
-            current = next_link.iterator().next();
-            ordered_links.add(current);
-            unchecked.remove(current);
-        }
-    }
-
+    @Override
     public void validate(OTMErrorLog errorLog) {
 
         // must have at least two links
@@ -66,6 +47,10 @@ public class Path extends Subnetwork {
         if(!ordered_links.get(0).is_source)
             errorLog.addError("first link in path is not a source");
     }
+
+    ///////////////////////////////////////////////////
+    // get
+    ///////////////////////////////////////////////////
 
     public Link get_origin(){
         return ordered_links.get(0);
@@ -108,6 +93,38 @@ public class Path extends Subnetwork {
     @Override
     public Collection<Link> get_links_collection() {
         return ordered_links;
+    }
+
+    ///////////////////////////////////////////////////
+    // private
+    ///////////////////////////////////////////////////
+
+    private void create_ordered_links(){
+
+        // generate ordered links ..........
+        // get all sources in the subnetwork
+        // guaranteed to be single source because it is a path
+        List<Link> sources = this.links.stream()
+                .filter(x->x.is_source)
+                .collect(toList());
+        Link current = sources.get(0);
+
+        Set<Link> unchecked = new HashSet<>();
+        unchecked.addAll(links);
+        unchecked.remove(current);
+
+        ordered_links = new ArrayList<>();
+        ordered_links.add(current);
+
+        while(!unchecked.isEmpty()){
+
+            Collection<Link> next_links = current.end_node.out_links.values();
+            Set<Link> next_link = OTMUtils.intersect(next_links,links);
+
+            current = next_link.iterator().next();
+            ordered_links.add(current);
+            unchecked.remove(current);
+        }
     }
 
 }

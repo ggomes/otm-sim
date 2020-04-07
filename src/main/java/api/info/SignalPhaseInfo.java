@@ -16,9 +16,9 @@ public class SignalPhaseInfo {
 
     public SignalPhaseInfo(SignalPhase x){
         this.id = x.id;
-        this.yellow_time = x.yellow_time;
-        this.red_clear_time = x.red_clear_time;
-        this.min_green_time = x.min_green_time;
+//        this.yellow_time = x.yellow_time;
+//        this.red_clear_time = x.red_clear_time;
+//        this.min_green_time = x.min_green_time;
         this.road_connections = x.road_connections.stream().map(z->z.getId()).collect(toSet());
     }
 

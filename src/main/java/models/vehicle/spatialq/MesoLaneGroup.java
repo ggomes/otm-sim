@@ -14,7 +14,6 @@ import models.vehicle.VehicleLaneGroup;
 import output.InterfaceVehicleListener;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
-import runner.RunParameters;
 import common.Scenario;
 import traveltime.VehicleLaneGroupTimer;
 import utils.OTMUtils;

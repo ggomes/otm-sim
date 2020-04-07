@@ -104,11 +104,11 @@ public class ControllerSignalPretimed extends AbstractController {
     }
 
     ///////////////////////////////////////////////////
-    // update
+    // AbstractController
     ///////////////////////////////////////////////////
 
     @Override
-    public void update_controller(Dispatcher dispatcher, float timestamp) throws OTMException {
+    public void update_command(Dispatcher dispatcher, float timestamp) throws OTMException {
 
         StageindexReltime x = get_stage_for_time(timestamp);
 
@@ -121,7 +121,7 @@ public class ControllerSignalPretimed extends AbstractController {
     }
 
     ///////////////////////////////////////////////////
-    // getter
+    // get
     ///////////////////////////////////////////////////
 
     public ActuatorSignal get_signal(){
@@ -136,16 +136,16 @@ public class ControllerSignalPretimed extends AbstractController {
         return (time-offset)%cycle;
     }
 
-    ///////////////////////////////////////////////////
-    // setter
-    ///////////////////////////////////////////////////
-
     public Map<Long,BulbColor> get_command_for_stage_index(int index) {
         Map<Long, BulbColor> command = new HashMap<>();
         for(Long phase_id : stages.get(index).phase_ids)
             command.put(phase_id,BulbColor.GREEN);
         return command;
     }
+
+    ///////////////////////////////////////////////////
+    // set
+    ///////////////////////////////////////////////////
 
     public void set_stage_index(int index, float timestamp) throws OTMException {
 

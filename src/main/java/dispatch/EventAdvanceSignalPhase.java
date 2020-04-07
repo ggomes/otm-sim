@@ -12,6 +12,6 @@ public class EventAdvanceSignalPhase extends AbstractEvent {
     @Override
     public void action(boolean verbose) throws OTMException {
         super.action(verbose);
-        ((SignalPhase)recipient).execute_next_transition_and_register_following(dispatcher,timestamp);
+//        ((SignalPhase)recipient).execute_next_transition_and_register_following(dispatcher,timestamp);
     }
 }

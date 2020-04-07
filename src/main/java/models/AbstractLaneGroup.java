@@ -1,6 +1,7 @@
 package models;
 
 import actuator.AbstractActuator;
+import actuator.InterfaceActuatorTarget;
 import common.FlowAccumulatorState;
 import common.Link;
 import common.RoadConnection;
@@ -19,7 +20,7 @@ import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
 
-public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>, InterfaceLaneGroup {
+public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>, InterfaceLaneGroup, InterfaceActuatorTarget {
 
     public final long id;
     public Link link;
@@ -83,6 +84,17 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
                 break;
         }
         this.state2roadconnection = new HashMap<>();
+    }
+
+    ///////////////////////////////////////////////////
+    // InterfaceActuatorTarget
+    ///////////////////////////////////////////////////
+
+    @Override
+    public void register_actuator(AbstractActuator act) throws OTMException {
+        if(this.actuator!=null)
+            throw new OTMException("Multiple actuators on lane group");
+        this.actuator = act;
     }
 
     ///////////////////////////////////////////////////

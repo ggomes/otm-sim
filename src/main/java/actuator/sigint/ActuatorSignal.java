@@ -12,7 +12,6 @@ import java.util.Map;
 public class ActuatorSignal extends AbstractActuator {
 
     public Map<Long, SignalPhase> signal_phases;
-//    public ScheduleItem current_scehdule_item;
 
     ///////////////////////////////////////////////////
     // construction
@@ -59,25 +58,8 @@ public class ActuatorSignal extends AbstractActuator {
             p.initialize(now);
     }
 
-    @Override
-    public void register_with_dispatcher(Dispatcher dispatcher) {
-
-    }
-
     ///////////////////////////////////////////////////
-    // getters
-    ///////////////////////////////////////////////////
-
-    public SignalPhase get_phase(long phase_id){
-        return signal_phases.get(phase_id);
-    }
-
-    public float cycle(){
-        return Float.NaN; //current_scehdule_item==null ? Float.NaN : current_scehdule_item.cycle;
-    }
-
-    ///////////////////////////////////////////////////
-    // control
+    // AbstractActuator
     ///////////////////////////////////////////////////
 
     @Override
@@ -94,6 +76,18 @@ public class ActuatorSignal extends AbstractActuator {
             phase.set_bulb_color(timestamp, bulbcolor);
         }
 
-     }
+    }
+
+    ///////////////////////////////////////////////////
+    // get
+    ///////////////////////////////////////////////////
+
+    public SignalPhase get_phase(long phase_id){
+        return signal_phases.get(phase_id);
+    }
+
+//    public float cycle(){
+//        return Float.NaN; //current_scehdule_item==null ? Float.NaN : current_scehdule_item.cycle;
+//    }
 
 }

@@ -7,7 +7,6 @@ import error.OTMErrorLog;
 import error.OTMException;
 import output.EventsSensor;
 import common.InterfaceScenarioElement;
-import runner.RunParameters;
 import common.Scenario;
 import common.ScenarioElementType;
 
@@ -44,12 +43,12 @@ public abstract class AbstractSensor implements Pokable, InterfaceScenarioElemen
     ///////////////////////////////////////////
 
     @Override
-    public ScenarioElementType getType() {
+    public final ScenarioElementType getType() {
         return ScenarioElementType.sensor;
     }
 
     @Override
-    public Long getId() {
+    public final Long getId() {
         return id;
     }
 

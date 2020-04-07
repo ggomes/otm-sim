@@ -36,7 +36,7 @@ public class ControllerFixedRate extends AbstractController  {
     }
 
     @Override
-    public void update_controller(Dispatcher dispatcher, float timestamp) throws OTMException {
+    public void update_command(Dispatcher dispatcher, float timestamp) throws OTMException {
         for(Map.Entry<Long,Float> e : actuator_rate_vph.entrySet()){
             Long act_id = e.getKey();
             Float rate_vph = e.getValue();

@@ -29,13 +29,8 @@ public class ActuatorFD extends AbstractActuator {
 
     }
 
-    @Override
-    public void register_with_dispatcher(Dispatcher dispatcher) {
-
-    }
-
     ///////////////////////////////////////////
-    // XXX
+    // AbstractActuator
     ///////////////////////////////////////////
 
     @Override

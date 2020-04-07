@@ -2,6 +2,7 @@ package api.info;
 
 import actuator.sigint.ActuatorSignal;
 import actuator.sigint.SignalPhase;
+import common.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ public class SignalInfo extends ActuatorInfo {
     public SignalInfo(ActuatorSignal x) {
         super(x);
 
-        this.node_id = x.target.getId();
+        this.node_id = ((Node)x.target).getId();
 
         signal_phases = new ArrayList<>();
         for(SignalPhase s : x.signal_phases.values())

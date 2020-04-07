@@ -59,12 +59,12 @@ public class RoadGeometry implements InterfaceScenarioElement {
     ///////////////////////////////////////////
 
     @Override
-    public Long getId() {
+    public final Long getId() {
         return id;
     }
 
     @Override
-    public ScenarioElementType getType() {
+    public final ScenarioElementType getType() {
         return ScenarioElementType.roadgeom;
     }
 
