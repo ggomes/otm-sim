@@ -9,11 +9,10 @@ import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.Roadparam;
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import models.vehicle.VehicleLaneGroup;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
-import runner.RunParameters;
 import common.Scenario;
 import traveltime.VehicleLaneGroupTimer;
 import utils.OTMUtils;
@@ -25,16 +24,21 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     public List<NewellVehicle> vehicles;
     public double dv;   // vf*dt [meters per dt]
     public double dw;   // w*dt [meters per dt]
-    public double dc;   // capcity*dt [veh per dt]
+    public double dc;   // rate*dt [veh per dt]
+    public double dc_max;   // capcity*dt [veh per dt]
+
+    ////////////////////////////////////////////
+    // construction
+    ///////////////////////////////////////////
 
     public NewellLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
         super(link, side, flwpos, length, num_lanes, start_lane, out_rcs);
         vehicles = new ArrayList<>();
     }
 
-    ///////////////////////////////////////////////////
-    // load
-    ///////////////////////////////////////////////////
+    ////////////////////////////////////////////
+    // InterfaceScenarioElement-like
+    ///////////////////////////////////////////
 
     @Override
     public void validate(OTMErrorLog errorLog) {
@@ -48,12 +52,27 @@ public class NewellLaneGroup extends VehicleLaneGroup {
         update_supply();
     }
 
+    ////////////////////////////////////////////
+    // AbstractLaneGroup
+    ///////////////////////////////////////////
+
     @Override
     public void set_road_params(Roadparam r) {
         super.set_road_params(r);
-        dv = r.getSpeed() * ((ModelNewell)link.model).dt / 3.6d;
-        dw = max_cong_speed_kph * ((ModelNewell)link.model).dt / 3.6d;
-        dc = r.getCapacity() * num_lanes * ((ModelNewell)link.model).dt / 3600d;
+        float dt = ((ModelNewell)link.model).dt;
+        dv = r.getSpeed() * dt / 3.6d;
+        dw = max_cong_speed_kph * dt / 3.6d;
+        dc_max = r.getCapacity() * num_lanes * dt / 3600d;
+        dc = dc_max;
+    }
+
+    ////////////////////////////////////////////
+    // InterfaceLaneGroup
+    ///////////////////////////////////////////
+
+    @Override
+    public void set_actuator_capacity_vps(float rate_vps) {
+        dc = Math.min( dc_max, rate_vps * ((ModelNewell)link.model).dt );
     }
 
     @Override
@@ -72,10 +91,6 @@ public class NewellLaneGroup extends VehicleLaneGroup {
 //            supply = Math.max(0d,supply + 1d - buffer.get_total_veh());
 
     }
-
-    ///////////////////////////////////////////////////
-    // run
-    ///////////////////////////////////////////////////
 
     @Override
     public Double get_upstream_vehicle_position(){
@@ -132,7 +147,11 @@ public class NewellLaneGroup extends VehicleLaneGroup {
         throw new OTMException("NOT IMPLEMENTED awpirg -jqig");
     }
 
-    public boolean release_vehicle(float timestamp, Iterator<NewellVehicle> it, NewellVehicle vehicle) throws OTMException {
+    ////////////////////////////////////////////
+    // InterfaceLaneGroup
+    ///////////////////////////////////////////
+
+    protected boolean release_vehicle(float timestamp, Iterator<NewellVehicle> it, NewellVehicle vehicle) throws OTMException {
 
         boolean released = false;
 

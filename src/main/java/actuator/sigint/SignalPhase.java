@@ -105,9 +105,9 @@ public class SignalPhase {
         //for(AbstractLaneGroup lanegroup : lanegroups)
         //    lanegroup_vehiclesAtToGreen.put(lanegroup.id, lanegroup.get_total_vehicles());
 
-        // send to lane groups
-        for(RoadConnection rc : road_connections)
-            rc.set_external_max_flow_vps(timestamp,rate_vps);
+//        // send to lane groups
+//        for(RoadConnection rc : road_connections)
+//            rc.set_external_max_flow_vps(timestamp,rate_vps);
 
         // inform the output listener
         if(my_signal.event_listener!=null)

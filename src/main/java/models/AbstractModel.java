@@ -1,6 +1,7 @@
 package models;
 
 import actuator.ActuatorFD;
+import common.AbstractLaneGroup;
 import common.Link;
 import error.OTMException;
 import packet.PacketLaneGroup;
@@ -112,10 +113,6 @@ public abstract class AbstractModel implements InterfaceModel {
 
     final public PacketLaneGroup create_lanegroup_packet(){
         return new PacketLaneGroup();
-    }
-
-    final public Float get_waiting_time_sec(double rate_vps){
-        return OTMUtils.get_waiting_time(rate_vps,stochastic_process);
     }
 
 }

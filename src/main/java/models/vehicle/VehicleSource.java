@@ -8,9 +8,10 @@ import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import error.OTMException;
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import packet.PacketLaneGroup;
 import profiles.DemandProfile;
+import utils.OTMUtils;
 
 import java.util.Set;
 
@@ -33,7 +34,8 @@ public class VehicleSource extends common.AbstractSource {
     public void schedule_next_vehicle(Dispatcher dispatcher, float timestamp){
         if(vehicle_scheduled)
             return;
-        Float wait_time = link.model.get_waiting_time_sec(source_demand_vps);
+
+        Float wait_time = OTMUtils.get_waiting_time(source_demand_vps,link.model.stochastic_process);
         if(wait_time!=null) {
             EventCreateVehicle new_event = new EventCreateVehicle(dispatcher, timestamp + wait_time, this);
             dispatcher.register_event(new_event);

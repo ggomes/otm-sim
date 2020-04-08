@@ -11,7 +11,7 @@ import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.OutputRequest;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import models.AbstractModel;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;

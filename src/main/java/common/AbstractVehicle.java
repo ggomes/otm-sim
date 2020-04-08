@@ -2,7 +2,6 @@ package common;
 
 import commodity.Path;
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
 import output.InterfaceVehicleListener;
 import utils.OTMUtils;
 

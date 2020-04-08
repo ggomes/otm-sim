@@ -1,6 +1,6 @@
 package output.animation.macro;
 
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import common.Link;
 import output.animation.AbstractLaneGroupInfo;
 import output.animation.AbstractLinkInfo;

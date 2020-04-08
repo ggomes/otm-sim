@@ -88,7 +88,7 @@ public class Scenario {
                 long linkid = Long.parseLong(tokens[3]);
                 AbstractFluidModel model = (AbstractFluidModel) network.links.get(linkid).model;
                 double cfl = Double.parseDouble(tokens[6]);
-                maxdt.put(model.name,Math.min(maxdt.get(model.name),model.dt/cfl));
+                maxdt.put(model.name,Math.min(maxdt.get(model.name),model.dt_sec /cfl));
             }
             for(Map.Entry<String,Double> e : maxdt.entrySet())
                 errorLog.addError(String.format("The maximum step size for model `%s' is %f",e.getKey(),e.getValue()));

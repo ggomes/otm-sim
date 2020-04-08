@@ -1,7 +1,7 @@
 package output;
 
 import common.FlowAccumulatorState;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import error.OTMException;
 import org.jfree.data.xy.XYSeries;
 import profiles.Profile1D;

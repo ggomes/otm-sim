@@ -4,7 +4,7 @@ import commodity.Commodity;
 import commodity.Path;
 import common.AbstractVehicle;
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import models.vehicle.AbstractVehicleModel;
 import common.Scenario;
 

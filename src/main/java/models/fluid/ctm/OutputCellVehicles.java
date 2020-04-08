@@ -2,7 +2,7 @@ package models.fluid.ctm;
 
 import common.Link;
 import error.OTMException;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import models.fluid.AbstractFluidModel;
 import models.fluid.FluidLaneGroup;
 import output.AbstractOutputTimed;

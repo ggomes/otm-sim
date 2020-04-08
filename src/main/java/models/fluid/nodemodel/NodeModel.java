@@ -5,7 +5,7 @@ import common.Node;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import models.fluid.*;
 import models.fluid.FluidLaneGroup;
 import common.Scenario;
@@ -323,7 +323,8 @@ public class NodeModel {
 
                 // total_demand = sum of demands in upstream road connections, times the proportion
                 // directed at this lanegroup
-                Double d_h = dlg.rcs.values().stream().mapToDouble(rc -> rc.dnlg_infos.get(dlg.lg.id).alpha_rh * Math.min(rc.d_r, rc.fbar)).sum();
+//                Double d_h = dlg.rcs.values().stream().mapToDouble(rc -> rc.dnlg_infos.get(dlg.lg.id).alpha_rh * Math.min(rc.d_r, rc.fbar)).sum();
+                Double d_h = dlg.rcs.values().stream().mapToDouble(rc -> rc.dnlg_infos.get(dlg.lg.id).alpha_rh * rc.d_r).sum();
                 dlg.gamma_h = d_h>dlg.s_h ? 1d-dlg.s_h /d_h : 0d;
             }
 

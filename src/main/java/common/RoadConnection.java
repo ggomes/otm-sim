@@ -4,7 +4,6 @@ import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -26,7 +25,7 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     public Set<AbstractLaneGroup> out_lanegroups;
 
     // control
-    public float external_max_flow_vps;
+//    public float external_max_flow_vps;
 
     ///////////////////////////////////////////
     // construction
@@ -38,7 +37,7 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         length = jaxb_rc.getLength();
         start_link = links.get(jaxb_rc.getInLink())==null ? null : links.get(jaxb_rc.getInLink());
         end_link = links.get(jaxb_rc.getOutLink())==null ? null : links.get(jaxb_rc.getOutLink());
-        external_max_flow_vps = Float.POSITIVE_INFINITY;
+//        external_max_flow_vps = Float.POSITIVE_INFINITY;
 
         if(jaxb_rc.getInLinkLanes()!=null) {
             int [] in_lanes = OTMUtils.int_hash_int(jaxb_rc.getInLinkLanes());
@@ -78,7 +77,7 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         this.length = 0f;
         this.start_link = start_link;
         this.end_link = end_link;
-        this.external_max_flow_vps = Float.POSITIVE_INFINITY;
+//        this.external_max_flow_vps = Float.POSITIVE_INFINITY;
         this.start_link_from_lane = start_link_from_lane;
         this.start_link_to_lane = start_link_to_lane;
         this.end_link_from_lane = end_link_from_lane;
@@ -211,13 +210,13 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     // XXX
     ///////////////////////////////////////////
 
-    public void set_external_max_flow_vps(float timestamp,float rate_vps){
-        this.external_max_flow_vps = rate_vps;
-
-        // tell the incoming lanegroups
-        for(AbstractLaneGroup in_lanegroup : in_lanegroups)
-            in_lanegroup.exiting_roadconnection_capacity_has_been_modified(timestamp);
-    }
+//    public void set_external_max_flow_vps(float timestamp,float rate_vps){
+//        this.external_max_flow_vps = rate_vps;
+//
+//        // tell the incoming lanegroups
+//        for(AbstractLaneGroup in_lanegroup : in_lanegroups)
+//            in_lanegroup.exiting_roadconnection_capacity_has_been_modified(timestamp);
+//    }
 
     ///////////////////////////////////////
     // toString

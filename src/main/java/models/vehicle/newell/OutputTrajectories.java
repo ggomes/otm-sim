@@ -5,7 +5,7 @@ import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMException;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import output.AbstractOutput;
 import runner.RunParameters;
 import common.Scenario;

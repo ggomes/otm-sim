@@ -21,7 +21,7 @@ public class EventFluidModelUpdate extends AbstractEvent {
         model.update_flow(timestamp);
 
         // register next clock tick
-        float next_timestamp = timestamp + model.dt;
+        float next_timestamp = timestamp + model.dt_sec;
         if(next_timestamp<=dispatcher.stop_time)
             dispatcher.register_event(new EventFluidModelUpdate(dispatcher,next_timestamp,model));
     }

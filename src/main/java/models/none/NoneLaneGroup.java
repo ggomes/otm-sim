@@ -6,7 +6,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import packet.PacketLaneGroup;
 
 import java.util.Set;
@@ -15,6 +15,11 @@ public class NoneLaneGroup extends AbstractLaneGroup {
 
     @Override
     public void validate(OTMErrorLog errorLog) {
+
+    }
+
+    @Override
+    public void set_actuator_capacity_vps(float rate_vps) {
 
     }
 
@@ -38,10 +43,10 @@ public class NoneLaneGroup extends AbstractLaneGroup {
 
     }
 
-    @Override
-    public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
-
-    }
+//    @Override
+//    public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
+//
+//    }
 
     @Override
     public float vehs_dwn_for_comm(Long comm_id) {

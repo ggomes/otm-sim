@@ -1,6 +1,6 @@
 package output.animation.meso;
 
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import output.animation.AbstractLaneGroupInfo;
 
 public class LaneGroupInfo extends AbstractLaneGroupInfo {

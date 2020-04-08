@@ -1,4 +1,4 @@
-package models;
+package common;
 
 import error.OTMErrorLog;
 import error.OTMException;
@@ -12,7 +12,8 @@ public interface InterfaceLaneGroup {
     Double get_upstream_vehicle_position();
     void update_supply();
     void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) throws OTMException;
-    void exiting_roadconnection_capacity_has_been_modified(float timestamp);
+//    void exiting_roadconnection_capacity_has_been_modified(float timestamp);
+    void set_actuator_capacity_vps(float rate_vps);
 
     // Return the total number of vehicles in this lane group with the given commodity id.
     // commodity_id==null means return total over all commodities.

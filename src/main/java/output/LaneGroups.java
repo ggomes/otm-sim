@@ -1,6 +1,6 @@
 package output;
 
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import dispatch.Dispatcher;
 import error.OTMException;
 import runner.RunParameters;

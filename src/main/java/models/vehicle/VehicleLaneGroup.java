@@ -5,7 +5,7 @@ import common.Link;
 import common.RoadConnection;
 import geometry.FlowPosition;
 import geometry.Side;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import packet.*;
 
 import java.util.HashSet;
@@ -31,10 +31,10 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
         return Float.NaN;
     }
 
-    @Override
-    public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
-        System.err.println("NOT IMPLEMENTED");
-    }
+//    @Override
+//    public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
+//        System.err.println("NOT IMPLEMENTED");
+//    }
 
     @Override
     public float vehs_in_for_comm(Long comm_id) {

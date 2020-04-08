@@ -1,7 +1,7 @@
 package output;
 
 import error.OTMException;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import common.Scenario;
 import common.FlowAccumulatorState;
 

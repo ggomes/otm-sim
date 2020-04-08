@@ -15,7 +15,7 @@ public class ModelInfo {
     public ModelInfo(AbstractModel model){
         this.link_ids = model.links.stream().map(link->link.getId()).collect(Collectors.toSet());
         this.name = model.name;
-        this.dt = (model instanceof AbstractFluidModel) ?  ((AbstractFluidModel) model).dt : Float.NaN;
+        this.dt = (model instanceof AbstractFluidModel) ?  ((AbstractFluidModel) model).dt_sec : Float.NaN;
     }
 
     public Set<Long> getLink_ids() {

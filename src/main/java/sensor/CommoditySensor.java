@@ -2,12 +2,11 @@ package sensor;
 
 import common.FlowAccumulatorState;
 import error.OTMErrorLog;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import common.Link;
 import dispatch.Dispatcher;
 import error.OTMException;
 import jaxb.Sensor;
-import runner.RunParameters;
 import common.Scenario;
 
 import java.util.*;

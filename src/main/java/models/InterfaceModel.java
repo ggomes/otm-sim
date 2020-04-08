@@ -2,9 +2,7 @@ package models;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.AbstractSource;
-import common.Link;
-import common.RoadConnection;
+import common.*;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -14,7 +12,6 @@ import jaxb.OutputRequest;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
-import common.Scenario;
 
 import java.util.Collection;
 import java.util.Map;

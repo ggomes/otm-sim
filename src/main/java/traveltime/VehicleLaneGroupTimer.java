@@ -2,7 +2,7 @@ package traveltime;
 
 import common.AbstractVehicle;
 import common.Link;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 
 import java.util.HashMap;
 import java.util.Map;

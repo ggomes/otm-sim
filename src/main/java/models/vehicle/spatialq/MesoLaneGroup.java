@@ -1,15 +1,13 @@
 package models.vehicle.spatialq;
 
 import common.*;
-import dispatch.EventTransitToWaiting;
 import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
-import dispatch.EventReleaseVehicleFromLaneGroup;
 import geometry.FlowPosition;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import models.vehicle.VehicleLaneGroup;
 import output.InterfaceVehicleListener;
 import packet.PacketLaneGroup;
@@ -37,10 +35,11 @@ public class MesoLaneGroup extends VehicleLaneGroup {
         super(link, side,flwpos,length, num_lanes, start_lane, out_rcs);
         this.transit_queue = new Queue(this, Queue.Type.transit);
         this.waiting_queue = new Queue(this, Queue.Type.waiting);
+
     }
 
     ////////////////////////////////////////////
-    // InterfaceScenarioElement
+    // InterfaceScenarioElement-like
     ///////////////////////////////////////////
 
     @Override
@@ -58,13 +57,13 @@ public class MesoLaneGroup extends VehicleLaneGroup {
 
         // register first vehicle exit
         float start_time = scenario.get_current_time();
-        schedule_release_vehicle(start_time,current_max_flow_rate_vps);
+        schedule_release_vehicle(start_time);
 
         update_supply();
     }
 
     ////////////////////////////////////////////
-    // XXX
+    // AbstractLaneGroup
     ///////////////////////////////////////////
 
     @Override
@@ -74,6 +73,14 @@ public class MesoLaneGroup extends VehicleLaneGroup {
         saturation_flow_rate_vps = r.getCapacity()*num_lanes/3600f;
     }
 
+    ////////////////////////////////////////////
+    // InterfaceLaneGroup
+    ///////////////////////////////////////////
+
+    @Override
+    public void set_actuator_capacity_vps(float rate_vps) {
+        this.current_max_flow_rate_vps = Math.min(rate_vps,saturation_flow_rate_vps);
+    }
 
     @Override
     public void allocate_state() {
@@ -83,10 +90,6 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     public void update_supply() {
         supply =  max_vehicles - get_total_vehicles();
     }
-
-    ////////////////////////////////////////////
-    // run
-    ///////////////////////////////////////////
 
     @Override
     public Double get_upstream_vehicle_position(){
@@ -130,29 +133,29 @@ public class MesoLaneGroup extends VehicleLaneGroup {
 
     }
 
-    @Override
-    public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
-
-        // set the capacity of this lanegroup to the minimum of the
-        // exiting road connections
-        current_max_flow_rate_vps = link.outlink2roadconnection.values().stream()
-                .map(x->x.external_max_flow_vps)
-                .min(Float::compareTo)
-                .get();
-
-        current_max_flow_rate_vps = current_max_flow_rate_vps>saturation_flow_rate_vps ?
-                saturation_flow_rate_vps :
-                current_max_flow_rate_vps;
-
-        // Remove scheduled future releases from the previous RC capacity,
-        // will be replaced by new schedule with modified capacity.
-        link.network.scenario.dispatcher
-                .remove_events_for_recipient(EventReleaseVehicleFromLaneGroup.class, this);
-
-        // schedule a release for now+ half wait time
-        schedule_release_vehicle(timestamp,current_max_flow_rate_vps*2);
-
-    }
+//    @Override
+//    public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
+//
+//        // set the capacity of this lanegroup to the minimum of the
+//        // exiting road connections
+//        current_max_flow_rate_vps = link.outlink2roadconnection.values().stream()
+//                .map(x->x.external_max_flow_vps)
+//                .min(Float::compareTo)
+//                .get();
+//
+//        current_max_flow_rate_vps = current_max_flow_rate_vps>saturation_flow_rate_vps ?
+//                saturation_flow_rate_vps :
+//                current_max_flow_rate_vps;
+//
+//        // Remove scheduled future releases from the previous RC capacity,
+//        // will be replaced by new schedule with modified capacity.
+//        link.network.scenario.dispatcher
+//                .remove_events_for_recipient(EventReleaseVehicleFromLaneGroup.class, this);
+//
+//        // schedule a release for now+ half wait time
+//        schedule_release_vehicle(timestamp,current_max_flow_rate_vps*2);
+//
+//    }
 
     /**
      * An event signals an opportunity to release a vehicle. The lanegroup must,
@@ -167,7 +170,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     public void release_vehicle_packets(float timestamp) throws OTMException {
 
         // schedule the next vehicle release dispatch
-        schedule_release_vehicle(timestamp,current_max_flow_rate_vps);
+        schedule_release_vehicle(timestamp);
 
         // ignore if waiting queue is empty
         if(waiting_queue.num_vehicles()==0)
@@ -274,9 +277,9 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     // private
     ///////////////////////////////////////////////////
 
-    private void schedule_release_vehicle(float nowtime,float rate){
+    private void schedule_release_vehicle(float nowtime){
 
-        Float wait_time = link.model.get_waiting_time_sec(rate);
+        Float wait_time = OTMUtils.get_waiting_time(current_max_flow_rate_vps,link.model.stochastic_process);
 
         if(wait_time!=null){
             Scenario scenario = link.network.scenario;

@@ -30,7 +30,7 @@ public class RoadConnection {
     public Double d_r;
     public Double gamma_r;
     public double delta_r;
-    public double fbar; // vps, imposed by external controller;
+//    public double fbar; // vps, imposed by external controller;
 
     public Set<UpLaneGroup> ulgs;
     public Map<Long,DnLgInfo> dnlg_infos;
@@ -99,21 +99,20 @@ public class RoadConnection {
 
         f_rs.keySet().forEach(x->f_rs.put(x,0d));
 
-        // fbar
-        if(Double.isInfinite(rc.external_max_flow_vps))
-            fbar = Double.POSITIVE_INFINITY;
-        else if(rc.external_max_flow_vps< NodeModel.eps)
-            fbar = 0d;
-        else {
-            float dt = ((AbstractFluidModel)this.rc.get_start_link().model).dt;
-            fbar = rc.external_max_flow_vps * dt;
-        }
+//        // fbar
+//        if(Double.isInfinite(rc.external_max_flow_vps))
+//            fbar = Double.POSITIVE_INFINITY;
+//        else if(rc.external_max_flow_vps< NodeModel.eps)
+//            fbar = 0d;
+//        else {
+//            float dt = ((AbstractFluidModel)this.rc.get_start_link().model).dt;
+//            fbar = rc.external_max_flow_vps * dt;
+//        }
     }
 
     public void update_is_blocked(){
         if(!is_blocked)
-            is_blocked = dnlg_infos.values().stream().allMatch(x->x.dlg.is_blocked) ||
-                         fbar< NodeModel.eps;
+            is_blocked = dnlg_infos.values().stream().allMatch(x->x.dlg.is_blocked); // || fbar< NodeModel.eps;
     }
 
 }

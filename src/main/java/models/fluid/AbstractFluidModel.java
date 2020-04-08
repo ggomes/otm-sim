@@ -6,7 +6,7 @@ import common.Node;
 import error.OTMException;
 import keys.KeyCommPathOrLink;
 import models.AbstractModel;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import models.fluid.nodemodel.NodeModel;
 import models.fluid.nodemodel.RoadConnection;
 import models.fluid.nodemodel.UpLaneGroup;
@@ -23,14 +23,14 @@ import static java.util.stream.Collectors.toSet;
 public abstract class AbstractFluidModel extends AbstractModel implements InterfaceFluidModel {
 
     public final float max_cell_length;
-    public final float dt;
+    public final float dt_sec;
     protected Set<Link> source_links;
     protected Set<Link> sink_links;
     protected Map<Long, NodeModel> node_models;
 
-    public AbstractFluidModel(String name, boolean is_default, float dt, StochasticProcess process, Float max_cell_length) {
+    public AbstractFluidModel(String name, boolean is_default, float dt_sec, StochasticProcess process, Float max_cell_length) {
         super(AbstractModel.Type.Fluid,name, is_default,process);
-        this.dt = dt;
+        this.dt_sec = dt_sec;
         this.max_cell_length = max_cell_length==null ? -1 : max_cell_length;
     }
 

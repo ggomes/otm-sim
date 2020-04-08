@@ -1,5 +1,7 @@
-package dispatch;
+package models.vehicle.spatialq;
 
+import dispatch.AbstractEvent;
+import dispatch.Dispatcher;
 import error.OTMException;
 import models.vehicle.spatialq.MesoLaneGroup;
 import models.vehicle.spatialq.MesoVehicle;
@@ -7,7 +9,7 @@ import output.InterfaceVehicleListener;
 
 public class EventTransitToWaiting extends AbstractEvent {
 
-    public EventTransitToWaiting(Dispatcher dispatcher,float timestamp, Object vehicle) {
+    public EventTransitToWaiting(Dispatcher dispatcher, float timestamp, Object vehicle) {
         super(dispatcher,4,timestamp,vehicle);
     }
 

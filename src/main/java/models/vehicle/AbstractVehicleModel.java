@@ -5,9 +5,10 @@ import commodity.Path;
 import common.AbstractSource;
 import common.Link;
 import error.OTMException;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import models.AbstractModel;
 import profiles.DemandProfile;
+import utils.OTMUtils;
 import utils.StochasticProcess;
 
 import java.util.*;
@@ -25,7 +26,8 @@ public abstract class AbstractVehicleModel extends AbstractModel implements Inte
     public final void set_links(Set<Link> links) {
         super.set_links(links);
     }
-//////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////
     // sample implementation
     //////////////////////////////////////////////////////////////
 
@@ -50,6 +52,10 @@ public abstract class AbstractVehicleModel extends AbstractModel implements Inte
             return A;
         } else
             return null;
+    }
+
+    final public Float get_waiting_time_sec(double rate_vps){
+        return OTMUtils.get_waiting_time(rate_vps,stochastic_process);
     }
 
 }

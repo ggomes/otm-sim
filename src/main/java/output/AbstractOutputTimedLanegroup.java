@@ -1,6 +1,6 @@
 package output;
 
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import common.Link;
 import error.OTMErrorLog;
 import error.OTMException;

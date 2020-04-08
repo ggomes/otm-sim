@@ -1,6 +1,6 @@
 package output.animation;
 
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 
 public interface InterfaceLinkInfo {
 

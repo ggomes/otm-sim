@@ -19,7 +19,7 @@ public class Queue {
     public final Queue.Type type;
     public final MesoLaneGroup lanegroup;
     private List<MesoVehicle> vehicles;
-    private PriorityQueue<LaneChangeRequest> lane_change_requests;
+//    private PriorityQueue<LaneChangeRequest> lane_change_requests;
 
     ///////////////////////////////////////////////////
     // construction
@@ -29,7 +29,7 @@ public class Queue {
         this.type = type;
         this.lanegroup = lanegroup;
         this.vehicles = new ArrayList<>();
-        this.lane_change_requests = new PriorityQueue<>(LaneChangeRequest::compareTimestamp);
+//        this.lane_change_requests = new PriorityQueue<>(LaneChangeRequest::compareTimestamp);
         switch(type){
             case transit:
                 id = "t" + lanegroup.id;
@@ -61,9 +61,9 @@ public class Queue {
     public void remove_given_vehicle(float timestamp, MesoVehicle v) throws OTMException {
         this.vehicles.remove(v);
 
-        // process any lane change requests
-        Link link = lanegroup.link;
-        ((ModelSpatialQ)link.model).process_lane_change_request(link,timestamp,lane_change_requests.poll());
+//        // process any lane change requests
+//        Link link = lanegroup.link;
+//        ((ModelSpatialQ)link.model).process_lane_change_request(link,timestamp,lane_change_requests.poll());
 
     }
 
@@ -87,15 +87,15 @@ public class Queue {
         return vehicles.size();
     }
 
-    public void submit_lane_change_request(LaneChangeRequest r){
-        this.lane_change_requests.add(r);
-    }
+//    public void submit_lane_change_request(LaneChangeRequest r){
+//        this.lane_change_requests.add(r);
+//    }
 
-    protected void remove_lane_change_requests_for_vehicle(MesoVehicle vehicle){
-        lane_change_requests.removeAll(
-                lane_change_requests.stream()
-                        .filter(x->x.requester==vehicle)
-                        .collect(toSet()) );
-    }
+//    protected void remove_lane_change_requests_for_vehicle(MesoVehicle vehicle){
+//        lane_change_requests.removeAll(
+//                lane_change_requests.stream()
+//                        .filter(x->x.requester==vehicle)
+//                        .collect(toSet()) );
+//    }
 
 }

@@ -1,7 +1,6 @@
 package actuator;
 
 import common.Link;
-import common.RoadConnection;
 import error.OTMException;
 import jaxb.Actuator;
 import common.Scenario;
@@ -39,13 +38,13 @@ public class ActuatorCapacity extends AbstractActuator  {
 
     @Override
     public void process_controller_command(Object command, float timestamp) throws OTMException {
-        if(command==null)
-            return;
-        Link link = (Link) target;
-        float rate_vps = (float) command;
-        rate_vps = Math.max(Math.min(rate_vps,max_rate_vps),min_rate_vps);
-        for(RoadConnection rc : link.outlink2roadconnection.values())
-            rc.set_external_max_flow_vps(timestamp,rate_vps);
+//        if(command==null)
+//            return;
+//        Link link = (Link) target;
+//        float rate_vps = (float) command;
+//        rate_vps = Math.max(Math.min(rate_vps,max_rate_vps),min_rate_vps);
+//        for(RoadConnection rc : link.outlink2roadconnection.values())
+//            rc.set_external_max_flow_vps(timestamp,rate_vps);
     }
 
 }

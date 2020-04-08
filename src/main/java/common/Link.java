@@ -12,7 +12,6 @@ import geometry.Side;
 import jaxb.Points;
 import jaxb.Roadparam;
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
 import models.AbstractModel;
 import traveltime.LinkTravelTimer;
 import packet.PacketLaneGroup;

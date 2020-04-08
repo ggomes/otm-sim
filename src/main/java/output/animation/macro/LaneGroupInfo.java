@@ -1,6 +1,6 @@
 package output.animation.macro;
 
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import keys.KeyCommPathOrLink;
 import models.fluid.FluidLaneGroup;
 import output.animation.AbstractLaneGroupInfo;

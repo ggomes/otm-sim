@@ -1,6 +1,6 @@
 package api.info;
 
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 
 import java.util.*;
 

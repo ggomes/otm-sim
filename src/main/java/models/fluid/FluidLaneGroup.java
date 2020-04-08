@@ -7,7 +7,7 @@ import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import packet.PacketLaneGroup;
 import utils.OTMUtils;
 
@@ -23,6 +23,9 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     public double wspeed_cell_per_dt;          // [-]
     public double ffspeed_cell_per_dt;         // [-]
     public double jam_density_veh_per_cell;
+
+
+    public double capacity_max_veh_per_dt;
     public double capacity_veh_per_dt;
 
     public List<AbstractCell> cells;     // sequence of cells
@@ -35,38 +38,9 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         super(link, side, flwpos,length, num_lanes, start_lane, out_rcs);
     }
 
-    public final void create_cells(AbstractFluidModel model,float max_cell_length) throws OTMException {
-
-        // compute cell length
-        float r = this.length/max_cell_length;
-        boolean is_source_or_sink = link.is_source || link.is_sink;
-
-        int num_cells = is_source_or_sink ?
-                1 :
-                OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
-
-        this.cell_length_meters = is_source_or_sink ?
-                this.length :
-                this.length/num_cells;
-
-        // create the cells
-        this.cells = new ArrayList<>();
-        for(int i=0;i<num_cells;i++)
-            this.cells.add(model.create_cell(this.cell_length_meters, this));
-
-        // designate first and last
-        this.cells.get(0).am_upstrm = true;
-        this.cells.get(num_cells-1).am_dnstrm = true;
-    }
-
     ////////////////////////////////////////////
-    // InterfaceLaneGroup
+    // InterfaceScenarioElement-like
     ///////////////////////////////////////////
-
-    @Override
-    public void allocate_state() {
-        cells.forEach(c -> c.allocate_state());
-    }
 
     @Override
     public void validate(OTMErrorLog errorLog) {
@@ -87,9 +61,18 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     }
 
+    ////////////////////////////////////////////
+    // InterfaceLaneGroup
+    ///////////////////////////////////////////
+
     @Override
-    public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
-        // do nothing
+    public void set_actuator_capacity_vps(float rate_vps) {
+        this.capacity_veh_per_dt = rate_vps * ((AbstractFluidModel)link.model).dt_sec;
+    }
+
+    @Override
+    public void allocate_state() {
+        cells.forEach(c -> c.allocate_state());
     }
 
     @Override
@@ -220,6 +203,30 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 //    }
     // .............................................................
 
+
+    public final void create_cells(AbstractFluidModel model,float max_cell_length) throws OTMException {
+
+        // compute cell length
+        float r = this.length/max_cell_length;
+        boolean is_source_or_sink = link.is_source || link.is_sink;
+
+        int num_cells = is_source_or_sink ?
+                1 :
+                OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
+
+        this.cell_length_meters = is_source_or_sink ?
+                this.length :
+                this.length/num_cells;
+
+        // create the cells
+        this.cells = new ArrayList<>();
+        for(int i=0;i<num_cells;i++)
+            this.cells.add(model.create_cell(this.cell_length_meters, this));
+
+        // designate first and last
+        this.cells.get(0).am_upstrm = true;
+        this.cells.get(num_cells-1).am_dnstrm = true;
+    }
     //////////////////////////////////////////
     // SHOULD THESE BE MOVED TO CTM?
     ///////////////////////////////////////////

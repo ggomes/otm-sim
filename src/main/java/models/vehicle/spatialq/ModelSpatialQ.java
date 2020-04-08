@@ -1,20 +1,16 @@
 package models.vehicle.spatialq;
 
-import common.AbstractVehicle;
-import common.RoadConnection;
+import common.*;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.OutputRequest;
-import models.*;
-import common.Link;
 import error.OTMException;
 import models.vehicle.AbstractVehicleModel;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
-import common.Scenario;
 import utils.StochasticProcess;
 
 import java.util.*;
@@ -99,28 +95,28 @@ public class ModelSpatialQ extends AbstractVehicleModel {
     // static protected
     //////////////////////////////////////////////////////////////
 
-    static protected void process_lane_change_request(Link link,float timestamp,LaneChangeRequest x) throws OTMException {
-
-        if(x==null)
-            return;
-
-        // the vehicle must be in to_queue
-        if(x.requester.my_queue!=x.from_queue)
-            return;
-
-        // move the vehicle to the destination queue
-        x.requester.move_to_queue(timestamp,x.to_queue);
-
-        // remove all of its requests by this vehicle in this link
-        for (AbstractLaneGroup lanegroup : link.lanegroups_flwdn.values()) {
-            MesoLaneGroup lg = (MesoLaneGroup) lanegroup;
-            lg.transit_queue.remove_lane_change_requests_for_vehicle(x.requester);
-            lg.waiting_queue.remove_lane_change_requests_for_vehicle(x.requester);
-        }
-
-        // vehicle is not longer changing lanes
-        x.requester.waiting_for_lane_change = false;
-
-    }
+//    static protected void process_lane_change_request(Link link,float timestamp,LaneChangeRequest x) throws OTMException {
+//
+//        if(x==null)
+//            return;
+//
+//        // the vehicle must be in to_queue
+//        if(x.requester.my_queue!=x.from_queue)
+//            return;
+//
+//        // move the vehicle to the destination queue
+//        x.requester.move_to_queue(timestamp,x.to_queue);
+//
+//        // remove all of its requests by this vehicle in this link
+//        for (AbstractLaneGroup lanegroup : link.lanegroups_flwdn.values()) {
+//            MesoLaneGroup lg = (MesoLaneGroup) lanegroup;
+//            lg.transit_queue.remove_lane_change_requests_for_vehicle(x.requester);
+//            lg.waiting_queue.remove_lane_change_requests_for_vehicle(x.requester);
+//        }
+//
+//        // vehicle is not longer changing lanes
+//        x.requester.waiting_for_lane_change = false;
+//
+//    }
 
 }

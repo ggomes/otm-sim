@@ -6,8 +6,7 @@ import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Sensor;
-import models.AbstractLaneGroup;
-import runner.RunParameters;
+import common.AbstractLaneGroup;
 import common.Scenario;
 
 import java.util.HashMap;

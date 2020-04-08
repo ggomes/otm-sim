@@ -1,7 +1,7 @@
 package models.fluid.nodemodel;
 
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,7 +1,7 @@
 package traveltime;
 
 import common.Link;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import models.fluid.AbstractFluidModel;
 import models.vehicle.AbstractVehicleModel;
 

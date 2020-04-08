@@ -1,11 +1,13 @@
-package dispatch;
+package models.vehicle.spatialq;
 
+import common.InterfaceLaneGroup;
+import dispatch.AbstractEvent;
+import dispatch.Dispatcher;
 import error.OTMException;
-import models.vehicle.VehicleLaneGroup;
 
 public class EventReleaseVehicleFromLaneGroup extends AbstractEvent {
 
-    public EventReleaseVehicleFromLaneGroup(Dispatcher dispatcher,float timestamp, Object obj) {
+    public EventReleaseVehicleFromLaneGroup(Dispatcher dispatcher, float timestamp, Object obj) {
         super(dispatcher,4,timestamp,obj);
 
         // add dispatch to vehicle release map if the lanegroup is actuated
@@ -28,7 +30,7 @@ public class EventReleaseVehicleFromLaneGroup extends AbstractEvent {
     @Override
     public void action(boolean verbose) throws OTMException {
         super.action(verbose);
-        ((VehicleLaneGroup) recipient).release_vehicle_packets(timestamp);
+        ((InterfaceLaneGroup) recipient).release_vehicle_packets(timestamp);
     }
 
 }

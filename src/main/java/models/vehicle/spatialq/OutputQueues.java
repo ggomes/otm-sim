@@ -2,7 +2,7 @@ package models.vehicle.spatialq;
 
 import common.Link;
 import error.OTMException;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import output.AbstractOutputTimed;
 import profiles.Profile1D;
 import common.Scenario;

@@ -7,7 +7,6 @@ import geometry.FlowPosition;
 import geometry.RoadGeometry;
 import geometry.Side;
 import jaxb.Roadparam;
-import models.AbstractLaneGroup;
 import models.AbstractModel;
 import models.fluid.ctm.ModelCTM;
 import models.none.ModelNone;

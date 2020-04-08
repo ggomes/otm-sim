@@ -41,7 +41,7 @@ public class ActuatorGreenRed extends AbstractActuator {
         Link link = (Link) target;
         Color color = (Color) command;
         float rate_vps = color==Color.red ? 0f : Float.POSITIVE_INFINITY;
-        for(RoadConnection rc : link.outlink2roadconnection.values())
-            rc.set_external_max_flow_vps(timestamp,rate_vps);
+//        for(RoadConnection rc : link.outlink2roadconnection.values())
+//            rc.set_external_max_flow_vps(timestamp,rate_vps);
     }
 }

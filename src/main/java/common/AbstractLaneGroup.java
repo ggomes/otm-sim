@@ -1,16 +1,12 @@
-package models;
+package common;
 
 import actuator.AbstractActuator;
 import actuator.InterfaceActuatorTarget;
-import common.FlowAccumulatorState;
-import common.Link;
-import common.RoadConnection;
 import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
 import keys.KeyCommPathOrLink;
 import packet.StateContainer;
-import common.Scenario;
 import traveltime.AbstractLaneGroupTimer;
 import utils.OTMUtils;
 

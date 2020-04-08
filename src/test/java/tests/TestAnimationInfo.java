@@ -28,7 +28,7 @@ public class TestAnimationInfo {
 
             Set<Float> sim_dts = (new api.OTMdev(otm)).scenario.network.models.values().stream()
                     .filter(m->m.type== AbstractModel.Type.Fluid)
-                    .map(m->((AbstractFluidModel)m).dt)
+                    .map(m->((AbstractFluidModel)m).dt_sec)
                     .collect(toSet());
 
             if(sim_dts.size()!=1)

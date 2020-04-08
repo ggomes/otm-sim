@@ -14,7 +14,7 @@ import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.OutputRequest;
 import keys.KeyCommPathOrLink;
-import models.AbstractLaneGroup;
+import common.AbstractLaneGroup;
 import models.fluid.*;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
@@ -54,8 +54,8 @@ public class ModelCTM extends AbstractFluidModel {
 
     @Override
     public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time){
-        dispatcher.register_event(new EventFluidModelUpdate(dispatcher, start_time + dt, this));
-        dispatcher.register_event(new EventFluidStateUpdate(dispatcher, start_time + dt, this));
+        dispatcher.register_event(new EventFluidModelUpdate(dispatcher, start_time + dt_sec, this));
+        dispatcher.register_event(new EventFluidStateUpdate(dispatcher, start_time + dt_sec, this));
     }
 
     @Override
@@ -106,7 +106,7 @@ public class ModelCTM extends AbstractFluidModel {
 
         super.set_road_param(link,r);
 
-        if(Float.isNaN(dt))
+        if(Float.isNaN(dt_sec))
             return;
 
         // adjustment for MN model
@@ -115,7 +115,7 @@ public class ModelCTM extends AbstractFluidModel {
 //            r.setJamDensity(Float.POSITIVE_INFINITY);
 
         // normalize
-        float dt_hr = dt/3600f;
+        float dt_hr = dt_sec /3600f;
         float capacity_vehperlane = r.getCapacity()*dt_hr;
 
         for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
@@ -126,12 +126,14 @@ public class ModelCTM extends AbstractFluidModel {
             float ffspeed_veh = r.getSpeed() * dt_hr / cell_length;
 
             if (link.is_source) {
-                lg.capacity_veh_per_dt = capacity_vehperlane * lg.num_lanes;
+                lg.capacity_max_veh_per_dt = capacity_vehperlane * lg.num_lanes;
+                lg.capacity_veh_per_dt = lg.capacity_max_veh_per_dt;
                 lg.jam_density_veh_per_cell = Double.NaN;
                 lg.ffspeed_cell_per_dt = Double.NaN;
                 lg.wspeed_cell_per_dt = Double.NaN;
             } else {
-                lg.capacity_veh_per_dt = capacity_vehperlane * lg.num_lanes;
+                lg.capacity_max_veh_per_dt = capacity_vehperlane * lg.num_lanes;
+                lg.capacity_veh_per_dt = lg.capacity_max_veh_per_dt;
                 lg.jam_density_veh_per_cell = jam_density_vehperlane * lg.num_lanes;
                 lg.ffspeed_cell_per_dt = ffspeed_veh;
                 double critical_veh = capacity_vehperlane / lg.ffspeed_cell_per_dt;
@@ -203,12 +205,12 @@ public class ModelCTM extends AbstractFluidModel {
                             double out_flow = flow_stay==null ? 0d : flow_stay.values().stream().mapToDouble(x->x).sum();
 
                             if(out_flow==0)
-                                tt = link.is_source ? dt : dt / lg.ffspeed_cell_per_dt;
+                                tt = link.is_source ? dt_sec : dt_sec / lg.ffspeed_cell_per_dt;
                             else
-                                tt = dt * veh / out_flow;
+                                tt = dt_sec * veh / out_flow;
 
                         } else
-                            tt = link.is_source ? dt : dt / lg.ffspeed_cell_per_dt;
+                            tt = link.is_source ? dt_sec : dt_sec / lg.ffspeed_cell_per_dt;
                         total_travel_time += tt;
                     }
 
