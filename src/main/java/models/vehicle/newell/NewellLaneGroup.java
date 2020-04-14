@@ -71,7 +71,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     ///////////////////////////////////////////
 
     @Override
-    public void set_actuator_capacity_vps(float rate_vps) {
+    public void set_actuator_capacity_vps(double rate_vps) {
         dc = Math.min( dc_max, rate_vps * ((ModelNewell)link.model).dt );
     }
 

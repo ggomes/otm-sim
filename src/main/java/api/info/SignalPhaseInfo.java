@@ -19,7 +19,7 @@ public class SignalPhaseInfo {
 //        this.yellow_time = x.yellow_time;
 //        this.red_clear_time = x.red_clear_time;
 //        this.min_green_time = x.min_green_time;
-        this.road_connections = x.road_connections.stream().map(z->z.getId()).collect(toSet());
+        this.road_connections = x.rc_ids;
     }
 
     public long getId() {

@@ -65,7 +65,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     ///////////////////////////////////////////
 
     @Override
-    public void set_actuator_capacity_vps(float rate_vps) {
+    public void set_actuator_capacity_vps(double rate_vps) {
         this.capacity_veh_per_dt = rate_vps * ((AbstractFluidModel)link.model).dt_sec;
     }
 

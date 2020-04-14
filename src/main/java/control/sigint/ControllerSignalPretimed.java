@@ -20,7 +20,7 @@ public class ControllerSignalPretimed extends AbstractController {
 
     public float cycle = Float.NaN;
     public float offset = Float.NaN;
-    public float start_time = Float.NaN;
+    public float start_time = 0f;
     public List<Stage> stages = new ArrayList<>();
     public int curr_stage_index;
 

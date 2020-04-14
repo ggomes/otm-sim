@@ -12,7 +12,7 @@ public interface InterfaceLaneGroup {
     Double get_upstream_vehicle_position();
     void update_supply();
     void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) throws OTMException;
-    void set_actuator_capacity_vps(float rate_vps);
+    void set_actuator_capacity_vps(double rate_vps);
 
     // Return the total number of vehicles in this lane group with the given commodity id.
     // commodity_id==null means return total over all commodities.

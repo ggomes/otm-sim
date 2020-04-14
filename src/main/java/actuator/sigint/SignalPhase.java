@@ -2,22 +2,16 @@ package actuator.sigint;
 
 import actuator.AbstractActuator;
 import api.info.events.EventSignalPhaseInfo;
+import common.AbstractLaneGroup;
 import common.RoadConnection;
-import dispatch.Dispatcher;
-import dispatch.EventAdvanceSignalPhase;
 import error.OTMErrorLog;
 import error.OTMException;
 import common.Scenario;
 import common.ScenarioElementType;
 import utils.OTMUtils;
-import utils.CircularList;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 public class SignalPhase {
 
@@ -28,7 +22,8 @@ public class SignalPhase {
 //    public float red_clear_time;
 //    public float min_green_time;
 
-    public Set<RoadConnection> road_connections;
+    public Set<Long> rc_ids;
+    public Set<AbstractLaneGroup> lanegroups;
 
     // state: bulb color and transition pointer
     public BulbColor bulbcolor;
@@ -44,12 +39,24 @@ public class SignalPhase {
 //        this.red_clear_time = jaxb_phase.getRedClearTime();
 //        this.min_green_time = jaxb_phase.getMinGreenTime();
 //        this.transitions = new CircularList<>();
-        road_connections = new HashSet<>();
+
+
+//        road_connections = new HashSet<>();
+//        for(Long id : OTMUtils.csv2longlist(jaxb_phase.getRoadconnectionIds())) {
+//            RoadConnection rc = (RoadConnection) scenario.get_element(ScenarioElementType.roadconnection, id);
+//            if(rc==null)
+//                throw new OTMException("bad road connection id in actuator id=" + this.id);
+//            road_connections.add(rc);
+//        }
+
+        rc_ids = new HashSet<>();
+        lanegroups = new HashSet<>();
         for(Long id : OTMUtils.csv2longlist(jaxb_phase.getRoadconnectionIds())) {
             RoadConnection rc = (RoadConnection) scenario.get_element(ScenarioElementType.roadconnection, id);
             if(rc==null)
                 throw new OTMException("bad road connection id in actuator id=" + this.id);
-            road_connections.add(rc);
+            rc_ids.add(id);
+            lanegroups.addAll(rc.in_lanegroups);
         }
     }
 
@@ -70,11 +77,13 @@ public class SignalPhase {
 //            errorLog.addError("min_green_time<0");
 
         // valid road connections
-        if(road_connections.isEmpty())
-            errorLog.addError("road_connections.isEmpty()");
+        if(lanegroups.isEmpty())
+            errorLog.addError("lanegroups.isEmpty()");
     }
 
     public void initialize(float now) throws OTMException {
+        for(AbstractLaneGroup lg : lanegroups)
+            lg.register_actuator(my_signal);
         set_bulb_color(now,BulbColor.DARK);
     }
 
@@ -105,9 +114,9 @@ public class SignalPhase {
         //for(AbstractLaneGroup lanegroup : lanegroups)
         //    lanegroup_vehiclesAtToGreen.put(lanegroup.id, lanegroup.get_total_vehicles());
 
-//        // send to lane groups
-//        for(RoadConnection rc : road_connections)
-//            rc.set_external_max_flow_vps(timestamp,rate_vps);
+        // send to lane groups
+        for(AbstractLaneGroup lg : lanegroups)
+            lg.set_actuator_capacity_vps(rate_vps);
 
         // inform the output listener
         if(my_signal.event_listener!=null)

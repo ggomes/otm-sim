@@ -23,7 +23,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     public Queue transit_queue;
     public Queue waiting_queue;
 
-    public float current_max_flow_rate_vps;
+    public double current_max_flow_rate_vps;
     public float saturation_flow_rate_vps;
     public float transit_time_sec;
 
@@ -78,7 +78,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     ///////////////////////////////////////////
 
     @Override
-    public void set_actuator_capacity_vps(float rate_vps) {
+    public void set_actuator_capacity_vps(double rate_vps) {
         this.current_max_flow_rate_vps = Math.min(rate_vps,saturation_flow_rate_vps);
     }
 

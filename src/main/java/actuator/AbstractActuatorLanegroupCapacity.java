@@ -24,28 +24,24 @@ public abstract class AbstractActuatorLanegroupCapacity extends AbstractActuator
     // construction
     ///////////////////////////////////////////////////
 
-    public AbstractActuatorLanegroupCapacity(Scenario scenario, Actuator jaxb_actuator) throws OTMException {
-        super(scenario, jaxb_actuator);
+    public AbstractActuatorLanegroupCapacity(Scenario scenario, Actuator jact) throws OTMException {
+        super(scenario, jact);
 
-        if(jaxb_actuator.getActuatorTarget()!=null) {
-            jaxb.ActuatorTarget e = jaxb_actuator.getActuatorTarget();
-            if ( e.getType().equalsIgnoreCase("link") ) {
+        if(jact.getActuatorTarget()!=null && jact.getActuatorTarget().getType().equalsIgnoreCase("link")) {
+            jaxb.ActuatorTarget e = jact.getActuatorTarget();
 
-                long link_id = e.getId();
-                if(!scenario.network.links.containsKey(link_id))
-                    throw new OTMException("Unknown link id in actuator " + id );
-                Link link = scenario.network.links.get(link_id);
+            long link_id = e.getId();
+            if(!scenario.network.links.containsKey(link_id))
+                throw new OTMException("Unknown link id in actuator " + id );
+            Link link = scenario.network.links.get(link_id);
 
-                int [] x = OTMUtils.read_lanes(e.getLanes(),link.full_lanes);
-                int start_lane = x[0];
-                int end_lane = x[1];
+            int [] x = OTMUtils.read_lanes(e.getLanes(),link.full_lanes);
+            int start_lane = x[0];
+            int end_lane = x[1];
 
-                this.lanegroups = link.get_unique_lanegroups_for_dn_lanes(start_lane, end_lane);
-                this.total_lanes = end_lane-start_lane+1;
+            this.lanegroups = link.get_unique_lanegroups_for_dn_lanes(start_lane, end_lane);
+            this.total_lanes = end_lane-start_lane+1;
 
-            } else {
-                throw new OTMException("Unknown actuator type '" + e.getType() + "'");
-            }
         } else {
             this.lanegroups = new HashSet<>();
             this.total_lanes = 0;
@@ -74,7 +70,7 @@ public abstract class AbstractActuatorLanegroupCapacity extends AbstractActuator
     public void process_controller_command(Object command, float timestamp) throws OTMException {
         if(command==null)
             return;
-        float rate_vps = (float) command;
+        double rate_vps = (double) command;
         for(AbstractLaneGroup lg : lanegroups)
             lg.set_actuator_capacity_vps(rate_vps * lg.num_lanes / total_lanes);
     }

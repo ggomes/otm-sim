@@ -4,7 +4,7 @@ import common.Link;
 import error.OTMException;
 import common.Scenario;
 
-public class ActuatorGreenRed extends AbstractActuator {
+public class ActuatorGreenRed extends AbstractActuatorLanegroupCapacity {
 
     public enum Color {green,red}
 

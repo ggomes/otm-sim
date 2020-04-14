@@ -41,7 +41,7 @@ public class ActuatorMeter extends AbstractActuatorLanegroupCapacity  {
     @Override
     public void process_controller_command(Object command, float timestamp) throws OTMException {
         super.process_controller_command(
-                Math.max(Math.min((float) command,max_rate_vps),min_rate_vps)
+                Math.max(Math.min((double) command,max_rate_vps),min_rate_vps)
                 ,timestamp);
     }
 

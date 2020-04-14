@@ -19,7 +19,7 @@ public class NoneLaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public void set_actuator_capacity_vps(float rate_vps) {
+    public void set_actuator_capacity_vps(double rate_vps) {
 
     }
 

@@ -1,6 +1,6 @@
 package actuator.sigint;
 
-import actuator.AbstractActuator;
+import actuator.AbstractActuatorLanegroupCapacity;
 import error.OTMErrorLog;
 import error.OTMException;
 import common.Scenario;
@@ -8,7 +8,7 @@ import common.Scenario;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ActuatorSignal extends AbstractActuator {
+public class ActuatorSignal extends AbstractActuatorLanegroupCapacity {
 
     public Map<Long, SignalPhase> signal_phases;
 
