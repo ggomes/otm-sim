@@ -99,7 +99,7 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     }
 
     @Override
-    public final ScenarioElementType getType() {
+    public final ScenarioElementType getSEType() {
         return ScenarioElementType.roadconnection;
     }
 

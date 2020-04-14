@@ -1,5 +1,6 @@
 package actuator;
 
+import common.*;
 import control.AbstractController;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
@@ -7,20 +8,16 @@ import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
 import output.EventsActuator;
-import common.InterfaceScenarioElement;
-import common.Scenario;
-import common.ScenarioElementType;
+
+import java.util.Set;
 
 public abstract class AbstractActuator implements Pokable, InterfaceScenarioElement {
 
     public enum Type {
+        meter,
         signal,
-        signal_simple,
-        stop,
-        ramp_meter,
-        fd,
-        plugin,
-        capacity
+        rc,
+        greenred
     }
 
     public long id;
@@ -44,9 +41,25 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         this.dt = jaxb_actuator.getDt();
         if(jaxb_actuator.getActuatorTarget()!=null){
             jaxb.ActuatorTarget e = jaxb_actuator.getActuatorTarget();
-            ScenarioElementType type = ScenarioElementType.valueOf(e.getType());
-            this.target = (InterfaceActuatorTarget) scenario.get_element(type,e.getId());
-            target.register_actuator(this);
+
+            ScenarioElementType type = null;
+            try {
+                // this will throw an exception if the type is not a ScenarioElementType
+                type = ScenarioElementType.valueOf(e.getType());
+
+                // otherwise we can find the element and register
+                Object x = scenario.get_element(type,e.getId());
+                if( x instanceof InterfaceActuatorTarget){
+                    this.target = (InterfaceActuatorTarget) scenario.get_element(type,e.getId());
+                    if(target!=null)
+                        target.register_actuator(this);
+                }
+
+            } catch (IllegalArgumentException illegalArgumentException) {
+                // if exception is thrown, set target to null.
+                // and resolve in higher level constructor
+                this.target = null;
+            }
         }
     }
 
@@ -60,7 +73,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     }
 
     @Override
-    public final ScenarioElementType getType() {
+    public final ScenarioElementType getSEType() {
         return ScenarioElementType.actuator;
     }
 
@@ -81,12 +94,8 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     }
 
     /////////////////////////////////////////////////////////////////////
-    // update
+    // Pokable
     /////////////////////////////////////////////////////////////////////
-
-    public Type getActuatorType(){
-        return type;
-    }
 
     @Override
     public void poke(Dispatcher dispatcher, float timestamp) throws OTMException {
@@ -99,6 +108,14 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         if(dt>0)
             dispatcher.register_event(new EventPoke(dispatcher,3,timestamp+dt,this));
     }
+
+    /////////////////////////////////////////////////////////////////////
+    // get
+    /////////////////////////////////////////////////////////////////////
+
+//    public Type getActuatorType(){
+//        return type;
+//    }
 
     /////////////////////////////////////////////////////////////////////
     // listeners

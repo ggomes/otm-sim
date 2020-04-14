@@ -1,7 +1,7 @@
 package control;
 
 import actuator.AbstractActuator;
-import actuator.ActuatorCapacity;
+import actuator.ActuatorMeter;
 import common.Node;
 import dispatch.Dispatcher;
 import error.OTMException;
@@ -36,7 +36,7 @@ public class ControllerAlinea extends AbstractController  {
     public void initialize(Scenario scenario) throws OTMException {
         params = new HashMap<>();
         for(AbstractActuator abs_act : actuators.values()){
-            ActuatorCapacity act = (ActuatorCapacity) abs_act;
+            ActuatorMeter act = (ActuatorMeter) abs_act;
             AlineaParams param = new AlineaParams();
 
             Link onramp_link = (Link) abs_act.target;
@@ -65,7 +65,7 @@ public class ControllerAlinea extends AbstractController  {
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
         for(AbstractActuator abs_act : this.actuators.values()){
-            ActuatorCapacity act = (ActuatorCapacity) abs_act;
+            ActuatorMeter act = (ActuatorMeter) abs_act;
             AlineaParams p = params.get(abs_act.id);
             float density_veh = (float) p.target_link.get_veh();
             float previous_rate_vps = (float) command.get(act.id);

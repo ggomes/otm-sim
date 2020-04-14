@@ -69,7 +69,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     }
 
     @Override
-    public final ScenarioElementType getType() {
+    public final ScenarioElementType getSEType() {
         return ScenarioElementType.node;
     }
 

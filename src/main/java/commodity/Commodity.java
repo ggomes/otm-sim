@@ -81,7 +81,7 @@ public class Commodity implements InterfaceScenarioElement {
     }
 
     @Override
-    public final ScenarioElementType getType() {
+    public final ScenarioElementType getSEType() {
         return ScenarioElementType.commodity;
     }
 

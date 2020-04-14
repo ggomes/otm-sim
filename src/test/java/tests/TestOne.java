@@ -56,7 +56,7 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "/home/gomes/Dropbox/gabriel/work/MEng/2019-2020/_supervised/traffic/capstone-project/cfg/network_v6.xml";
+            String configfile = "/home/gomes/code/otm/otm-base/src/main/resources/test_configs/onramp_hov.xml";
             api.OTM otm = new api.OTM(configfile,true,false);
             assertNotNull(otm);
         } catch (OTMException e) {

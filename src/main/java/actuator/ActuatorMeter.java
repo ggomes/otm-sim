@@ -5,7 +5,11 @@ import error.OTMException;
 import jaxb.Actuator;
 import common.Scenario;
 
-public class ActuatorCapacity extends AbstractActuator  {
+/** This actuator controls the maximum flow rate on a contiguous set of lanes
+ *  in a link. The control signal is constrained between user-defined maximum
+ *  and minimum values.
+ */
+public class ActuatorMeter extends AbstractActuatorLanegroupCapacity  {
 
     public float max_rate_vps;
     public float min_rate_vps;
@@ -14,13 +18,12 @@ public class ActuatorCapacity extends AbstractActuator  {
     // construction
     ///////////////////////////////////////////////////
 
-    public ActuatorCapacity(Scenario scenario, Actuator jact) throws OTMException {
+    public ActuatorMeter(Scenario scenario, Actuator jact) throws OTMException {
         super(scenario, jact);
 
         // interpret jact.getMaxValue and jact.getMinValue in vphpl
-        int num_lanes = ((Link)target).full_lanes;
-        max_rate_vps = jact.getMaxValue()>=0f ? jact.getMaxValue()*num_lanes/3600f : Float.POSITIVE_INFINITY;
-        min_rate_vps = jact.getMinValue()>=0f ? jact.getMinValue()*num_lanes/3600f : 0f;
+        max_rate_vps = jact.getMaxValue()>=0f ? jact.getMaxValue()*total_lanes/3600f : Float.POSITIVE_INFINITY;
+        min_rate_vps = jact.getMinValue()>=0f ? jact.getMinValue()*total_lanes/3600f : 0f;
     }
 
     ///////////////////////////////////////////////////
@@ -29,7 +32,6 @@ public class ActuatorCapacity extends AbstractActuator  {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-
     }
 
     ///////////////////////////////////////////////////
@@ -38,13 +40,9 @@ public class ActuatorCapacity extends AbstractActuator  {
 
     @Override
     public void process_controller_command(Object command, float timestamp) throws OTMException {
-//        if(command==null)
-//            return;
-//        Link link = (Link) target;
-//        float rate_vps = (float) command;
-//        rate_vps = Math.max(Math.min(rate_vps,max_rate_vps),min_rate_vps);
-//        for(RoadConnection rc : link.outlink2roadconnection.values())
-//            rc.set_external_max_flow_vps(timestamp,rate_vps);
+        super.process_controller_command(
+                Math.max(Math.min((float) command,max_rate_vps),min_rate_vps)
+                ,timestamp);
     }
 
 }

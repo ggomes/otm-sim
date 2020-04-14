@@ -199,18 +199,21 @@ public class ScenarioFactory {
             if(actuators.containsKey(jaxb_actuator.getId()))
                 throw new OTMException("Duplicate actuator id found: " + jaxb_actuator.getId());
             switch(jaxb_actuator.getType()){
+                case "meter":
+                    actuator = new ActuatorMeter(scenario,jaxb_actuator);
+                    break;
                 case "signal":
                     actuator = new ActuatorSignal(scenario,jaxb_actuator);
                     break;
-                case "capacity":
-                    actuator = new ActuatorCapacity(scenario,jaxb_actuator);
-                    break;
+//                case "rc":
+//                    actuator = new AbstractActuatorRoadConnection(scenario,jaxb_actuator);
+//                    break;
                 case "greenred":
                     actuator = new ActuatorGreenRed(scenario,jaxb_actuator);
                     break;
-                case "fd":
-                    actuator = new ActuatorFD(scenario,jaxb_actuator);
-                    break;
+//                case "fd":
+//                    actuator = new ActuatorFD(scenario,jaxb_actuator);
+//                    break;
                 default:
                     actuator = null;
                     break;
@@ -236,8 +239,8 @@ public class ScenarioFactory {
                 case "alinea":
                     controller = new ControllerAlinea(scenario,jaxb_controller);
                     break;
-                case "fixed_rate":
-                    controller = new ControllerFixedRate(scenario,jaxb_controller);
+                case "maxrate":
+                    controller = new ControllerMaxRate(scenario,jaxb_controller);
                     break;
                 default:
 

@@ -26,7 +26,7 @@ public class LaneGroupInfo {
         this.id = x.id;
         this.length = x.length;
         this.lanes = x.get_dn_lanes();
-        this.actuator_id = x.actuator==null ? null : x.actuator.id;
+        this.actuator_id = x.actuator_capacity==null ? null : x.actuator_capacity.id;
 //        for(Map.Entry e : x.outlink2roadconnection.entrySet()){
 //            Set<AbstractLaneGroup> nextlanegroups = (Set<AbstractLaneGroup>) e.getValue();
 //            List<MacroLaneGroupInfo> s = new ArrayList<>();

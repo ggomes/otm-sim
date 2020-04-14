@@ -1,6 +1,6 @@
 package common;
 
-/** anything with an id **/
+/** anything with an id, and lanegroups **/
 public enum ScenarioElementType {
     commodity,
     subnetwork,
@@ -10,5 +10,6 @@ public enum ScenarioElementType {
     roadconnection,
     controller,
     actuator,
-    sensor
+    sensor,
+    lanegroup
 }

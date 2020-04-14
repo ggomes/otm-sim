@@ -1,13 +1,20 @@
 package tests;
 
+import api.OTM;
+import api.info.CommodityInfo;
+import error.OTMException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import output.AbstractOutput;
+import output.LinkFlow;
+import output.LinkVehicles;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -16,7 +23,7 @@ public class TestAllConfig extends AbstractTest {
 
     String testname;
     float start_time = 0f;
-    float duration = 100f;
+    float duration = 1000f;
 
     public TestAllConfig(String testname){
         this.testname = testname;
@@ -24,54 +31,45 @@ public class TestAllConfig extends AbstractTest {
 
     @Test
     public void test_load() {
-//        try {
-//            System.out.println(testname);
-//
-//            API api = OTM.load_test(testname,true);
-//            assertNotNull(api);
-//        } catch (OTMException e) {
-//            System.err.print(e);
-//            fail();
-//        }
+        try {
+            System.out.println(testname);
+            OTM otm = new OTM();
+            otm.load_test(testname);
+        } catch (OTMException e) {
+            System.err.print(e);
+            fail();
+        }
     }
 
     @Test
-    public void test_run_ctm() {
-        System.out.println(testname);
-        run();
-    }
+    public void test_run() {
+        try {
 
-    ///////////////////////////////////////////////
-    // private
-    ///////////////////////////////////////////////
+            OTM otm = new OTM();
+            otm.load_test(testname);
 
-    private void run() {
-//        try {
-//
-//            API api = OTM.load_test(testname,true);
-//            List<Long> link_ids = api.scenario.get_link_ids();
-//            Float outDt = 2f;
-//
-//            // request outputs
-//            for(CommodityInfo comm : api.scenario.get_commodities()) {
-//                String prefix = "ctm" + "_" + testname;
-//                api.output.request_links_flow(prefix,output_folder, comm.getId(), link_ids, outDt);
-//                api.output.request_links_veh(prefix, output_folder, comm.getId(), link_ids, outDt);
-//            }
-//
-//            // run the simulation
-//            api.run(start_time,duration);
-//
-//            // check the output against expects
-//            for(String output_path : api.output.get_file_names())
-//                compare_files(output_path);
-//
-//        }
-//
-//        catch (OTMException e) {
-//            System.err.print(e);
-//            fail();
-//        }
+            // request outputs
+            String prefix = testname;
+            Set<Long> link_ids = otm.scenario.get_link_ids();
+            Float outDt = 10f;
+            for(CommodityInfo comm : otm.scenario.get_commodities()) {
+                otm.output.request_links_flow(prefix,output_folder, comm.getId(), link_ids, outDt);
+                otm.output.request_links_veh(prefix, output_folder, comm.getId(), link_ids, outDt);
+            }
+
+            // run the simulation
+            otm.run(start_time,duration);
+
+            // check the output against expects
+            for(String output_path : otm.output.get_file_names())
+                compare_files(output_path);
+
+        }
+
+        catch (OTMException e) {
+            System.err.print(e);
+            fail();
+        }
 
     }
 

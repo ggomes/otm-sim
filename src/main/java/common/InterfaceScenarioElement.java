@@ -7,7 +7,7 @@ import error.OTMException;
 public interface InterfaceScenarioElement {
 
     Long getId();
-    ScenarioElementType getType();
+    ScenarioElementType getSEType();
     void validate(OTMErrorLog errorLog);
     void initialize(Scenario scenario) throws OTMException;
     void register_with_dispatcher(Dispatcher dispatcher);

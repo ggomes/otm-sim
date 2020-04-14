@@ -34,7 +34,7 @@ public class SignalInfo extends ActuatorInfo {
     public String toString() {
         return "SignalInfo{" +
                 "id=" + id +
-                ", type=" + type +
+//                ", type=" + type +
                 ", signal_phases=" + signal_phases +
                 '}';
     }

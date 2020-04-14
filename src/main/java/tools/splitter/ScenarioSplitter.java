@@ -353,7 +353,8 @@ public class ScenarioSplitter {
             jact.setId(absact.id);
 //            jact.setActuatorTarget(absact.get_target());
 //            jact.setSignal();
-            jact.setType(absact.getActuatorType().toString());
+            // TODO PUT THIS BACK IN
+//            jact.setType(absact.getActuatorType().toString());
         }
 
         // sensors

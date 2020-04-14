@@ -1,7 +1,5 @@
 package tests;
 
-import api.OTM;
-import error.OTMException;
 import org.junit.runners.Parameterized;
 import xml.JaxbLoader;
 

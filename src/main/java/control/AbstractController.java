@@ -23,12 +23,12 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         fixed_rate,
         plugin
     }
-    public static final Map<Algorithm, AbstractActuator.Type> map_algorithm_actuator = new HashMap<>();
-    static {
-        map_algorithm_actuator.put( Algorithm.sig_pretimed  , AbstractActuator.Type.signal );
-        map_algorithm_actuator.put( Algorithm.alinea  , AbstractActuator.Type.capacity );
-        map_algorithm_actuator.put( Algorithm.fixed_rate  , AbstractActuator.Type.capacity );
-    }
+//    public static final Map<Algorithm, AbstractActuator.Type> map_algorithm_actuator = new HashMap<>();
+//    static {
+//        map_algorithm_actuator.put( Algorithm.sig_pretimed  , AbstractActuator.Type.signal );
+//        map_algorithm_actuator.put( Algorithm.alinea  , AbstractActuator.Type.capacity );
+//        map_algorithm_actuator.put( Algorithm.fixed_rate  , AbstractActuator.Type.capacity );
+//    }
 
     public final Scenario scenario;
     public final long id;
@@ -95,9 +95,11 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
                 if(act.myController!=null)
                     throw new OTMException("Multiple controllers assigned to single actuator");
                 actuators.put(act.id,act);
-                if(actuator_by_usage.containsKey(jaxb_act.getUsage()))
-                    throw new OTMException("Repeated value in actuator usage for controller " +this.id);
-                actuator_by_usage.put(jaxb_act.getUsage(),act);
+                if (jaxb_act.getUsage() != null) {
+                    if(actuator_by_usage.containsKey(jaxb_act.getUsage()))
+                        throw new OTMException("Repeated value in actuator usage for controller " +this.id);
+                    actuator_by_usage.put(jaxb_act.getUsage(),act);
+                }
                 act.myController=this;
             }
         }
@@ -145,7 +147,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     }
 
     @Override
-    public final ScenarioElementType getType() {
+    public final ScenarioElementType getSEType() {
         return ScenarioElementType.controller;
     }
 

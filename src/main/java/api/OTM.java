@@ -220,7 +220,7 @@ public class OTM {
 
         // register initial events for each model
         // this is in initialize
-//        scn.network.models.values().forEach(m->m.register_with_dispatcher(scn, dispatcher,now));
+        scn.network.models.values().forEach(m->m.register_with_dispatcher(scn, dispatcher,now));
 
         // process all events
         dispatcher.dispatch_events_to_stop();

@@ -8,6 +8,7 @@ import error.OTMException;
 import jaxb.Sensor;
 import common.AbstractLaneGroup;
 import common.Scenario;
+import utils.OTMUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,22 +41,9 @@ public class FixedSensor extends AbstractSensor {
         this.measurement = new Measurement();
 
         // read lanes
-        String lanes = jaxb_sensor.getLanes();
-
-        if(lanes==null) {
-            start_lane = 1;
-            end_lane = link.full_lanes;
-        }
-        else {
-            String[] strsplit = lanes.split("#");
-            if (strsplit.length == 2) {
-                start_lane = Integer.parseInt(strsplit[0]);
-                end_lane = Integer.parseInt(strsplit[1]);
-            } else {
-                start_lane = -1;
-                end_lane = -1;
-            }
-        }
+        int [] x = OTMUtils.read_lanes(jaxb_sensor.getLanes(),link.full_lanes);
+        start_lane = x[0];
+        end_lane = x[1];
 
         // create subsensors
         subsensors = new HashMap<>();

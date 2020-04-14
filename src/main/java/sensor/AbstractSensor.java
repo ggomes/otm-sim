@@ -43,7 +43,7 @@ public abstract class AbstractSensor implements Pokable, InterfaceScenarioElemen
     ///////////////////////////////////////////
 
     @Override
-    public final ScenarioElementType getType() {
+    public final ScenarioElementType getSEType() {
         return ScenarioElementType.sensor;
     }
 

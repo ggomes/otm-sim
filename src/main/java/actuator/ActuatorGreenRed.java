@@ -1,7 +1,6 @@
 package actuator;
 
 import common.Link;
-import common.RoadConnection;
 import error.OTMException;
 import common.Scenario;
 

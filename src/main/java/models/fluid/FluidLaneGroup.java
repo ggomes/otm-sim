@@ -24,7 +24,6 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     public double ffspeed_cell_per_dt;         // [-]
     public double jam_density_veh_per_cell;
 
-
     public double capacity_max_veh_per_dt;
     public double capacity_veh_per_dt;
 

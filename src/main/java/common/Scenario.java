@@ -51,6 +51,9 @@ public class Scenario {
     // travel time computation
     public LinkTravelTimeManager path_tt_manager;
 
+    // available actuators
+    public Set<String> available_actuator_types;
+
     ///////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////
@@ -285,7 +288,8 @@ public class Scenario {
             jact.setId(absact.id);
 //            jact.setActuatorTarget(absact.get_target());
 //            jact.setSignal();
-            jact.setType(absact.getActuatorType().toString());
+            // TODO PUT THIS BACK IN
+//            jact.setType(absact.getActuatorType().toString());
         }
 
 
@@ -337,6 +341,8 @@ public class Scenario {
                 return actuators.get(id);
             case sensor:
                 return sensors.get(id);
+            case lanegroup:
+                return null;
             default:
                 System.err.println("Bad element type in get_element");
         }

@@ -31,7 +31,7 @@ public class CTMCell extends AbstractCell {
 
     @Override
     public Map<KeyCommPathOrLink, Double> get_demand() {
-        return null;
+        return demand_dwn;
     }
 
     @Override

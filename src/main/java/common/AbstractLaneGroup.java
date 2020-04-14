@@ -1,6 +1,7 @@
 package common;
 
 import actuator.AbstractActuator;
+import actuator.AbstractActuatorLanegroupCapacity;
 import actuator.InterfaceActuatorTarget;
 import error.OTMException;
 import geometry.FlowPosition;
@@ -42,7 +43,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     protected double supply;       // [veh]
 
-    public AbstractActuator actuator;
+    public AbstractActuatorLanegroupCapacity actuator_capacity;
 
     // flow accumulator
     public FlowAccumulatorState flw_acc;
@@ -88,9 +89,13 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     @Override
     public void register_actuator(AbstractActuator act) throws OTMException {
-        if(this.actuator!=null)
-            throw new OTMException("Multiple actuators on lane group");
-        this.actuator = act;
+
+        if(act instanceof AbstractActuatorLanegroupCapacity){
+            if(this.actuator_capacity!=null)
+                throw new OTMException("Multiple capacity actuators on lane group");
+            this.actuator_capacity = (AbstractActuatorLanegroupCapacity) act;
+        }
+
     }
 
     ///////////////////////////////////////////////////
@@ -124,7 +129,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public void delete(){
         link = null;
-        actuator = null;
+        actuator_capacity = null;
         flw_acc = null;
     }
 

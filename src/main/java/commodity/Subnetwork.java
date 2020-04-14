@@ -66,7 +66,7 @@ public class Subnetwork implements InterfaceScenarioElement {
     }
 
     @Override
-    public final ScenarioElementType getType() {
+    public final ScenarioElementType getSEType() {
         return ScenarioElementType.subnetwork;
     }
 
