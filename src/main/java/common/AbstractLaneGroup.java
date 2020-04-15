@@ -28,8 +28,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public final int num_lanes;
     public float length;        // [m]
 
-    public double max_vehicles;
-    public double max_cong_speed_kph;
+//    public double max_vehicles;
+//    public double max_cong_speed_kph;
 
     public AbstractLaneGroup neighbor_in;       // lanegroup down and in
     public AbstractLaneGroup neighbor_out;      // lanegroup down and out
@@ -142,11 +142,9 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             flw_acc.reset();
     }
 
-    public void set_road_params(jaxb.Roadparam r){
-        this.max_vehicles =  r.getJamDensity() * (length/1000.0) * num_lanes;
-        double critical_density_vpkpl = r.getCapacity() / r.getSpeed();  // vpkpl
-        this.max_cong_speed_kph = r.getCapacity() / (r.getJamDensity() - critical_density_vpkpl);
-    }
+//    public void set_road_params(jaxb.Roadparam r){
+//        this.max_vehicles =  r.getJamDensity() * (length/1000.0) * num_lanes;
+//    }
 
     ///////////////////////////////////////////////////
     // final

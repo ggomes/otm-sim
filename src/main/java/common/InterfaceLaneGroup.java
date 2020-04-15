@@ -13,6 +13,9 @@ public interface InterfaceLaneGroup {
     void update_supply();
     void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) throws OTMException;
     void set_actuator_capacity_vps(double rate_vps);
+    void set_actuator_speed_mps(double speed_mps);
+
+    void set_road_params(jaxb.Roadparam r);
 
     // Return the total number of vehicles in this lane group with the given commodity id.
     // commodity_id==null means return total over all commodities.

@@ -98,51 +98,6 @@ public class ModelCTM extends AbstractFluidModel {
     }
 
     //////////////////////////////////////////////////////////////
-    // extend AbstractModel
-    //////////////////////////////////////////////////////////////
-
-    @Override
-    public void set_road_param(Link link,jaxb.Roadparam r) {
-
-        super.set_road_param(link,r);
-
-        if(Float.isNaN(dt_sec))
-            return;
-
-        // adjustment for MN model
-        // TODO REIMPLIMENT MN
-//        if(link.model_type==Link.ModelType.mn)
-//            r.setJamDensity(Float.POSITIVE_INFINITY);
-
-        // normalize
-        float dt_hr = dt_sec /3600f;
-        float capacity_vehperlane = r.getCapacity()*dt_hr;
-
-        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-
-            FluidLaneGroup lg = (FluidLaneGroup) alg;
-            float cell_length = lg.length / lg.cells.size() / 1000f;
-            float jam_density_vehperlane = r.getJamDensity() * cell_length;
-            float ffspeed_veh = r.getSpeed() * dt_hr / cell_length;
-
-            if (link.is_source) {
-                lg.capacity_max_veh_per_dt = capacity_vehperlane * lg.num_lanes;
-                lg.capacity_veh_per_dt = lg.capacity_max_veh_per_dt;
-                lg.jam_density_veh_per_cell = Double.NaN;
-                lg.ffspeed_cell_per_dt = Double.NaN;
-                lg.wspeed_cell_per_dt = Double.NaN;
-            } else {
-                lg.capacity_max_veh_per_dt = capacity_vehperlane * lg.num_lanes;
-                lg.capacity_veh_per_dt = lg.capacity_max_veh_per_dt;
-                lg.jam_density_veh_per_cell = jam_density_vehperlane * lg.num_lanes;
-                lg.ffspeed_cell_per_dt = ffspeed_veh;
-                double critical_veh = capacity_vehperlane / lg.ffspeed_cell_per_dt;
-                lg.wspeed_cell_per_dt = capacity_vehperlane / (jam_density_vehperlane - critical_veh);
-            }
-        }
-    }
-
-    //////////////////////////////////////////////////////////////
     // InterfaceFluidModel
     //////////////////////////////////////////////////////////////
 

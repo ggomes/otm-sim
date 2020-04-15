@@ -1,6 +1,5 @@
-package actuator.sigint;
+package actuator;
 
-import actuator.AbstractActuator;
 import api.info.events.EventSignalPhaseInfo;
 import common.AbstractLaneGroup;
 import common.RoadConnection;
@@ -14,6 +13,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SignalPhase {
+
+    public enum BulbColor {
+        GREEN,YELLOW,RED,DARK
+    }
 
     public final long id;
     public ActuatorSignal my_signal;

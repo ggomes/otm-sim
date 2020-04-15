@@ -1,6 +1,6 @@
 package dispatch;
 
-import actuator.sigint.SignalPhase;
+import actuator.SignalPhase;
 import error.OTMException;
 
 public class EventAdvanceSignalPhase extends AbstractEvent {

@@ -1,10 +1,8 @@
 package api.info;
 
-import actuator.sigint.SignalPhase;
+import actuator.SignalPhase;
 
 import java.util.Set;
-
-import static java.util.stream.Collectors.toSet;
 
 public class SignalPhaseInfo {
 

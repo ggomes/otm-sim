@@ -6,6 +6,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
+import jaxb.Roadparam;
 import keys.KeyCommPathOrLink;
 import common.AbstractLaneGroup;
 import packet.PacketLaneGroup;
@@ -20,12 +21,15 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     public float cell_length_meters;
 
+    // nominal fd
+    public double nom_ffspeed_cell_per_dt;         // [-]
+    public double nom_capacity_veh_per_dt;
+
+    // actual (actuated) parameters
     public double wspeed_cell_per_dt;          // [-]
     public double ffspeed_cell_per_dt;         // [-]
-    public double jam_density_veh_per_cell;
-
-    public double capacity_max_veh_per_dt;
     public double capacity_veh_per_dt;
+    public double jam_density_veh_per_cell;
 
     public List<AbstractCell> cells;     // sequence of cells
 
@@ -57,7 +61,6 @@ public class FluidLaneGroup extends AbstractLaneGroup {
             if (ffspeed_cell_per_dt > 1)
                 errorLog.addError("CFL violated: link " + link.getId() + " ffspeed_cell_per_dt = " + ffspeed_cell_per_dt);
         }
-
     }
 
     ////////////////////////////////////////////
@@ -65,8 +68,61 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     ///////////////////////////////////////////
 
     @Override
+    public void set_road_params(Roadparam r) {
+
+        // adjustment for MN model
+        // TODO REIMPLIMENT MN
+//        if(link.model_type==Link.ModelType.mn)
+//            r.setJamDensity(Float.POSITIVE_INFINITY);
+
+        float dt_sec = ((AbstractFluidModel)link.model).dt_sec;
+        if(Float.isNaN(dt_sec))
+            return;
+
+        // normalize
+        float dt_hr = dt_sec /3600f;
+        float capacity_vehperlane = r.getCapacity()*dt_hr;
+
+        float cell_length = length / cells.size() / 1000f;
+        float jam_density_vehperlane = r.getJamDensity() * cell_length;
+        float ffspeed_veh = r.getSpeed() * dt_hr / cell_length;
+
+        nom_capacity_veh_per_dt = capacity_vehperlane * num_lanes;
+        if (link.is_source) {
+            nom_ffspeed_cell_per_dt = Double.NaN;
+            jam_density_veh_per_cell = Double.NaN;
+            wspeed_cell_per_dt = Double.NaN;
+        } else {
+            nom_ffspeed_cell_per_dt = ffspeed_veh;
+            jam_density_veh_per_cell = jam_density_vehperlane * num_lanes;
+            double critical_veh = capacity_vehperlane / ffspeed_veh;
+            wspeed_cell_per_dt = capacity_vehperlane / (jam_density_vehperlane - critical_veh);
+        }
+
+        capacity_veh_per_dt = nom_capacity_veh_per_dt;
+        ffspeed_cell_per_dt = nom_ffspeed_cell_per_dt;
+    }
+
+    @Override
     public void set_actuator_capacity_vps(double rate_vps) {
-        this.capacity_veh_per_dt = rate_vps * ((AbstractFluidModel)link.model).dt_sec;
+        double act_capacity_veh_per_dt = rate_vps * ((AbstractFluidModel)link.model).dt_sec;
+        this.capacity_veh_per_dt = Math.min(act_capacity_veh_per_dt,nom_capacity_veh_per_dt);
+
+        // set w
+        double critical_veh = capacity_veh_per_dt / ffspeed_cell_per_dt;
+        wspeed_cell_per_dt = capacity_veh_per_dt / (jam_density_veh_per_cell -critical_veh);
+    }
+
+    @Override
+    public void set_actuator_speed_mps(double speed_mps) {
+        float cell_length = this.length / this.cells.size();
+        float dt_sec = ((AbstractFluidModel)link.model).dt_sec;
+        float act_ffspeed_veh = ((float)speed_mps) * dt_sec / cell_length;
+        this.ffspeed_cell_per_dt = Math.min(act_ffspeed_veh,nom_ffspeed_cell_per_dt);
+
+        // set w
+        double critical_veh = capacity_veh_per_dt / ffspeed_cell_per_dt;
+        wspeed_cell_per_dt = capacity_veh_per_dt / (jam_density_veh_per_cell -critical_veh);
     }
 
     @Override
@@ -91,7 +147,6 @@ public class FluidLaneGroup extends AbstractLaneGroup {
             buffer.add_packet(vp);
             process_buffer(timestamp);
         }
-
 
         // otherwise, this is an internal link, and the packet is guaranteed to be
         // purely fluid.
@@ -202,7 +257,6 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 //    }
     // .............................................................
 
-
     public final void create_cells(AbstractFluidModel model,float max_cell_length) throws OTMException {
 
         // compute cell length
@@ -226,6 +280,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         this.cells.get(0).am_upstrm = true;
         this.cells.get(num_cells-1).am_dnstrm = true;
     }
+
     //////////////////////////////////////////
     // SHOULD THESE BE MOVED TO CTM?
     ///////////////////////////////////////////
@@ -237,7 +292,6 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         if(cells.size()==1)
             update_supply();
     }
-
 
     public void process_buffer(float timestamp){
         assert(link.is_model_source_link);

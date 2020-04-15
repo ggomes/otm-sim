@@ -7,6 +7,7 @@ import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
 import common.AbstractLaneGroup;
+import jaxb.Roadparam;
 import packet.PacketLaneGroup;
 
 import java.util.Set;
@@ -43,10 +44,15 @@ public class NoneLaneGroup extends AbstractLaneGroup {
 
     }
 
-//    @Override
-//    public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
-//
-//    }
+
+    @Override
+    public void set_actuator_speed_mps(double speed_mps) {
+    }
+
+    @Override
+    public void set_road_params(Roadparam r) {
+
+    }
 
     @Override
     public float vehs_dwn_for_comm(Long comm_id) {

@@ -6,12 +6,16 @@ import common.RoadConnection;
 import geometry.FlowPosition;
 import geometry.Side;
 import common.AbstractLaneGroup;
+import jaxb.Roadparam;
+import models.vehicle.newell.ModelNewell;
 import packet.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public abstract class VehicleLaneGroup extends AbstractLaneGroup {
+
+    public double max_vehicles;
 
     ////////////////////////////////////////
     // construction
@@ -24,6 +28,12 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
     ////////////////////////////////////////
     // InterfaceLaneGroup
     ////////////////////////////////////////
+
+
+    @Override
+    public void set_road_params(Roadparam r) {
+        this.max_vehicles =  r.getJamDensity() * (length/1000.0) * num_lanes;
+    }
 
     @Override
     public float vehs_out_for_comm(Long comm_id) {

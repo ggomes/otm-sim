@@ -1,8 +1,8 @@
 package output;
 
 import actuator.AbstractActuator;
-import actuator.sigint.ActuatorSignal;
-import actuator.sigint.SignalPhase;
+import actuator.ActuatorSignal;
+import actuator.SignalPhase;
 import api.info.events.AbstractEventInfo;
 import api.info.events.EventSignalPhaseInfo;
 import dispatch.Dispatcher;

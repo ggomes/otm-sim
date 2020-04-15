@@ -1,7 +1,7 @@
 package api;
 
 import actuator.AbstractActuator;
-import actuator.sigint.ActuatorSignal;
+import actuator.ActuatorSignal;
 import api.info.*;
 import commodity.Commodity;
 import commodity.Subnetwork;

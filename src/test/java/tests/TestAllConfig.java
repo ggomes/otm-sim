@@ -23,7 +23,7 @@ public class TestAllConfig extends AbstractTest {
 
     String testname;
     float start_time = 0f;
-    float duration = 1000f;
+    float duration = 2000f;
 
     public TestAllConfig(String testname){
         this.testname = testname;
@@ -45,6 +45,8 @@ public class TestAllConfig extends AbstractTest {
     public void test_run() {
         try {
 
+            System.out.println(testname);
+
             OTM otm = new OTM();
             otm.load_test(testname);
 
@@ -53,16 +55,27 @@ public class TestAllConfig extends AbstractTest {
             Set<Long> link_ids = otm.scenario.get_link_ids();
             Float outDt = 10f;
             for(CommodityInfo comm : otm.scenario.get_commodities()) {
-                otm.output.request_links_flow(prefix,output_folder, comm.getId(), link_ids, outDt);
-                otm.output.request_links_veh(prefix, output_folder, comm.getId(), link_ids, outDt);
+//                otm.output.request_links_flow(prefix,output_folder, comm.getId(), link_ids, outDt);
+//                otm.output.request_links_veh(prefix, output_folder, comm.getId(), link_ids, outDt);
+
+                otm.output.request_links_flow(null, link_ids, outDt);
+                otm.output.request_links_veh(null, link_ids, outDt);
             }
 
             // run the simulation
             otm.run(start_time,duration);
 
-            // check the output against expects
-            for(String output_path : otm.output.get_file_names())
-                compare_files(output_path);
+            // Print output .........................
+            for(AbstractOutput output :  otm.output.get_data()){
+                if (output instanceof LinkFlow)
+                    ((LinkFlow) output).plot_for_links(null, String.format("%s/%s_flow.png", output_folder,prefix));
+                if (output instanceof LinkVehicles)
+                    ((LinkVehicles) output).plot_for_links(null, String.format("%s/%s_veh.png", output_folder,prefix));
+            }
+
+//            // check the output against expects
+//            for(String output_path : otm.output.get_file_names())
+//                compare_files(output_path);
 
         }
 

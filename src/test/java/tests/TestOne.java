@@ -56,7 +56,7 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "/home/gomes/code/otm/otm-base/src/main/resources/test_configs/onramp_hov.xml";
+            String configfile = "/home/gomes/code/otm/otm-base/src/main/resources/test_configs/onramp_nohov.xml";
             api.OTM otm = new api.OTM(configfile,true,false);
             assertNotNull(otm);
         } catch (OTMException e) {
@@ -138,12 +138,12 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "/home/gomes/Dropbox/gabriel/work/MEng/2019-2020/_supervised/traffic/capstone-project/cfg/network_v6.xml";
+            String configfile = "/home/gomes/code/otm/otm-base/src/main/resources/test_configs/intersection.xml";
 
-            float duration = 100f;
-            float outdt = 10f;
+            float duration = 400f;
+            float outdt = 2f;
             String prefix = null; //""x";
-            String output_folder = "/home/gomes/Dropbox/gabriel/work/MEng/2019-2020/_supervised/traffic/capstone-project/output/";
+            String output_folder = "/home/gomes/code/otm/otm-sim/temp";
 
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);
@@ -184,10 +184,10 @@ public class TestOne extends AbstractTest {
 //                    ((EventsController) output).plot(String.format("%scontroller%d.png",outfolder,((EventsController) output).controller_id));
 
                 if (output instanceof LinkFlow)
-                    ((LinkFlow) output).plot_for_links(null, String.format("%sflow.png", output_folder));
+                    ((LinkFlow) output).plot_for_links(null, String.format("%s/flow.png", output_folder));
 
                 if (output instanceof LinkVehicles)
-                    ((LinkVehicles) output).plot_for_links(null, String.format("%sveh.png", output_folder));
+                    ((LinkVehicles) output).plot_for_links(null, String.format("%s/veh.png", output_folder));
 
 //                if(output instanceof PathTravelTimeWriter){
 //                    PathTravelTimeWriter ptt = (PathTravelTimeWriter) output;

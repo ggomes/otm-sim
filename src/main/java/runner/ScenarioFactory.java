@@ -1,7 +1,7 @@
 package runner;
 
 import actuator.*;
-import actuator.sigint.ActuatorSignal;
+import actuator.ActuatorSignal;
 import commodity.*;
 import commodity.Commodity;
 import commodity.Subnetwork;
@@ -205,15 +205,6 @@ public class ScenarioFactory {
                 case "signal":
                     actuator = new ActuatorSignal(scenario,jaxb_actuator);
                     break;
-//                case "rc":
-//                    actuator = new AbstractActuatorRoadConnection(scenario,jaxb_actuator);
-//                    break;
-                case "greenred":
-                    actuator = new ActuatorGreenRed(scenario,jaxb_actuator);
-                    break;
-//                case "fd":
-//                    actuator = new ActuatorFD(scenario,jaxb_actuator);
-//                    break;
                 default:
                     actuator = null;
                     break;

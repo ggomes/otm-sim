@@ -22,10 +22,16 @@ import java.util.*;
 public class NewellLaneGroup extends VehicleLaneGroup {
 
     public List<NewellVehicle> vehicles;
+
+    // nominal parameters
+    public double nom_dv;   // vf*dt [meters per dt]
+    public double nom_dc;   // rate*dt [veh per dt]
+    public double jam_vehpermeter;
+
+    // actual (actuated) fd
     public double dv;   // vf*dt [meters per dt]
     public double dw;   // w*dt [meters per dt]
     public double dc;   // rate*dt [veh per dt]
-    public double dc_max;   // capcity*dt [veh per dt]
 
     ////////////////////////////////////////////
     // construction
@@ -53,26 +59,35 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     }
 
     ////////////////////////////////////////////
-    // AbstractLaneGroup
+    // InterfaceLaneGroup
     ///////////////////////////////////////////
 
     @Override
     public void set_road_params(Roadparam r) {
         super.set_road_params(r);
-        float dt = ((ModelNewell)link.model).dt;
-        dv = r.getSpeed() * dt / 3.6d;
-        dw = max_cong_speed_kph * dt / 3.6d;
-        dc_max = r.getCapacity() * num_lanes * dt / 3600d;
-        dc = dc_max;
-    }
 
-    ////////////////////////////////////////////
-    // InterfaceLaneGroup
-    ///////////////////////////////////////////
+        float dt = ((ModelNewell)link.model).dt;
+
+        nom_dc = r.getCapacity() * num_lanes * dt / 3600d;  // [veh]
+        nom_dv = r.getSpeed() * dt / 3.6d;      // [m]
+
+        dc = nom_dc;
+        dv = nom_dv;
+
+        jam_vehpermeter = r.getJamDensity() * num_lanes / 1000d; // [veh/m]
+        dw = dc / (jam_vehpermeter - dc/dv); // [m]
+    }
 
     @Override
     public void set_actuator_capacity_vps(double rate_vps) {
-        dc = Math.min( dc_max, rate_vps * ((ModelNewell)link.model).dt );
+        dc = Math.min( nom_dc, rate_vps * ((ModelNewell)link.model).dt );
+        dw = dc / (jam_vehpermeter - dc/dv); // [m]
+    }
+
+    @Override
+    public void set_actuator_speed_mps(double speed_mps) {
+        dv = Math.min( nom_dv, speed_mps * ((ModelNewell)link.model).dt );
+        dw = dc / (jam_vehpermeter - dc/dv); // [m]
     }
 
     @Override

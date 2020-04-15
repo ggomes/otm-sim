@@ -1,8 +1,5 @@
 package common;
 
-import actuator.AbstractActuator;
-import actuator.ActuatorGreenRed;
-import actuator.InterfaceActuatorTarget;
 import commodity.Commodity;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
@@ -741,15 +738,6 @@ public class Link implements InterfaceScenarioElement {
         return dnlane2lanegroup.get( road_geom==null || road_geom.dn_in==null ? full_lanes : road_geom.dn_in.lanes+full_lanes );
     }
 
-    ////////////////////////////////////////////
-    // parameter getters
-    ///////////////////////////////////////////
-
-    public double get_max_vehicles(){
-        return lanegroups_flwdn.values().stream().
-                mapToDouble(x->x.max_vehicles).
-                sum();
-    }
 
     ////////////////////////////////////////////
     // state and performance getters

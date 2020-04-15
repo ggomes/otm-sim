@@ -1,13 +1,11 @@
 package models;
 
-import actuator.ActuatorFD;
 import common.AbstractLaneGroup;
 import common.Link;
 import error.OTMException;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
 import common.Scenario;
-import utils.OTMUtils;
 import utils.StochasticProcess;
 
 import java.util.Map;
@@ -64,15 +62,6 @@ public abstract class AbstractModel implements InterfaceModel {
     //////////////////////////////////////////////////
     // fully implemented methods
     //////////////////////////////////////////////////
-
-    // called by ActuatorFD
-    final public void set_road_param(Link link, ActuatorFD.FDCommand fd_comm){
-        jaxb.Roadparam r = new jaxb.Roadparam();
-        r.setJamDensity(fd_comm.jam_density_vpkpl);      //roadparam.jam_density 	... veh/km/lane
-        r.setCapacity(fd_comm.capacity_vphpl);        //roadparam.capacity 		... veh/hr/lane
-        r.setSpeed(fd_comm.max_speed_kph);           //roadparam.speed 		... km/hr
-        set_road_param(link,r);
-    }
 
     // add a vehicle packet that is already known to fit.
     final public void add_vehicle_packet(Link link,float timestamp, PacketLink vp) throws OTMException {

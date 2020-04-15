@@ -1,7 +1,7 @@
 package api.info;
 
-import actuator.sigint.ActuatorSignal;
-import actuator.sigint.SignalPhase;
+import actuator.ActuatorSignal;
+import actuator.SignalPhase;
 import common.Node;
 
 import java.util.ArrayList;

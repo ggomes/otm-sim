@@ -7,8 +7,11 @@ import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
+import jaxb.Actuator;
 import output.EventsActuator;
+import utils.OTMUtils;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public abstract class AbstractActuator implements Pokable, InterfaceScenarioElement {
@@ -127,4 +130,30 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         event_listener = e;
     }
 
+    /////////////////////////////////////////////////////////////////////
+    // AbstractActuatorLanegroupX
+    /////////////////////////////////////////////////////////////////////
+
+    protected Set<AbstractLaneGroup> read_lanegroups(Scenario scenario, Actuator jact) throws OTMException {
+
+        Set<AbstractLaneGroup> lanegroups = new HashSet<>();
+
+        if(jact.getActuatorTarget()!=null && jact.getActuatorTarget().getType().equalsIgnoreCase("link")) {
+            jaxb.ActuatorTarget e = jact.getActuatorTarget();
+
+            long link_id = e.getId();
+            if(!scenario.network.links.containsKey(link_id))
+                throw new OTMException("Unknown link id in actuator " + id );
+            Link link = scenario.network.links.get(link_id);
+
+            int [] x = OTMUtils.read_lanes(e.getLanes(),link.full_lanes);
+            int start_lane = x[0];
+            int end_lane = x[1];
+
+            lanegroups = link.get_unique_lanegroups_for_dn_lanes(start_lane, end_lane);
+
+        }
+
+        return lanegroups;
+    }
 }

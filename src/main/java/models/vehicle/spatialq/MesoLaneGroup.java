@@ -23,9 +23,13 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     public Queue transit_queue;
     public Queue waiting_queue;
 
-    public double current_max_flow_rate_vps;
-    public float saturation_flow_rate_vps;
+    // nominal parameters
+    public float nom_transit_time_sec;
+    public float nom_saturation_flow_rate_vps;
+
+    // applied (actuated) fd
     public float transit_time_sec;
+    public double saturation_flow_rate_vps;
 
     ////////////////////////////////////////////
     // construction
@@ -35,7 +39,6 @@ public class MesoLaneGroup extends VehicleLaneGroup {
         super(link, side,flwpos,length, num_lanes, start_lane, out_rcs);
         this.transit_queue = new Queue(this, Queue.Type.transit);
         this.waiting_queue = new Queue(this, Queue.Type.waiting);
-
     }
 
     ////////////////////////////////////////////
@@ -53,7 +56,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
         super.initialize(scenario);
         transit_queue.initialize();
         waiting_queue.initialize();
-        current_max_flow_rate_vps = saturation_flow_rate_vps;
+//        current_max_flow_rate_vps = saturation_flow_rate_vps;
 
         // register first vehicle exit
         float start_time = scenario.get_current_time();
@@ -69,8 +72,12 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     @Override
     public void set_road_params(jaxb.Roadparam r){
         super.set_road_params(r);
-        transit_time_sec = (length/r.getSpeed())* 3.6f; // [m]/[kph] -> [sec]
-        saturation_flow_rate_vps = r.getCapacity()*num_lanes/3600f;
+
+        nom_transit_time_sec = (length/r.getSpeed())* 3.6f; // [m]/[kph] -> [sec]
+        nom_saturation_flow_rate_vps = r.getCapacity()*num_lanes/3600f;
+
+        transit_time_sec = nom_transit_time_sec;
+        saturation_flow_rate_vps = nom_saturation_flow_rate_vps;
     }
 
     ////////////////////////////////////////////
@@ -79,7 +86,16 @@ public class MesoLaneGroup extends VehicleLaneGroup {
 
     @Override
     public void set_actuator_capacity_vps(double rate_vps) {
-        this.current_max_flow_rate_vps = Math.min(rate_vps,saturation_flow_rate_vps);
+        if(rate_vps<-OTMUtils.epsilon)
+            return;
+        this.saturation_flow_rate_vps = Math.min(nom_saturation_flow_rate_vps,rate_vps);
+    }
+
+    @Override
+    public void set_actuator_speed_mps(double speed_mps) {
+        if(speed_mps<OTMUtils.epsilon)
+            return;
+        this.transit_time_sec = Math.max(nom_transit_time_sec,length/((float) speed_mps));
     }
 
     @Override
@@ -279,7 +295,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
 
     private void schedule_release_vehicle(float nowtime){
 
-        Float wait_time = OTMUtils.get_waiting_time(current_max_flow_rate_vps,link.model.stochastic_process);
+        Float wait_time = OTMUtils.get_waiting_time(saturation_flow_rate_vps,link.model.stochastic_process);
 
         if(wait_time!=null){
             Scenario scenario = link.network.scenario;

@@ -1,7 +1,7 @@
 package control.sigint;
 
-import actuator.sigint.ActuatorSignal;
-import actuator.sigint.BulbColor;
+import actuator.ActuatorSignal;
+import actuator.SignalPhase;
 import control.AbstractController;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
@@ -137,10 +137,10 @@ public class ControllerSignalPretimed extends AbstractController {
         return (time-offset)%cycle;
     }
 
-    public Map<Long,BulbColor> get_command_for_stage_index(int index) {
-        Map<Long, BulbColor> command = new HashMap<>();
+    public Map<Long, SignalPhase.BulbColor> get_command_for_stage_index(int index) {
+        Map<Long, SignalPhase.BulbColor> command = new HashMap<>();
         for(Long phase_id : stages.get(index).phase_ids)
-            command.put(phase_id,BulbColor.GREEN);
+            command.put(phase_id, SignalPhase.BulbColor.GREEN);
         return command;
     }
 
@@ -153,7 +153,7 @@ public class ControllerSignalPretimed extends AbstractController {
         curr_stage_index = index;
 
         ActuatorSignal signal = get_signal();
-        Map<Long,BulbColor> c = get_command_for_stage_index(index);
+        Map<Long, SignalPhase.BulbColor> c = get_command_for_stage_index(index);
         command.put(signal.id , c);
 
         // send command to actuator

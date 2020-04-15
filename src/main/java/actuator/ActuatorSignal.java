@@ -1,6 +1,5 @@
-package actuator.sigint;
+package actuator;
 
-import actuator.AbstractActuatorLanegroupCapacity;
 import error.OTMErrorLog;
 import error.OTMException;
 import common.Scenario;
@@ -63,18 +62,15 @@ public class ActuatorSignal extends AbstractActuatorLanegroupCapacity {
 
     @Override
     public void process_controller_command(Object obj, float timestamp) throws OTMException {
-
         // The command is a map from signal phase to color.
         // anything not in the map should be set to red
-        Map<Long,BulbColor> command = (Map<Long,BulbColor>) obj;
-
+        Map<Long, SignalPhase.BulbColor> command = (Map<Long, SignalPhase.BulbColor>) obj;
         for( Map.Entry<Long, SignalPhase> e : signal_phases.entrySet()){
             long phase_id = e.getKey();
             SignalPhase phase = e.getValue();
-            BulbColor bulbcolor = command.containsKey(phase_id) ? command.get(phase_id) : BulbColor.RED;
+            SignalPhase.BulbColor bulbcolor = command.containsKey(phase_id) ? command.get(phase_id) : SignalPhase.BulbColor.RED;
             phase.set_bulb_color(timestamp, bulbcolor);
         }
-
     }
 
     ///////////////////////////////////////////////////

@@ -1,14 +1,14 @@
-package actuator.sigint;
+package actuator;
 
 import utils.OTMUtils;
 
 public class PhaseTransition implements Comparable<PhaseTransition> {
 
     public float cycle_time;        // time within the cycle that this transition occurs
-    public BulbColor from_color;
-    public BulbColor to_color;
+    public SignalPhase.BulbColor from_color;
+    public SignalPhase.BulbColor to_color;
 
-    public PhaseTransition(float cycle_time, BulbColor from_color, BulbColor to_color) {
+    public PhaseTransition(float cycle_time, SignalPhase.BulbColor from_color, SignalPhase.BulbColor to_color) {
         this.cycle_time = cycle_time;
         this.from_color = from_color;
         this.to_color = to_color;
