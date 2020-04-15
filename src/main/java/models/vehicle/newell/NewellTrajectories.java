@@ -1,37 +1,36 @@
 package models.vehicle.newell;
 
 import common.Link;
-import dispatch.Dispatcher;
-import dispatch.EventPoke;
-import dispatch.Pokable;
 import error.OTMException;
 import common.AbstractLaneGroup;
-import output.AbstractOutput;
+import output.AbstractOutputTimed;
 import runner.RunParameters;
 import common.Scenario;
 
 import java.io.File;
 import java.io.IOException;
 
-public class OutputTrajectories extends AbstractOutput implements Pokable {
+public class NewellTrajectories extends AbstractOutputTimed {
 
     public float outDt;			// output frequency in seconds
-    ModelNewell model;
-
-    @Override
-    public void register(RunParameters props, Dispatcher dispatcher) throws OTMException {
-        dispatcher.register_event(new EventPoke(dispatcher,5,dispatcher.current_time + outDt,this));
-    }
+    public ModelNewell model;
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
-    public OutputTrajectories(Scenario scenario, ModelNewell model, String prefix, String output_folder, Float outDt) throws OTMException{
-        super(scenario,prefix,output_folder);
-        this.outDt = outDt==null ? -1 : outDt;
-        this.model = model;
+    public NewellTrajectories(Scenario scenario, String prefix, String output_folder, Long commodity_id, Float outDt) throws OTMException {
+        super(scenario, prefix, output_folder, commodity_id, outDt);
     }
+//    public NewellTrajectories(Scenario scenario, ModelNewell model, String prefix, String output_folder, Float outDt) throws OTMException{
+//        super(scenario,prefix,output_folder);
+//        this.outDt = outDt==null ? -1 : outDt;
+//        this.model = model;
+//    }
+
+    //////////////////////////////////////////////////////
+    // InterfaceOutput
+    //////////////////////////////////////////////////////
 
     @Override
     public String get_output_file() {
@@ -41,10 +40,6 @@ public class OutputTrajectories extends AbstractOutput implements Pokable {
                 String.format("%.0f", outDt) + "_" +
                 model.name + "_traj.txt";
     }
-
-    //////////////////////////////////////////////////////
-    // write
-    //////////////////////////////////////////////////////
 
     @Override
     public void write(float timestamp,Object obj) throws OTMException {
@@ -65,10 +60,18 @@ public class OutputTrajectories extends AbstractOutput implements Pokable {
         }
     }
 
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
+
     @Override
-    public void poke(Dispatcher dispatcher, float timestamp) throws OTMException {
-        write(timestamp,null);
-        dispatcher.register_event(new EventPoke(dispatcher,5,timestamp + outDt,this));
+    public String get_yaxis_label() {
+        return null;
+    }
+
+    @Override
+    public void plot(String filename) throws OTMException {
+        throw new OTMException("Plot not implemented for NewellTrajectories output type.");
     }
 
 }

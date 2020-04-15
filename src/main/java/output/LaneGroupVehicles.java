@@ -17,6 +17,10 @@ public class LaneGroupVehicles extends AbstractOutputTimedLanegroup {
         this.type = Type.lanegroup_veh;
     }
 
+    //////////////////////////////////////////////////////
+    // InterfaceOutput
+    //////////////////////////////////////////////////////
+
     @Override
     public String get_output_file() {
         if(!write_to_file)
@@ -27,6 +31,24 @@ public class LaneGroupVehicles extends AbstractOutputTimedLanegroup {
             return String.format("%s_lanegroup_comm%d_veh.txt",super.get_output_file(),commodity.getId());
     }
 
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
+
+    @Override
+    public String get_yaxis_label() {
+        return "veh";
+    }
+
+    @Override
+    public void plot(String filename) throws OTMException {
+        throw new OTMException("Plot not implemented for LaneGroupVehicles output.");
+    }
+
+    //////////////////////////////////////////////////////
+    // AbstractOutputTimedLanegroup
+    //////////////////////////////////////////////////////
+
     @Override
     protected double get_value_for_lanegroup(AbstractLaneGroup lg){
         if(!lgprofiles.containsKey(lg.id))
@@ -36,8 +58,4 @@ public class LaneGroupVehicles extends AbstractOutputTimedLanegroup {
         }
     }
 
-    @Override
-    public String get_yaxis_label() {
-        return "veh";
-    }
 }

@@ -11,9 +11,17 @@ import java.io.IOException;
 
 public class LaneGroups extends AbstractOutput {
 
+    ///////////////////////////////////////////////////
+    // construction
+    ///////////////////////////////////////////////////
+
     public LaneGroups(Scenario scenario,String prefix,String output_folder) throws OTMException {
         super(scenario,prefix,output_folder);
     }
+
+    //////////////////////////////////////////////////////
+    // InterfaceOutput
+    //////////////////////////////////////////////////////
 
     @Override
     public String get_output_file() {

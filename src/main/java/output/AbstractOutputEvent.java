@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractOutputEvent extends AbstractOutput {
+public abstract class AbstractOutputEvent extends AbstractOutput implements InterfacePlottable {
 
     public List<AbstractEventInfo> events;
 
@@ -20,6 +20,10 @@ public abstract class AbstractOutputEvent extends AbstractOutput {
         super(scenario,prefix,output_folder);
     }
 
+    //////////////////////////////////////////////////////
+    // InterfaceScenarioElement-like
+    //////////////////////////////////////////////////////
+
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
@@ -27,7 +31,7 @@ public abstract class AbstractOutputEvent extends AbstractOutput {
     }
 
     //////////////////////////////////////////////////////
-    // get / plot
+    // InterfaceOutput
     //////////////////////////////////////////////////////
 
     @Override
@@ -49,11 +53,21 @@ public abstract class AbstractOutputEvent extends AbstractOutput {
         }
     }
 
-    abstract public void plot(String filename) throws OTMException;
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
 
-    public List<AbstractEventInfo> get_events(){
-        return events;
+    @Override
+    public void plot(String filename) throws OTMException {
+        System.err.println("IMPLEMENT THIS");
     }
 
+    //////////////////////////////////////////////////////
+    // final
+    //////////////////////////////////////////////////////
+
+    public final List<AbstractEventInfo> get_events(){
+        return events;
+    }
 
 }

@@ -11,6 +11,10 @@ public class EventsSensor extends AbstractOutputEvent  {
 
     public Long sensor_id;
 
+    //////////////////////////////////////////////////////
+    // construction
+    //////////////////////////////////////////////////////
+
     public EventsSensor(Scenario scenario, String prefix, String output_folder, Long sensor_id) throws OTMException {
         super(scenario, prefix, output_folder);
         this.type = Type.sensor;
@@ -20,6 +24,10 @@ public class EventsSensor extends AbstractOutputEvent  {
         else
             throw new OTMException("Sensor id not defined");
     }
+
+    //////////////////////////////////////////////////////
+    // InterfaceOutput
+    //////////////////////////////////////////////////////
 
     @Override
     public void validate(OTMErrorLog errorLog) {
@@ -47,8 +55,12 @@ public class EventsSensor extends AbstractOutputEvent  {
         return write_to_file ? super.get_output_file() + "_sensor_" + sensor_id + "_.txt" : null;
     }
 
-    public void plot(String filename) throws OTMException {
-        throw new OTMException("not implemented");
-    }
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
 
+    @Override
+    public String get_yaxis_label() {
+        return "sensor reading";
+    }
 }

@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class OutputCellVehicles extends AbstractOutputTimed {
 
-    AbstractFluidModel model;
+    public AbstractFluidModel model;
     public ArrayList<FluidLaneGroup> ordered_lgs;               // An ordered map would be really helpful here
     public Map<Long, LaneGroupProfile> lgprofiles;
 
@@ -37,6 +37,10 @@ public class OutputCellVehicles extends AbstractOutputTimed {
         }
     }
 
+    //////////////////////////////////////////////////////
+    // InterfaceOutput
+    //////////////////////////////////////////////////////
+
     @Override
     public String get_output_file() {
         if(!write_to_file)
@@ -46,6 +50,51 @@ public class OutputCellVehicles extends AbstractOutputTimed {
                 (commodity==null ? "g" : commodity.getId()) + "_" +
                 model.name + "_cellveh.txt";
     }
+
+    @Override
+    public void write(float timestamp,Object obj) throws OTMException {
+        if(write_to_file){
+            super.write(timestamp,null);
+            try {
+                boolean isfirst=true;
+                for(FluidLaneGroup lg : ordered_lgs){
+                    for(int i=0;i<lg.cells.size();i++){
+                        if(!isfirst)
+                            writer.write(AbstractOutputTimed.delim);
+                        isfirst = false;
+                        writer.write(String.format("%f",get_value_for_cell(lg,i)));
+                    }
+                }
+                writer.write("\n");
+            } catch (IOException e) {
+                throw new OTMException(e);
+            }
+        } else {
+            throw new OTMException("Not implemented code: 09242je");
+//            for(Long lg_id : ordered_lg_ids){
+//                LaneGroupProfile lgProfile = lgprofiles.get(lg_id);
+//                lgProfile.add_value(get_value_for_lanegroup(lg_id));
+//            }
+        }
+    }
+
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
+
+    @Override
+    public String get_yaxis_label() {
+        return "veh";
+    }
+
+    @Override
+    public void plot(String filename) throws OTMException {
+        throw new OTMException("Plot not implemented for OutputCellVehicles output.");
+    }
+
+    //////////////////////////////////////////////////////
+    // AbstractOutput
+    //////////////////////////////////////////////////////
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
@@ -75,36 +124,10 @@ public class OutputCellVehicles extends AbstractOutputTimed {
 
     }
 
-    //////////////////////////////////////////////////////
-    // write
-    //////////////////////////////////////////////////////
 
-    @Override
-    public void write(float timestamp,Object obj) throws OTMException {
-        if(write_to_file){
-            super.write(timestamp,null);
-            try {
-                boolean isfirst=true;
-                for(FluidLaneGroup lg : ordered_lgs){
-                    for(int i=0;i<lg.cells.size();i++){
-                        if(!isfirst)
-                            writer.write(AbstractOutputTimed.delim);
-                        isfirst = false;
-                        writer.write(String.format("%f",get_value_for_cell(lg,i)));
-                    }
-                }
-                writer.write("\n");
-            } catch (IOException e) {
-                throw new OTMException(e);
-            }
-        } else {
-            throw new OTMException("Not implemented code: 09242je");
-//            for(Long lg_id : ordered_lg_ids){
-//                LaneGroupProfile lgProfile = lgprofiles.get(lg_id);
-//                lgProfile.add_value(get_value_for_lanegroup(lg_id));
-//            }
-        }
-    }
+    //////////////////////////////////////////////////////
+    // private
+    //////////////////////////////////////////////////////
 
     private double get_value_for_cell(FluidLaneGroup lg, int i){
         return lg.cells.get(i).get_veh_for_commodity(commodity==null? null : commodity.getId());
@@ -127,11 +150,6 @@ public class OutputCellVehicles extends AbstractOutputTimed {
         public void add_value(double value){
 //            profile.add(value);
         }
-    }
-
-    @Override
-    public String get_yaxis_label() {
-        return "veh";
     }
 
 }

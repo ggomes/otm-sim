@@ -178,6 +178,11 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     public final void poke(Dispatcher dispatcher, float timestamp) throws OTMException  {
         update_command(dispatcher);
 
+        // send immediately to actuators that lack a dt
+        for(AbstractActuator act : actuators.values())
+            if(act.dt<0)
+                act.process_controller_command(command.get(act.id),timestamp);
+
         // wake up in dt, if dt is defined
         if(dt >0)
             dispatcher.register_event(new EventPoke(dispatcher,2,timestamp+dt,this));

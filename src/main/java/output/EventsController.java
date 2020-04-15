@@ -15,6 +15,10 @@ public class EventsController extends AbstractOutputEvent {
 
     public long controller_id;
 
+    //////////////////////////////////////////////////////
+    // construction
+    //////////////////////////////////////////////////////
+
     public EventsController(Scenario scenario, String prefix, String output_folder, Long controller_id) throws OTMException {
         super(scenario, prefix, output_folder);
         this.type = Type.controller;
@@ -23,6 +27,10 @@ public class EventsController extends AbstractOutputEvent {
         else
             throw new OTMException("Controller id not defined.");
     }
+
+    //////////////////////////////////////////////////////
+    // InterfaceOutput
+    //////////////////////////////////////////////////////
 
     @Override
     public void register(RunParameters props, Dispatcher dispatcher) throws OTMException {
@@ -41,6 +49,10 @@ public class EventsController extends AbstractOutputEvent {
         return write_to_file ? super.get_output_file() + "_controller_" + controller_id + "_.txt" : null;
     }
 
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
+
     @Override
     public void plot(String filename) throws OTMException {
 
@@ -57,6 +69,15 @@ public class EventsController extends AbstractOutputEvent {
         make_time_chart(dataset,"",filename);
 
     }
+
+    @Override
+    public String get_yaxis_label() {
+        return "command";
+    }
+
+    //////////////////////////////////////////////////////
+    // private
+    //////////////////////////////////////////////////////
 
     private XYSeriesCollection plot_pretimed_controller(){
 

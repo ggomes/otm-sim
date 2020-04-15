@@ -14,6 +14,10 @@ public class EventsVehicle extends AbstractOutputEvent implements InterfaceVehic
     private final String suffix;
     public Long commodity_id;
 
+    //////////////////////////////////////////////////////
+    // construction
+    //////////////////////////////////////////////////////
+
     public EventsVehicle(Scenario scenario, String prefix, String output_folder, Long commodity_id) throws OTMException {
         super(scenario,prefix,output_folder);
         this.type = Type.vehicle_events;
@@ -21,6 +25,10 @@ public class EventsVehicle extends AbstractOutputEvent implements InterfaceVehic
         this.suffix = commodity_id==null ? "all" : commodity_id.toString();
         this.commodity_id = commodity_id;
     }
+
+    //////////////////////////////////////////////////////
+    // InterfaceOutput
+    //////////////////////////////////////////////////////
 
     @Override
     public void register(RunParameters props, Dispatcher dispatcher) throws OTMException {
@@ -38,18 +46,21 @@ public class EventsVehicle extends AbstractOutputEvent implements InterfaceVehic
         return write_to_file ? super.get_output_file() + "_vehicle_events_" + suffix + ".txt" : null;
     }
 
-
-    @Override
-    public void plot(String filename) throws OTMException {
-        System.err.println("IMPLEMENT THIS");
-    }
-
     //////////////////////////////////////////////////////
-    // write
+    // InterfaceVehicleListener
     //////////////////////////////////////////////////////
 
     public void move_from_to_queue(float timestamp, MesoVehicle vehicle, Queue from_queue, Queue to_queue) throws OTMException {
         this.write(timestamp,new EventVehicleFromToQueueInfo(timestamp,vehicle.getId(),from_queue,to_queue));
+    }
+
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
+
+    @Override
+    public String get_yaxis_label() {
+        return null;
     }
 
 }

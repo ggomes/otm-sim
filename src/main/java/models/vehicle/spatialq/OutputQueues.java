@@ -36,6 +36,10 @@ public class OutputQueues extends AbstractOutputTimed {
 
     }
 
+    //////////////////////////////////////////////////////
+    // InterfaceOutput
+    //////////////////////////////////////////////////////
+
     @Override
     public String get_output_file() {
         if(!write_to_file)
@@ -45,34 +49,6 @@ public class OutputQueues extends AbstractOutputTimed {
                 (commodity==null ? "g" : commodity.getId()) + "_" +
                 "_queues.txt";
     }
-
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
-
-        if(write_to_file){
-//            try {
-//                String filename = get_output_file();
-//                if(filename!=null) {
-//                    String subfilename = filename.substring(0,filename.length()-4);
-//                    Writer cells_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_queues.txt"));
-//                    for(LaneGroup lg: ordered_lgs)
-//                        cells_writer.write(String.format("%dt\n%dw\n",lg.id,lg.id));
-//                    cells_writer.close();
-//                }
-//            } catch (FileNotFoundException exc) {
-//                throw new OTMException(exc);
-//            } catch (IOException e) {
-//                throw new OTMException(e);
-//            }
-        } else {
-
-        }
-    }
-
-    //////////////////////////////////////////////////////
-    // write
-    //////////////////////////////////////////////////////
 
     @Override
     public void write(float timestamp,Object obj) throws OTMException {
@@ -105,16 +81,53 @@ public class OutputQueues extends AbstractOutputTimed {
         }
     }
 
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
+
     @Override
     public String get_yaxis_label() {
         return "veh";
     }
 
+    @Override
+    public void plot(String filename) throws OTMException {
+        throw new OTMException("Plot not implemented for OutputQueues output.");
+    }
+
     //////////////////////////////////////////////////////
-    // getters
+    // AbstractOutput
     //////////////////////////////////////////////////////
 
-    public List<Double> get_waiting_for_link(long link_id){
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+
+        if(write_to_file){
+//            try {
+//                String filename = get_output_file();
+//                if(filename!=null) {
+//                    String subfilename = filename.substring(0,filename.length()-4);
+//                    Writer cells_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_queues.txt"));
+//                    for(LaneGroup lg: ordered_lgs)
+//                        cells_writer.write(String.format("%dt\n%dw\n",lg.id,lg.id));
+//                    cells_writer.close();
+//                }
+//            } catch (FileNotFoundException exc) {
+//                throw new OTMException(exc);
+//            } catch (IOException e) {
+//                throw new OTMException(e);
+//            }
+        } else {
+
+        }
+    }
+
+    //////////////////////////////////////////////////////
+    // final
+    //////////////////////////////////////////////////////
+
+    public final List<Double> get_waiting_for_link(long link_id){
 
         if(!scenario.network.links.containsKey(link_id))
             return null;
@@ -138,7 +151,7 @@ public class OutputQueues extends AbstractOutputTimed {
         return profile.get_values();
     }
 
-    public List<Double> get_transit_for_link(long link_id){
+    public final List<Double> get_transit_for_link(long link_id){
 
         if(!scenario.network.links.containsKey(link_id))
             return null;
@@ -161,6 +174,10 @@ public class OutputQueues extends AbstractOutputTimed {
         }
         return profile.get_values();
     }
+
+    //////////////////////////////////////////////////////
+    // class
+    //////////////////////////////////////////////////////
 
     public class QueueInfo {
         public Profile1D waiting_profile;

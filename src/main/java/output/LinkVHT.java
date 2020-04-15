@@ -19,7 +19,7 @@ public class LinkVHT extends AbstractOutputTimedLink {
     }
 
     //////////////////////////////////////////////////////
-    // implementation
+    // InterfaceOutput
     //////////////////////////////////////////////////////
 
     @Override
@@ -27,10 +27,18 @@ public class LinkVHT extends AbstractOutputTimedLink {
         return write_to_file ? super.get_output_file() + "_link_vht.txt" : null;
     }
 
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
+
     @Override
     public String get_yaxis_label() {
         return "VHT [veh.hr]";
     }
+
+    //////////////////////////////////////////////////////
+    // AbstractOutputTimedLink
+    //////////////////////////////////////////////////////
 
     @Override
     public double get_value_for_link(Long link_id) {

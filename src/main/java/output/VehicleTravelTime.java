@@ -11,10 +11,18 @@ import common.Scenario;
 
 public class VehicleTravelTime extends AbstractOutputEvent implements InterfaceVehicleListener  {
 
+    //////////////////////////////////////////////////////
+    // construction
+    //////////////////////////////////////////////////////
+
     public VehicleTravelTime(Scenario scenario, String prefix, String output_folder) {
         super(scenario, prefix, output_folder);
         this.type = Type.vehicle_travel_time;
     }
+
+    //////////////////////////////////////////////////////
+    // InterfaceOutput
+    //////////////////////////////////////////////////////
 
     @Override
     public String get_output_file() {
@@ -28,14 +36,21 @@ public class VehicleTravelTime extends AbstractOutputEvent implements InterfaceV
             c.add_vehicle_event_listener(this);
     }
 
+    //////////////////////////////////////////////////////
+    // InterfaceVehicleListener
+    //////////////////////////////////////////////////////
+
     @Override
     public void move_from_to_queue(float timestamp, MesoVehicle vehicle, Queue from_queue, Queue to_queue) throws OTMException {
         write(timestamp,new EventVehicleTravelTimeInfo(timestamp,vehicle.getId(),from_queue,to_queue));
     }
 
-    @Override
-    public void plot(String filename) throws OTMException {
-        System.err.println("IMPLEMENT THIS");
-    }
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
 
+    @Override
+    public String get_yaxis_label() {
+        return "travel time [sec]";
+    }
 }

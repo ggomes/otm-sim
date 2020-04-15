@@ -41,14 +41,14 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
     @Override
     public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
         AbstractOutput output = null;
-        switch (jaxb_or.getQuantity()) {
-            case "trajectories":
-                Float outDt = jaxb_or.getDt();
-                output = new OutputTrajectories(scenario, this,prefix, output_folder, outDt);
-                break;
-            default:
-                throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
-        }
+//        switch (jaxb_or.getQuantity()) {
+//            case "trajectories":
+//                Float outDt = jaxb_or.getDt();
+//                output = new NewellTrajectories(scenario, this,prefix, output_folder, outDt);
+//                break;
+//            default:
+//                throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
+//        }
         return output;
     }
 

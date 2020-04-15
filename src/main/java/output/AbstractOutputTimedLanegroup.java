@@ -14,6 +14,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
 
     public ArrayList<AbstractLaneGroup> ordered_lgs;
     public Map<Long, LaneGroupProfile> lgprofiles;
+    abstract protected double get_value_for_lanegroup(AbstractLaneGroup lg);
 
     //////////////////////////////////////////////////////
     // construction
@@ -39,6 +40,38 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
         }
 
     }
+
+    //////////////////////////////////////////////////////
+    // InterfaceOutput
+    //////////////////////////////////////////////////////
+
+    @Override
+    public void write(float timestamp,Object obj) throws OTMException {
+        if(write_to_file){
+            super.write(timestamp,null);
+            try {
+                boolean isfirst=true;
+                for(AbstractLaneGroup lg : ordered_lgs){
+                    if(!isfirst)
+                        writer.write(AbstractOutputTimed.delim);
+                    isfirst = false;
+                    writer.write(String.format("%f",get_value_for_lanegroup(lg)));
+                }
+                writer.write("\n");
+            } catch (IOException e) {
+                throw new OTMException(e);
+            }
+        } else {
+            for(AbstractLaneGroup lg : ordered_lgs){
+                LaneGroupProfile lgProfile = lgprofiles.get(lg.id);
+                lgProfile.add_value(get_value_for_lanegroup(lg));
+            }
+        }
+    }
+
+    //////////////////////////////////////////////////////
+    // AbstractOutput
+    //////////////////////////////////////////////////////
 
     @Override
     public void validate(OTMErrorLog errorLog) {
@@ -77,12 +110,10 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
     }
 
     //////////////////////////////////////////////////////
-    // get / plot
+    // final
     //////////////////////////////////////////////////////
 
-    abstract protected double get_value_for_lanegroup(AbstractLaneGroup lg);
-
-    public Map<Long,Profile1D> get_profiles_for_linkid(Long link_id){
+    public final Map<Long,Profile1D> get_profiles_for_linkid(Long link_id){
 
         if(!scenario.network.links.containsKey(link_id))
             return null;
@@ -95,34 +126,6 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
                 profiles.put(lg.id,lgprofiles.get(lg.id).profile);
 
         return profiles;
-    }
-
-    //////////////////////////////////////////////////////
-    // write
-    //////////////////////////////////////////////////////
-
-    @Override
-    public void write(float timestamp,Object obj) throws OTMException {
-        if(write_to_file){
-            super.write(timestamp,null);
-            try {
-                boolean isfirst=true;
-                for(AbstractLaneGroup lg : ordered_lgs){
-                    if(!isfirst)
-                        writer.write(AbstractOutputTimed.delim);
-                    isfirst = false;
-                    writer.write(String.format("%f",get_value_for_lanegroup(lg)));
-                }
-                writer.write("\n");
-            } catch (IOException e) {
-                throw new OTMException(e);
-            }
-        } else {
-            for(AbstractLaneGroup lg : ordered_lgs){
-                LaneGroupProfile lgProfile = lgprofiles.get(lg.id);
-                lgProfile.add_value(get_value_for_lanegroup(lg));
-            }
-        }
     }
 
     //////////////////////////////////////////////////////

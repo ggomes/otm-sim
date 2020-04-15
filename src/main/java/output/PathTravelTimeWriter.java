@@ -13,6 +13,10 @@ public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
     public boolean instantaneous = true;
     public Path path;
 
+    //////////////////////////////////////////////////////
+    // construction
+    //////////////////////////////////////////////////////
+
     public PathTravelTimeWriter(Scenario scenario, String prefix, String output_folder, Long subnetwork_id, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, null, subnetwork_id, outDt);
         this.type = Type.path_travel_time;
@@ -23,9 +27,9 @@ public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
         this.path = (Path) this.subnetwork;
     }
 
-    public long get_path_id(){
-        return path.getId();
-    }
+    //////////////////////////////////////////////////////
+    // InterfaceOutput
+    //////////////////////////////////////////////////////
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
@@ -38,10 +42,6 @@ public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
     public String get_output_file() {
         return write_to_file ? super.get_output_file() + "_path_tt.txt" : null;
     }
-
-    //////////////////////////////////////////////////////
-    // write
-    //////////////////////////////////////////////////////
 
     @Override
     public void write(float timestamp,Object obj) throws OTMException {
@@ -62,20 +62,33 @@ public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
         }
     }
 
-    private double compute_instantaneous_travel_time(){
-        return path.links.stream().
-                mapToDouble(link->link.link_tt.instantaneous_travel_time)
-                .sum();
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
+
+    @Override
+    public String get_yaxis_label() {
+        return "travel time";
     }
 
+    //////////////////////////////////////////////////////
+    // final
+    //////////////////////////////////////////////////////
 
+    public final long get_path_id(){
+        return path.getId();
+    }
 
-    public double compute_predictive_travel_time(float start_time){
+    public final double compute_predictive_travel_time(float start_time){
 //        float curr_time = start_time;
 //        for(Link link:path.ordered_links)
 //            curr_time += link.link_tt.get_value_for_time(curr_time);
 //        return (double) (curr_time-start_time);
         return 0d;
+    }
+
+    public final List<Double> get_travel_times_sec(){
+        return profile.get_values();
     }
 
 //    private double get_value_for_link(Link link){
@@ -106,11 +119,6 @@ public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
 //
 //    }
 
-    //////////////////////////////////////////////////////
-    // read
-    //////////////////////////////////////////////////////
-
-
 //    public double compute_instantaneous_travel_time(float start_time){
 //        return Double.NaN;
 //
@@ -119,13 +127,14 @@ public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
 ////                .sum();
 //    }
 
+    //////////////////////////////////////////////////////
+    // private
+    //////////////////////////////////////////////////////
 
-    public List<Double> get_travel_times_sec(){
-        return profile.get_values();
+    private double compute_instantaneous_travel_time(){
+        return path.links.stream().
+                mapToDouble(link->link.link_tt.instantaneous_travel_time)
+                .sum();
     }
 
-    @Override
-    public String get_yaxis_label() {
-        return "travel time";
-    }
 }

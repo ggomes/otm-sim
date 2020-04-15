@@ -20,7 +20,7 @@ public class LinkVehicles extends AbstractOutputTimedLink {
     }
 
     //////////////////////////////////////////////////////
-    // implementation
+    // InterfaceOutput
     //////////////////////////////////////////////////////
 
     @Override
@@ -33,10 +33,18 @@ public class LinkVehicles extends AbstractOutputTimedLink {
             return String.format("%s_link_comm%d_veh.txt",super.get_output_file(),commodity.getId());
     }
 
+    //////////////////////////////////////////////////////
+    // AbstractOutputTimed
+    //////////////////////////////////////////////////////
+
     @Override
     public String get_yaxis_label() {
         return "vehicles [veh]";
     }
+
+    //////////////////////////////////////////////////////
+    // AbstractOutputTimedLink
+    //////////////////////////////////////////////////////
 
     @Override
     public double get_value_for_link(Long link_id) {
@@ -47,10 +55,10 @@ public class LinkVehicles extends AbstractOutputTimedLink {
     }
 
     //////////////////////////////////////////////////////
-    // get
+    // final
     //////////////////////////////////////////////////////
 
-    public List<Double> get_density_for_link_in_vpk(Long link_id){
+    public final List<Double> get_density_for_link_in_vpk(Long link_id){
         if(!linkprofiles.containsKey(link_id))
             return null;
         Profile1D profile = linkprofiles.get(link_id).profile.clone();

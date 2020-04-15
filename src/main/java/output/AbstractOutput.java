@@ -59,28 +59,9 @@ public abstract class AbstractOutput implements InterfaceOutput {
 
     }
 
-    public void validate(OTMErrorLog errorLog){
-        if(write_to_file){
-            File path = new File(output_folder);
-            if(!path.exists())
-                errorLog.addError("Could not pth: " + path);
-        }
-    }
-
-    public String get_output_file() {
-        return write_to_file ? output_folder + File.separator + prefix : null;
-    }
-
     //////////////////////////////////////////////////////
-    // open / close
+    // InterfaceOutput
     //////////////////////////////////////////////////////
-
-    public void initialize(Scenario scenario) throws OTMException {
-        if(write_to_file) {
-            this.close();
-            this.open();
-        }
-    }
 
     @Override
     public void open() throws OTMException {
@@ -108,15 +89,38 @@ public abstract class AbstractOutput implements InterfaceOutput {
     }
 
     //////////////////////////////////////////////////////
-    // get
+    // incomplete implementation
     //////////////////////////////////////////////////////
 
-    public Type getType() {
+    public void validate(OTMErrorLog errorLog){
+        if(write_to_file){
+            File path = new File(output_folder);
+            if(!path.exists())
+                errorLog.addError("Could not pth: " + path);
+        }
+    }
+
+    public void initialize(Scenario scenario) throws OTMException {
+        if(write_to_file) {
+            this.close();
+            this.open();
+        }
+    }
+
+    public String get_output_file() {
+        return write_to_file ? output_folder + File.separator + prefix : null;
+    }
+
+    //////////////////////////////////////////////////////
+    // final
+    //////////////////////////////////////////////////////
+
+    public final Type getType() {
         return type;
     }
 
     //////////////////////////////////////////////////////
-    // plotting
+    // static
     //////////////////////////////////////////////////////
 
     public static void make_time_chart(XYSeriesCollection dataset,String yaxis_label,String filename) throws OTMException {

@@ -22,13 +22,9 @@ public class LaneGroupFlow extends AbstractOutputTimedLanegroup  {
         this.type = Type.lanegroup_flw;
     }
 
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
-        flw_accs = new HashMap<>();
-        for(LaneGroupProfile lgprofile : lgprofiles.values())
-            flw_accs.put(lgprofile.lg.id,lgprofile.lg.request_flow_accumulator(commodity==null ? null : commodity.getId()));
-    }
+    //////////////////////////////////////////////////////
+    // InterfaceOutput
+    //////////////////////////////////////////////////////
 
     @Override
     public String get_output_file() {
@@ -40,6 +36,36 @@ public class LaneGroupFlow extends AbstractOutputTimedLanegroup  {
             return String.format("%s_lanegroup_flw_comm%d.txt",super.get_output_file(),commodity.getId());
     }
 
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
+
+    @Override
+    public String get_yaxis_label() {
+        return "flow";
+    }
+
+    @Override
+    public void plot(String filename) throws OTMException {
+        throw new OTMException("Plot not implemented for LaneGroupFlow output.");
+    }
+
+    //////////////////////////////////////////////////////
+    // AbstractOutput
+    //////////////////////////////////////////////////////
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+        flw_accs = new HashMap<>();
+        for(LaneGroupProfile lgprofile : lgprofiles.values())
+            flw_accs.put(lgprofile.lg.id,lgprofile.lg.request_flow_accumulator(commodity==null ? null : commodity.getId()));
+    }
+
+    //////////////////////////////////////////////////////
+    // AbstractOutputTimedLanegroup
+    //////////////////////////////////////////////////////
+
     @Override
     protected double get_value_for_lanegroup(AbstractLaneGroup lg){
         if(!lgprofiles.containsKey(lg.id))
@@ -50,8 +76,4 @@ public class LaneGroupFlow extends AbstractOutputTimedLanegroup  {
             return flw_accs.get(lg.id).get_count_for_commodity(commodity.getId());
     }
 
-    @Override
-    public String get_yaxis_label() {
-        return "flow";
-    }
 }

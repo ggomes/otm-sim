@@ -34,9 +34,20 @@ public abstract class AbstractOutputTimedSubnetwork extends AbstractOutputTimed 
         }
     }
 
-    public Long get_subnetwork_id(){
-        return subnetwork==null ? null : subnetwork.getId();
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
+
+    @Override
+    public void plot(String filename) throws OTMException {
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(get_series());
+        make_time_chart(dataset,get_yaxis_label(),filename);
     }
+
+    //////////////////////////////////////////////////////
+    // AbstractOutput
+    //////////////////////////////////////////////////////
 
     @Override
     public void validate(OTMErrorLog errorLog) {
@@ -69,18 +80,16 @@ public abstract class AbstractOutputTimedSubnetwork extends AbstractOutputTimed 
         }
     }
 
-    /////////////////////////
-    // plotting
-    /////////////////////////
+    //////////////////////////////////////////////////////
+    // final
+    //////////////////////////////////////////////////////
 
-    public XYSeries get_series() {
-        return profile.get_series(String.format("%d",get_subnetwork_id()));
+    public final Long get_subnetwork_id(){
+        return subnetwork==null ? null : subnetwork.getId();
     }
 
-    public void plot(String filename) throws OTMException {
-        XYSeriesCollection dataset = new XYSeriesCollection();
-        dataset.addSeries(get_series());
-        make_time_chart(dataset,get_yaxis_label(),filename);
+    public final XYSeries get_series() {
+        return profile.get_series(String.format("%d",get_subnetwork_id()));
     }
 
 }

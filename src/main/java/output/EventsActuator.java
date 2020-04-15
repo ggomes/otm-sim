@@ -17,6 +17,10 @@ public class EventsActuator extends AbstractOutputEvent {
 
     public Long actuator_id;
 
+    ///////////////////////////////////////////////////
+    // construction
+    ///////////////////////////////////////////////////
+
     public EventsActuator(Scenario scenario, String prefix, String output_folder, Long actuator_id) throws OTMException {
         super(scenario, prefix, output_folder);
         this.type = Type.actuator;
@@ -27,13 +31,13 @@ public class EventsActuator extends AbstractOutputEvent {
             throw new OTMException("Actuator id not defined");
     }
 
-    @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
+    //////////////////////////////////////////////////////
+    // InterfaceOutput
+    //////////////////////////////////////////////////////
 
-        AbstractActuator actuator = scenario.actuators.get(actuator_id);
-        if(actuator_id==null || actuator==null)
-            errorLog.addError("Bad actuator id in output request");
+    @Override
+    public String get_output_file() {
+        return write_to_file ? super.get_output_file() + "_actuator_" + actuator_id + "_.txt" : null;
     }
 
     @Override
@@ -48,11 +52,24 @@ public class EventsActuator extends AbstractOutputEvent {
 
     }
 
+    //////////////////////////////////////////////////////
+    // AbstractOutput
+    //////////////////////////////////////////////////////
+
     @Override
-    public String get_output_file() {
-        return write_to_file ? super.get_output_file() + "_actuator_" + actuator_id + "_.txt" : null;
+    public void validate(OTMErrorLog errorLog) {
+        super.validate(errorLog);
+
+        AbstractActuator actuator = scenario.actuators.get(actuator_id);
+        if(actuator_id==null || actuator==null)
+            errorLog.addError("Bad actuator id in output request");
     }
 
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
+
+    @Override
     public void plot(String filename) throws OTMException {
 
         AbstractActuator actuator = scenario.actuators.get(actuator_id);
@@ -68,16 +85,10 @@ public class EventsActuator extends AbstractOutputEvent {
         make_time_chart(dataset,"",filename);
     }
 
-    //////////////////////////////////////////////////////
-    // write
-    //////////////////////////////////////////////////////
-
-//    public void set_bulb_color(float timestamp,long controller_id,
-//                               _NEMA.ID nema,
-//                               BulbColor from_color,
-//                               BulbColor to_color) throws OTMException {
-//        this.write(timestamp,controller_id + "\t" + nema + "\t" + from_color + "\t" + to_color);
-//    }
+    @Override
+    public String get_yaxis_label() {
+        return "command";
+    }
 
     //////////////////////////////////////////////////////
     // private

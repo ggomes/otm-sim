@@ -10,15 +10,13 @@ import common.Scenario;
 
 import java.io.*;
 
-public abstract class AbstractOutputTimed extends AbstractOutput {
+public abstract class AbstractOutputTimed extends AbstractOutput implements InterfacePlottable {
 
     // timed output
     public float outDt;			// output frequency in seconds
     public Commodity commodity;
     public Writer time_writer;
     public static String delim = ",";
-
-    abstract public String get_yaxis_label();
 
     //////////////////////////////////////////////////////
     // construction
@@ -41,30 +39,8 @@ public abstract class AbstractOutputTimed extends AbstractOutput {
 
     }
 
-    public void validate(OTMErrorLog errorLog) {
-        if(Float.isNaN(outDt) || outDt<=0f)
-            errorLog.addError("outDt is not defined");
-    }
-
-    @Override
-    public String get_output_file() {
-        if(!write_to_file)
-            return null;
-        return  output_folder + File.separator + prefix + "_" +
-                String.format("%.0f", outDt) + "_" +
-                (commodity==null ? "g" : commodity.getId());
-    }
-
-    public Long get_commodity_id(){
-        return commodity==null ? null : commodity.getId();
-    }
-
-    public float get_outdt(){
-        return this.outDt;
-    }
-
     //////////////////////////////////////////////////////
-    // write time
+    // InterfaceOutput
     //////////////////////////////////////////////////////
 
     @Override
@@ -107,13 +83,39 @@ public abstract class AbstractOutputTimed extends AbstractOutput {
         }
     }
 
-    //////////////////////////////////////////////////////
-    // register
-    //////////////////////////////////////////////////////
-
     @Override
     public void register(RunParameters props, Dispatcher dispatcher) {
         dispatcher.register_event(new EventTimedWrite(dispatcher,props.start_time,this));
+    }
+
+    //////////////////////////////////////////////////////
+    // incomplete implementation
+    //////////////////////////////////////////////////////
+
+    public void validate(OTMErrorLog errorLog) {
+        if(Float.isNaN(outDt) || outDt<=0f)
+            errorLog.addError("outDt is not defined");
+    }
+
+    @Override
+    public String get_output_file() {
+        if(!write_to_file)
+            return null;
+        return  output_folder + File.separator + prefix + "_" +
+                String.format("%.0f", outDt) + "_" +
+                (commodity==null ? "g" : commodity.getId());
+    }
+
+    //////////////////////////////////////////////////////
+    // final
+    //////////////////////////////////////////////////////
+
+    public final Long get_commodity_id(){
+        return commodity==null ? null : commodity.getId();
+    }
+
+    public final float get_outdt(){
+        return this.outDt;
     }
 
 }

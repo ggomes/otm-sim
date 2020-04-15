@@ -1,6 +1,5 @@
 package control;
 
-import actuator.AbstractActuator;
 import dispatch.Dispatcher;
 import error.OTMException;
 import jaxb.Controller;
@@ -43,6 +42,7 @@ public class ControllerMaxRate extends AbstractController  {
 
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
+
         for(Map.Entry<Long,Profile1D> e : actuator_rate_vph.entrySet()){
             Long act_id = e.getKey();
             Profile1D profile = e.getValue();

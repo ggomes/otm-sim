@@ -18,6 +18,7 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
 
     public List<Long> ordered_ids;
     public Map<Long,LinkProfile> linkprofiles;
+    abstract public double get_value_for_link(Long link_id);
 
     //////////////////////////////////////////////////////
     // construction
@@ -63,6 +64,47 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
 
     }
 
+    //////////////////////////////////////////////////////
+    // InterfaceOutput
+    //////////////////////////////////////////////////////
+
+    @Override
+    public void write(float timestamp,Object obj) throws OTMException {
+        if(write_to_file){
+            super.write(timestamp,null);
+            try {
+                boolean isfirst=true;
+                for(Long link_id : ordered_ids){
+                    if(!isfirst)
+                        writer.write(AbstractOutputTimed.delim);
+                    isfirst = false;
+                    writer.write(String.format("%f",get_value_for_link(link_id)));
+                }
+                writer.write("\n");
+            } catch (IOException e) {
+                throw new OTMException(e);
+            }
+        } else {
+            for(Long link_id : ordered_ids) {
+                LinkProfile linkProfile = linkprofiles.get(link_id);
+                linkProfile.add_value(get_value_for_link(link_id));
+            }
+        }
+    }
+
+    //////////////////////////////////////////////////////
+    // InterfacePlottable
+    //////////////////////////////////////////////////////
+
+    @Override
+    public void plot(String filename) throws OTMException {
+        plot_for_links(linkprofiles.keySet(),filename);
+    }
+
+    //////////////////////////////////////////////////////
+    // AbstractOutput
+    //////////////////////////////////////////////////////
+
     @Override
     public void validate(OTMErrorLog errorLog) {
         super.validate(errorLog);
@@ -97,26 +139,34 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
     }
 
     //////////////////////////////////////////////////////
-    // get / plot
+    // incomplete implementation
     //////////////////////////////////////////////////////
 
-    public List<Float> get_time(){
+    public XYSeries get_series_for_linkid(Long link_id) {
+        if(!linkprofiles.containsKey(link_id))
+            return null;
+        return linkprofiles.get(link_id).profile.get_series(String.format("%d",link_id));
+    }
+
+    //////////////////////////////////////////////////////
+    // final
+    //////////////////////////////////////////////////////
+
+    public final List<Float> get_time(){
         if(linkprofiles==null || linkprofiles.isEmpty())
             return new ArrayList();
         return linkprofiles.values().iterator().next().profile.get_times();
     }
 
-    abstract public double get_value_for_link(Long link_id);
-
-    public List<Long> get_link_ids(){
+    public final List<Long> get_link_ids(){
         return ordered_ids;
     }
 
-    public Profile1D get_profile_for_linkid(Long link_id){
+    public final Profile1D get_profile_for_linkid(Long link_id){
         return linkprofiles.get(link_id).profile;
     }
 
-    public void plot_for_links(Set<Long> link_ids,String filename) throws OTMException {
+    public final void plot_for_links(Set<Long> link_ids,String filename) throws OTMException {
 
         if(link_ids==null)
             link_ids = linkprofiles.keySet();
@@ -130,40 +180,6 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
         }
 
         make_time_chart(dataset,get_yaxis_label(),filename);
-    }
-
-    public XYSeries get_series_for_linkid(Long link_id) {
-        if(!linkprofiles.containsKey(link_id))
-            return null;
-        return linkprofiles.get(link_id).profile.get_series(String.format("%d",link_id));
-    }
-
-    //////////////////////////////////////////////////////
-    // write
-    //////////////////////////////////////////////////////
-
-    @Override
-    public void write(float timestamp,Object obj) throws OTMException {
-        if(write_to_file){
-            super.write(timestamp,null);
-            try {
-                boolean isfirst=true;
-                for(Long link_id : ordered_ids){
-                    if(!isfirst)
-                        writer.write(AbstractOutputTimed.delim);
-                    isfirst = false;
-                    writer.write(String.format("%f",get_value_for_link(link_id)));
-                }
-                writer.write("\n");
-            } catch (IOException e) {
-                throw new OTMException(e);
-            }
-        } else {
-            for(Long link_id : ordered_ids) {
-                LinkProfile linkProfile = linkprofiles.get(link_id);
-                linkProfile.add_value(get_value_for_link(link_id));
-            }
-        }
     }
 
     //////////////////////////////////////////////////////
