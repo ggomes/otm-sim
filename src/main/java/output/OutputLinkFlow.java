@@ -9,7 +9,7 @@ import common.Scenario;
 
 import java.util.*;
 
-public class LinkFlow extends AbstractOutputTimedLink {
+public class OutputLinkFlow extends AbstractOutputTimedLink {
 
     private Map<Long, Set<FlowAccumulatorState>> flw_acc_sets; // link_id -> flow accumulator set (over lgs)
 
@@ -17,7 +17,7 @@ public class LinkFlow extends AbstractOutputTimedLink {
     // construction
     //////////////////////////////////////////////////////
 
-    public LinkFlow(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
+    public OutputLinkFlow(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,link_ids,outDt);
         this.type = Type.link_flw;
     }

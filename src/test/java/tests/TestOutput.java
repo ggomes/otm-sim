@@ -3,11 +3,10 @@ package tests;
 import error.OTMException;
 import org.junit.Test;
 import output.AbstractOutput;
-import output.LinkFlow;
-import output.LinkVehicles;
-import output.PathTravelTimeWriter;
+import output.OutputLinkFlow;
+import output.OutputLinkVehicles;
+import output.OutputPathTravelTime;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -46,15 +45,15 @@ public class TestOutput extends AbstractTest {
 
                 switch(output.type){
                     case link_veh:
-                        ((LinkVehicles) output).plot_for_links(null, String.format("%sveh.png", output_folder));
+                        ((OutputLinkVehicles) output).plot_for_links(null, String.format("%sveh.png", output_folder));
                         break;
                     case link_flw:
-                        ((LinkFlow) output).plot_for_links(null, String.format("%sflow.png", output_folder));
+                        ((OutputLinkFlow) output).plot_for_links(null, String.format("%sflow.png", output_folder));
                         break;
                     case vehicle_travel_time:
                         break;
                     case path_travel_time:
-                        PathTravelTimeWriter ptt = (PathTravelTimeWriter) output;
+                        OutputPathTravelTime ptt = (OutputPathTravelTime) output;
                         ptt.plot(String.format("%stt%d.png", output_folder,ptt.get_path_id()));
 
                         List<Double> travel_times = ptt.get_travel_times_sec();

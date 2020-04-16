@@ -7,8 +7,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import output.AbstractOutput;
-import output.LinkFlow;
-import output.LinkVehicles;
+import output.OutputLinkFlow;
+import output.OutputLinkVehicles;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -67,10 +67,10 @@ public class TestAllConfig extends AbstractTest {
 
             // Print output .........................
             for(AbstractOutput output :  otm.output.get_data()){
-                if (output instanceof LinkFlow)
-                    ((LinkFlow) output).plot_for_links(null, String.format("%s/%s_flow.png", output_folder,prefix));
-                if (output instanceof LinkVehicles)
-                    ((LinkVehicles) output).plot_for_links(null, String.format("%s/%s_veh.png", output_folder,prefix));
+                if (output instanceof OutputLinkFlow)
+                    ((OutputLinkFlow) output).plot_for_links(null, String.format("%s/%s_flow.png", output_folder,prefix));
+                if (output instanceof OutputLinkVehicles)
+                    ((OutputLinkVehicles) output).plot_for_links(null, String.format("%s/%s_veh.png", output_folder,prefix));
             }
 
 //            // check the output against expects

@@ -1,6 +1,6 @@
 package output;
 
-import api.info.events.EventVehicleTravelTimeInfo;
+import output.events.EventWrapperTravelTime;
 import commodity.Commodity;
 import dispatch.Dispatcher;
 import error.OTMException;
@@ -9,13 +9,13 @@ import models.vehicle.spatialq.Queue;
 import runner.RunParameters;
 import common.Scenario;
 
-public class VehicleTravelTime extends AbstractOutputEvent implements InterfaceVehicleListener  {
+public class OutputTravelTime extends AbstractOutputEvent implements InterfaceVehicleListener  {
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
-    public VehicleTravelTime(Scenario scenario, String prefix, String output_folder) {
+    public OutputTravelTime(Scenario scenario, String prefix, String output_folder) {
         super(scenario, prefix, output_folder);
         this.type = Type.vehicle_travel_time;
     }
@@ -42,7 +42,7 @@ public class VehicleTravelTime extends AbstractOutputEvent implements InterfaceV
 
     @Override
     public void move_from_to_queue(float timestamp, MesoVehicle vehicle, Queue from_queue, Queue to_queue) throws OTMException {
-        write(timestamp,new EventVehicleTravelTimeInfo(timestamp,vehicle.getId(),from_queue,to_queue));
+        write(new EventWrapperTravelTime(timestamp,vehicle.getId(),from_queue,to_queue));
     }
 
     //////////////////////////////////////////////////////

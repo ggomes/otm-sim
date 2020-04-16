@@ -8,7 +8,7 @@ import common.Scenario;
 import java.io.IOException;
 import java.util.List;
 
-public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
+public class OutputPathTravelTime extends AbstractOutputTimedSubnetwork {
 
     public boolean instantaneous = true;
     public Path path;
@@ -17,7 +17,7 @@ public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
     // construction
     //////////////////////////////////////////////////////
 
-    public PathTravelTimeWriter(Scenario scenario, String prefix, String output_folder, Long subnetwork_id, Float outDt) throws OTMException {
+    public OutputPathTravelTime(Scenario scenario, String prefix, String output_folder, Long subnetwork_id, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, null, subnetwork_id, outDt);
         this.type = Type.path_travel_time;
 
@@ -43,9 +43,13 @@ public class PathTravelTimeWriter extends AbstractOutputTimedSubnetwork {
         return write_to_file ? super.get_output_file() + "_path_tt.txt" : null;
     }
 
+    //////////////////////////////////////////////////////
+    // AbstractOutputTimed
+    //////////////////////////////////////////////////////
+
     @Override
-    public void write(float timestamp,Object obj) throws OTMException {
-        super.write(timestamp,null);
+    public void write(float timestamp) throws OTMException {
+        super.write(timestamp);
 
         double travel_time = instantaneous ?
                 compute_instantaneous_travel_time() :

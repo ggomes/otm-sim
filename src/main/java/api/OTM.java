@@ -282,41 +282,41 @@ public class OTM {
 
                 switch (jaxb_or.getQuantity()) {
                     case "lanegroups":
-                        output = new LaneGroups(scenario, prefix, output_folder);
+                        output = new OutputLaneGroups(scenario, prefix, output_folder);
                         break;
                     case "link_flw":
-                        output = new LinkFlow(scenario, prefix, output_folder, commodity_id, null, outDt);
+                        output = new OutputLinkFlow(scenario, prefix, output_folder, commodity_id, null, outDt);
                         break;
                     case "link_veh":
-                        output = new LinkVehicles(scenario, prefix, output_folder, commodity_id, null, outDt);
+                        output = new OutputLinkVehicles(scenario, prefix, output_folder, commodity_id, null, outDt);
                         break;
                     case "lanegroup_flw":
-                        output = new LaneGroupFlow(scenario, prefix, output_folder, commodity_id, null, outDt);
+                        output = new OutputLaneGroupFlow(scenario, prefix, output_folder, commodity_id, null, outDt);
                         break;
                     case "lanegroup_veh":
-                        output = new LaneGroupVehicles(scenario, prefix, output_folder, commodity_id, null, outDt);
+                        output = new OutputLaneGroupVehicles(scenario, prefix, output_folder, commodity_id, null, outDt);
                         break;
                     case "link_vht":
-                        output = new LinkVHT(scenario, prefix, output_folder, commodity_id, null, outDt);
+                        output = new OutputLinkVHT(scenario, prefix, output_folder, commodity_id, null, outDt);
                         break;
                     case "vehicle_events":
-                        output = new EventsVehicle(scenario, prefix, output_folder, commodity_id);
+                        output = new OutputVehicle(scenario, prefix, output_folder, commodity_id);
                         break;
                     case "vehicle_class":
-                        output = new VehicleClass(scenario, prefix, output_folder);
+                        output = new OutputVehicleClass(scenario, prefix, output_folder);
                         break;
                     case "vehicle_travel_time":
-                        output = new VehicleTravelTime(scenario, prefix, output_folder);
+                        output = new OutputTravelTime(scenario, prefix, output_folder);
                         break;
                     case "controller":
-                        output = new EventsController(scenario, prefix, output_folder, jaxb_or.getController());
+                        output = new OutputController(scenario, prefix, output_folder, jaxb_or.getController());
                         break;
-                    case "actuator":
-                        output = new EventsActuator(scenario, prefix, output_folder, jaxb_or.getActuator());
-                        break;
+//                    case "actuator":
+//                        output = new OutputActuator(scenario, prefix, output_folder, jaxb_or.getActuator());
+//                        break;
                     case "path_travel_time":
-                        output = new PathTravelTimeWriter(scenario, prefix, output_folder, null, outDt);
-                        scenario.path_tt_manager.add_path_travel_time_writer((PathTravelTimeWriter) output);
+                        output = new OutputPathTravelTime(scenario, prefix, output_folder, null, outDt);
+                        scenario.path_tt_manager.add_path_travel_time_writer((OutputPathTravelTime) output);
                         break;
                     default:
                         throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());

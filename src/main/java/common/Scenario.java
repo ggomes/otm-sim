@@ -15,7 +15,7 @@ import jaxb.Split;
 import keys.KeyCommodityDemandTypeId;
 import keys.KeyCommodityLink;
 import output.AbstractOutput;
-import output.PathTravelTimeWriter;
+import output.OutputPathTravelTime;
 import profiles.*;
 import sensor.AbstractSensor;
 import utils.OTMUtils;
@@ -381,7 +381,7 @@ public class Scenario {
     // travel time manager
     ///////////////////////////////////////////////////
 
-    public void add_path_travel_time(PathTravelTimeWriter path_tt_writer) throws OTMException {
+    public void add_path_travel_time(OutputPathTravelTime path_tt_writer) throws OTMException {
         if(path_tt_manager==null)
             path_tt_manager = new LinkTravelTimeManager(this);
 

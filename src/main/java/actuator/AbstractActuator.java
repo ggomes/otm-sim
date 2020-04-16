@@ -2,13 +2,14 @@ package actuator;
 
 import common.*;
 import control.AbstractController;
+import control.InterfaceCommand;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
-import output.EventsActuator;
+import output.AbstractOutputEvent;
 import utils.OTMUtils;
 
 import java.util.HashSet;
@@ -30,9 +31,9 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     public AbstractController myController;
     public InterfaceActuatorTarget target;
 
-    public EventsActuator event_listener;
+//    public OutputActuator event_output;
 
-    abstract public void process_controller_command(Object command, float timestamp) throws OTMException;
+    abstract public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException;
 
     ///////////////////////////////////////////
     // construction
@@ -113,25 +114,20 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     }
 
     /////////////////////////////////////////////////////////////////////
-    // get
+    // InterfaceEventWriter
     /////////////////////////////////////////////////////////////////////
 
-//    public Type getActuatorType(){
-//        return type;
+//    @Override
+//    public void set_event_output(AbstractOutputEvent e) throws OTMException {
+//        if(event_output !=null)
+//            throw new OTMException("multiple listeners for actuator.");
+//        if(!(e instanceof OutputActuator))
+//            throw new OTMException("Wrong type of listener");
+//        event_output = (OutputActuator)e;
 //    }
 
     /////////////////////////////////////////////////////////////////////
-    // listeners
-    /////////////////////////////////////////////////////////////////////
-
-    public void set_event_listener(EventsActuator e) throws OTMException {
-        if(event_listener!=null)
-            throw new OTMException("multiple listeners for commodity");
-        event_listener = e;
-    }
-
-    /////////////////////////////////////////////////////////////////////
-    // AbstractActuatorLanegroupX
+    // AbstractActuatorLanegroup
     /////////////////////////////////////////////////////////////////////
 
     protected Set<AbstractLaneGroup> read_lanegroups(Scenario scenario, Actuator jact) throws OTMException {

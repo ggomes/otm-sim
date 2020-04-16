@@ -2,6 +2,8 @@ package actuator;
 
 import common.Link;
 import common.Scenario;
+import control.CommandNumber;
+import control.InterfaceCommand;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
@@ -49,10 +51,10 @@ public abstract class AbstractActuatorLanegroupCapacity extends AbstractActuator
     ///////////////////////////////////////////////////
 
     @Override
-    public void process_controller_command(Object command, float timestamp) throws OTMException {
+    public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException {
         if(command==null)
             return;
-        double rate_vps = (double) command;
+        double rate_vps = ((CommandNumber) command).value;
         for(AbstractLaneGroup lg : lanegroups)
             lg.set_actuator_capacity_vps(rate_vps * lg.num_lanes / total_lanes);
     }

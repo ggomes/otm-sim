@@ -73,17 +73,6 @@ public abstract class AbstractOutputTimed extends AbstractOutput implements Inte
     }
 
     @Override
-    public void write(float timestamp,Object obj) throws OTMException {
-        if(write_to_file) {
-            try {
-                time_writer.write(timestamp + "\n");
-            } catch (IOException e) {
-                throw new OTMException(e);
-            }
-        }
-    }
-
-    @Override
     public void register(RunParameters props, Dispatcher dispatcher) {
         dispatcher.register_event(new EventTimedWrite(dispatcher,props.start_time,this));
     }
@@ -104,6 +93,16 @@ public abstract class AbstractOutputTimed extends AbstractOutput implements Inte
         return  output_folder + File.separator + prefix + "_" +
                 String.format("%.0f", outDt) + "_" +
                 (commodity==null ? "g" : commodity.getId());
+    }
+
+    public void write(float timestamp) throws OTMException {
+        if(write_to_file) {
+            try {
+                time_writer.write(timestamp + "\n");
+            } catch (IOException e) {
+                throw new OTMException(e);
+            }
+        }
     }
 
     //////////////////////////////////////////////////////

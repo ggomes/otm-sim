@@ -1,6 +1,6 @@
 package output;
 
-import api.info.events.AbstractEventInfo;
+import output.events.AbstractEventWrapper;
 import error.OTMException;
 import common.Scenario;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 public abstract class AbstractOutputEvent extends AbstractOutput implements InterfacePlottable {
 
-    public List<AbstractEventInfo> events;
+    public List<AbstractEventWrapper> events;
 
     //////////////////////////////////////////////////////
     // construction
@@ -31,29 +31,6 @@ public abstract class AbstractOutputEvent extends AbstractOutput implements Inte
     }
 
     //////////////////////////////////////////////////////
-    // InterfaceOutput
-    //////////////////////////////////////////////////////
-
-    @Override
-    public void write(float timestamp,Object obj) throws OTMException {
-
-        if(!(obj instanceof AbstractEventInfo))
-            throw new OTMException("Bad object type in AbstractOutputEvent.write");
-
-        AbstractEventInfo event = (AbstractEventInfo) obj;
-
-        if(write_to_file){
-            try {
-                writer.write(timestamp+"\t"+event.toString()+"\n");
-            } catch (IOException e) {
-                throw new OTMException(e);
-            }
-        } else {
-            events.add(event);
-        }
-    }
-
-    //////////////////////////////////////////////////////
     // InterfacePlottable
     //////////////////////////////////////////////////////
 
@@ -66,7 +43,19 @@ public abstract class AbstractOutputEvent extends AbstractOutput implements Inte
     // final
     //////////////////////////////////////////////////////
 
-    public final List<AbstractEventInfo> get_events(){
+    public final void write(AbstractEventWrapper event) throws OTMException {
+        if(write_to_file){
+            try {
+                writer.write(event.timestamp+"\t"+event.asString()+"\n");
+            } catch (IOException e) {
+                throw new OTMException(e);
+            }
+        } else {
+            events.add(event);
+        }
+    }
+
+    public final List<AbstractEventWrapper> get_events(){
         return events;
     }
 

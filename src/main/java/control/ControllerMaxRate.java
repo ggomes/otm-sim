@@ -46,8 +46,8 @@ public class ControllerMaxRate extends AbstractController  {
         for(Map.Entry<Long,Profile1D> e : actuator_rate_vph.entrySet()){
             Long act_id = e.getKey();
             Profile1D profile = e.getValue();
-            double rate_vph = profile.get_value_for_time(dispatcher.current_time);
-            command.put(act_id, rate_vph / 3600f);
+            float rate_vph = (float) profile.get_value_for_time(dispatcher.current_time);
+            command.put(act_id, new CommandNumber( rate_vph / 3600f) );
         }
     }
 

@@ -1,7 +1,5 @@
 package tests;
 
-import api.OTMdev;
-import api.info.*;
 import error.OTMException;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -9,8 +7,6 @@ import output.*;
 import runner.OTM;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertNotNull;
@@ -138,11 +134,11 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "/home/gomes/code/otm/otm-base/src/main/resources/test_configs/intersection.xml";
+            String configfile = "/home/gomes/code/otm/otm-base/src/main/resources/test_configs/onramp_nohov.xml";
 
             float duration = 400f;
             float outdt = 2f;
-            String prefix = null; //""x";
+            String prefix = "x";
             String output_folder = "/home/gomes/code/otm/otm-sim/temp";
 
             // Load ..............................
@@ -168,8 +164,8 @@ public class TestOne extends AbstractTest {
 //            api.request_links_flow(null, api.get_link_ids(), outdt);
 //            api.request_links_veh(null, api.get_link_ids(), outdt);
 
-//            api.request_controller(1L);
-//            api.request_actuator(1L);
+            otm.output.request_controller(prefix,output_folder,0l);
+//            otm.output.request_controller(0L);
 
             // Run .................................
             otm.run(0,duration);
@@ -177,17 +173,14 @@ public class TestOne extends AbstractTest {
             // Print output .........................
             for(AbstractOutput output :  otm.output.get_data()){
 
-//                if (output instanceof EventsActuator)
-//                    ((EventsActuator) output).plot(String.format("%sactuator%d.png",outfolder,((EventsActuator) output).actuator_id));
-//
-//                if (output instanceof EventsController)
-//                    ((EventsController) output).plot(String.format("%scontroller%d.png",outfolder,((EventsController) output).controller_id));
+//                if (output instanceof OutputController)
+//                    ((OutputController) output).plot(String.format("%s/controller%d.png",output_folder,((OutputController) output).controller_id));
 
-                if (output instanceof LinkFlow)
-                    ((LinkFlow) output).plot_for_links(null, String.format("%s/flow.png", output_folder));
+                if (output instanceof OutputLinkFlow)
+                    ((OutputLinkFlow) output).plot_for_links(null, String.format("%s/flow.png", output_folder));
 
-                if (output instanceof LinkVehicles)
-                    ((LinkVehicles) output).plot_for_links(null, String.format("%s/veh.png", output_folder));
+                if (output instanceof OutputLinkVehicles)
+                    ((OutputLinkVehicles) output).plot_for_links(null, String.format("%s/veh.png", output_folder));
 
 //                if(output instanceof PathTravelTimeWriter){
 //                    PathTravelTimeWriter ptt = (PathTravelTimeWriter) output;

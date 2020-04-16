@@ -1,5 +1,7 @@
 package actuator;
 
+import control.CommandSignal;
+import control.InterfaceCommand;
 import error.OTMErrorLog;
 import error.OTMException;
 import common.Scenario;
@@ -61,10 +63,10 @@ public class ActuatorSignal extends AbstractActuatorLanegroupCapacity {
     ///////////////////////////////////////////////////
 
     @Override
-    public void process_controller_command(Object obj, float timestamp) throws OTMException {
+    public void process_controller_command(InterfaceCommand obj, float timestamp) throws OTMException {
         // The command is a map from signal phase to color.
         // anything not in the map should be set to red
-        Map<Long, SignalPhase.BulbColor> command = (Map<Long, SignalPhase.BulbColor>) obj;
+        Map<Long, SignalPhase.BulbColor> command = ((CommandSignal)obj).value;
         for( Map.Entry<Long, SignalPhase> e : signal_phases.entrySet()){
             long phase_id = e.getKey();
             SignalPhase phase = e.getValue();

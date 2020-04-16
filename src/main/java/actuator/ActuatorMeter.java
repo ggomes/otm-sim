@@ -1,5 +1,7 @@
 package actuator;
 
+import control.CommandNumber;
+import control.InterfaceCommand;
 import error.OTMException;
 import jaxb.Actuator;
 import common.Scenario;
@@ -38,9 +40,9 @@ public class ActuatorMeter extends AbstractActuatorLanegroupCapacity  {
     ///////////////////////////////////////////////////
 
     @Override
-    public void process_controller_command(Object command, float timestamp) throws OTMException {
+    public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException {
         super.process_controller_command(
-                Math.max(Math.min((double) command,max_rate_vps),min_rate_vps)
+                new CommandNumber(Math.max(Math.min(((CommandNumber) command).value,max_rate_vps),min_rate_vps))
                 ,timestamp);
     }
 

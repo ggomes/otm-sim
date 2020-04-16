@@ -8,13 +8,13 @@ import common.Scenario;
 import java.util.Collection;
 import java.util.List;
 
-public class LinkVehicles extends AbstractOutputTimedLink {
+public class OutputLinkVehicles extends AbstractOutputTimedLink {
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
-    public LinkVehicles(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
+    public OutputLinkVehicles(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,link_ids,outDt);
         this.type = Type.link_veh;
     }

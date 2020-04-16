@@ -1,6 +1,6 @@
 package actuator;
 
-import api.info.events.EventSignalPhaseInfo;
+import output.events.EventSignalPhaseInfo;
 import common.AbstractLaneGroup;
 import common.RoadConnection;
 import error.OTMErrorLog;
@@ -121,9 +121,9 @@ public class SignalPhase {
         for(AbstractLaneGroup lg : lanegroups)
             lg.set_actuator_capacity_vps(rate_vps);
 
-        // inform the output listener
-        if(my_signal.event_listener!=null)
-            my_signal.event_listener.write(timestamp,new EventSignalPhaseInfo(timestamp,id,bulbcolor));
+//        // inform the output listener
+//        if(my_signal.event_output !=null)
+//            my_signal.event_output.write(timestamp,new EventSignalPhaseInfo(timestamp,id,bulbcolor));
 
     }
 

@@ -1,6 +1,6 @@
 package output;
 
-import api.info.events.EventVehicleInfo;
+import output.events.EventVehicleInfo;
 import commodity.Commodity;
 import dispatch.Dispatcher;
 import error.OTMException;
@@ -10,13 +10,13 @@ import runner.RunParameters;
 import common.Scenario;
 
 // TODO: THIS SHOULD NOT BE AN INTERFACEVEHICLELISTENER SINCE IT ONLY ACTS UPON VEHICLE CREATION
-public class VehicleClass extends AbstractOutput implements InterfaceVehicleListener {
+public class OutputVehicleClass extends AbstractOutput implements InterfaceVehicleListener {
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
-    public VehicleClass(Scenario scenario, String prefix, String output_folder) {
+    public OutputVehicleClass(Scenario scenario, String prefix, String output_folder) {
         super(scenario, prefix, output_folder);
         this.type = Type.vehicle_class;
     }
@@ -30,7 +30,6 @@ public class VehicleClass extends AbstractOutput implements InterfaceVehicleList
         return write_to_file ? super.get_output_file() + "_vehicle_class.txt" : null;
     }
 
-    @Override
     public void write(float timestamp, Object obj) throws OTMException {
         throw new OTMException("NOT IMPLEMENTED");
     }

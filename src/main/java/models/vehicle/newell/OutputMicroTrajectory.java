@@ -4,13 +4,12 @@ import common.Link;
 import error.OTMException;
 import common.AbstractLaneGroup;
 import output.AbstractOutputTimed;
-import runner.RunParameters;
 import common.Scenario;
 
 import java.io.File;
 import java.io.IOException;
 
-public class NewellTrajectories extends AbstractOutputTimed {
+public class OutputMicroTrajectory extends AbstractOutputTimed {
 
     public float outDt;			// output frequency in seconds
     public ModelNewell model;
@@ -19,7 +18,7 @@ public class NewellTrajectories extends AbstractOutputTimed {
     // construction
     //////////////////////////////////////////////////////
 
-    public NewellTrajectories(Scenario scenario, String prefix, String output_folder, Long commodity_id, Float outDt) throws OTMException {
+    public OutputMicroTrajectory(Scenario scenario, String prefix, String output_folder, Long commodity_id, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, commodity_id, outDt);
     }
 //    public NewellTrajectories(Scenario scenario, ModelNewell model, String prefix, String output_folder, Float outDt) throws OTMException{
@@ -41,8 +40,13 @@ public class NewellTrajectories extends AbstractOutputTimed {
                 model.name + "_traj.txt";
     }
 
+    //////////////////////////////////////////////////////
+    // AbstractOutputTimed
+    //////////////////////////////////////////////////////
+
     @Override
-    public void write(float timestamp,Object obj) throws OTMException {
+    public final void write(float timestamp) throws OTMException {
+        super.write(timestamp);
         if(write_to_file){
             try {
                 for(Link link : model.links){

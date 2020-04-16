@@ -328,16 +328,6 @@ public class TestOTM extends AbstractTest {
         otm.output.request_vehicle_travel_time("vtt",output_folder);
     }
 
-    // sensors ..................
-
-    // actuators ...............
-
-    @Test
-    @Ignore
-    public void test_request_actuator(){
-        otm.output.request_actuator("act", output_folder,1l);
-    }
-
     // controllers ..............
 
     @Test

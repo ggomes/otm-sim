@@ -1,6 +1,6 @@
-package api.info.events;
+package output.events;
 
-public class EventVehicleInfo extends AbstractEventInfo {
+public class EventVehicleInfo extends AbstractEventWrapper {
 
     public final long vehicle_id;
     public final long commodity_id;
@@ -12,7 +12,7 @@ public class EventVehicleInfo extends AbstractEventInfo {
     }
 
     @Override
-    public String toString() {
+    public String asString() {
         return vehicle_id + "\t"+ commodity_id;
     }
 

@@ -1,8 +1,8 @@
-package api.info.events;
+package output.events;
 
 import models.vehicle.spatialq.Queue;
 
-public class EventVehicleFromToQueueInfo extends AbstractEventInfo {
+public class EventVehicleFromToQueueInfo extends AbstractEventWrapper {
 
     public final long vehicle_id;
     public final Queue from_queue;
@@ -24,7 +24,7 @@ public class EventVehicleFromToQueueInfo extends AbstractEventInfo {
     ///////////////////////////////////////
 
     @Override
-    public String toString() {
+    public String asString() {
         return get_vehicle_id()+"\t"+from_queue_id()+"\t"+to_queue_id();
     }
 

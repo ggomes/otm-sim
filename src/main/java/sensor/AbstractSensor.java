@@ -1,11 +1,12 @@
 package sensor;
 
+import common.InterfaceEventWriter;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
-import output.EventsSensor;
+import output.AbstractOutputEvent;
 import common.InterfaceScenarioElement;
 import common.Scenario;
 import common.ScenarioElementType;
@@ -25,7 +26,7 @@ public abstract class AbstractSensor implements Pokable, InterfaceScenarioElemen
 
     public Object target;
 
-    public EventsSensor event_listener;
+//    public OutputSensor event_output;
 
     /////////////////////////////////////////////////////////////////////
     // construction
@@ -72,18 +73,25 @@ public abstract class AbstractSensor implements Pokable, InterfaceScenarioElemen
     public void poke(Dispatcher dispatcher, float timestamp) {
         take_measurement(dispatcher,timestamp);
 
+        // write to output
+//        if(event_output!=null)
+//            event_output.write(timestamp,new EventWrapperSensor(measurement));
+
         // wake up in dt, if dt is defined
         if(dt>0)
             dispatcher.register_event(new EventPoke(dispatcher,1,timestamp+dt,this));
     }
 
     /////////////////////////////////////////////////////////////////////
-    // listeners
+    // InterfaceEventWriter
     /////////////////////////////////////////////////////////////////////
 
-    public void set_event_listener(EventsSensor e) throws OTMException {
-        if(event_listener!=null)
-            throw new OTMException("multiple listeners for commodity");
-        event_listener = e;
-    }
+//    @Override
+//    public void set_event_output(AbstractOutputEvent e) throws OTMException {
+//        if(event_output !=null)
+//            throw new OTMException("multiple listeners for sensor");
+//        if(!(e instanceof OutputSensor))
+//            throw new OTMException("Wrong type of listener");
+//        event_output = (OutputSensor) e;
+//    }
 }

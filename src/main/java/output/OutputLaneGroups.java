@@ -9,13 +9,13 @@ import utils.OTMUtils;
 
 import java.io.IOException;
 
-public class LaneGroups extends AbstractOutput {
+public class OutputLaneGroups extends AbstractOutput {
 
     ///////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////
 
-    public LaneGroups(Scenario scenario,String prefix,String output_folder) throws OTMException {
+    public OutputLaneGroups(Scenario scenario, String prefix, String output_folder) throws OTMException {
         super(scenario,prefix,output_folder);
     }
 
@@ -28,7 +28,6 @@ public class LaneGroups extends AbstractOutput {
         return write_to_file ? super.get_output_file() + "_lanegroups.txt" : null;
     }
 
-    @Override
     public void write(float timestamp, Object obj) {
         System.err.println("this should not happen");
     }

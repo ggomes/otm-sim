@@ -58,7 +58,9 @@ public class ControllerAlinea extends AbstractController  {
             param.target_link = ml_link;
             params.put(abs_act.id , param);
 
-            command.put(act.id,Float.isInfinite(act.max_rate_vps) ? (float) ml_link.full_lanes*900f/3600f : act.max_rate_vps);
+            command.put(act.id,
+                    new CommandNumber(Float.isInfinite(act.max_rate_vps) ? (float) ml_link.full_lanes*900f/3600f : act.max_rate_vps)
+            );
         }
     }
 
@@ -68,7 +70,7 @@ public class ControllerAlinea extends AbstractController  {
             ActuatorMeter act = (ActuatorMeter) abs_act;
             AlineaParams p = params.get(abs_act.id);
             float density_veh = (float) p.target_link.get_veh();
-            float previous_rate_vps = (float) command.get(act.id);
+            float previous_rate_vps = ((CommandNumber) command.get(act.id)).value;
             float rate_vps = previous_rate_vps +  p.gain_per_sec * (p.target_density_veh - density_veh);
 
             if(rate_vps < 0f)
@@ -76,7 +78,7 @@ public class ControllerAlinea extends AbstractController  {
             else if(rate_vps > p.max_rate_vps)
                 rate_vps = p.max_rate_vps;
 
-            command.put(act.id,rate_vps);
+            command.put(act.id,new CommandNumber(rate_vps));
 
         }
     }

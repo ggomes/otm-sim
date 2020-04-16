@@ -13,7 +13,7 @@ public class EventTimedWrite extends AbstractEvent {
     public void action(boolean verbose) throws OTMException {
         super.action(verbose);
         AbstractOutputTimed obj = (AbstractOutputTimed)recipient;
-        obj.write(timestamp,null);
+        obj.write(timestamp);
         dispatcher.register_event(new EventTimedWrite(dispatcher,timestamp + obj.outDt,recipient));
     }
 }

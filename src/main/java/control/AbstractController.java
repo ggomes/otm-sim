@@ -1,21 +1,24 @@
 package control;
 
 import actuator.AbstractActuator;
+import common.InterfaceEventWriter;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
-import output.EventsController;
+import output.AbstractOutputEvent;
+import output.OutputController;
 import common.InterfaceScenarioElement;
 import common.Scenario;
 import common.ScenarioElementType;
+import output.events.EventWrapperController;
 import sensor.AbstractSensor;
 import utils.OTMUtils;
 
 import java.util.*;
 
-public abstract class AbstractController implements Pokable, InterfaceScenarioElement {
+public abstract class AbstractController implements Pokable, InterfaceScenarioElement, InterfaceEventWriter {
 
     public enum Algorithm {
         sig_pretimed,
@@ -43,9 +46,9 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     public Set<AbstractSensor> sensors;
     public Map<String,AbstractSensor> sensor_by_usage;
 
-    public EventsController event_listener;
+    public OutputController event_output;
 
-    public Map<Long,Object> command;    // actuator id -> command
+    public Map<Long, InterfaceCommand> command;    // actuator id -> command
 
     abstract public void update_command(Dispatcher dispatcher) throws OTMException;
 
@@ -183,19 +186,26 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
             if(act.dt<0)
                 act.process_controller_command(command.get(act.id),timestamp);
 
+        // write to output
+        if(event_output!=null)
+            event_output.write(new EventWrapperController(timestamp,command));
+
         // wake up in dt, if dt is defined
         if(dt >0)
             dispatcher.register_event(new EventPoke(dispatcher,2,timestamp+dt,this));
     }
 
     ///////////////////////////////////////////////////
-    // listeners
+    // InterfaceEventWriter
     ///////////////////////////////////////////////////
 
-    public void set_event_listener(EventsController e) throws OTMException {
-        if(event_listener !=null)
-            throw new OTMException("multiple listeners for commodity");
-        event_listener = e;
+    @Override
+    public void set_event_output(AbstractOutputEvent e) throws OTMException {
+        if(event_output !=null)
+            throw new OTMException("multiple listeners for controller");
+        if(!(e instanceof OutputController))
+            throw new OTMException("Wrong type of listener");
+        event_output = (OutputController) e;
     }
 
     ///////////////////////////////////////////////////
@@ -210,11 +220,11 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         return false;
     }
 
-    public final Object get_command_for_actuator_id(Long act_id){
+    public final InterfaceCommand get_command_for_actuator_id(Long act_id){
         return command.get(act_id);
     }
 
-    public final Object get_command_for_actuator_usage(String act_usage){
+    public final InterfaceCommand get_command_for_actuator_usage(String act_usage){
         if(!actuator_by_usage.containsKey(act_usage))
             return null;
         return get_command_for_actuator_id(actuator_by_usage.get(act_usage).getId());

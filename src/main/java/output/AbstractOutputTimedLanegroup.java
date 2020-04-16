@@ -42,13 +42,13 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
     }
 
     //////////////////////////////////////////////////////
-    // InterfaceOutput
+    // AbstractOutputTimed
     //////////////////////////////////////////////////////
 
     @Override
-    public void write(float timestamp,Object obj) throws OTMException {
+    public final void write(float timestamp) throws OTMException {
+        super.write(timestamp);
         if(write_to_file){
-            super.write(timestamp,null);
             try {
                 boolean isfirst=true;
                 for(AbstractLaneGroup lg : ordered_lgs){

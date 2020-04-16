@@ -3,6 +3,7 @@ package control.sigint;
 import actuator.ActuatorSignal;
 import actuator.SignalPhase;
 import control.AbstractController;
+import control.CommandSignal;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import error.OTMErrorLog;
@@ -137,11 +138,11 @@ public class ControllerSignalPretimed extends AbstractController {
         return (time-offset)%cycle;
     }
 
-    public Map<Long, SignalPhase.BulbColor> get_command_for_stage_index(int index) {
+    public CommandSignal get_command_for_stage_index(int index) {
         Map<Long, SignalPhase.BulbColor> command = new HashMap<>();
         for(Long phase_id : stages.get(index).phase_ids)
             command.put(phase_id, SignalPhase.BulbColor.GREEN);
-        return command;
+        return new CommandSignal(command);
     }
 
     ///////////////////////////////////////////////////
@@ -153,7 +154,7 @@ public class ControllerSignalPretimed extends AbstractController {
         curr_stage_index = index;
 
         ActuatorSignal signal = get_signal();
-        Map<Long, SignalPhase.BulbColor> c = get_command_for_stage_index(index);
+        CommandSignal c = get_command_for_stage_index(index);
         command.put(signal.id , c);
 
         // send command to actuator

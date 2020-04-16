@@ -1,8 +1,8 @@
-package api.info.events;
+package output.events;
 
 import actuator.SignalPhase;
 
-public class EventSignalPhaseInfo extends AbstractEventInfo {
+public class EventSignalPhaseInfo extends AbstractEventWrapper {
 
     public final long signal_phase_id;
     public final SignalPhase.BulbColor bulbcolor;
@@ -14,7 +14,7 @@ public class EventSignalPhaseInfo extends AbstractEventInfo {
     }
 
     @Override
-    public String toString() {
+    public String asString() {
         return new String(signal_phase_id+"\t"+bulbcolor);
     }
 }

@@ -6,13 +6,13 @@ import common.Scenario;
 
 import java.util.Collection;
 
-public class LaneGroupVehicles extends AbstractOutputTimedLanegroup {
+public class OutputLaneGroupVehicles extends AbstractOutputTimedLanegroup {
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
-    public LaneGroupVehicles(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
+    public OutputLaneGroupVehicles(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,link_ids,outDt);
         this.type = Type.lanegroup_veh;
     }

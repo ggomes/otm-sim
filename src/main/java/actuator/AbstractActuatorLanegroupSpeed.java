@@ -2,6 +2,8 @@ package actuator;
 
 import common.AbstractLaneGroup;
 import common.Scenario;
+import control.CommandNumber;
+import control.InterfaceCommand;
 import error.OTMException;
 import jaxb.Actuator;
 
@@ -38,11 +40,12 @@ public abstract class AbstractActuatorLanegroupSpeed extends AbstractActuator {
     ///////////////////////////////////////////////////
 
     @Override
-    public void process_controller_command(Object command, float timestamp) throws OTMException {
+    public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException {
         if(command==null)
             return;
+        double value = ((CommandNumber)command).value;
         for(AbstractLaneGroup lg : lanegroups)
-            lg.set_actuator_speed_mps((double) command);
+            lg.set_actuator_speed_mps(value);
     }
 
 }

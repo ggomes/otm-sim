@@ -50,8 +50,14 @@ public class OutputQueues extends AbstractOutputTimed {
                 "_queues.txt";
     }
 
+    //////////////////////////////////////////////////////
+    // AbstractOutputTimed
+    //////////////////////////////////////////////////////
+
     @Override
-    public void write(float timestamp,Object obj) throws OTMException {
+    public void write(float timestamp) throws OTMException {
+        super.write(timestamp);
+
         if(write_to_file){
 //            super.write(timestamp,null);
 //            try {

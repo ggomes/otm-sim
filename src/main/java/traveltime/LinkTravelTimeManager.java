@@ -4,7 +4,7 @@ import common.Link;
 import dispatch.Dispatcher;
 import dispatch.EventComputeTravelTime;
 import error.OTMException;
-import output.PathTravelTimeWriter;
+import output.OutputPathTravelTime;
 import common.Scenario;
 
 import java.util.*;
@@ -21,7 +21,7 @@ public class LinkTravelTimeManager {
         this.links = new HashSet<>();
     }
 
-    public void add_path_travel_time_writer(PathTravelTimeWriter path_tt_writer) throws OTMException {
+    public void add_path_travel_time_writer(OutputPathTravelTime path_tt_writer) throws OTMException {
 
         // check dt
         if (Float.isNaN(dt))
