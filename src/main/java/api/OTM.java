@@ -36,52 +36,11 @@ public class OTM {
     public api.Scenario scenario;
     public api.Output output;
 
+    ////////////////////////////////////////////////////////
+    // construction
+    ////////////////////////////////////////////////////////
+
     public OTM(){}
-
-    public boolean has_scenario(){
-        return scn!=null;
-    }
-
-    public Scenario scenario(){
-        return scenario;
-    }
-
-    public Output output(){
-        return output;
-    }
-
-    public void load(String configfile, boolean validate, boolean jaxb_only) throws OTMException {
-        jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,validate);
-        if(jaxb_only)
-            this.scn =  ScenarioFactory.create_unrunnable_scenario(jaxb_scenario);
-        else
-            this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,validate);
-        scenario = new api.Scenario(this);
-        output = new api.Output(this);
-    }
-
-    public void load_from_jaxb(jaxb.Scenario jscn,boolean validate) throws OTMException {
-        this.scn =  ScenarioFactory.create_scenario(jscn,validate);
-        scenario = new Scenario(this);
-        output = new Output(this);
-    }
-
-    public void save(String file)  {
-        try {
-            JaxbWriter.save_scenario(scn.to_jaxb(),file);
-        } catch (OTMException e) {
-            System.err.println("ERROR");
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    public void load_test(String configname) throws OTMException  {
-        jaxb.Scenario jaxb_scenario =  JaxbLoader.load_test_scenario(configname+".xml",true);
-        this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,true);
-        scenario = new api.Scenario(this);
-        output = new api.Output(this);
-    }
 
     /**
      * Constructor. Equivalent to OTM(configfile,true,false)
@@ -101,6 +60,159 @@ public class OTM {
      */
     public OTM(String configfile, boolean validate, boolean jaxb_only) throws OTMException {
         load(configfile,validate,jaxb_only);
+    }
+
+    ////////////////////////////////////////////////////////
+    // load / save
+    ////////////////////////////////////////////////////////
+
+    public void load(String configfile, boolean validate, boolean jaxb_only) throws OTMException {
+        jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,validate);
+        if(jaxb_only)
+            this.scn =  ScenarioFactory.create_unrunnable_scenario(jaxb_scenario);
+        else
+            this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,validate);
+        scenario = new api.Scenario(this);
+        output = new api.Output(this);
+    }
+
+    public void load_from_jaxb(jaxb.Scenario jscn,boolean validate) throws OTMException {
+        this.scn =  ScenarioFactory.create_scenario(jscn,validate);
+        scenario = new Scenario(this);
+        output = new Output(this);
+    }
+
+    public void load_test(String configname) throws OTMException  {
+        jaxb.Scenario jaxb_scenario =  JaxbLoader.load_test_scenario(configname+".xml",true);
+        this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,true);
+        scenario = new api.Scenario(this);
+        output = new api.Output(this);
+    }
+
+    public void save(String file)  {
+        try {
+            JaxbWriter.save_scenario(scn.to_jaxb(),file);
+        } catch (OTMException e) {
+            System.err.println("ERROR");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    ////////////////////////////////////////////////////////
+    // initialize
+    ////////////////////////////////////////////////////////
+
+    /**
+     *  Validate and initialize all components of the scenario. This function must be called prior to calling "advance".
+     * @param start_time Initial time in seconds.
+     * @throws OTMException Undocumented
+     */
+    public void initialize(float start_time) throws OTMException {
+        initialize(start_time,null,null,null);
+    }
+
+    /**
+     *  Validate and initialize all components of the scenario. This function must be called prior to calling "advance".
+     * @param start_time Initial time in seconds.
+     * @param output_requests_file Absolute location and name of file with output requests.
+     * @param prefix Prefix for the output.
+     * @param output_folder Folder for the output.
+     * @throws OTMException Undocumented
+     */
+    public void initialize(float start_time,String output_requests_file,String prefix,String output_folder) throws OTMException {
+
+        // build and attach dispatcher
+        dispatcher = new Dispatcher(start_time);
+
+        // append outputs from output request file ..................
+        if(output_requests_file!=null && !output_requests_file.isEmpty()) {
+            jaxb.OutputRequests jaxb_or = load_output_request(output_requests_file, true);
+            scn.outputs.addAll(create_outputs_from_jaxb(scn,prefix,output_folder, jaxb_or));
+        }
+
+        // initialize
+        RunParameters runParams = new RunParameters(prefix,output_requests_file,output_folder,start_time);
+        scn.initialize(dispatcher,runParams);
+    }
+
+    ////////////////////////////////////////////////////////
+    // run
+    ////////////////////////////////////////////////////////
+
+    /**
+     * Run the simulation.
+     * @param start_time Initial time in seconds.
+     * @param duration Duration of the simulation in seconds.
+     * @throws OTMException Undocumented
+     */
+    public void run(float start_time,float duration) throws OTMException {
+        initialize(start_time);
+        advance(duration);
+        scn.is_initialized = false;
+    }
+
+    /**
+     * Run the simulation.
+     * @param prefix Prefix for the output.
+     * @param output_requests_file Absolute location and name of file with output requests.
+     * @param output_folder Folder for the output.
+     * @param start_time Initial time in seconds.
+     * @param duration Duration of the simulation in seconds.
+     * @throws OTMException Undocumented
+     */
+    public void run(String prefix,String output_requests_file,String output_folder,float start_time,float duration) throws OTMException {
+        initialize(start_time,output_requests_file,prefix,output_folder);
+        advance(duration);
+        scn.is_initialized = false;
+    }
+
+    /**
+     *  Advance the simulation in time.
+     * @param duration Seconds to advance.
+     * @throws OTMException Undocumented
+     */
+    public void advance(float duration) throws OTMException {
+
+        dispatcher.set_continue_simulation(true);
+
+        float now = dispatcher.current_time;
+
+        // register stop the simulation
+        dispatcher.set_stop_time(now+duration);
+        dispatcher.register_event(new EventStopSimulation(scn,dispatcher,now+duration));
+
+        // register initial events for each model
+        // this is in initialize
+        scn.network.models.values().forEach(m->m.register_with_dispatcher(scn, dispatcher,now));
+
+        // process all events
+        dispatcher.dispatch_events_to_stop();
+
+    }
+
+    ////////////////////////////////////////////////////////
+    // getters
+    ////////////////////////////////////////////////////////
+
+    public boolean has_scenario(){
+        return scn!=null;
+    }
+
+    public Scenario scenario(){
+        return scenario;
+    }
+
+    public Output output(){
+        return output;
+    }
+
+    /**
+     * Current simulation time in seconds.
+     * @return Current simulation time in seconds.
+     */
+    public float get_current_time(){
+        return scn.get_current_time();
     }
 
     ////////////////////////////////////////////////////////
@@ -137,102 +249,6 @@ public class OTM {
      */
     public static void set_random_seed(long seed){
         OTMUtils.set_random_seed(seed);
-    }
-
-    ////////////////////////////////////////////////////////
-    // run
-    ////////////////////////////////////////////////////////
-
-    /**
-     * Run the simulation.
-     * @param start_time Initial time in seconds.
-     * @param duration Duration of the simulation in seconds.
-     * @throws OTMException Undocumented
-     */
-    public void run(float start_time,float duration) throws OTMException {
-        initialize(start_time);
-        advance(duration);
-        scn.is_initialized = false;
-    }
-
-    /**
-     * Run the simulation.
-     * @param prefix Prefix for the output.
-     * @param output_requests_file Absolute location and name of file with output requests.
-     * @param output_folder Folder for the output.
-     * @param start_time Initial time in seconds.
-     * @param duration Duration of the simulation in seconds.
-     * @throws OTMException Undocumented
-     */
-    public void run(String prefix,String output_requests_file,String output_folder,float start_time,float duration) throws OTMException {
-        initialize(start_time,output_requests_file,prefix,output_folder);
-        advance(duration);
-        scn.is_initialized = false;
-    }
-
-    /**
-     *  Validate and initialize all components of the scenario. This function must be called prior to calling "advance".
-     * @param start_time Initial time in seconds.
-     * @throws OTMException Undocumented
-     */
-    public void initialize(float start_time) throws OTMException {
-        initialize(start_time,null,null,null);
-    }
-
-    /**
-     *  Validate and initialize all components of the scenario. This function must be called prior to calling "advance".
-     * @param start_time Initial time in seconds.
-     * @param output_requests_file Absolute location and name of file with output requests.
-     * @param prefix Prefix for the output.
-     * @param output_folder Folder for the output.
-     * @throws OTMException Undocumented
-     */
-    public void initialize(float start_time,String output_requests_file,String prefix,String output_folder) throws OTMException {
-
-        // build and attach dispatcher
-        dispatcher = new Dispatcher(start_time);
-
-        // append outputs from output request file ..................
-        if(output_requests_file!=null && !output_requests_file.isEmpty()) {
-            jaxb.OutputRequests jaxb_or = load_output_request(output_requests_file, true);
-            scn.outputs.addAll(create_outputs_from_jaxb(scn,prefix,output_folder, jaxb_or));
-        }
-
-        // initialize
-        RunParameters runParams = new RunParameters(prefix,output_requests_file,output_folder,start_time);
-        scn.initialize(dispatcher,runParams);
-    }
-
-    /**
-     *  Advance the simulation in time.
-     * @param duration Seconds to advance.
-     * @throws OTMException Undocumented
-     */
-    public void advance(float duration) throws OTMException {
-
-        dispatcher.set_continue_simulation(true);
-
-        float now = dispatcher.current_time;
-
-        // register stop the simulation
-        dispatcher.set_stop_time(now+duration);
-        dispatcher.register_event(new EventStopSimulation(scn,dispatcher,now+duration));
-
-        // register initial events for each model
-        // this is in initialize
-        scn.network.models.values().forEach(m->m.register_with_dispatcher(scn, dispatcher,now));
-
-        // process all events
-        dispatcher.dispatch_events_to_stop();
-
-    }
-
-    /**
-     * Current simulation time in seconds.
-     * @return Current simulation time in seconds.
-     */
-    public float get_current_time(){
-        return scn.get_current_time();
     }
 
     ////////////////////////////////////////////////////////

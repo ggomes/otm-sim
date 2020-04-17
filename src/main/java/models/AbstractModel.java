@@ -28,6 +28,10 @@ public abstract class AbstractModel implements InterfaceModel {
     public final StochasticProcess stochastic_process;
     public Set<Link> links;
 
+    //////////////////////////////////////////////////
+    // construction
+    //////////////////////////////////////////////////
+
     public AbstractModel(Type type,String name, boolean is_default, StochasticProcess process){
         this.type = type;
         this.name = name;

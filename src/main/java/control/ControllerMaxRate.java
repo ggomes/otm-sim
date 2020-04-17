@@ -48,9 +48,6 @@ public class ControllerMaxRate extends AbstractController  {
             Long act_id = e.getKey();
             Profile1D profile = e.getValue();
             float rate_vph = (float) profile.get_value_for_time(dispatcher.current_time);
-
-            System.out.println(dispatcher.current_time + "\t" + rate_vph);
-
             command.put(act_id, new CommandNumber( rate_vph / 3600f) );
         }
     }
