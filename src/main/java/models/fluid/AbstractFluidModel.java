@@ -118,7 +118,6 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
         // add to source links
         for(Link link : source_links){
-
             for(AbstractSource asource : link.sources){
                 FluidSource source = (FluidSource) asource;
                 for(Map.Entry<Long,Map<KeyCommPathOrLink,Double>> e : source.source_flows.entrySet()){

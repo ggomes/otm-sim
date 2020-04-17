@@ -3,6 +3,7 @@ package control;
 import actuator.AbstractActuator;
 import actuator.ActuatorMeter;
 import common.Node;
+import control.command.CommandNumber;
 import dispatch.Dispatcher;
 import error.OTMException;
 import jaxb.Controller;

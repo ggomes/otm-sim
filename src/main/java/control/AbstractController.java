@@ -2,6 +2,7 @@ package control;
 
 import actuator.AbstractActuator;
 import common.InterfaceEventWriter;
+import control.command.InterfaceCommand;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;

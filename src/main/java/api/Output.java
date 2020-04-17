@@ -72,7 +72,7 @@ public class Output {
     }
 
     // ----------------------------------------------
-    // Links
+    // Links state
     // ----------------------------------------------
 
     /**
@@ -174,6 +174,7 @@ public class Output {
             e.printStackTrace();
         }
     }
+
     /**
      * Request vehicles in a mesoscopic queue.
      * @param link_ids Collection of requested link ids
@@ -186,7 +187,10 @@ public class Output {
             e.printStackTrace();
         }
     }
-    // lanegroups ==============================================
+
+    // ----------------------------------------------
+    // Lane group state
+    // ----------------------------------------------
 
     /**
      * Request lane group flows.
@@ -249,7 +253,7 @@ public class Output {
     }
 
     // ----------------------------------------------
-    // Subnetworks
+    // Subnetwork state
     // ----------------------------------------------
 
     /**
@@ -305,7 +309,7 @@ public class Output {
     }
 
     // ----------------------------------------------
-    // Vehicles
+    // Vehicle events
     // ----------------------------------------------
 
     /**
@@ -363,32 +367,6 @@ public class Output {
     }
 
     // ----------------------------------------------
-    // Sensors and actuators
-    // ----------------------------------------------
-
-//    /**
-//     * Request actuator events.
-//     * @param prefix Prefix for the output files.
-//     * @param output_folder Output folder.
-//     * @param actuator_id Actuator id.
-//     */
-//    public void request_actuator(String prefix,String output_folder,Long actuator_id){
-//        try {
-//            this.myapi.scn.outputs.add(new OutputActuator(myapi.scn,prefix,output_folder,actuator_id));
-//        } catch (OTMException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-//    /**
-//     * Request actuator events.
-//     * @param actuator_id Actuator id.
-//     */
-//    public void request_actuator(Long actuator_id){
-//        request_actuator(null,null,actuator_id);
-//    }
-
-    // ----------------------------------------------
     // Controllers
     // ----------------------------------------------
 
@@ -413,6 +391,5 @@ public class Output {
     public void request_controller(Long controller_id){
         request_controller(null,null, controller_id);
     }
-
 
 }

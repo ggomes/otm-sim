@@ -7,6 +7,7 @@ import output.*;
 import runner.OTM;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertNotNull;
@@ -134,7 +135,7 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "/home/gomes/code/otm/otm-base/src/main/resources/test_configs/onramp_nohov.xml";
+            String configfile = "/home/gomes/code/otm/otm-base/src/main/resources/test_configs/onramp_hov_2link.xml";
 
             float duration = 400f;
             float outdt = 2f;
@@ -145,12 +146,21 @@ public class TestOne extends AbstractTest {
             api.OTM otm = new api.OTM(configfile,true,false);
 
             // Output requests .....................
-            Set<Long> link_ids = otm.scenario.get_link_ids();
-//            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
+//            Set<Long> link_ids =  otm.scenario.get_link_ids();
+
+            Set<Long> link_ids = new HashSet<>();
+            link_ids.add(6l);
+            link_ids.add(8l);
+
+
+            //            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
 //            otm.output.request_links_veh(prefix,output_folder,null, link_ids, outdt);
 
-            otm.output.request_links_flow(null, link_ids, outdt);
-            otm.output.request_links_veh(null, link_ids, outdt);
+//            otm.output.request_links_flow(null, link_ids, outdt);
+//            otm.output.request_links_veh(null, link_ids, outdt);
+
+            otm.output.request_lanegroup_flw(null,link_ids,outdt);
+            otm.output.request_lanegroup_veh(null,link_ids,outdt);
 
             //
 //            List<ODInfo> od_infos = api.get_od_info();
@@ -173,14 +183,21 @@ public class TestOne extends AbstractTest {
             // Print output .........................
             for(AbstractOutput output :  otm.output.get_data()){
 
+                if (output instanceof OutputLaneGroupFlow)
+                    ((OutputLaneGroupFlow) output).plot_for_links(null, String.format("%s/lg_flow.png", output_folder));
+
+                if (output instanceof OutputLaneGroupVehicles)
+                    ((OutputLaneGroupVehicles) output).plot_for_links(null, String.format("%s/lg_veh.png", output_folder));
+
+
 //                if (output instanceof OutputController)
 //                    ((OutputController) output).plot(String.format("%s/controller%d.png",output_folder,((OutputController) output).controller_id));
 
                 if (output instanceof OutputLinkFlow)
-                    ((OutputLinkFlow) output).plot_for_links(null, String.format("%s/flow.png", output_folder));
+                    ((OutputLinkFlow) output).plot_for_links(null, String.format("%s/link_flow.png", output_folder));
 
                 if (output instanceof OutputLinkVehicles)
-                    ((OutputLinkVehicles) output).plot_for_links(null, String.format("%s/veh.png", output_folder));
+                    ((OutputLinkVehicles) output).plot_for_links(null, String.format("%s/link_veh.png", output_folder));
 
 //                if(output instanceof PathTravelTimeWriter){
 //                    PathTravelTimeWriter ptt = (PathTravelTimeWriter) output;

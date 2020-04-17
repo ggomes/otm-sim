@@ -1,16 +1,13 @@
 package actuator;
 
-import common.Link;
 import common.Scenario;
-import control.CommandNumber;
-import control.InterfaceCommand;
+import control.command.CommandNumber;
+import control.command.InterfaceCommand;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
 import common.AbstractLaneGroup;
-import utils.OTMUtils;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /** This is an abstract class for actuators whose target is

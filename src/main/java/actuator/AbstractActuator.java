@@ -2,14 +2,13 @@ package actuator;
 
 import common.*;
 import control.AbstractController;
-import control.InterfaceCommand;
+import control.command.InterfaceCommand;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
-import output.AbstractOutputEvent;
 import utils.OTMUtils;
 
 import java.util.HashSet;

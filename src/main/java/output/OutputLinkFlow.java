@@ -70,7 +70,6 @@ public class OutputLinkFlow extends AbstractOutputTimedLink {
     public XYSeries get_series_for_linkid(Long link_id) {
         if(!linkprofiles.containsKey(link_id))
             return null;
-//        return linkprofiles.get(link_id).profile.get_series(String.format("%d",link_id));
         return get_flow_profile_for_link_in_vph(link_id).get_series(String.format("%d",link_id));
     }
 
@@ -100,8 +99,6 @@ public class OutputLinkFlow extends AbstractOutputTimedLink {
     //////////////////////////////////////////////////////
 
     private Profile1D get_flow_profile_for_link_in_vph(Long link_id){
-        if(!linkprofiles.containsKey(link_id))
-            return null;
         Profile1D profile = linkprofiles.get(link_id).profile.clone();
         Profile1D diffprofile = new Profile1D(profile.start_time,profile.dt,profile.diff());
         diffprofile.multiply(3600d/outDt);

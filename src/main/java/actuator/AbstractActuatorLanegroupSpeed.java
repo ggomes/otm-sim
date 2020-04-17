@@ -2,8 +2,8 @@ package actuator;
 
 import common.AbstractLaneGroup;
 import common.Scenario;
-import control.CommandNumber;
-import control.InterfaceCommand;
+import control.command.CommandNumber;
+import control.command.InterfaceCommand;
 import error.OTMException;
 import jaxb.Actuator;
 

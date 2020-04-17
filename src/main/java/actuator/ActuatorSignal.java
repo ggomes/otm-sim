@@ -1,7 +1,7 @@
 package actuator;
 
-import control.CommandSignal;
-import control.InterfaceCommand;
+import control.command.CommandSignal;
+import control.command.InterfaceCommand;
 import error.OTMErrorLog;
 import error.OTMException;
 import common.Scenario;

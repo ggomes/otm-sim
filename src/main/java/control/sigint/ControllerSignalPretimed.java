@@ -3,7 +3,7 @@ package control.sigint;
 import actuator.ActuatorSignal;
 import actuator.SignalPhase;
 import control.AbstractController;
-import control.CommandSignal;
+import control.command.CommandSignal;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import error.OTMErrorLog;

@@ -4,11 +4,14 @@ import common.AbstractLaneGroup;
 import common.Link;
 import error.OTMErrorLog;
 import error.OTMException;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import profiles.Profile1D;
 import common.Scenario;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
 
@@ -110,6 +113,16 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
     }
 
     //////////////////////////////////////////////////////
+    // incomplete implementation
+    //////////////////////////////////////////////////////
+
+    public XYSeries get_series_for_lg(AbstractLaneGroup lg) {
+        if(!lgprofiles.containsKey(lg.id))
+            return null;
+        return lgprofiles.get(lg.id).profile.get_series(String.format("%d (%d-%d)",lg.link.getId(),lg.start_lane_dn,lg.start_lane_dn+lg.num_lanes-1));
+    }
+
+    //////////////////////////////////////////////////////
     // final
     //////////////////////////////////////////////////////
 
@@ -126,6 +139,22 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
                 profiles.put(lg.id,lgprofiles.get(lg.id).profile);
 
         return profiles;
+    }
+
+    public final void plot_for_links(Set<Long> link_ids,String filename) throws OTMException {
+
+        Set<AbstractLaneGroup> lgs = new HashSet<>();
+        if(link_ids==null)
+            lgs.addAll(ordered_lgs);
+        else
+            lgs = ordered_lgs.stream().filter(lg->link_ids.contains(lg.link.getId())).collect(Collectors.toSet());
+
+        XYSeriesCollection dataset = new XYSeriesCollection();
+
+        for(AbstractLaneGroup lg : lgs)
+            dataset.addSeries(get_series_for_lg(lg));
+
+        make_time_chart(dataset,get_yaxis_label(),filename);
     }
 
     //////////////////////////////////////////////////////

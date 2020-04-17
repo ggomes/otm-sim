@@ -1,7 +1,7 @@
 package actuator;
 
-import control.CommandNumber;
-import control.InterfaceCommand;
+import control.command.CommandNumber;
+import control.command.InterfaceCommand;
 import error.OTMException;
 import jaxb.Actuator;
 import common.Scenario;
