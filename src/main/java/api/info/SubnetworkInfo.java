@@ -23,13 +23,13 @@ public class SubnetworkInfo {
 
     public SubnetworkInfo(Subnetwork x){
         this.id = x.getId();
-        this.is_path = x.is_path;
+        this.is_path = x.isPath();
 
-        if( x.is_path ){
+        if( x.isPath() ){
             Path path = (Path) x;
             link_ids = path.ordered_links.stream().map(z->z.getId()).collect(toList());
         } else {
-            x.links.forEach(l->link_ids.add(l.getId()));
+            x.get_links().forEach(l->link_ids.add(l.getId()));
         }
     }
 

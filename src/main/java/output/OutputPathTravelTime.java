@@ -21,7 +21,7 @@ public class OutputPathTravelTime extends AbstractOutputTimedSubnetwork {
         super(scenario, prefix, output_folder, null, subnetwork_id, outDt);
         this.type = Type.path_travel_time;
 
-        if (subnetwork==null || !subnetwork.is_path)
+        if (subnetwork==null || !subnetwork.isPath())
             throw new OTMException("The requested subnetwork is not a path.");
 
         this.path = (Path) this.subnetwork;
@@ -136,7 +136,7 @@ public class OutputPathTravelTime extends AbstractOutputTimedSubnetwork {
     //////////////////////////////////////////////////////
 
     private double compute_instantaneous_travel_time(){
-        return path.links.stream().
+        return path.get_links().stream().
                 mapToDouble(link->link.link_tt.instantaneous_travel_time)
                 .sum();
     }

@@ -128,7 +128,7 @@ public class Scenario {
      */
     public Set<Long> get_path_ids(){
         return myapi.scn.subnetworks.values().stream()
-                .filter(x->x.is_path)
+                .filter(x->x.isPath())
                 .map(x->x.getId())
                 .collect(toSet());
     }
@@ -154,6 +154,42 @@ public class Scenario {
     public SubnetworkInfo get_subnetwork_with_id(long id){
         Subnetwork subnet = myapi.scn.subnetworks.get(id);
         return subnet==null? null : new SubnetworkInfo(subnet);
+    }
+
+    public long add_subnetwork(String name, Set<Long> linkids,Set<Long> comm_ids) throws OTMException {
+        Long subnetid = myapi.scn.subnetworks.keySet().stream().max(Long::compare).get() + 1;
+        Subnetwork newsubnet = new Subnetwork(subnetid,name,linkids,comm_ids,myapi.scn);
+        myapi.scn.subnetworks.put(subnetid,newsubnet);
+        return subnetid;
+    }
+
+    public boolean remove_subnetwork(long subnetid) {
+        if(!myapi.scn.subnetworks.containsKey(subnetid))
+            return false;
+        myapi.scn.subnetworks.remove(subnetid);
+        return true;
+    }
+
+    public void subnetwork_remove_links(long subnetid,Set<Long> linkids) throws OTMException {
+        if(!myapi.scn.subnetworks.containsKey(subnetid))
+            throw new OTMException("Bad subnetwork id in subnetwork_delete_link");
+
+        if(!myapi.scn.network.links.keySet().containsAll(linkids))
+            throw new OTMException("Bad link id in subnetwork_delete_link");
+
+        Set<Link> links = linkids.stream().map(i->myapi.scn.network.links.get(i)).collect(toSet());
+        myapi.scn.subnetworks.get(subnetid).remove_links(links);
+    }
+
+    public void subnetwork_add_links(long subnetid,Set<Long> linkids) throws OTMException {
+        if(!myapi.scn.subnetworks.containsKey(subnetid))
+            throw new OTMException("Bad subnetwork id in subnetwork_add_link");
+
+        if(!myapi.scn.network.links.keySet().containsAll(linkids))
+            throw new OTMException("Bad link id in subnetwork_add_link");
+
+        Set<Link> links = linkids.stream().map(i->myapi.scn.network.links.get(i)).collect(toSet());
+        myapi.scn.subnetworks.get(subnetid).add_links(links);
     }
 
     ////////////////////////////////////////////////////////

@@ -71,7 +71,7 @@ public class ScenarioFactory {
                 .collect(toSet());
 
         for(Subnetwork subnet : used_paths){
-            if(!subnet.is_path)
+            if(!subnet.isPath())
                 throw new OTMException(String.format("ERROR: Subnetwork %d is assigned to a pathfull commodity, but it is not a linear path",subnet.getId()));
             Path path = (Path) subnet;
             for(int i=0;i<path.ordered_links.size()-1;i++){
@@ -257,7 +257,7 @@ public class ScenarioFactory {
         // create global commodity
         if(have_global_commodity) {
             Subnetwork subnet = new Subnetwork(network);
-            subnetworks.put(0l, subnet.is_path ? new Path(network) : subnet );
+            subnetworks.put(0l, subnet.isPath() ? new Path(network) : subnet );
         }
 
         if ( jaxb_subnets != null ){
@@ -267,7 +267,7 @@ public class ScenarioFactory {
                     throw new OTMException("Repeated subnetwork id");
                 Subnetwork subnet = new Subnetwork(jaxb_subnet,network);
 //                subnetworks.put(jaxb_subnet.getId(), subnet.is_path ? new Path(jaxb_subnet,network) : subnet );
-                subnetworks.put(jaxb_subnet.getId(), subnet.is_path ? new Path(subnet) : subnet );
+                subnetworks.put(jaxb_subnet.getId(), subnet.isPath() ? new Path(subnet) : subnet );
             }
         }
 
@@ -430,7 +430,7 @@ public class ScenarioFactory {
         for(Subnetwork subnetwork : my_paths){
 
             // count how many times the link appears (n=#cycles)
-            long n = subnetwork.links.stream()
+            long n = subnetwork.get_links().stream()
                     .filter(x->x==link)
                     .count();
 

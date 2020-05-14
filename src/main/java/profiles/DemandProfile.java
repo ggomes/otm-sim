@@ -113,10 +113,10 @@ public class DemandProfile extends AbstractDemandProfile {
                     errorLog.addError("In path " + path.getId() + ", link " + next_link.getId() + " is not reachable from link " + this_link.getId());
             }
 
-            // this should be a commodity subnetwork
-            if(!commodity.subnetworks.stream().anyMatch(x->x.is_global))
-                if(!commodity.subnetworks.stream().anyMatch(x->x.getId().equals(path.getId())))
-                    errorLog.addError("in demand profile for commodity " + commodity.getId() + ", subnetwork " + path.getId() + " is not allowed.");
+//            // this should be a commodity subnetwork
+//            if(!commodity.subnetworks.stream().anyMatch(x->x.is_global))
+//                if(!commodity.subnetworks.stream().anyMatch(x->x.getId().equals(path.getId())))
+//                    errorLog.addError("in demand profile for commodity " + commodity.getId() + ", subnetwork " + path.getId() + " is not allowed.");
         }
 
         // commodity_id exists

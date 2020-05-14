@@ -35,7 +35,7 @@ public class ODInfo {
         this.subnetworks = new ArrayList<>();
 
         for(Subnetwork subnetwork : scenario.subnetworks.values()){
-            if(subnetwork.is_path){
+            if(subnetwork.isPath()){
                 Path path = (Path) subnetwork;
                 if(path.ordered_links.get(0).start_node.getId()==origin_node_id &&
                    path.ordered_links.get(path.ordered_links.size()-1).end_node.getId()==destination_node_id )

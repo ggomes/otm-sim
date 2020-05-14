@@ -67,7 +67,7 @@ public class SplitMatrixProfile {
 
         // link_in_id is in a subnetwork
         for(Subnetwork subnetwork : commodity.subnetworks){
-            if(!subnetwork.links.contains(link_in))
+            if(!subnetwork.get_links().contains(link_in))
                 errorLog.addError("!commodity.subnetwork.links.contains(link_in)");
         }
 

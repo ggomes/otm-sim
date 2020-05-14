@@ -91,7 +91,7 @@ public class Path extends Subnetwork {
     }
 
     @Override
-    public Collection<Link> get_links_collection() {
+    public Collection<Link> get_links() {
         return ordered_links;
     }
 

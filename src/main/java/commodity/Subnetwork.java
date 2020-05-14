@@ -15,14 +15,28 @@ public class Subnetwork implements InterfaceScenarioElement {
 
     protected final Long id;
     protected String name;
-    public boolean is_global;
-    public Set<Link> links;
-    public Set<Commodity> used_by_comm;
-    public boolean is_path;
+    protected Set<Link> links;
+    protected Set<Commodity> used_by_comm;
+    protected boolean is_path;
 
     ///////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////
+
+    public Subnetwork(Long id,String name,Set<Long> link_ids,Set<Long> comm_ids,Scenario scenario) throws OTMException {
+
+        if(!scenario.network.links.keySet().containsAll(link_ids))
+            throw new OTMException("Bad link id in subnetwork constructor");
+
+        if(!scenario.commodities.keySet().containsAll(comm_ids))
+            throw new OTMException("Bad commodity id in subnetwork constructor");
+
+        this.id  = id;
+        this.name = name;
+        this.links = link_ids.stream().map(i->scenario.network.links.get(i)).collect(Collectors.toSet());
+        this.used_by_comm = comm_ids.stream().map(i->scenario.commodities.get(i)).collect(Collectors.toSet());
+        this.is_path = check_is_path();
+    }
 
     public Subnetwork(Subnetwork that){
         this.id = that.getId();
@@ -31,7 +45,6 @@ public class Subnetwork implements InterfaceScenarioElement {
         this.links.addAll(that.links);
         this.used_by_comm = new HashSet<>();
         this.used_by_comm.addAll(that.used_by_comm);
-        this.is_global = that.is_global;
         this.is_path = that.is_path;
     }
 
@@ -39,17 +52,14 @@ public class Subnetwork implements InterfaceScenarioElement {
         this.id = js.getId();
         this.name = js.getName();
         this.links = new HashSet<>();
-        for(Long link_id : OTMUtils.csv2longlist(js.getContent()))
-            this.add_link(network.links.get(link_id));
+        this.add_links(OTMUtils.csv2longlist(js.getContent()).stream().map(i->network.links.get(i)).collect(Collectors.toSet()));
         this.used_by_comm = new HashSet<>();
-        this.is_global = links.size()==network.links.values().size();
         this.is_path = check_is_path();
     }
 
     public Subnetwork(Network network) {
         this.id = 0L;
         this.name = "whole network";
-        this.is_global = true;
         this.links = new HashSet<>();
         this.used_by_comm = new HashSet<>();
         for(Link link : network.links.values())
@@ -95,28 +105,6 @@ public class Subnetwork implements InterfaceScenarioElement {
     // get  / set
     ///////////////////////////////////////////////////
 
-//    public void add_lanegroup(AbstractLaneGroup lg){
-//        if(lanegroups==null)
-//            lanegroups = new HashSet<>();
-//        lanegroups.add(lg);
-//    }
-//
-//    public void add_lanegroups(Collection<AbstractLaneGroup> lgs){
-//        if(lanegroups==null)
-//            lanegroups = new HashSet<>();
-//        lanegroups.addAll(lgs);
-//    }
-
-    public void add_commodity(Commodity c){
-        used_by_comm.add(c);
-    }
-
-    public void add_link(common.Link link) throws OTMException {
-        if(link==null)
-            throw new OTMException("Attempted to add null link");
-        links.add(link);
-    }
-
     public String getName(){
         return this.name;
     }
@@ -129,8 +117,8 @@ public class Subnetwork implements InterfaceScenarioElement {
         return this.used_by_comm.stream().map(x->x.getId()).collect(toList());
     }
 
-    public boolean isGlobal(){
-        return is_global;
+    public boolean isPath(){
+        return is_path;
     }
 
     public boolean has_link_id(Long link_id){
@@ -138,10 +126,27 @@ public class Subnetwork implements InterfaceScenarioElement {
     }
 
     // This is overridden by Path to return the ordered list
-    public Collection<Link> get_links_collection(){
+    public Collection<Link> get_links(){
         return links;
     }
 
+    public void add_commodity(Commodity c){
+        used_by_comm.add(c);
+    }
+
+    public void add_links(Collection<common.Link> links) throws OTMException {
+        if(links.contains(null))
+            throw new OTMException("Attempted to add null link");
+        links.addAll(links);
+        this.is_path = check_is_path();
+    }
+
+    public void remove_links(Collection<common.Link> rlinks) {
+        if(!Collections.disjoint(this.links,rlinks)){
+            links.removeAll(rlinks);
+            this.is_path = check_is_path();
+        }
+    }
 
     ///////////////////////////////////////////////////
     // private

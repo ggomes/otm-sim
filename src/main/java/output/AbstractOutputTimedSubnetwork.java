@@ -68,7 +68,7 @@ public abstract class AbstractOutputTimedSubnetwork extends AbstractOutputTimed 
                 if (filename != null) {
                     String subfilename = filename.substring(0, filename.length() - 4);
                     Writer links_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_links.txt"));
-                    for (Link link : subnetwork.get_links_collection())
+                    for (Link link : subnetwork.get_links())
                         links_writer.write(link.getId() + "\t");
                     links_writer.close();
                 }
