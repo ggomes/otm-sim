@@ -10,6 +10,8 @@ public interface InterfaceLaneGroup {
     void allocate_state();
 
     Double get_upstream_vehicle_position();
+    double get_max_vehicles();
+
     void update_supply();
     void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) throws OTMException;
     void set_actuator_capacity_vps(double rate_vps);

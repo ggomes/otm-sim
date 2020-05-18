@@ -131,6 +131,11 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     }
 
     @Override
+    public double get_max_vehicles() {
+        return jam_density_veh_per_cell*cells.size();
+    }
+
+    @Override
     public Double get_upstream_vehicle_position(){
         return Double.NaN;
     }

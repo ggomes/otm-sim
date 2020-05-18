@@ -30,6 +30,11 @@ public class NoneLaneGroup extends AbstractLaneGroup {
     }
 
     @Override
+    public double get_max_vehicles() {
+        return 0;
+    }
+
+    @Override
     public void allocate_state() {
 
     }

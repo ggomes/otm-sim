@@ -41,6 +41,11 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
         return Float.NaN;
     }
 
+    @Override
+    public double get_max_vehicles() {
+        return max_vehicles;
+    }
+
 //    @Override
 //    public void exiting_roadconnection_capacity_has_been_modified(float timestamp) {
 //        System.err.println("NOT IMPLEMENTED");

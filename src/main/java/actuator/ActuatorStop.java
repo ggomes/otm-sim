@@ -1,0 +1,17 @@
+package actuator;
+
+import common.Scenario;
+import error.OTMException;
+import jaxb.Actuator;
+
+public class ActuatorStop extends AbstractActuatorLanegroupCapacity  {
+
+    public ActuatorStop(Scenario scenario, Actuator jact) throws OTMException {
+        super(scenario, jact);
+    }
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+
+    }
+}

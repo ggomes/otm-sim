@@ -20,7 +20,8 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         meter,
         signal,
         rc,
-        greenred
+        greenred,
+        stop
     }
 
     public long id;
@@ -151,4 +152,13 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
         return lanegroups;
     }
+
+    /////////////////////////////////////////////////////////////////////
+    // get
+    /////////////////////////////////////////////////////////////////////
+
+    public Type getType() {
+        return type;
+    }
+
 }

@@ -113,6 +113,11 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
         this.actuator = act;
     }
 
+    @Override
+    public long getIdAsTarget() {
+        return id;
+    }
+
     ///////////////////////////////////////////
     // XXX
     ///////////////////////////////////////////

@@ -53,7 +53,7 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "/home/gomes/code/otm/otm-base/src/main/resources/test_configs/onramp_nohov.xml";
+            String configfile = "/home/gomes/Desktop/millard/paradise.xml";
             api.OTM otm = new api.OTM(configfile,true,false);
             assertNotNull(otm);
         } catch (OTMException e) {

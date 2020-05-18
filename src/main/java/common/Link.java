@@ -483,6 +483,10 @@ public class Link implements InterfaceScenarioElement {
 //        return fas;
 //    }
 
+    public double get_max_vehicles(){
+        return lanegroups_flwdn.values().stream().mapToDouble(x->x.get_max_vehicles()).sum();
+    }
+
     ////////////////////////////////////////////
     // inter-link dynamics
     ///////////////////////////////////////////

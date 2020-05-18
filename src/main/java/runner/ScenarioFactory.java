@@ -205,6 +205,9 @@ public class ScenarioFactory {
                 case "signal":
                     actuator = new ActuatorSignal(scenario,jaxb_actuator);
                     break;
+                case "stop":
+                    actuator = new ActuatorStop(scenario,jaxb_actuator);
+                    break;
                 default:
                     actuator = null;
                     break;
