@@ -1,0 +1,6 @@
+*.txt
+.idea
+*.iml
+*.exe
+*.jar
+*.pdf

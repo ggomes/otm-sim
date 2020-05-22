@@ -9,6 +9,7 @@ import org.junit.runners.Parameterized;
 import output.AbstractOutput;
 import output.OutputLinkFlow;
 import output.OutputLinkVehicles;
+import utils.OTMUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -55,27 +56,30 @@ public class TestAllConfig extends AbstractTest {
             Set<Long> link_ids = otm.scenario.get_link_ids();
             Float outDt = 10f;
             for(CommodityInfo comm : otm.scenario.get_commodities()) {
-//                otm.output.request_links_flow(prefix,output_folder, comm.getId(), link_ids, outDt);
-//                otm.output.request_links_veh(prefix, output_folder, comm.getId(), link_ids, outDt);
-
-                otm.output.request_links_flow(null, link_ids, outDt);
-                otm.output.request_links_veh(null, link_ids, outDt);
+                otm.output.request_links_flow(prefix,output_folder, comm.getId(), link_ids, outDt);
+                otm.output.request_links_veh(prefix, output_folder, comm.getId(), link_ids, outDt);
             }
+
+            // Uncomment this to produce png images
+//            for(CommodityInfo comm : otm.scenario.get_commodities()) {
+//                otm.output.request_links_flow(null, link_ids, outDt);
+//                otm.output.request_links_veh(null, link_ids, outDt);
+//            }
 
             // run the simulation
             otm.run(start_time,duration);
 
-            // Print output .........................
-            for(AbstractOutput output :  otm.output.get_data()){
-                if (output instanceof OutputLinkFlow)
-                    ((OutputLinkFlow) output).plot_for_links(null, String.format("%s/%s_flow.png", output_folder,prefix));
-                if (output instanceof OutputLinkVehicles)
-                    ((OutputLinkVehicles) output).plot_for_links(null, String.format("%s/%s_veh.png", output_folder,prefix));
-            }
+            // Uncomment this to produce png images
+//            for(AbstractOutput output :  otm.output.get_data()){
+//                if (output instanceof OutputLinkFlow)
+//                    ((OutputLinkFlow) output).plot_for_links(null, String.format("%s/%s_flow.png", output_folder,prefix));
+//                if (output instanceof OutputLinkVehicles)
+//                    ((OutputLinkVehicles) output).plot_for_links(null, String.format("%s/%s_veh.png", output_folder,prefix));
+//            }
 
-//            // check the output against expects
-//            for(String output_path : otm.output.get_file_names())
-//                compare_files(output_path);
+            // check the output against expects
+            for(String output_path : otm.output.get_file_names())
+                compare_files(output_path);
 
         }
 
@@ -94,8 +98,8 @@ public class TestAllConfig extends AbstractTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File known_outfile = new File(classLoader.getResource("test_output/" + outname).getFile());
 
-        ArrayList<ArrayList<Double>> f1 = read_matrix_csv_file(outfile);
-        ArrayList<ArrayList<Double>> f2 = read_matrix_csv_file(known_outfile);
+        ArrayList<ArrayList<Double>> f1 = OTMUtils.read_matrix_csv_file(outfile);
+        ArrayList<ArrayList<Double>> f2 = OTMUtils.read_matrix_csv_file(known_outfile);
         assertEquals(f1.size(),f2.size());
         for(int i=0;i<f1.size();i++){
             ArrayList<Double> x1 = f1.get(i);
@@ -112,25 +116,5 @@ public class TestAllConfig extends AbstractTest {
         }
     }
 
-    private static ArrayList<ArrayList<Double>> read_matrix_csv_file(File file) {
-        if(file==null)
-            return null;
-        ArrayList<ArrayList<Double>> x = new ArrayList<>();
-        try {
-            Scanner inputStream= new Scanner(file);
-            while(inputStream.hasNext()){
-                String data= inputStream.next();
-                String[] values = data.split(",");
-                ArrayList<Double> z = new ArrayList<>();
-                for(String str  : values)
-                    z.add(Double.parseDouble(str));
-                x.add(z);
-            }
-            inputStream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return x;
-    }
 
 }

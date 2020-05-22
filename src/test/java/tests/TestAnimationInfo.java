@@ -3,6 +3,7 @@ package tests;
 import error.OTMException;
 import models.AbstractModel;
 import models.fluid.AbstractFluidModel;
+import org.junit.Ignore;
 import org.junit.Test;
 import output.animation.AbstractLinkInfo;
 import output.animation.AnimationInfo;
@@ -16,6 +17,7 @@ import static org.junit.Assert.fail;
 
 public class TestAnimationInfo {
 
+    @Ignore
     @Test
     public void run_step_by_step() {
         try {
@@ -24,7 +26,7 @@ public class TestAnimationInfo {
             float duration = 100f;
 
             api.OTM otm = new api.OTM();
-            otm.load_test("line");
+            otm.load_test("line_ctm");
 
             Set<Float> sim_dts = (new api.OTMdev(otm)).scenario.network.models.values().stream()
                     .filter(m->m.type== AbstractModel.Type.Fluid)

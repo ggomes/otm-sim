@@ -54,7 +54,7 @@ public class Profile1D {
             errorLog.addError("(dt==0 || dt==null) && values.size()>1");
 
         // values >= 0
-        if(Collections.min(values)<0)
+        if(!values.isEmpty() && Collections.min(values)<0)
             errorLog.addError("Collections.min(values)<0");
     }
 

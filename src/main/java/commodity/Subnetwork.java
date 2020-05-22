@@ -54,7 +54,6 @@ public class Subnetwork implements InterfaceScenarioElement {
         this.links = new HashSet<>();
         this.add_links(OTMUtils.csv2longlist(js.getContent()).stream().map(i->network.links.get(i)).collect(Collectors.toSet()));
         this.used_by_comm = new HashSet<>();
-        this.is_path = check_is_path();
     }
 
     public Subnetwork(Network network) {
@@ -137,7 +136,7 @@ public class Subnetwork implements InterfaceScenarioElement {
     public void add_links(Collection<common.Link> links) throws OTMException {
         if(links.contains(null))
             throw new OTMException("Attempted to add null link");
-        links.addAll(links);
+        this.links.addAll(links);
         this.is_path = check_is_path();
     }
 
@@ -175,7 +174,7 @@ public class Subnetwork implements InterfaceScenarioElement {
 
             Collection<Link> next_links = current.end_node.out_links.values();
             Set<Link> next_link = OTMUtils.intersect(next_links,this.links);
-            if(next_link.size()<0)
+            if(next_link.size()>1)
                 return false;
             current = next_link.iterator().next();
             unchecked.remove(current);

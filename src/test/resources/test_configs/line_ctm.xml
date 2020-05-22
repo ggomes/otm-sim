@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scenario xmlns="opentrafficmodels">
+
+	<commodities>
+		<commodity id="1" name="c1" pathfull="false"/>
+	</commodities>
+
+	<demands>
+		<demand link_id="0" commodity_id="1" dt="1400">1500,0</demand>
+	</demands>
+
+	<models>
+		<model type="ctm" name="ctm1"  is_default="true">
+			<model_params sim_dt="1" max_cell_length="50"/>
+		</model>
+	</models>
+
+	<network>
+		<nodes>
+			<node id="0" x="0" y="0"/>
+			<node id="1" x="500" y="0"/>
+			<node id="2" x="1000" y="0"/>
+			<node id="3" x="1500" y="0"/>
+			<node id="4" x="2000" y="0"/>
+			<node id="5" x="2500" y="0"/>
+			<node id="6" x="3000" y="0"/>
+		</nodes>
+		<links>
+			<link id="0" length="500" start_node_id="0" end_node_id="1" roadparam="1" full_lanes="2"/>
+			<link id="1" length="500" start_node_id="1" end_node_id="2" roadparam="1" full_lanes="2"/>
+			<link id="2" length="500" start_node_id="2" end_node_id="3" roadparam="1" full_lanes="2"/>
+			<link id="3" length="500" start_node_id="3" end_node_id="4" roadparam="1" full_lanes="2"/>
+			<link id="4" length="500" start_node_id="4" end_node_id="5" roadparam="1" full_lanes="2"/>
+			<link id="5" length="500" start_node_id="5" end_node_id="6" roadparam="1" full_lanes="1"/>
+		</links>
+		<roadparams>
+			<roadparam id="1" capacity="1000" speed="100" jam_density="100"/>
+		</roadparams>
+	</network>
+
+</scenario>

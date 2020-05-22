@@ -2,6 +2,7 @@ package tests;
 
 import api.OTM;
 import api.info.CommodityInfo;
+import api.info.DemandInfo;
 import api.info.LinkInfo;
 import api.info.SubnetworkInfo;
 import error.OTMException;
@@ -24,7 +25,7 @@ public class TestOTM extends AbstractTest {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         otm = new OTM();
-        otm.load_test("line");
+        otm.load_test("line_ctm");
     }
 
     //////////////////////////////////////////////////////////////////
@@ -108,12 +109,12 @@ public class TestOTM extends AbstractTest {
 
     @Test
     public void test_get_num_links(){
-        assertEquals(otm.scenario.get_num_links(),3);
+        assertEquals(otm.scenario.get_num_links(),6);
     }
 
     @Test
     public void test_get_num_nodes(){
-        assertEquals(otm.scenario.get_num_nodes(),4);
+        assertEquals(otm.scenario.get_num_nodes(),7);
     }
 
     @Test
@@ -131,57 +132,55 @@ public class TestOTM extends AbstractTest {
     @Test
     public void test_get_link_ids(){
         Set<Long> link_ids = otm.scenario.get_link_ids();
-        assertTrue(link_ids.contains(1l));
-        assertTrue(link_ids.contains(2l));
-        assertTrue(link_ids.contains(3l));
-        assertEquals(link_ids.size(),3);
+        for(long id=0;id<6;id++)
+            assertTrue(link_ids.contains(id));
+        assertEquals(link_ids.size(),6);
     }
 
     @Test
     public void test_get_node_ids(){
         Set<Long> node_ids = otm.scenario.get_node_ids();
-        assertTrue(node_ids.contains(1l));
-        assertTrue(node_ids.contains(2l));
-        assertTrue(node_ids.contains(3l));
-        assertTrue(node_ids.contains(4l));
-        assertEquals(node_ids.size(),4);
+        for(long id=0;id<7;id++)
+            assertTrue(node_ids.contains(id));
+        assertEquals(node_ids.size(),7);
     }
 
     @Test
     public void test_get_source_link_ids(){
         Set<Long> source_ids = otm.scenario.get_source_link_ids();
-        assertEquals((long)source_ids.iterator().next(),1l);
+        assertEquals((long)source_ids.iterator().next(),0l);
     }
 
     ////////////////////////////////////////////////////////
     // demands / splits
     ////////////////////////////////////////////////////////
 
-//    @Test
-//    public void test_get_demands(){
-//        DemandInfo demands = otm.scenario.get_demands().iterator().next();
-//        assertEquals((long)demands.getCommodity_id(),1l);
-//        assertEquals(demands.getLink_id(),1l);
-//    }
+    @Test
+    public void test_get_demands(){
+        Set<DemandInfo> demands = otm.scenario.get_demands().get(0l);
+        DemandInfo demand = demands.iterator().next();
+        assertEquals((long)demand.getCommodity_id(),1l);
+        assertEquals(demand.getLink_id(),0l);
+    }
 
     @Test
-    @Ignore
     public void test_set_demand_on_path_in_vph() {
         try {
-            long path_id = 0l;
+            long link_id = 0l;
             long commodity_id = 1l;
             float start_time = 0;
             float dt = 10f;
             List<Double> values = new ArrayList<>();
-            otm.scenario.add_pathfull_demand(path_id,commodity_id,start_time,dt,values);
+            otm.scenario.add_pathless_demand(link_id,commodity_id,start_time,dt,values);
         } catch (OTMException e) {
             e.printStackTrace();
         }
     }
 
+    @Ignore
     @Test
     public void test_get_total_trips() {
-        assertEquals(otm.scenario.get_total_trips(),416.666666666666,0.0001);
+        assertEquals(otm.scenario.get_total_trips(),583.3333333333334,0.0001);
     }
 
     ////////////////////////////////////////////////////////

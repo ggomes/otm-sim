@@ -49,11 +49,11 @@ public class TestOne extends AbstractTest {
         }
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void load_one() {
         try {
-            String configfile = "/home/gomes/Desktop/millard/paradise.xml";
+            String configfile = "/home/gomes/code/otm/otm-sim/src/test/resources/test_configs/mixing.xml";
             api.OTM otm = new api.OTM(configfile,true,false);
             assertNotNull(otm);
         } catch (OTMException e) {
@@ -61,16 +61,16 @@ public class TestOne extends AbstractTest {
         }
     }
 
-    @Test
-    public void load_with_plugin() {
-        try {
-            String configfile = "/home/gomes/code/otm-models/cfg/line.xml";
-            api.OTM otm = new api.OTM(configfile,true,false);
-            assertNotNull(otm);
-        } catch (OTMException e) {
-            fail(e.getMessage());
-        }
-    }
+//    @Test
+//    public void load_with_plugin() {
+//        try {
+//            String configfile = "/home/gomes/code/otm-models/cfg/line.xml";
+//            api.OTM otm = new api.OTM(configfile,true,false);
+//            assertNotNull(otm);
+//        } catch (OTMException e) {
+//            fail(e.getMessage());
+//        }
+//    }
 
     @Ignore
     @Test
@@ -135,7 +135,7 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "/home/gomes/code/otm/otm-base/src/main/resources/test_configs/onramp_hov_2link.xml";
+            String configfile = "/home/gomes/code/otm/otm-sim/src/test/resources/test_configs/intersection.xml";
 
             float duration = 400f;
             float outdt = 2f;
@@ -148,9 +148,9 @@ public class TestOne extends AbstractTest {
             // Output requests .....................
 //            Set<Long> link_ids =  otm.scenario.get_link_ids();
 
-            Set<Long> link_ids = new HashSet<>();
-            link_ids.add(6l);
-            link_ids.add(8l);
+//            Set<Long> link_ids = new HashSet<>();
+//            link_ids.add(6l);
+//            link_ids.add(8l);
 
 
             //            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
@@ -159,8 +159,8 @@ public class TestOne extends AbstractTest {
 //            otm.output.request_links_flow(null, link_ids, outdt);
 //            otm.output.request_links_veh(null, link_ids, outdt);
 
-            otm.output.request_lanegroup_flw(null,link_ids,outdt);
-            otm.output.request_lanegroup_veh(null,link_ids,outdt);
+//            otm.output.request_lanegroup_flw(null,link_ids,outdt);
+//            otm.output.request_lanegroup_veh(null,link_ids,outdt);
 
             //
 //            List<ODInfo> od_infos = api.get_od_info();
@@ -174,7 +174,7 @@ public class TestOne extends AbstractTest {
 //            api.request_links_flow(null, api.get_link_ids(), outdt);
 //            api.request_links_veh(null, api.get_link_ids(), outdt);
 
-            otm.output.request_controller(prefix,output_folder,0l);
+//            otm.output.request_controller(prefix,output_folder,0l);
 //            otm.output.request_controller(0L);
 
             // Run .................................
@@ -312,14 +312,14 @@ public class TestOne extends AbstractTest {
         //    5 start_time
         //    6 duration
 
-        String resource_folder = (new File("src/test/resources")).getAbsolutePath()+ File.separator ;
+        String resource_folder = (new File("src/test/resources/")).getAbsolutePath()+ File.separator ;
 
         String[] args = new String[7];
         args[0] = "-run";
-        args[1] = resource_folder + "line.xml";
+        args[1] = resource_folder + "test_configs/line_ctm.xml";
         args[2] = "mytest";
         args[3] = resource_folder+"sample_output_request.xml";
-        args[4] = resource_folder+"test_output";
+        args[4] = "temp";
         args[5] = "0";
         args[6] = "100";
 

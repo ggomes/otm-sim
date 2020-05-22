@@ -8,7 +8,6 @@ public class TestVersion {
 
     @Test
     public void test_get_version(){
-        System.out.println("otm-base: " + OTMUtils.getBaseGitHash());
         System.out.println("otm-sim: " + api.OTM.get_version());
     }
 

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="2.0.2"
+		   targetNamespace="opentrafficmodels"
+		   xmlns:otm="opentrafficmodels">
+
+	<xs:element name="output_requests">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="otm:output_request" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="output_request">
+		<xs:complexType>
+			<xs:attribute name="quantity" type="xs:string" use="required" />
+				<!--<xs:simpleType>-->
+					<!--<xs:restriction base="xs:string">-->
+						<!--<xs:pattern value="lanegroups|lanegroup_flw|lanegroup_veh|link_flw|link_veh|link_vht|vehicle_events|vehicle_class|vehicle_travel_time|controller|actuator|path_travel_time"/>-->
+					<!--</xs:restriction>-->
+				<!--</xs:simpleType>-->
+			<!--</xs:attribute>-->
+
+			<xs:attribute name="model" type="xs:string" use="optional" />
+			<xs:attribute name="commodity" type="xs:long" use="optional" />
+			<xs:attribute name="controller" type="xs:long" use="optional" />
+			<xs:attribute name="actuator" type="xs:long" use="optional" />
+			<xs:attribute name="subnetwork" type="xs:long" use="optional" />
+			<!-- seconds -->
+			<xs:attribute name="dt" type="xs:float" use="optional" />
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>
+

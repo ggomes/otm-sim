@@ -446,7 +446,7 @@ public class Scenario {
 
     /**
      * Get information for all demands in the scenario.
-     * @return A set of DemandInfo
+     * @return A map from link id to set of DemandInfo
      * @see DemandInfo
      */
     public Map<Long,Set<DemandInfo>> get_demands(){

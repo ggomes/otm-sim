@@ -71,7 +71,6 @@ public class OTM {
 
          // version
         else if (cmd.equals("-version")){
-            System.out.println("otm-base: " + OTMUtils.getBaseGitHash());
             System.out.println("otm-sim: " + api.OTM.get_version());
         }
 

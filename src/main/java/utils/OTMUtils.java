@@ -267,30 +267,6 @@ public class OTMUtils {
     }
 
     ///////////////////////////////////////////////////
-    // git
-    ///////////////////////////////////////////////////
-
-    public static String getBaseGitHash(){
-        InputStream inputStream = OTMUtils.class.getResourceAsStream("/otm-base.properties");
-        Properties properties = new Properties();
-        try {
-            properties.load(inputStream);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read properties file", e);
-        }
-        finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    // Ignore
-                }
-            }
-        }
-        return properties.getProperty("base.git");
-    }
-
-    ///////////////////////////////////////////////////
     // file
     ///////////////////////////////////////////////////
 
@@ -302,6 +278,27 @@ public class OTMUtils {
             String line = (new Scanner(file)).nextLine();
             for (String str : line.split(","))
                 x.add(Double.parseDouble(str));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return x;
+    }
+
+    public static ArrayList<ArrayList<Double>> read_matrix_csv_file(File file) {
+        if(file==null)
+            return null;
+        ArrayList<ArrayList<Double>> x = new ArrayList<>();
+        try {
+            Scanner inputStream= new Scanner(file);
+            while(inputStream.hasNext()){
+                String data= inputStream.next();
+                String[] values = data.split(",");
+                ArrayList<Double> z = new ArrayList<>();
+                for(String str  : values)
+                    z.add(Double.parseDouble(str));
+                x.add(z);
+            }
+            inputStream.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

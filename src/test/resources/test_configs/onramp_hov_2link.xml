@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<scenario xmlns="opentrafficmodels">
+
+  <commodities>
+    <commodity id="1" name="lov" pathfull="false"/>
+    <commodity id="2" name="hov" pathfull="false"/>
+  </commodities>
+
+	<models>
+		<model type="ctm" name="myctm" links="" is_default="true">
+			<model_params sim_dt="2" max_cell_length="100"/>
+		</model>
+	</models>
+
+	<network>
+
+		<nodes>
+			<node id="0"/>
+			<node id="1"/>
+			<node id="2"/>
+			<node id="3"/>
+			<node id="4"/>
+			<node id="5"/>
+			<node id="6"/>
+			<node id="7"/>
+			<node id="8"/>
+			<node id="9"/>
+		</nodes>
+		
+		<links>
+			<link id="0" length="10"  start_node_id="0" end_node_id="1" roadparam="1" full_lanes="2"/>
+			<link id="1" length="200" start_node_id="1" end_node_id="2" roadparam="1" full_lanes="2"/>
+			<link id="2" length="200" start_node_id="2" end_node_id="3" roadparam="1" full_lanes="3"/>
+			<link id="3" length="200" start_node_id="3" end_node_id="4" roadparam="1" full_lanes="2"/>
+			<link id="4" length="200" start_node_id="4" end_node_id="5" roadparam="1" full_lanes="2"/>
+			<link id="5" length="10"  start_node_id="6" end_node_id="7" roadparam="1" full_lanes="1"/>
+			<link id="6" length="200" start_node_id="7" end_node_id="2" roadparam="1" full_lanes="1"/>
+			<link id="7" length="10"  start_node_id="8" end_node_id="9" roadparam="1" full_lanes="1"/>
+			<link id="8" length="200" start_node_id="9" end_node_id="2" roadparam="1" full_lanes="1"/>
+		</links>
+		
+		<roadparams>
+			<roadparam id="1" capacity="1000" speed="100" jam_density="50"/>
+		</roadparams>
+
+
+		<roadconnections>
+			<roadconnection id="0" in_link="1" out_link="2" out_link_lanes="1#2" />
+			<roadconnection id="1" in_link="6" out_link="2" out_link_lanes="3#3" />
+			<roadconnection id="2" in_link="8" out_link="2" out_link_lanes="3#3" />			
+		</roadconnections>
+
+	</network>
+
+	<demands>
+		<demand commodity_id="1" link_id="0">1000</demand>
+		<demand commodity_id="1" link_id="7">200</demand>
+		<demand commodity_id="2" link_id="5">100</demand>
+ 	</demands>
+
+ 	<actuators>
+ 		<actuator id="1" type="meter">
+ 			<actuator_target type="link" id="6"/>
+ 		</actuator>
+ 		<actuator id="2" type="meter">
+ 			<actuator_target type="link" id="8"/>
+ 		</actuator>
+ 	</actuators>
+
+ 	<controllers>
+ 		<controller id="0" type="maxrate" dt="100">
+ 			<target_actuators>
+ 				<target_actuator id="1">10,20,30</target_actuator>
+ 				<target_actuator id="2">10,20,30</target_actuator>
+ 			</target_actuators>
+ 		</controller>
+ 	</controllers>
+
+</scenario>

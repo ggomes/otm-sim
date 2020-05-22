@@ -89,13 +89,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     @Override
     public void register_actuator(AbstractActuator act) throws OTMException {
-
         if(act instanceof AbstractActuatorLanegroupCapacity){
             if(this.actuator_capacity!=null)
-                throw new OTMException("Multiple capacity actuators on lane group");
+                throw new OTMException(String.format("Multiple capacity actuators on link %d, lanes %d through %d.",link.getId(),start_lane_dn,start_lane_dn+num_lanes-1));
             this.actuator_capacity = (AbstractActuatorLanegroupCapacity) act;
         }
-
     }
 
     @Override
