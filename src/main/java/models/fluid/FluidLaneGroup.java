@@ -1,5 +1,6 @@
 package models.fluid;
 
+import common.Barrier;
 import common.Link;
 import common.RoadConnection;
 import error.OTMErrorLog;
@@ -262,24 +263,14 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 //    }
     // .............................................................
 
-    public final void create_cells(AbstractFluidModel model,float max_cell_length) throws OTMException {
+    public final void create_cells(AbstractFluidModel model,float cell_length_meters) throws OTMException {
 
-        // compute cell length
-        float r = this.length/max_cell_length;
-        boolean is_source_or_sink = link.is_source || link.is_sink;
-
-        int num_cells = is_source_or_sink ?
-                1 :
-                OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
-
-        this.cell_length_meters = is_source_or_sink ?
-                this.length :
-                this.length/num_cells;
+        int num_cells = Math.round(this.length/cell_length_meters);
 
         // create the cells
         this.cells = new ArrayList<>();
         for(int i=0;i<num_cells;i++)
-            this.cells.add(model.create_cell(this.cell_length_meters, this));
+            this.cells.add(model.create_cell(this));
 
         // designate first and last
         this.cells.get(0).am_upstrm = true;

@@ -1,16 +1,9 @@
 package models.fluid.ctm;
 
-import commodity.Commodity;
-import commodity.Path;
-import common.AbstractSource;
 import common.Link;
-import common.RoadConnection;
-import dispatch.Dispatcher;
-import models.fluid.EventFluidModelUpdate;
-import models.fluid.EventFluidStateUpdate;
+
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.OutputRequest;
 import keys.KeyCommPathOrLink;
@@ -18,7 +11,6 @@ import common.AbstractLaneGroup;
 import models.fluid.*;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
-import profiles.DemandProfile;
 import common.Scenario;
 import traveltime.FluidLaneGroupTimer;
 import utils.OTMUtils;
@@ -27,7 +19,6 @@ import utils.StochasticProcess;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class ModelCTM extends AbstractFluidModel {
 
@@ -40,22 +31,8 @@ public class ModelCTM extends AbstractFluidModel {
     //////////////////////////////////////////////////////////////
 
     @Override
-    public void reset(Link link) {
-        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
-            FluidLaneGroup lg = (FluidLaneGroup) alg;
-            lg.cells.forEach(x->x.reset());
-        }
-    }
-
-    @Override
     public void validate(OTMErrorLog errorLog) {
 
-    }
-
-    @Override
-    public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time){
-        dispatcher.register_event(new EventFluidModelUpdate(dispatcher, start_time + dt_sec, this));
-        dispatcher.register_event(new EventFluidStateUpdate(dispatcher, start_time + dt_sec, this));
     }
 
     @Override
@@ -74,27 +51,12 @@ public class ModelCTM extends AbstractFluidModel {
     }
 
     @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        return new FluidLaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
-    }
-
-    @Override
-    public final AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
-        return new FluidSource(origin,demand_profile,commodity,path);
-    }
-
-    @Override
     public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
         Map<AbstractLaneGroup,Double> A = new HashMap<>();
         double total_supply = candidate_lanegroups.stream().mapToDouble(x->x.get_supply()).sum();
         for(AbstractLaneGroup laneGroup : candidate_lanegroups)
             A.put(laneGroup , laneGroup.get_supply() / total_supply);
         return A;
-    }
-
-    @Override
-    public AbstractLinkInfo get_link_info(Link link) {
-        return new output.animation.macro.LinkInfo(link);
     }
 
     //////////////////////////////////////////////////////////////
@@ -191,8 +153,8 @@ public class ModelCTM extends AbstractFluidModel {
     }
 
     @Override
-    public AbstractCell create_cell(float cell_length_meters, FluidLaneGroup lg) throws OTMException {
-        return new CTMCell(cell_length_meters,lg);
+    public AbstractCell create_cell(FluidLaneGroup lg) throws OTMException {
+        return new CTMCell(lg);
     }
 
     ///////////////////////////////////////////

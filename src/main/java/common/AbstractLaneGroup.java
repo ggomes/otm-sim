@@ -81,6 +81,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
                 break;
         }
         this.state2roadconnection = new HashMap<>();
+
+        // barriers
+//        in_barriers
+//                out_barriers
+
     }
 
     ///////////////////////////////////////////////////

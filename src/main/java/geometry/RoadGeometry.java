@@ -70,16 +70,14 @@ public class RoadGeometry implements InterfaceScenarioElement {
 
     @Override
     public void validate(OTMErrorLog errorLog) {
-
-        if(dn_in!=null || dn_out!=null || up_in!=null || up_out!=null) {
-            errorLog.addWarning("Road geometry " + id + ": Addlanes has not been implemented.");
-            return;
-        }
-
         if( dn_in !=null )
             dn_in.validate(errorLog);
         if( dn_out !=null )
             dn_out.validate(errorLog);
+        if( up_in !=null )
+            up_in.validate(errorLog);
+        if( up_out !=null )
+            up_out.validate(errorLog);
     }
 
     @Override

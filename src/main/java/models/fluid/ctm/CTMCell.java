@@ -25,8 +25,8 @@ public class CTMCell extends AbstractCell {
     public Map<KeyCommPathOrLink, Double> demand_in;   // comm,path|nlink -> number of vehicles
     public double total_vehs_in;
 
-    public CTMCell(double length_in_meters, FluidLaneGroup laneGroup) {
-        super(length_in_meters, laneGroup);
+    public CTMCell(FluidLaneGroup laneGroup) {
+        super(laneGroup);
     }
 
     @Override

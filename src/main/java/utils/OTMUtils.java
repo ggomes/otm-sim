@@ -152,6 +152,10 @@ public class OTMUtils {
         return random.nextDouble();
     }
 
+    public static double snap_to_grid(double x,double gridsize){
+        return Math.round(x/gridsize)*gridsize;
+    }
+
     ///////////////////////////////////////////////////
     // sets
     ///////////////////////////////////////////////////

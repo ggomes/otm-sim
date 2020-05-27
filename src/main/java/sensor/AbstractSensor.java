@@ -1,12 +1,9 @@
 package sensor;
 
-import common.InterfaceEventWriter;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMErrorLog;
-import error.OTMException;
-import output.AbstractOutputEvent;
 import common.InterfaceScenarioElement;
 import common.Scenario;
 import common.ScenarioElementType;

@@ -1,17 +1,21 @@
 package models.fluid;
 
-import common.AbstractSource;
-import common.Link;
-import common.Node;
+import commodity.Commodity;
+import commodity.Path;
+import common.*;
+import dispatch.Dispatcher;
 import error.OTMException;
+import geometry.FlowPosition;
+import geometry.Side;
 import keys.KeyCommPathOrLink;
 import models.AbstractModel;
-import common.AbstractLaneGroup;
 import models.fluid.nodemodel.NodeModel;
 import models.fluid.nodemodel.RoadConnection;
 import models.fluid.nodemodel.UpLaneGroup;
+import output.animation.AbstractLinkInfo;
 import packet.PacketLink;
-import common.Scenario;
+import profiles.DemandProfile;
+import utils.OTMUtils;
 import utils.StochasticProcess;
 
 import java.util.HashMap;
@@ -39,9 +43,29 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     //////////////////////////////////////////////////////////////
 
     public final void build() throws OTMException {
-        for(Link link : links)
-            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                ((FluidLaneGroup)lg).create_cells(this,max_cell_length);
+        for(Link link : links) {
+
+            // compute cell length .............
+            float r = link.length/max_cell_length;
+            boolean is_source_or_sink = link.is_source || link.is_sink;
+
+            int num_full_cells = is_source_or_sink ?
+                    1 :
+                    OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
+
+            float cell_length_meters = is_source_or_sink ?
+                    link.length :
+                    link.length/num_full_cells;
+
+            // create cells ....................
+            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                ((FluidLaneGroup) lg).create_cells(this, cell_length_meters);
+
+            // barriers .........................
+            barriers_to_cells(link,link.in_barriers,cell_length_meters,link.get_num_dn_in_lanes());
+            barriers_to_cells(link,link.out_barriers,cell_length_meters,link.get_num_dn_in_lanes()+link.get_num_full_lanes());
+
+        }
         for(NodeModel nm : node_models.values())
             nm.build();
     }
@@ -69,6 +93,39 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
             NodeModel nm = new NodeModel(node);
             node_models.put(node.getId(),nm);
         }
+    }
+
+    //////////////////////////////////////////////////////////////
+    // InterfaceModel
+    //////////////////////////////////////////////////////////////
+
+    @Override
+    public void reset(Link link) {
+        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
+            FluidLaneGroup lg = (FluidLaneGroup) alg;
+            lg.cells.forEach(x->x.reset());
+        }
+    }
+
+    @Override
+    public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time){
+        dispatcher.register_event(new EventFluidModelUpdate(dispatcher, start_time + dt_sec, this));
+        dispatcher.register_event(new EventFluidStateUpdate(dispatcher, start_time + dt_sec, this));
+    }
+
+    @Override
+    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<common.RoadConnection> out_rcs) {
+        return new FluidLaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
+    }
+
+    @Override
+    public final AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
+        return new FluidSource(origin,demand_profile,commodity,path);
+    }
+
+    @Override
+    public AbstractLinkInfo get_link_info(Link link) {
+        return new output.animation.macro.LinkInfo(link);
     }
 
     //////////////////////////////////////////////////////////////
@@ -180,6 +237,42 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
     public NodeModel get_node_model_for_node(Long node_id){
         return node_models.get(node_id);
+    }
+
+    // PRIVATE
+
+    private static void barriers_to_cells(Link link,Set<Barrier> barriers,float cell_length_meters,int in_lane){
+
+        if(barriers==null || barriers.isEmpty())
+            return;
+
+        // inner lane group
+        FluidLaneGroup inlg = (FluidLaneGroup) link.lanegroups_flwdn.values().stream()
+                .filter(lg->lg.start_lane_dn+lg.num_lanes-1==in_lane)
+                .findFirst().get();
+
+        // outer full lane
+        FluidLaneGroup outlg = (FluidLaneGroup) link.lanegroups_flwdn.values().stream()
+                .filter(lg->lg.start_lane_dn==in_lane+1)
+                .findFirst().get();
+
+        // loop through inner barriers
+        for(Barrier b : barriers){
+
+            int start = Math.round((link.length-b.start)/cell_length_meters);
+            int end = Math.round((link.length-b.end)/cell_length_meters);
+
+            if(start>end){
+
+                if(inlg!=null && inlg.cells.size()>=start)
+                    for(int i=inlg.cells.size()-start;i<inlg.cells.size()-end;i++)
+                        inlg.cells.get(i).out_barrier=true;
+
+                if(outlg!=null && outlg.cells.size()>=start)
+                    for(int i=outlg.cells.size()-start;i<outlg.cells.size()-end;i++)
+                        outlg.cells.get(i).in_barrier=true;
+            }
+        }
     }
 
 }

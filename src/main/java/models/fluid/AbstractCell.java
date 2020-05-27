@@ -11,6 +11,8 @@ public abstract class AbstractCell {
     public boolean am_upstrm;
     public boolean am_dnstrm;
     public double supply;   // [veh]
+    public boolean in_barrier;
+    public boolean out_barrier;
 
     public abstract void reset();
     public abstract void allocate_state();
@@ -27,7 +29,7 @@ public abstract class AbstractCell {
     public abstract double get_veh_for_commodity(Long comm_id);
     public abstract double get_total_vehicles();
 
-    public AbstractCell(double length_in_meters, FluidLaneGroup laneGroup) {
+    public AbstractCell(FluidLaneGroup laneGroup) {
         this.am_upstrm = false;
         this.am_dnstrm = false;
         this.laneGroup = laneGroup;

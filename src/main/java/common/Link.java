@@ -53,6 +53,10 @@ public class Link implements InterfaceScenarioElement {
     public AbstractLaneGroup lanegroup_up_in;
     public AbstractLaneGroup lanegroup_up_out;
 
+    // barriers
+    public Set<Barrier> in_barriers;
+    public Set<Barrier> out_barriers;
+
     // downstream lane count -> lane group
     public Map<Integer, AbstractLaneGroup> dnlane2lanegroup;
 
@@ -400,7 +404,7 @@ public class Link implements InterfaceScenarioElement {
 //        travel_timers.add(x);
 //    }
 
-    public void set_long_lanegroups(Collection<AbstractLaneGroup> lgs) {
+    public void set_flwdn_lanegroups(Collection<AbstractLaneGroup> lgs) {
 
         lanegroups_flwdn = new HashMap<>();
         dnlane2lanegroup = new HashMap<>();
@@ -653,16 +657,32 @@ public class Link implements InterfaceScenarioElement {
     // configuration getters
     ///////////////////////////////////////////
 
+    public int get_num_full_lanes(){
+        return full_lanes;
+    }
+
+    public int get_num_dn_in_lanes(){
+        return road_geom==null||road_geom.dn_in==null ? 0 : road_geom.dn_in.lanes;
+    }
+
+    public int get_num_dn_out_lanes(){
+        return road_geom==null||road_geom.dn_out==null ? 0 : road_geom.dn_out.lanes;
+    }
+
+    public int get_num_up_in_lanes(){
+        return road_geom==null||road_geom.up_in==null ? 0 : road_geom.up_in.lanes;
+    }
+
+    public int get_num_up_out_lanes(){
+        return road_geom==null||road_geom.up_out==null ? 0 : road_geom.up_out.lanes;
+    }
+
     public int get_num_dn_lanes(){
-        return full_lanes +
-                (road_geom==null||road_geom.dn_in==null ? 0 : road_geom.dn_in.lanes) +
-                (road_geom==null||road_geom.dn_out==null ? 0 : road_geom.dn_out.lanes);
+        return full_lanes + get_num_dn_in_lanes() + get_num_dn_out_lanes();
     }
 
     public int get_num_up_lanes(){
-        return full_lanes +
-                (road_geom==null||road_geom.up_in==null ? 0 : road_geom.up_in.lanes) +
-                (road_geom==null||road_geom.up_out==null ? 0 : road_geom.up_out.lanes);
+        return full_lanes + get_num_up_in_lanes() + get_num_up_out_lanes();
     }
 
 //    // returns length in meters
