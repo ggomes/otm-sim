@@ -150,6 +150,8 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         // From there it is "processed", meaning that some part goes into the upstream cell.
         if(link.is_model_source_link) {
             // add packet to buffer
+            assert(false); // DOES THIS EVER HAPPEN? PERHAPS SOURCE FLOWS ARE PROC ESSED IN UPDATE_FLOW_II AND
+                            // VEHICLES ARE PLACED DIRECTLY INTO THE UPSTREAM CELL
             buffer.add_packet(vp);
             process_buffer(timestamp);
         }

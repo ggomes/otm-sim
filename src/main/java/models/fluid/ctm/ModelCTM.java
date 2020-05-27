@@ -10,7 +10,6 @@ import keys.KeyCommPathOrLink;
 import common.AbstractLaneGroup;
 import models.fluid.*;
 import output.AbstractOutput;
-import output.animation.AbstractLinkInfo;
 import common.Scenario;
 import traveltime.FluidLaneGroupTimer;
 import utils.OTMUtils;
@@ -163,24 +162,31 @@ public class ModelCTM extends AbstractFluidModel {
 
     private void perform_lane_changes(Link link,float timestamp) {
 
-        // WARNING: THIS ASSUMES NO ADDLANES (lanegroups_flwdn=all lanegroups)
+        // WARNING: THIS ASSUMES ONLY FULL LENGTH ADDLANES
+
+//        REWRITE THIS !!!!!
 
         int cells_in_full_lg = ((FluidLaneGroup)link.lanegroups_flwdn.values().iterator().next()).cells.size();
 
         // scan cross section from upstream to downstream
         for (int i = 0; i < cells_in_full_lg; i++) {
 
-            Map<Long, Double> gamma = new HashMap<>();
-
             // compute total flows reduction for each lane group
+            Map<Long, Double> gamma = new HashMap<>();
             for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
                 FluidLaneGroup lg = (FluidLaneGroup) alg;
                 CTMCell cell = (CTMCell) lg.cells.get(i);
                 double demand_to_me = 0d;
-                if (lg.neighbor_in != null)
-                    demand_to_me += ((CTMCell)((FluidLaneGroup) lg.neighbor_in).cells.get(i)).total_vehs_out;
-                if (lg.neighbor_out != null)
-                    demand_to_me += ((CTMCell)((FluidLaneGroup) lg.neighbor_out).cells.get(i)).total_vehs_in;
+                if (lg.neighbor_in!=null) {
+                    CTMCell ncell = (CTMCell) ((FluidLaneGroup) lg.neighbor_in).cells.get(i);
+                    if(!ncell.out_barrier)
+                        demand_to_me += ncell.total_vehs_out;
+                }
+                if (lg.neighbor_out != null) {
+                    CTMCell ncell = (CTMCell) ((FluidLaneGroup) lg.neighbor_out).cells.get(i);
+                    if(!ncell.in_barrier)
+                        demand_to_me += ncell.total_vehs_in;
+                }
 
                 // TODO: extract xi as a parameter
                 double supply = 0.9d * (1d - lg.wspeed_cell_per_dt) * cell.supply;
@@ -192,96 +198,22 @@ public class ModelCTM extends AbstractFluidModel {
             // ie a flow that goes left does not also go right. Otherwise I think there may
             // be "data races", where the result depends on the order of lgs.
             for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
-                FluidLaneGroup lg = (FluidLaneGroup) alg;
-                double my_gamma = gamma.get(lg.id);
+                FluidLaneGroup to_lg = (FluidLaneGroup) alg;
+                CTMCell to_cell = (CTMCell) to_lg.cells.get(i);
+                double my_gamma = gamma.get(to_lg.id);
 
-                if (lg.neighbor_in != null) {
-
-                    FluidLaneGroup from_lg = (FluidLaneGroup) lg.neighbor_in;
-                    CTMCell from_cell = (CTMCell) from_lg.cells.get(i);
-                    Map<KeyCommPathOrLink, Double> from_vehs = from_cell.veh_out;
-
-                    ///////////////////////////////////////////////////////////////////////////////////////////
-
-                    for (Map.Entry<KeyCommPathOrLink, Double> e : from_vehs.entrySet()) {
-                        Double from_veh = e.getValue();
-                        KeyCommPathOrLink state = e.getKey();
-
-                        if (from_veh > OTMUtils.epsilon) {
-
-                            CTMCell to_cell = (CTMCell) lg.cells.get(i);
-                            double flw = my_gamma  * from_veh;
-
-                            // remove from this cell
-                            from_vehs.put(state, from_veh-flw );
-                            from_cell.total_vehs_out -= flw;
-
-                            // add to side cell
-                            Side newside = lg.state2lanechangedirection.containsKey(state) ?
-                                    lg.state2lanechangedirection.get(state) :
-                                    Side.middle;
-                            switch (newside) {
-                                case in:
-                                    to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);
-                                    to_cell.total_vehs_in += flw;
-                                    break;
-                                case middle:
-                                    to_cell.veh_dwn.put(state, to_cell.veh_dwn.get(state) + flw);
-                                    to_cell.total_vehs_dwn += flw;
-                                    break;
-                                case out:
-                                    to_cell.veh_out.put(state, to_cell.veh_out.get(state) + flw);
-                                    to_cell.total_vehs_out += flw;
-                                    break;
-                            }
-                        }
-                    }
-                    ///////////////////////////////////////////////////////////////////////////////////////////
+                if (to_lg.neighbor_in != null) {
+                    FluidLaneGroup from_lg = (FluidLaneGroup) to_lg.neighbor_in;
+                    CTMCell ncell = (CTMCell) from_lg.cells.get(i);
+                    if(!ncell.out_barrier)
+                        ncell.total_vehs_out -= do_lane_changes(to_lg,to_cell,my_gamma,ncell.veh_out);
                 }
-                if (lg.neighbor_out != null) {
 
-                    FluidLaneGroup from_lg = (FluidLaneGroup) lg.neighbor_out;
-                    CTMCell from_cell = (CTMCell) from_lg.cells.get(i);
-                    Map<KeyCommPathOrLink, Double> from_vehs = from_cell.veh_in;
-
-                    ///////////////////////////////////////////////////////////////////////////////////////////
-
-                    for (Map.Entry<KeyCommPathOrLink, Double> e : from_vehs.entrySet()) {
-                        Double from_veh = e.getValue();
-                        KeyCommPathOrLink state = e.getKey();
-
-                        if (from_veh > OTMUtils.epsilon) {
-
-                            CTMCell to_cell = (CTMCell) lg.cells.get(i);
-                            double flw = my_gamma * from_veh;
-
-                            // remove from this cell
-                            from_vehs.put(state, from_veh-flw );
-                            from_cell.total_vehs_in -= flw;
-
-                            // add to side cell
-                            Side newside = lg.state2lanechangedirection.containsKey(state) ?
-                                    lg.state2lanechangedirection.get(state) :
-                                    Side.middle;
-                            switch (newside) {
-                                case in:
-                                    to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);
-                                    to_cell.total_vehs_in += flw;
-                                    break;
-                                case middle:
-                                    to_cell.veh_dwn.put(state, to_cell.veh_dwn.get(state) + flw);
-                                    to_cell.total_vehs_dwn += flw;
-                                    break;
-                                case out:
-                                    to_cell.veh_out.put(state, to_cell.veh_out.get(state) + flw);
-                                    to_cell.total_vehs_out += flw;
-                                    break;
-                            }
-                        }
-                    }
-
-
-                    ///////////////////////////////////////////////////////////////////////////////////////////
+                if (to_lg.neighbor_out != null) {
+                    FluidLaneGroup from_lg = (FluidLaneGroup) to_lg.neighbor_out;
+                    CTMCell ncell = (CTMCell) from_lg.cells.get(i);
+                    if(!ncell.in_barrier)
+                        ncell.total_vehs_in -= do_lane_changes(to_lg,to_cell,my_gamma,ncell.veh_in);
                 }
             }
         }
@@ -303,6 +235,43 @@ public class ModelCTM extends AbstractFluidModel {
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_demand());
         }
+    }
+
+    private double do_lane_changes(FluidLaneGroup to_lg,CTMCell to_cell,double to_gamma,Map<KeyCommPathOrLink, Double> from_vehs){
+        double total_flw = 0d;
+        for (Map.Entry<KeyCommPathOrLink, Double> e : from_vehs.entrySet()) {
+            Double from_veh = e.getValue();
+            KeyCommPathOrLink state = e.getKey();
+
+            if (from_veh > OTMUtils.epsilon) {
+
+                double flw = to_gamma * from_veh;
+
+                // remove from this cell
+                from_vehs.put(state, from_veh-flw );
+                total_flw += flw;
+
+                // add to side cell
+                Side newside = to_lg.state2lanechangedirection.containsKey(state) ?
+                        to_lg.state2lanechangedirection.get(state) :
+                        Side.middle;
+                switch (newside) {
+                    case in:
+                        to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);
+                        to_cell.total_vehs_in += flw;
+                        break;
+                    case middle:
+                        to_cell.veh_dwn.put(state, to_cell.veh_dwn.get(state) + flw);
+                        to_cell.total_vehs_dwn += flw;
+                        break;
+                    case out:
+                        to_cell.veh_out.put(state, to_cell.veh_out.get(state) + flw);
+                        to_cell.total_vehs_out += flw;
+                        break;
+                }
+            }
+        }
+        return total_flw;
     }
 
 }

@@ -15,12 +15,12 @@ public class CTMCell extends AbstractCell {
     public Map<KeyCommPathOrLink, Double> demand_dwn;   // comm,path|nlink -> number of vehicles
     public double total_vehs_dwn;
 
-    // vehicles changing lanes outward
+    // vehicles wishing to change lanes outward (regardless if there is a barrier in this cell)
     public Map<KeyCommPathOrLink, Double> veh_out;      // comm,path|nlink -> number of vehicles
     public Map<KeyCommPathOrLink, Double> demand_out;   // comm,path|nlink -> number of vehicles
     public double total_vehs_out;
 
-    // vehicles changing lanes inward
+    // vehicles wishing to change lanes inward (regardless if there is a barrier in this cell)
     public Map<KeyCommPathOrLink, Double> veh_in;      // comm,path|nlink -> number of vehicles
     public Map<KeyCommPathOrLink, Double> demand_in;   // comm,path|nlink -> number of vehicles
     public double total_vehs_in;
