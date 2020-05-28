@@ -221,9 +221,9 @@ public class MesoLaneGroup extends VehicleLaneGroup {
             Long next_link_id = key.isPath ? link.path2outlink.get(key.pathOrlink_id).getId() : key.pathOrlink_id;
 
             // vehicle should be in a target lane group
-            assert(link.outlink2roadconnection.containsKey(next_link_id));
+            assert(outlink2roadconnection.containsKey(next_link_id));
 
-            RoadConnection rc = link.outlink2roadconnection.get(next_link_id);
+            RoadConnection rc = outlink2roadconnection.get(next_link_id);
             Link next_link = rc.end_link;
 
             // at least one candidate lanegroup must have space for one vehicle.

@@ -6,6 +6,7 @@ import actuator.InterfaceActuatorTarget;
 import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
+import jaxb.Roadconnection;
 import keys.KeyCommPathOrLink;
 import packet.StateContainer;
 import traveltime.AbstractLaneGroupTimer;
@@ -18,6 +19,8 @@ import java.util.stream.IntStream;
 import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>, InterfaceLaneGroup, InterfaceActuatorTarget {
+
+    public Map<Long, RoadConnection> outlink2roadconnection;
 
     public final long id;
     public Link link;
@@ -85,6 +88,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         // barriers
 //        in_barriers
 //                out_barriers
+
+        this.outlink2roadconnection = new HashMap<>();
+        if(out_rcs!=null)
+            for(RoadConnection rc : out_rcs)
+                outlink2roadconnection.put(rc.end_link.getId(),rc);
 
     }
 
@@ -167,7 +175,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return flw_acc;
     }
 
-    public final void add_state(long comm_id, Long path_id,Long next_link_id, boolean ispathfull) throws OTMException {
+    public final void add_state(long comm_id, Long path_id,Long next_link_id, boolean ispathfull,Map<Long,Set<RoadConnection>> link_outlink2rcs) throws OTMException {
 
         KeyCommPathOrLink state = ispathfull ?
                 new KeyCommPathOrLink(comm_id, path_id, true) :
@@ -182,25 +190,31 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             state2lanechangedirection.put(state, Side.middle);
         } else {
 
-            // store in map
-            RoadConnection rc = link.outlink2roadconnection.get(next_link_id);
-            if(rc!=null) {
+            // any road connections in the link that lead to next_link_id
+            Set<RoadConnection> link_rcs = link_outlink2rcs.get(next_link_id);
+            RoadConnection my_rc = outlink2roadconnection.get(next_link_id);
 
-                // state2roadconnection
-                state2roadconnection.put(state, rc.getId());
+            // prefer my_rc over any link_rcs
+            // otherwise use the one with the smallest id (arbitrary but deterministic)
+            RoadConnection rc = my_rc!=null ? my_rc : link_rcs.stream()
+                            .min(Comparator.comparing(RoadConnection::getId))
+                            .get();
 
-                // state2lanechangedirection
-                Set<AbstractLaneGroup> target_lgs = rc.in_lanegroups;
-                Set<Side> sides = target_lgs.stream().map(x -> x.get_side_with_respect_to_lg(this)).collect(Collectors.toSet());
+            // state2roadconnection
+            state2roadconnection.put(state, rc.getId());
 
-                if(sides.contains(Side.middle))
-                    state2lanechangedirection.put(state, Side.middle);
-                else {
-                    if (sides.size() != 1)
-                        throw new OTMException("asd;liqwr g-q4iwq jg");
-                    state2lanechangedirection.put(state, sides.iterator().next());
-                }
+            // state2lanechangedirection
+            Set<AbstractLaneGroup> target_lgs = rc.in_lanegroups;
+            Set<Side> sides = target_lgs.stream().map(x -> x.get_side_with_respect_to_lg(this)).collect(Collectors.toSet());
+
+            if(sides.contains(Side.middle))
+                state2lanechangedirection.put(state, Side.middle);
+            else {
+                if (sides.size() != 1)
+                    throw new OTMException("asd;liqwr g-q4iwq jg");
+                state2lanechangedirection.put(state, sides.iterator().next());
             }
+
         }
 
     }
@@ -252,7 +266,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     }
 
     public final boolean link_is_link_reachable(Long link_id){
-        return link.outlink2roadconnection.containsKey(link_id);
+        return outlink2roadconnection.containsKey(link_id);
     }
 
     public final void update_flow_accummulators(KeyCommPathOrLink key,double num_vehicles){
@@ -262,7 +276,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public final RoadConnection get_target_road_connection_for_state(KeyCommPathOrLink key){
         Long outlink_id = key.isPath ? link.path2outlink.get(key.pathOrlink_id).getId() : key.pathOrlink_id;
-        return link.outlink2roadconnection.get(outlink_id);
+        return outlink2roadconnection.get(outlink_id);
     }
 
     ///////////////////////////////////////////////////

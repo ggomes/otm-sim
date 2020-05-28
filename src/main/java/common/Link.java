@@ -72,7 +72,7 @@ public class Link implements InterfaceScenarioElement {
 
     // map from outlink to road-connection. For one-to-one links with no road connection defined,
     // this returns a null.
-    public Map<Long, RoadConnection> outlink2roadconnection;
+//    public Map<Long, RoadConnection> outlink2roadconnection;
 
     // splits
     // populated by ScenarioFactory.create_scenario
@@ -131,7 +131,6 @@ public class Link implements InterfaceScenarioElement {
         path2outlink = new HashMap<>();
         outlink2lanegroups = new HashMap<>();
         commodity2split = new HashMap<>();
-        this.outlink2roadconnection = new HashMap<>();
 
         // demands ............................................
         sources = new HashSet<>();
@@ -305,10 +304,11 @@ public class Link implements InterfaceScenarioElement {
 //        }
 
 
-
         // out_road_connections all lead to links that are immediately downstream
-        Set dwn_links = end_node.out_links.values().stream().map(x->x.getId()).collect(Collectors.toSet());
-        if(!dwn_links.containsAll(outlink2roadconnection.keySet()))
+        Set<Link> dwn_links = this.get_roadconnections_leaving().stream()
+                .map(rc->rc.end_link)
+                .collect(toSet());
+        if(!end_node.out_links.values().containsAll(dwn_links))
             errorLog.addError("some outlinks are not immediately downstream");
 
 
@@ -397,7 +397,6 @@ public class Link implements InterfaceScenarioElement {
         model = null;
 //        travel_timers = null;
         shape = null;
-        outlink2roadconnection = null;
     }
 
 //    public void add_travel_timer(PathTravelTimeWriter x){
@@ -633,23 +632,17 @@ public class Link implements InterfaceScenarioElement {
     }
 
     public Set<RoadConnection> get_roadconnections_leaving(){
-        Set<RoadConnection> rcs = new HashSet<>();
-        rcs.addAll(outlink2roadconnection.values());
-        return rcs;
+        return lanegroups_flwdn.values().stream()
+                .flatMap(lg->lg.outlink2roadconnection.values().stream())
+                .collect(toSet());
     }
 
     public Set<RoadConnection> get_roadconnections_entering(){
-        Set<RoadConnection> rcs = new HashSet<>();
-
-//        for(Link uplink : start_node.in_links.values())
-//            if(uplink.outlink2lanegroups.containsKey(getId()))
-//                for(AbstractLaneGroup lg : uplink.outlink2lanegroups.get(id) )
-//                    if(lg.outlink2roadconnection.containsKey(getId()))
-//                        rcs.add(lg.outlink2roadconnection.get(getId()));
-
-        for(Link uplink : start_node.in_links.values())
-            if(uplink.outlink2roadconnection.containsKey(getId()))
-                rcs.add(uplink.outlink2roadconnection.get(getId()));
+        Set<RoadConnection> rcs = start_node.in_links.values().stream()
+                .flatMap(lk->lk.lanegroups_flwdn.values().stream())
+                .flatMap(lg->lg.outlink2roadconnection.values().stream())
+                .filter(rc->rc.end_link.getId()==this.getId())
+                .collect(toSet());
         return rcs;
     }
 
