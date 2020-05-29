@@ -1,5 +1,7 @@
 package commodity;
 
+import actuator.AbstractActuator;
+import actuator.InterfaceActuatorTarget;
 import common.*;
 import dispatch.Dispatcher;
 import keys.DemandType;
@@ -13,7 +15,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
-public class Commodity {
+public class Commodity implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
     protected final Long id;
     public final String name;
@@ -69,32 +71,36 @@ public class Commodity {
     // InterfaceScenarioElement
     ///////////////////////////////////////////
 
-//    @Override
+    @Override
     public final Long getId() {
         return id;
     }
 
-//    @Override
-//    public final ScenarioElementType getSEType() {
-//        return ScenarioElementType.commodity;
-//    }
+    @Override
+    public final ScenarioElementType getSEType() {
+        return ScenarioElementType.commodity;
+    }
 
-//    @Override
-//    public void validate(OTMErrorLog errorLog) {
-//
-//    }
+    @Override
+    public void validate(OTMErrorLog errorLog) {
 
-//    @Override
+    }
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        throw new OTMException("Not used.");
+    }
+
     public void initialize(Scenario scenario,Map<Long,Map<Long,Set<RoadConnection>>> link_outlink2rcs) throws OTMException {
         for(Subnetwork subnetwork : subnetworks)
             for(Link link : subnetwork.links)
                 register_commodity(link,this,subnetwork,link_outlink2rcs.get(link.getId()));
     }
 
-//    @Override
-//    public void register_with_dispatcher(Dispatcher dispatcher) {
-//
-//    }
+    @Override
+    public void register_with_dispatcher(Dispatcher dispatcher) {
+
+    }
 
 //    @Override
     public jaxb.Commodity to_jaxb(){
@@ -204,6 +210,16 @@ public class Commodity {
             }
         }
 
+    }
+
+    @Override
+    public long getIdAsTarget() {
+        return id;
+    }
+
+    @Override
+    public void register_actuator(AbstractActuator act) throws OTMException {
+        System.out.println("Commodity register_actuator");
     }
 
 }

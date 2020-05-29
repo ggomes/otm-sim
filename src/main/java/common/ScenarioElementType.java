@@ -2,7 +2,7 @@ package common;
 
 /** anything with an id, and lanegroups **/
 public enum ScenarioElementType {
-//    commodity,
+    commodity,
     subnetwork,
     node,
     link,

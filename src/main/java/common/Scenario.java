@@ -331,8 +331,8 @@ public class Scenario {
 
     public InterfaceScenarioElement get_element(ScenarioElementType type, long id){
         switch(type){
-//            case commodity:
-//                return commodities.get(id);
+            case commodity:
+                return commodities.get(id);
             case node:
                 return network.nodes.get(id);
             case link:

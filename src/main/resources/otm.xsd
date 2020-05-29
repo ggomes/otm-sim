@@ -55,7 +55,7 @@
 			<xs:attribute name="type" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="link|node|rc"/>
+						<xs:pattern value="link|node|rc|commodity"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
@@ -488,6 +488,7 @@
 			<xs:all>
 				<xs:element ref="otm:actuator_target" minOccurs="1" maxOccurs="1" />
 				<xs:element ref="otm:signal" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="otm:linklanes" minOccurs="0" maxOccurs="1" />
 			</xs:all>
 			<xs:attribute name="id" type="xs:long" use="required"/>
 			<xs:attribute name="type" use="required">
@@ -521,7 +522,7 @@
 
 	<xs:element name="phase">
 		<xs:complexType>
-			<!-- comma-serparated list of road connection ids -->
+			<!-- comma-separated list of road connection ids -->
 			<xs:attribute name="roadconnection_ids" type="xs:string" use="required" />
 
 			<!-- id for the phase. Suggest using the NEMA convention for phase numbering (1-8). 
@@ -540,6 +541,23 @@
 			<xs:attribute name="lag" type="xs:boolean"  default="false"/>
 			<xs:attribute name="recall" type="xs:boolean"  default="false"/> -->
 
+		</xs:complexType>
+	</xs:element>
+
+	<!-- lane closure ............................................................. -->
+
+	<xs:element name="linklanes">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="otm:linklane" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="linklane">
+		<xs:complexType>
+			<xs:attribute name="link" type="xs:long" use="required"/>
+			<xs:attribute name="lanes" type="xs:string" />
 		</xs:complexType>
 	</xs:element>
 

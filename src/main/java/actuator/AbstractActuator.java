@@ -21,7 +21,8 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         signal,
         rc,
         greenred,
-        stop
+        stop,
+        laneclosure
     }
 
     public long id;
@@ -54,9 +55,8 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
                 // otherwise we can find the element and register
                 Object x = scenario.get_element(type,e.getId());
                 if( x instanceof InterfaceActuatorTarget){
-                    this.target = (InterfaceActuatorTarget) scenario.get_element(type,e.getId());
-                    if(target!=null)
-                        target.register_actuator(this);
+                    target = (InterfaceActuatorTarget) x;
+                    target.register_actuator(this);
                 }
 
             } catch (IllegalArgumentException illegalArgumentException) {
