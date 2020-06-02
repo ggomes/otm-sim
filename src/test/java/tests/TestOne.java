@@ -1,13 +1,16 @@
 package tests;
 
+import api.OTMdev;
+import common.Link;
+import common.RoadConnection;
 import error.OTMException;
 import org.junit.Ignore;
 import org.junit.Test;
 import output.*;
 import runner.OTM;
+import utils.OTMUtils;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertNotNull;
@@ -135,18 +138,18 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "/home/gomes/code/otm/otm-sim/src/test/resources/test_configs/intersection.xml";
+            String configfile = "/home/gomes/code/otm/otm-sim/src/test/resources/test_configs/onramp_hov.xml";
 
             float duration = 400f;
             float outdt = 2f;
-            String prefix = "x";
-            String output_folder = "/home/gomes/code/otm/otm-sim/temp";
+//            String prefix = "x";
+//            String output_folder = "/home/gomes/code/otm/otm-sim/temp";
 
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);
 
             // Output requests .....................
-//            Set<Long> link_ids =  otm.scenario.get_link_ids();
+            Set<Long> link_ids =  otm.scenario.get_link_ids();
 
 //            Set<Long> link_ids = new HashSet<>();
 //            link_ids.add(6l);
@@ -156,8 +159,8 @@ public class TestOne extends AbstractTest {
             //            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
 //            otm.output.request_links_veh(prefix,output_folder,null, link_ids, outdt);
 
-//            otm.output.request_links_flow(null, link_ids, outdt);
-//            otm.output.request_links_veh(null, link_ids, outdt);
+            otm.output.request_links_flow(null, link_ids, outdt);
+            otm.output.request_links_veh(null, link_ids, outdt);
 
 //            otm.output.request_lanegroup_flw(null,link_ids,outdt);
 //            otm.output.request_lanegroup_veh(null,link_ids,outdt);

@@ -2,7 +2,7 @@ package packet;
 
 import common.RoadConnection;
 import common.AbstractVehicle;
-import keys.KeyCommPathOrLink;
+import keys.State;
 
 import java.util.*;
 
@@ -13,7 +13,7 @@ public class PacketLink {
     // The packet arrives to a set of lanegroups
     public RoadConnection road_connection;
     public Set<AbstractVehicle> vehicles;
-    public Map<KeyCommPathOrLink,Double> state2vehicles;
+    public Map<State,Double> state2vehicles;
 
     // empty constructor
     public PacketLink(RoadConnection road_connection){
@@ -23,7 +23,7 @@ public class PacketLink {
     }
 
     // macro constructor
-    public PacketLink(Map<KeyCommPathOrLink,Double> state2vehicles, RoadConnection road_connection){
+    public PacketLink(Map<State,Double> state2vehicles, RoadConnection road_connection){
         this.road_connection = road_connection;
         this.state2vehicles = state2vehicles;
     }

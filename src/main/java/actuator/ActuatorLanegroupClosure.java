@@ -51,7 +51,9 @@ public class ActuatorLanegroupClosure extends AbstractActuator {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-        System.out.println("Initialize ACTUATOR");
+        if(ison)
+            for(AbstractLaneGroup lg : lanegroups)
+                lg.disallow_commodity(comm);
     }
 
     ///////////////////////////////////////////////////

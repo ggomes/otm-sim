@@ -1,24 +1,24 @@
 package common;
 
-import keys.KeyCommPathOrLink;
+import keys.State;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class FlowAccumulatorState {
 
-    public Map<KeyCommPathOrLink,Double> count = new HashMap<>();     // key -> count
+    public Map<State,Double> count = new HashMap<>();     // key -> count
 
     public void reset(){
         count = new HashMap<>();
     }
 
-    public void add_key(KeyCommPathOrLink key){
-        if(!count.containsKey(key))
-            count.put(key,0d);
+    public void add_state(State state){
+        if(!count.containsKey(state))
+            count.put(state,0d);
     }
 
-    public void increment(KeyCommPathOrLink key, Double x){
+    public void increment(State key, Double x){
         if(x.isNaN())
             return;
         count.put(key,x + (count.containsKey(key)?count.get(key):0d));

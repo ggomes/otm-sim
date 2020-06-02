@@ -1,6 +1,6 @@
 package models.fluid;
 
-import keys.KeyCommPathOrLink;
+import keys.State;
 
 import java.util.Map;
 
@@ -16,12 +16,12 @@ public abstract class AbstractCell {
 
     public abstract void reset();
     public abstract void allocate_state();
-    public abstract Map<KeyCommPathOrLink,Double> get_demand();
+    public abstract Map<State,Double> get_demand();
     public abstract void update_supply();
     public abstract void update_demand();
-    public abstract void add_vehicles(Map<KeyCommPathOrLink, Double> dwn,Map<KeyCommPathOrLink, Double> in,Map<KeyCommPathOrLink, Double> out);
-    public abstract void add_vehicles(KeyCommPathOrLink key,Double value);
-    public abstract void subtract_vehicles(Map<KeyCommPathOrLink, Double> dwn,Map<KeyCommPathOrLink, Double> in,Map<KeyCommPathOrLink, Double> out);
+    public abstract void add_vehicles(Map<State, Double> dwn, Map<State, Double> in, Map<State, Double> out);
+    public abstract void add_vehicles(State state, Double value);
+    public abstract void subtract_vehicles(Map<State, Double> dwn, Map<State, Double> in, Map<State, Double> out);
     public abstract double get_vehicles();
     public abstract double get_veh_dwn_for_commodity(Long comm_id);
     public abstract double get_veh_in_for_commodity(Long comm_id);

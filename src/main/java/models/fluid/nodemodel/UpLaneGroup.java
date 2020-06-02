@@ -1,6 +1,6 @@
 package models.fluid.nodemodel;
 
-import keys.KeyCommPathOrLink;
+import keys.State;
 import models.fluid.FluidLaneGroup;
 
 import java.util.HashMap;
@@ -12,7 +12,7 @@ public class UpLaneGroup {
 
     public class RcInfo {
         public final RoadConnection rc;
-        public Set<KeyCommPathOrLink> S_gr = new HashSet<>();
+        public Set<State> S_gr = new HashSet<>();
         public double d_gr;
         public RcInfo(RoadConnection rc) {
             this.rc = rc;
@@ -20,17 +20,17 @@ public class UpLaneGroup {
         public void reset(){
             d_gr = S_gr.stream().mapToDouble(state->state_infos.get(state).d_gs).sum();
         }
-        public void add_state(KeyCommPathOrLink state){
+        public void add_state(State state){
             S_gr.add(state);
             rc.add_state(state);
         }
     }
 
     public class StateInfo {
-        public final KeyCommPathOrLink state;
+        public final State state;
         public double d_gs;
         public double delta_gs;
-        public StateInfo(KeyCommPathOrLink state){
+        public StateInfo(State state){
             this.state = state;
         }
         public void reset(){
@@ -43,8 +43,8 @@ public class UpLaneGroup {
 
     public boolean is_empty_or_blocked;
     public double gamma_g;
-    public Map<KeyCommPathOrLink,StateInfo> state_infos;
-    public Map<KeyCommPathOrLink,Double> f_gs;
+    public Map<State,StateInfo> state_infos;
+    public Map<State,Double> f_gs;
     public Map<Long,RcInfo> rc_infos;
 
     ////////////////////////////////////////////
@@ -64,7 +64,7 @@ public class UpLaneGroup {
         rc_infos.put(rc.id,new RcInfo(rc));
     }
 
-    public void add_state(KeyCommPathOrLink state){
+    public void add_state(State state){
         state_infos.put(state,new StateInfo(state));
         f_gs.put(state,0d);
 

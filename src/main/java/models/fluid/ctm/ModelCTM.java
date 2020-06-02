@@ -6,7 +6,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import geometry.Side;
 import jaxb.OutputRequest;
-import keys.KeyCommPathOrLink;
+import keys.State;
 import common.AbstractLaneGroup;
 import models.fluid.*;
 import output.AbstractOutput;
@@ -18,6 +18,7 @@ import utils.StochasticProcess;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ModelCTM extends AbstractFluidModel {
 
@@ -95,9 +96,9 @@ public class ModelCTM extends AbstractFluidModel {
                 CTMCell upcell = (CTMCell) lg.cells.get(i);
                 CTMCell dncell = (CTMCell) lg.cells.get(i + 1);
 
-                Map<KeyCommPathOrLink, Double> dem_dwn = upcell.demand_dwn;
-                Map<KeyCommPathOrLink, Double> dem_out = upcell.demand_out;
-                Map<KeyCommPathOrLink, Double> dem_in = upcell.demand_in;
+                Map<State, Double> dem_dwn = upcell.demand_dwn;
+                Map<State, Double> dem_out = upcell.demand_out;
+                Map<State, Double> dem_in = upcell.demand_in;
 
                 // total demand
                 double total_demand = OTMUtils.sum(dem_dwn);
@@ -108,9 +109,9 @@ public class ModelCTM extends AbstractFluidModel {
                     double total_flow = Math.min(total_demand, dncell.supply);
                     double gamma = total_flow / total_demand;
 
-                    Map<KeyCommPathOrLink, Double> flow_stay = OTMUtils.times(dem_dwn, gamma);
-                    Map<KeyCommPathOrLink, Double> flow_lc_in = OTMUtils.times(dem_in, gamma);
-                    Map<KeyCommPathOrLink, Double> flow_lc_out = OTMUtils.times(dem_out, gamma);
+                    Map<State, Double> flow_stay = OTMUtils.times(dem_dwn, gamma);
+                    Map<State, Double> flow_lc_in = OTMUtils.times(dem_in, gamma);
+                    Map<State, Double> flow_lc_out = OTMUtils.times(dem_out, gamma);
 
                     // travel time computation
                     if(lg.travel_timer!=null){
@@ -237,11 +238,11 @@ public class ModelCTM extends AbstractFluidModel {
         }
     }
 
-    private double do_lane_changes(FluidLaneGroup to_lg,CTMCell to_cell,double to_gamma,Map<KeyCommPathOrLink, Double> from_vehs){
+    private double do_lane_changes(FluidLaneGroup to_lg,CTMCell to_cell,double to_gamma,Map<State, Double> from_vehs){
         double total_flw = 0d;
-        for (Map.Entry<KeyCommPathOrLink, Double> e : from_vehs.entrySet()) {
+        for (Map.Entry<State, Double> e : from_vehs.entrySet()) {
             Double from_veh = e.getValue();
-            KeyCommPathOrLink state = e.getKey();
+            State state = e.getKey();
 
             if (from_veh > OTMUtils.epsilon) {
 
@@ -251,10 +252,10 @@ public class ModelCTM extends AbstractFluidModel {
                 from_vehs.put(state, from_veh-flw );
                 total_flw += flw;
 
-                // add to side cell
-                Side newside = to_lg.state2lanechangedirection.containsKey(state) ?
-                        to_lg.state2lanechangedirection.get(state) :
-                        Side.middle;
+                // choose lane change direction in destination cell
+                // prefer middle
+                Set<Side> new_lcs = to_lg.state2lanechangedirections.get(state);
+                Side newside = new_lcs.contains(Side.middle) ?  Side.middle : new_lcs.iterator().next();
                 switch (newside) {
                     case in:
                         to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);

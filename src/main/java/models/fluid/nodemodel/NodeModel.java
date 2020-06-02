@@ -4,7 +4,7 @@ import common.Link;
 import common.Node;
 import error.OTMErrorLog;
 import error.OTMException;
-import keys.KeyCommPathOrLink;
+import keys.State;
 import common.AbstractLaneGroup;
 import models.fluid.*;
 import models.fluid.FluidLaneGroup;
@@ -151,7 +151,7 @@ public class NodeModel {
         ulgs.values().forEach( ulg -> ulg.lg.states.forEach( state -> ulg.add_state(state)));
     }
 
-    public Set<KeyCommPathOrLink> get_states_for_road_connection(long rc_id){
+    public Set<State> get_states_for_road_connection(long rc_id){
         return rcs.containsKey(rc_id) ? rcs.get(rc_id).get_states() : null;
     }
 
@@ -291,9 +291,9 @@ public class NodeModel {
 
             if(!ulg.is_empty_or_blocked){
 
-                for( Map.Entry<KeyCommPathOrLink,UpLaneGroup.StateInfo> e : ulg.state_infos.entrySet()){
+                for( Map.Entry<State,UpLaneGroup.StateInfo> e : ulg.state_infos.entrySet()){
 
-                    KeyCommPathOrLink state = e.getKey();
+                    State state = e.getKey();
                     UpLaneGroup.StateInfo stateInfo = e.getValue();
 
                     stateInfo.delta_gs = stateInfo.d_gs * (1d-ulg.gamma_g);
@@ -301,6 +301,12 @@ public class NodeModel {
                     ulg.f_gs.put(state,ulg.f_gs.get(state)+stateInfo.delta_gs);
 
                     // reduce d_gr
+                    if(ulg.lg.state2roadconnection.containsKey(state) ){
+                        Long rc_id = ulg.lg.state2roadconnection.get(state);
+                        if(ulg.rc_infos.containsKey(rc_id))
+                            ulg.rc_infos.get(rc_id).d_gr -= stateInfo.delta_gs;
+                    }
+
                     if(ulg.lg.state2roadconnection.containsKey(state) ){
                         Long rc_id = ulg.lg.state2roadconnection.get(state);
                         if(ulg.rc_infos.containsKey(rc_id))
@@ -320,7 +326,7 @@ public class NodeModel {
 
             rc.delta_r = 0d;
 
-            for(KeyCommPathOrLink state : rc.f_rs.keySet()){
+            for(State state : rc.f_rs.keySet()){
 
                 // delta_rs, f_rs
                 double delta_rs = rc.ulgs.stream()

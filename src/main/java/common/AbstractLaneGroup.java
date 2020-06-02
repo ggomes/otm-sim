@@ -3,11 +3,11 @@ package common;
 import actuator.AbstractActuator;
 import actuator.AbstractActuatorLanegroupCapacity;
 import actuator.InterfaceActuatorTarget;
+import commodity.Commodity;
 import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
-import jaxb.Roadconnection;
-import keys.KeyCommPathOrLink;
+import keys.State;
 import packet.StateContainer;
 import traveltime.AbstractLaneGroupTimer;
 import utils.OTMUtils;
@@ -19,8 +19,6 @@ import java.util.stream.IntStream;
 import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>, InterfaceLaneGroup, InterfaceActuatorTarget {
-
-    public Map<Long, RoadConnection> outlink2roadconnection;
 
     public final long id;
     public Link link;
@@ -40,7 +38,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public AbstractLaneGroup neighbor_up_out;   // lanegroup up and out (stay lanes only)
 
     // set of keys for states in this lanegroup
-    public Set<KeyCommPathOrLink> states;   // TODO MOVE THIS TO DISCRETE TIME ONLY?
+    public Set<State> states;   // TODO MOVE THIS TO DISCRETE TIME ONLY?
 
     public StateContainer buffer;
 
@@ -51,15 +49,17 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // flow accumulator
     public FlowAccumulatorState flw_acc;
 
-//    // map from outlink to road-connection. For one-to-one links with no road connection defined,
-//    // this returns a null.
-//    public Map<Long, RoadConnection> outlink2roadconnection;
+    // one-to-one map at the lanegroup level
+    public Map<Long, RoadConnection> outlink2roadconnection;
 
     // state to the road connection it must use (should be avoided in the one-to-one case)
-    public Map<KeyCommPathOrLink,Long> state2roadconnection;
+    // I SHOULD BE ABLE TO ELIMINATE THIS SINCE IT IS SIMILAR TO OUTLINK2ROADCONNECTION
+    // AND ALSO ONLY USED BY THE NODE MODEL
+    public Map<State,Long> state2roadconnection;
 
     // target lane group to direction
-    public Map<KeyCommPathOrLink,Side> state2lanechangedirection = new HashMap<>();
+    public Map<State,Set<Side>> state2lanechangedirections = new HashMap<>();
+    public Map<State,Set<Side>> disallowed_state2lanechangedirections = new HashMap<>();
 
     public AbstractLaneGroupTimer travel_timer;
 
@@ -169,17 +169,17 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public final FlowAccumulatorState request_flow_accumulator(Long comm_id){
         if(flw_acc==null)
             flw_acc = new FlowAccumulatorState();
-        for(KeyCommPathOrLink key : states)
-                if(comm_id==null || key.commodity_id==comm_id)
-                    flw_acc.add_key(key);
+        for(State state : states)
+                if(comm_id==null || state.commodity_id==comm_id)
+                    flw_acc.add_state(state);
         return flw_acc;
     }
 
     public final void add_state(long comm_id, Long path_id,Long next_link_id, boolean ispathfull,Map<Long,Set<RoadConnection>> link_outlink2rcs) throws OTMException {
 
-        KeyCommPathOrLink state = ispathfull ?
-                new KeyCommPathOrLink(comm_id, path_id, true) :
-                new KeyCommPathOrLink(comm_id, next_link_id, false);
+        State state = ispathfull ?
+                new State(comm_id, path_id, true) :
+                new State(comm_id, next_link_id, false);
 
         states.add(state);
 
@@ -187,33 +187,24 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         // state2lanechangedirection
         if(link.is_sink){
             state2roadconnection.put(state,null);
-            state2lanechangedirection.put(state, Side.middle);
+            Set<Side> sides = new HashSet<>();
+            sides.add(Side.middle);
+            state2lanechangedirections.put(state, sides);
         } else {
 
-            // any road connections in the link that lead to next_link_id
-            Set<RoadConnection> link_rcs = link_outlink2rcs.get(next_link_id);
-            RoadConnection my_rc = outlink2roadconnection.get(next_link_id);
-
-            // prefer my_rc over any link_rcs
-            // otherwise use the one with the smallest id (arbitrary but deterministic)
-            RoadConnection rc = my_rc!=null ? my_rc : link_rcs.stream()
-                            .min(Comparator.comparing(RoadConnection::getId))
-                            .get();
-
             // state2roadconnection
-            state2roadconnection.put(state, rc.getId());
+            RoadConnection my_rc = outlink2roadconnection.get(next_link_id);
+            if(my_rc!=null)
+                state2roadconnection.put(state, my_rc.getId());
 
             // state2lanechangedirection
-            Set<AbstractLaneGroup> target_lgs = rc.in_lanegroups;
-            Set<Side> sides = target_lgs.stream().map(x -> x.get_side_with_respect_to_lg(this)).collect(Collectors.toSet());
-
-            if(sides.contains(Side.middle))
-                state2lanechangedirection.put(state, Side.middle);
-            else {
-                if (sides.size() != 1)
-                    throw new OTMException("asd;liqwr g-q4iwq jg");
-                state2lanechangedirection.put(state, sides.iterator().next());
-            }
+            Set<AbstractLaneGroup> target_lgs = link_outlink2rcs.get(next_link_id).stream()
+                    .flatMap(rc->rc.in_lanegroups.stream())
+                    .collect(Collectors.toSet());
+            Set<Side> sides = target_lgs.stream()
+                    .map(x -> x.get_side_with_respect_to_lg(this))
+                    .collect(Collectors.toSet());
+            state2lanechangedirections.put(state, sides);
 
         }
 
@@ -269,14 +260,54 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return outlink2roadconnection.containsKey(link_id);
     }
 
-    public final void update_flow_accummulators(KeyCommPathOrLink key,double num_vehicles){
+    public final void update_flow_accummulators(State state, double num_vehicles){
         if(flw_acc!=null)
-            flw_acc.increment(key,num_vehicles);
+            flw_acc.increment(state,num_vehicles);
     }
 
-    public final RoadConnection get_target_road_connection_for_state(KeyCommPathOrLink key){
-        Long outlink_id = key.isPath ? link.path2outlink.get(key.pathOrlink_id).getId() : key.pathOrlink_id;
+    public final RoadConnection get_target_road_connection_for_state(State state){
+        Long outlink_id = state.isPath ? link.path2outlink.get(state.pathOrlink_id).getId() : state.pathOrlink_id;
         return outlink2roadconnection.get(outlink_id);
+    }
+
+    public final void disallow_state(State state){
+        if(!states.contains(state))
+            return;
+        // disallow movement into this lanegroup from adjacent lanegroups
+        if(neighbor_in!=null)
+            neighbor_in.disallow_state_lanechangedirection(state,Side.out);
+        if(neighbor_out!=null)
+            neighbor_out.disallow_state_lanechangedirection(state,Side.in);
+        if(neighbor_up_in!=null)
+            neighbor_up_in.disallow_state_lanechangedirection(state,Side.out);
+        if(neighbor_up_out!=null)
+            neighbor_up_out.disallow_state_lanechangedirection(state,Side.in);
+    }
+
+    public final void disallow_commodity(Commodity comm){
+        states.stream()
+                .filter(s->s.commodity_id==comm.getId())
+                .forEach(s->disallow_state(s));
+    }
+
+    public final void reallow_state(State state){
+        if(!states.contains(state))
+            return;
+        // reallow movement into this lanegroup from adjacent lanegroups
+        if(neighbor_in!=null)
+            neighbor_in.reallow_state_lanechangedirection(state,Side.out);
+        if(neighbor_out!=null)
+            neighbor_out.reallow_state_lanechangedirection(state,Side.in);
+        if(neighbor_up_in!=null)
+            neighbor_up_in.reallow_state_lanechangedirection(state,Side.out);
+        if(neighbor_up_out!=null)
+            neighbor_up_out.reallow_state_lanechangedirection(state,Side.in);
+    }
+
+    public final void reallow_commodity(Commodity comm){
+        states.stream()
+                .filter(s->s.commodity_id==comm.getId())
+                .forEach(s->reallow_state(s));
     }
 
     ///////////////////////////////////////////////////
@@ -286,6 +317,44 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     @Override
     public String toString() {
         return String.format("link %d, lg %d, lanes %d, start_dn %d, start_up %d",link.getId(),id,num_lanes,start_lane_dn,start_lane_up);
+    }
+
+    ///////////////////////////////////////////////////
+    // private
+    ///////////////////////////////////////////////////
+
+    private void disallow_state_lanechangedirection(State state,Side side){
+        if(!state2lanechangedirections.containsKey(state))
+            return;
+        Set<Side> sides = state2lanechangedirections.get(state);
+        if(!sides.contains(side))
+            return;
+        sides.remove(side);
+        Set<Side> dsides;
+        if(disallowed_state2lanechangedirections.containsKey(state)){
+            dsides = disallowed_state2lanechangedirections.get(state);
+        }  else {
+            dsides = new HashSet<>();
+            disallowed_state2lanechangedirections.put(state,dsides);
+        }
+        dsides.add(side);
+    }
+
+    private void reallow_state_lanechangedirection(State state,Side side){
+        if(!disallowed_state2lanechangedirections.containsKey(state))
+            return;
+        Set<Side> dsides = disallowed_state2lanechangedirections.get(state);
+        if(!dsides.contains(side))
+            return;
+        dsides.remove(side);
+        Set<Side> sides;
+        if(state2lanechangedirections.containsKey(state)){
+            sides = state2lanechangedirections.get(state);
+        }  else {
+            sides = new HashSet<>();
+            state2lanechangedirections.put(state,sides);
+        }
+        sides.add(side);
     }
 
 }

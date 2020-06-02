@@ -80,6 +80,8 @@ public abstract class AbstractModel implements InterfaceModel {
 
         // 2. Compute the proportions to apply to the split packets to distribute
         // amongst lane groups
+
+        // TODO THIS NEEDS TO ACCOUNT FOR LANE GROUP PROHIBITIONS
         Map<AbstractLaneGroup,Double> lg_prop = lanegroup_proportions(vp.road_connection.out_lanegroups);
 
         // 3. distribute the packets

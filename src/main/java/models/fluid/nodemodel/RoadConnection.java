@@ -1,7 +1,6 @@
 package models.fluid.nodemodel;
 
-import keys.KeyCommPathOrLink;
-import models.fluid.AbstractFluidModel;
+import keys.State;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,7 +33,7 @@ public class RoadConnection {
 
     public Set<UpLaneGroup> ulgs;
     public Map<Long,DnLgInfo> dnlg_infos;
-    public Map<KeyCommPathOrLink,Double> f_rs;
+    public Map<State,Double> f_rs;
 
     ////////////////////////////////////////////
     // construction
@@ -70,7 +69,7 @@ public class RoadConnection {
         dnlg_infos.put(x.lg.id,new DnLgInfo(x,lambda_rj));
     }
 
-    public void add_state(KeyCommPathOrLink state){
+    public void add_state(State state){
         f_rs.put(state,0d);
 
         for(DnLgInfo dnLgInfo : dnlg_infos.values()){
@@ -82,7 +81,7 @@ public class RoadConnection {
     // get
     ////////////////////////////////////////////
 
-    public Set<KeyCommPathOrLink> get_states(){
+    public Set<State> get_states(){
         return f_rs.keySet();
     }
 

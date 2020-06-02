@@ -1,28 +1,30 @@
 package models.fluid.ctm;
 
-import keys.KeyCommPathOrLink;
+import geometry.Side;
+import keys.State;
 import models.fluid.AbstractCell;
 import models.fluid.FluidLaneGroup;
 import utils.OTMUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class CTMCell extends AbstractCell {
 
     // vehicles and demand already in their target lanegroup
-    public Map<KeyCommPathOrLink, Double> veh_dwn;      // comm,path|nlink -> number of vehicles
-    public Map<KeyCommPathOrLink, Double> demand_dwn;   // comm,path|nlink -> number of vehicles
+    public Map<State, Double> veh_dwn;      // comm,path|nlink -> number of vehicles
+    public Map<State, Double> demand_dwn;   // comm,path|nlink -> number of vehicles
     public double total_vehs_dwn;
 
     // vehicles wishing to change lanes outward (regardless if there is a barrier in this cell)
-    public Map<KeyCommPathOrLink, Double> veh_out;      // comm,path|nlink -> number of vehicles
-    public Map<KeyCommPathOrLink, Double> demand_out;   // comm,path|nlink -> number of vehicles
+    public Map<State, Double> veh_out;      // comm,path|nlink -> number of vehicles
+    public Map<State, Double> demand_out;   // comm,path|nlink -> number of vehicles
     public double total_vehs_out;
 
     // vehicles wishing to change lanes inward (regardless if there is a barrier in this cell)
-    public Map<KeyCommPathOrLink, Double> veh_in;      // comm,path|nlink -> number of vehicles
-    public Map<KeyCommPathOrLink, Double> demand_in;   // comm,path|nlink -> number of vehicles
+    public Map<State, Double> veh_in;      // comm,path|nlink -> number of vehicles
+    public Map<State, Double> demand_in;   // comm,path|nlink -> number of vehicles
     public double total_vehs_in;
 
     public CTMCell(FluidLaneGroup laneGroup) {
@@ -30,7 +32,7 @@ public class CTMCell extends AbstractCell {
     }
 
     @Override
-    public Map<KeyCommPathOrLink, Double> get_demand() {
+    public Map<State, Double> get_demand() {
         return demand_dwn;
     }
 
@@ -40,7 +42,7 @@ public class CTMCell extends AbstractCell {
         // downstream flow
         veh_dwn = new HashMap<>();
         demand_dwn = new HashMap<>();
-        for (KeyCommPathOrLink k : laneGroup.states) {
+        for (State k : laneGroup.states) {
             veh_dwn.put(k, 0d);
             demand_dwn.put(k, 0d);
         }
@@ -50,7 +52,7 @@ public class CTMCell extends AbstractCell {
         if (laneGroup.neighbor_out != null) {
             veh_out = new HashMap<>();
             demand_out = new HashMap<>();
-            for (KeyCommPathOrLink k : laneGroup.neighbor_out.states) {
+            for (State k : laneGroup.neighbor_out.states) {
                 veh_out.put(k, 0d);
                 demand_out.put(k, 0d);
             }
@@ -61,7 +63,7 @@ public class CTMCell extends AbstractCell {
         if (laneGroup.neighbor_in != null) {
             veh_in = new HashMap<>();
             demand_in = new HashMap<>();
-            for (KeyCommPathOrLink k : laneGroup.neighbor_in.states) {
+            for (State k : laneGroup.neighbor_in.states) {
                 veh_in.put(k, 0d);
                 demand_in.put(k, 0d);
             }
@@ -158,48 +160,54 @@ public class CTMCell extends AbstractCell {
 
             // split among in|out target, commodities, paths|nextlinks
             double alpha = total_demand / total_vehicles;
-            for (KeyCommPathOrLink key : demand_dwn.keySet())
-                demand_dwn.put(key, veh_dwn.get(key) * alpha);
+            for (State state : demand_dwn.keySet())
+                demand_dwn.put(state, veh_dwn.get(state) * alpha);
 
             if(demand_out !=null)
-                for (KeyCommPathOrLink key : demand_out.keySet())
+                for (State key : demand_out.keySet())
                     demand_out.put(key, veh_out.get(key) * alpha);
 
             if(demand_in !=null)
-                for (KeyCommPathOrLink key : demand_in.keySet())
+                for (State key : demand_in.keySet())
                     demand_in.put(key, veh_in.get(key) * alpha);
         }
     }
 
     @Override
-    public void add_vehicles(KeyCommPathOrLink key,Double value){
+    public void add_vehicles(State state, Double value){
         double cur_val;
 
-        switch(laneGroup.state2lanechangedirection.get(key)){
+        Set<Side> lcoptions = laneGroup.state2lanechangedirections.get(state);
+
+        // TODO THIS IS WHERE VEHICLES THAT ENTER THE LANE GROUP
+        // TODO MUST DECIDE THEIR TARGET LANE GROUP
+        Side lc = lcoptions.contains(Side.middle) ? Side.middle : lcoptions.iterator().next();
+
+        switch(lc){
             case middle:
-                cur_val = veh_dwn.containsKey(key) ? veh_dwn.get(key) : 0d;
-                veh_dwn.put(key,cur_val + value);
+                cur_val = veh_dwn.containsKey(state) ? veh_dwn.get(state) : 0d;
+                veh_dwn.put(state,cur_val + value);
                 total_vehs_dwn += value;
                 break;
             case in:
-                cur_val = veh_in.containsKey(key) ? veh_in.get(key) : 0d;
-                veh_in.put(key,cur_val + value);
+                cur_val = veh_in.containsKey(state) ? veh_in.get(state) : 0d;
+                veh_in.put(state,cur_val + value);
                 total_vehs_in += value;
                 break;
             case out:
-                cur_val = veh_out.containsKey(key) ? veh_out.get(key) : 0d;
-                veh_out.put(key,cur_val + value);
+                cur_val = veh_out.containsKey(state) ? veh_out.get(state) : 0d;
+                veh_out.put(state,cur_val + value);
                 total_vehs_out += value;
                 break;
         }
     }
 
     @Override
-    public void add_vehicles(Map<KeyCommPathOrLink, Double> dwn,Map<KeyCommPathOrLink, Double> in,Map<KeyCommPathOrLink, Double> out) {
+    public void add_vehicles(Map<State, Double> dwn, Map<State, Double> in, Map<State, Double> out) {
 
         if (dwn != null) {
-            for (Map.Entry<KeyCommPathOrLink, Double> e : dwn.entrySet()) {
-                KeyCommPathOrLink state = e.getKey();
+            for (Map.Entry<State, Double> e : dwn.entrySet()) {
+                State state = e.getKey();
                 double value = e.getValue();
                 if (value > 0d) {
                     veh_dwn.put(state, veh_dwn.get(state) + value);
@@ -209,8 +217,8 @@ public class CTMCell extends AbstractCell {
         }
 
         if (in != null) {
-            for (Map.Entry<KeyCommPathOrLink, Double> e : in.entrySet()) {
-                KeyCommPathOrLink state = e.getKey();
+            for (Map.Entry<State, Double> e : in.entrySet()) {
+                State state = e.getKey();
                 double value = e.getValue();
                 if(value>0d) {
                     veh_in.put(state, veh_in.get(state) + value);
@@ -220,8 +228,8 @@ public class CTMCell extends AbstractCell {
         }
 
         if (out != null) {
-            for (Map.Entry<KeyCommPathOrLink, Double> e : out.entrySet()) {
-                KeyCommPathOrLink state = e.getKey();
+            for (Map.Entry<State, Double> e : out.entrySet()) {
+                State state = e.getKey();
                 double value = e.getValue();
                 if(value>0d) {
                     veh_out.put(state, veh_out.get(state) + value);
@@ -232,11 +240,11 @@ public class CTMCell extends AbstractCell {
     }
 
     @Override
-    public void subtract_vehicles(Map<KeyCommPathOrLink, Double> dwn,Map<KeyCommPathOrLink, Double> in,Map<KeyCommPathOrLink, Double> out) {
+    public void subtract_vehicles(Map<State, Double> dwn, Map<State, Double> in, Map<State, Double> out) {
 
         if (dwn != null) {
-            for (Map.Entry<KeyCommPathOrLink, Double> e : dwn.entrySet()) {
-                KeyCommPathOrLink state = e.getKey();
+            for (Map.Entry<State, Double> e : dwn.entrySet()) {
+                State state = e.getKey();
                 double value = e.getValue();
                 if (value > 0d) {
                     veh_dwn.put(state, veh_dwn.get(state) - value);
@@ -246,8 +254,8 @@ public class CTMCell extends AbstractCell {
         }
 
         if (in != null) {
-            for (Map.Entry<KeyCommPathOrLink, Double> e : in.entrySet()) {
-                KeyCommPathOrLink state = e.getKey();
+            for (Map.Entry<State, Double> e : in.entrySet()) {
+                State state = e.getKey();
                 double value = e.getValue();
                 if(value>0d) {
                     veh_in.put(state, veh_in.get(state) - value);
@@ -257,8 +265,8 @@ public class CTMCell extends AbstractCell {
         }
 
         if (out != null) {
-            for (Map.Entry<KeyCommPathOrLink, Double> e : out.entrySet()) {
-                KeyCommPathOrLink state = e.getKey();
+            for (Map.Entry<State, Double> e : out.entrySet()) {
+                State state = e.getKey();
                 double value = e.getValue();
                 if(value>0d) {
                     veh_out.put(state, veh_out.get(state) - value);

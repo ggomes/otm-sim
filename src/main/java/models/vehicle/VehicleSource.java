@@ -7,7 +7,7 @@ import common.Link;
 import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import error.OTMException;
-import keys.KeyCommPathOrLink;
+import keys.State;
 import common.AbstractLaneGroup;
 import packet.PacketLaneGroup;
 import profiles.DemandProfile;
@@ -51,8 +51,8 @@ public class VehicleSource extends common.AbstractSource {
         AbstractVehicle vehicle = model.create_vehicle(commodity.getId(),commodity.vehicle_event_listeners);
 
         // sample key
-        KeyCommPathOrLink key = sample_key();
-        vehicle.set_key(key);
+        State key = sample_key();
+        vehicle.set_state(key);
 
         if(commodity.pathfull)
             vehicle.path = path;
