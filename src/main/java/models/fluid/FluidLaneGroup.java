@@ -1,15 +1,12 @@
 package models.fluid;
 
-import common.Barrier;
-import common.Link;
-import common.RoadConnection;
+import common.*;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.Roadparam;
 import keys.KeyCommPathOrLink;
-import common.AbstractLaneGroup;
 import packet.PacketLaneGroup;
 import utils.OTMUtils;
 
@@ -62,6 +59,14 @@ public class FluidLaneGroup extends AbstractLaneGroup {
             if (ffspeed_cell_per_dt > 1)
                 errorLog.addError("CFL violated: link " + link.getId() + " ffspeed_cell_per_dt = " + ffspeed_cell_per_dt);
         }
+    }
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+
+        if(!cells.isEmpty() && cells.get(0).flw_acc!=null)
+            cells.forEach(c->c.flw_acc.reset());
     }
 
     ////////////////////////////////////////////
@@ -210,6 +215,19 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     // helper methods (final)
     ////////////////////////////////////////////
 
+    public final List<FlowAccumulatorState> request_flow_accumulators_for_cells(Long comm_id){
+        List<FlowAccumulatorState> X = new ArrayList<>();
+        for(AbstractCell cell : cells){
+            if(cell.flw_acc==null)
+                cell.flw_acc = new FlowAccumulatorState();
+            for(KeyCommPathOrLink key : states)
+                if(comm_id==null || key.commodity_id==comm_id)
+                    cell.flw_acc.add_key(key);
+            X.add(cell.flw_acc);
+        }
+        return X;
+    }
+
     public final AbstractCell get_upstream_cell(){
         return cells.get(0);
     }
@@ -221,6 +239,10 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     public final Map<KeyCommPathOrLink,Double> get_demand(){
         return get_dnstream_cell().get_demand();
     }
+
+
+
+
 
     // THIS CAN PROBABLY BE REMOVED .........................
 

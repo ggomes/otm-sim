@@ -1,5 +1,8 @@
 package models.fluid;
 
+import common.FlowAccumulatorState;
+import common.Scenario;
+import error.OTMException;
 import keys.KeyCommPathOrLink;
 
 import java.util.Map;
@@ -14,6 +17,8 @@ public abstract class AbstractCell {
     public boolean in_barrier;
     public boolean out_barrier;
 
+    public FlowAccumulatorState flw_acc;
+
     public abstract void reset();
     public abstract void allocate_state();
     public abstract Map<KeyCommPathOrLink,Double> get_demand();
@@ -27,7 +32,6 @@ public abstract class AbstractCell {
     public abstract double get_veh_in_for_commodity(Long comm_id);
     public abstract double get_veh_out_for_commodity(Long comm_id);
     public abstract double get_veh_for_commodity(Long comm_id);
-    public abstract double get_total_vehicles();
 
     public AbstractCell(FluidLaneGroup laneGroup) {
         this.am_upstrm = false;

@@ -91,7 +91,7 @@ public class CTMCell extends AbstractCell {
 
 //            switch (laneGroup.link.model_type) {
 //                case ctm:
-            double total_vehicles = get_total_vehicles();
+            double total_vehicles = get_vehicles();
             if(am_dnstrm)
                 supply = Math.min(laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - total_vehicles), laneGroup.nom_capacity_veh_per_dt);
             else {
@@ -241,6 +241,8 @@ public class CTMCell extends AbstractCell {
                 if (value > 0d) {
                     veh_dwn.put(state, veh_dwn.get(state) - value);
                     total_vehs_dwn -= value;
+                    if(flw_acc!=null)
+                        flw_acc.increment(state,value);
                 }
             }
         }
@@ -252,6 +254,8 @@ public class CTMCell extends AbstractCell {
                 if(value>0d) {
                     veh_in.put(state, veh_in.get(state) - value);
                     total_vehs_in -= value;
+                    if(flw_acc!=null)
+                        flw_acc.increment(state,value);
                 }
             }
         }
@@ -263,14 +267,11 @@ public class CTMCell extends AbstractCell {
                 if(value>0d) {
                     veh_out.put(state, veh_out.get(state) - value);
                     total_vehs_out -= value;
+                    if(flw_acc!=null)
+                        flw_acc.increment(state,value);
                 }
             }
         }
-    }
-
-    @Override
-    public double get_vehicles() {
-        return total_vehs_dwn + total_vehs_in + total_vehs_out;
     }
 
     @Override
@@ -288,11 +289,12 @@ public class CTMCell extends AbstractCell {
     public double get_veh_in_for_commodity(Long comm_id) {
         if(comm_id==null)
             return this.total_vehs_in;
-        else
-            return veh_in.entrySet().stream()
-                    .filter(x->x.getKey().commodity_id==comm_id)
-                    .mapToDouble(x->x.getValue())
+        else {
+            return veh_in==null ? 0d : veh_in.entrySet().stream()
+                    .filter(x -> x.getKey().commodity_id == comm_id)
+                    .mapToDouble(x -> x.getValue())
                     .sum();
+        }
     }
 
     @Override
@@ -300,7 +302,7 @@ public class CTMCell extends AbstractCell {
         if(comm_id==null)
             return this.total_vehs_out;
         else
-            return veh_out.entrySet().stream()
+            return veh_out==null ? 0d : veh_out.entrySet().stream()
                     .filter(x->x.getKey().commodity_id==comm_id)
                     .mapToDouble(x->x.getValue())
                     .sum();
@@ -312,8 +314,8 @@ public class CTMCell extends AbstractCell {
     }
 
     @Override
-    public double get_total_vehicles(){
-        return total_vehs_dwn + total_vehs_out + total_vehs_in;
+    public double get_vehicles() {
+        return total_vehs_dwn + total_vehs_in + total_vehs_out;
     }
 
 }

@@ -135,9 +135,9 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "/home/gomes/code/otm/otm-sim/src/test/resources/test_configs/intersection.xml";
+            String configfile = "/home/gomes/code/opt/src/test/resources/two_fwy.xml";
 
-            float duration = 400f;
+            float duration = 300f;
             float outdt = 2f;
             String prefix = "x";
             String output_folder = "/home/gomes/code/otm/otm-sim/temp";
@@ -148,9 +148,8 @@ public class TestOne extends AbstractTest {
             // Output requests .....................
 //            Set<Long> link_ids =  otm.scenario.get_link_ids();
 
-//            Set<Long> link_ids = new HashSet<>();
-//            link_ids.add(6l);
-//            link_ids.add(8l);
+            Set<Long> link_ids = new HashSet<>();
+            link_ids.add(2l);
 
 
             //            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
@@ -158,6 +157,9 @@ public class TestOne extends AbstractTest {
 
 //            otm.output.request_links_flow(null, link_ids, outdt);
 //            otm.output.request_links_veh(null, link_ids, outdt);
+
+            otm.output.request_cell_flw(null, link_ids, outdt);
+            otm.output.request_cell_veh(null, link_ids, outdt);
 
 //            otm.output.request_lanegroup_flw(null,link_ids,outdt);
 //            otm.output.request_lanegroup_veh(null,link_ids,outdt);
@@ -182,6 +184,14 @@ public class TestOne extends AbstractTest {
 
             // Print output .........................
             for(AbstractOutput output :  otm.output.get_data()){
+
+                if (output instanceof OutputCellFlow)
+                    ((OutputCellFlow) output).plot_for_links(null, String.format("%s/cell_flow.png", output_folder));
+
+                if (output instanceof OutputCellVehicles)
+                    ((OutputCellVehicles) output).plot_for_links(null, String.format("%s/cell_veh.png", output_folder));
+
+
 
                 if (output instanceof OutputLaneGroupFlow)
                     ((OutputLaneGroupFlow) output).plot_for_links(null, String.format("%s/lg_flow.png", output_folder));
