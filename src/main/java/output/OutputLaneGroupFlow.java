@@ -11,9 +11,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class OutputLaneGroupFlow extends AbstractOutputTimedLanegroup  {
+public class OutputLaneGroupFlow extends AbstractOutputTimedLanegroup {
 
-    private Map<Long, FlowAccumulatorState> flw_accs;
+    private Map<Long, FlowAccumulatorState> flw_accs;   // lg id -> acc
 
     //////////////////////////////////////////////////////
     // construction

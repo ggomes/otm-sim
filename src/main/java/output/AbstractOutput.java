@@ -25,6 +25,8 @@ public abstract class AbstractOutput implements InterfaceOutput {
         vht,
         lanegroup_flw,
         lanegroup_veh,
+        cell_flw,
+        cell_veh,
         path_travel_time,
         vehicle_events,
         vehicle_class,
