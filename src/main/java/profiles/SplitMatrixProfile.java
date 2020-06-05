@@ -93,8 +93,7 @@ public class SplitMatrixProfile {
     }
 
     public void initialize(float now) throws OTMException {
-        Map<Long,Double> value = splits.get_value_for_time(now);
-        node.send_splits_to_inlinks(commodity_id,link_in_id,value);
+        node.send_splits_to_inlinks(commodity_id,link_in_id,splits.get_value_for_time(now));
     }
 
     public void add_split(jaxb.Split jaxb_split) throws OTMException{

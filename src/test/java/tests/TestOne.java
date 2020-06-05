@@ -135,9 +135,9 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "/home/gomes/code/opt/src/test/resources/two_fwy.xml";
+            String configfile = "/home/gomes/code/opt/src/test/resources/project.xml";
 
-            float duration = 300f;
+            float duration = 3600f;
             float outdt = 2f;
             String prefix = "x";
             String output_folder = "/home/gomes/code/otm/otm-sim/temp";
@@ -157,6 +157,10 @@ public class TestOne extends AbstractTest {
 
 //            otm.output.request_links_flow(null, link_ids, outdt);
 //            otm.output.request_links_veh(null, link_ids, outdt);
+
+
+//            otm.output.request_cell_flw(prefix,output_folder,null,link_ids, outdt);
+//            otm.output.request_cell_veh(prefix,output_folder,null,link_ids, outdt);
 
             otm.output.request_cell_flw(null, link_ids, outdt);
             otm.output.request_cell_veh(null, link_ids, outdt);
@@ -191,14 +195,11 @@ public class TestOne extends AbstractTest {
                 if (output instanceof OutputCellVehicles)
                     ((OutputCellVehicles) output).plot_for_links(null, String.format("%s/cell_veh.png", output_folder));
 
-
-
                 if (output instanceof OutputLaneGroupFlow)
                     ((OutputLaneGroupFlow) output).plot_for_links(null, String.format("%s/lg_flow.png", output_folder));
 
                 if (output instanceof OutputLaneGroupVehicles)
                     ((OutputLaneGroupVehicles) output).plot_for_links(null, String.format("%s/lg_veh.png", output_folder));
-
 
 //                if (output instanceof OutputController)
 //                    ((OutputController) output).plot(String.format("%s/controller%d.png",output_folder,((OutputController) output).controller_id));
