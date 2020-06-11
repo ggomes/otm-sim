@@ -15,6 +15,10 @@ public class Profile2D {
     public Map<Long,List<Double>> values;
     public int num_times;
 
+    ////////////////////////////////
+    // construction
+    ////////////////////////////////
+
     public Profile2D(float start_time, Float dt){
         this.start_time = start_time;
         this.dt = dt;
@@ -75,12 +79,8 @@ public class Profile2D {
 
     }
 
-    public boolean have_key(long key){
-        return values.containsKey(key);
-    }
-
     public void add_entry(long key, String content) throws OTMException {
-        values.put(key,OTMUtils.csv2list(content));
+        add_entry(key,OTMUtils.csv2list(content));
     }
 
     public void add_entry(long key,Double value) throws OTMException {
@@ -95,9 +95,17 @@ public class Profile2D {
         if(values.isEmpty())
             this.num_times = new_values.size();
         else
-        if(num_times!=new_values.size())
-            throw new OTMException("wrong size entry.");
+            if(num_times!=new_values.size())
+                throw new OTMException("wrong size entry.");
         values.put(key,new_values);
+    }
+
+    ////////////////////////////////
+    // get
+    ////////////////////////////////
+
+    public boolean have_key(long key){
+        return values.containsKey(key);
     }
 
     public Map<Long,Double> get_value_for_time(float time){
@@ -128,6 +136,10 @@ public class Profile2D {
             r.put(e.getKey(),e.getValue().get(step));
         return r;
     }
+
+    ////////////////////////////////
+    // other
+    ////////////////////////////////
 
     public Profile2D clone() {
         Profile2D x = new Profile2D(this.start_time,this.dt);

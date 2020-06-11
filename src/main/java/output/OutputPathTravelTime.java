@@ -62,7 +62,7 @@ public class OutputPathTravelTime extends AbstractOutputTimedSubnetwork {
                 throw new OTMException(e);
             }
         } else {
-            profile.add(travel_time);
+            profile.add_entry(travel_time);
         }
     }
 

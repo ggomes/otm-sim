@@ -118,7 +118,7 @@ public class Path extends Subnetwork {
 
         while(!unchecked.isEmpty()){
 
-            Collection<Link> next_links = current.end_node.out_links.values();
+            Collection<Link> next_links = current.end_node.out_links;
             Set<Link> next_link = OTMUtils.intersect(next_links,links);
 
             current = next_link.iterator().next();

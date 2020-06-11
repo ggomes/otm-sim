@@ -1,6 +1,7 @@
 package common;
 
 import actuator.AbstractActuator;
+import commodity.Commodity;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -15,7 +16,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     public Network network;
     protected final long id;
     public Map<Long,Link> in_links;
-    public Map<Long,Link> out_links;
+    public Set<Link> out_links;
     public Set<RoadConnection> road_connections;
 
     public boolean is_source;
@@ -47,7 +48,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
         this.is_vsource = is_vsource;
 
         this.in_links = new HashMap<>();
-        this.out_links = new HashMap<>();
+        this.out_links = new HashSet<>();
         this.road_connections = new HashSet<>();
 
         this.is_sink = true;
@@ -76,6 +77,29 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     @Override
     public void validate(OTMErrorLog errorLog) {
         Scenario scenario = network.scenario;
+
+        // all pathless commodities must have splits for all outlinks
+        if(out_links.size()>1){
+            for(Commodity comm : scenario.commodities.values()){
+                if(!comm.pathfull){
+                    for(Link inlink : in_links.values()){
+                        KeyCommodityLink key = new KeyCommodityLink(comm.getId(),inlink.id);
+                        if(splits==null || !splits.containsKey(key)){
+                            errorLog.addError(String.format("Node %d is missing split ratios for commodity %d from link %d",
+                                    id,comm.getId(),inlink.id));
+                            continue;
+                        }
+                        SplitMatrixProfile smp = splits.get(key);
+                        for(Link olink : out_links)
+                            if(!smp.has_split_for_outlink(olink.id))
+                                errorLog.addError(String.format("Node %d is missing split ratios for commodity %d from link %d to link %d",
+                                        id,comm.getId(),inlink.id,olink.id));
+                    }
+
+                }
+            }
+        }
+
         if(splits!=null){
             splits.values().stream().forEach(x -> x.validate(scenario,errorLog));
         }
@@ -141,7 +165,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     }
 
     public void add_output_link(Link link){
-        out_links.put(link.id,link);
+        out_links.add(link);
         is_sink = false;
     }
 
@@ -157,7 +181,7 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     ///////////////////////////////////////////
 
     public void send_splits_to_inlinks(long commodity_id, long linkinid, Map<Long,Double> outlink2value) throws OTMException {
-        Link linkin = in_links.get(linkinid);
+        Link linkin = in_links.  get(linkinid);
         if(linkin!=null)
            linkin.set_splits(commodity_id,outlink2value);
     }

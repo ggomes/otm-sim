@@ -252,8 +252,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             return Side.out;
     }
 
-    public final Set<Long> get_dwn_links(){
-        return link.end_node.out_links.keySet();
+    public final Set<Link> get_out_links(){
+        return link.end_node.out_links;
     }
 
     public final boolean link_is_link_reachable(Long link_id){

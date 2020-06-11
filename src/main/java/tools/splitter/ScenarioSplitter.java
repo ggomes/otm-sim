@@ -463,130 +463,130 @@ public class ScenarioSplitter {
     // private
     /////////////////////////////////////////////////////////////////////////////////////
 
-    private static Map<String,Graph> split_into_graphs() throws OTMException {
+//    private static Map<String,Graph> split_into_graphs() throws OTMException {
+//
+//        Map<String, Graph> graphs = new HashMap<>();
+//
+//        // only boundary nodes have been placed
+//
+//        // all nodes and links start out unplaced
+//        unplaced_nodes.addAll(api.scenario.network.nodes.keySet());
+//        unplaced_links.addAll(api.scenario.network.links.keySet());
+//
+//        // initialize graphs with split nodes and adjacent graph2links
+//        graphs.put("A", new Graph("A"));
+//        graphs.put("B", new Graph("B"));
+//
+//        // store boundary nodes and links
+//        for (SplitNode s : split_nodes) {
+//            for (Graph g : graphs.values()) {
+//                g.add_node(s.node_id);
+//                g.add_links(s.get_links(g.name));
+//                boundary_links.addAll(s.get_links(g.name));
+//            }
+//            boundary_nodes.add(s.node_id);
+//        }
+//
+//        // remove what has already been assigned
+////        graphs.values().forEach(g -> unplaced_links.removeAll(g.links));
+//
+//        // iterate split nodes.
+//        // Grow networks from each splitnode link into each network
+//        for (SplitNode splitNode : split_nodes) {
+//            for (Graph g : graphs.values()) {
+//                for (Long link : splitNode.get_links(g.name)) {
+//                    Long internal_link = get_internal_link(link, splitNode, g);
+//                    g.add_link(internal_link);
+//                    grow_graph(internal_link, g);
+//                    if (unplaced_links.isEmpty()) break;
+//                }
+//                if (unplaced_links.isEmpty()) break;
+//            }
+//            if (unplaced_links.isEmpty()) break;
+//        }
+//
+//        Set<Long> unplaced_nodes_clone = new HashSet<>();
+//        unplaced_nodes_clone.addAll(unplaced_nodes);
+//
+//        for (Long node_id : unplaced_nodes_clone) {
+//
+//            // links adjacent to the node
+//            Node node = api.scenario.network.nodes.get(node_id);
+//            Set<Long> adj_links = new HashSet<>();
+//            adj_links.addAll(node.in_links.keySet());
+//            adj_links.addAll(node.out_links.keySet());
+//
+//            // graphs containing all of these links
+//            Set<Graph> in_graphs = graphs.values().stream().filter(g -> g.links.containsAll(adj_links)).collect(Collectors.toSet());
+//
+//            if (in_graphs.size() != 1) {
+//                System.err.println("What happened here?");
+//                continue;
+//            }
+//
+//            in_graphs.iterator().next().add_node(node_id);
+//
+//        }
+//
+//        if (!unplaced_nodes.isEmpty() || !unplaced_links.isEmpty())
+//            System.err.println("Something bad.");
+//
+//        // validate the graphs
+//        for(Graph graph : graphs.values())
+//            graph.validate();
+//
+//        return graphs;
+//    }
 
-        Map<String, Graph> graphs = new HashMap<>();
+//    private static void grow_graph(Long curr_link_id, Graph graph) {
+//
+//        if (boundary_links.contains(curr_link_id))
+//            return;
+//
+//        // get start and end nodes
+//        Link curr_link = api.scenario.network.links.get(curr_link_id);
+//        Node start_node = curr_link.start_node;
+//        Node end_node = curr_link.end_node;
+//
+//        // collect all attached graph2links.
+//        Set<Long> add_links = new HashSet<>();
+//
+//        // add all incident on start node
+//        add_links.addAll(start_node.out_links.keySet());
+//        add_links.addAll(start_node.in_links.keySet());
+//
+//        // add all incident on end node
+//        add_links.addAll(end_node.out_links.keySet());
+//        add_links.addAll(end_node.in_links.keySet());
+//
+//        // keep only unplaced graph2links
+//        add_links.remove(curr_link_id);
+//        add_links.retainAll(unplaced_links);
+//
+//        if (!add_links.isEmpty()) {
+//
+//            // add all of these to the graph
+//            graph.add_links(add_links);
+//
+//            // recursive call
+//            add_links.forEach(link -> grow_graph(link, graph));
+//        }
+//    }
 
-        // only boundary nodes have been placed
-
-        // all nodes and links start out unplaced
-        unplaced_nodes.addAll(api.scenario.network.nodes.keySet());
-        unplaced_links.addAll(api.scenario.network.links.keySet());
-
-        // initialize graphs with split nodes and adjacent graph2links
-        graphs.put("A", new Graph("A"));
-        graphs.put("B", new Graph("B"));
-
-        // store boundary nodes and links
-        for (SplitNode s : split_nodes) {
-            for (Graph g : graphs.values()) {
-                g.add_node(s.node_id);
-                g.add_links(s.get_links(g.name));
-                boundary_links.addAll(s.get_links(g.name));
-            }
-            boundary_nodes.add(s.node_id);
-        }
-
-        // remove what has already been assigned
-//        graphs.values().forEach(g -> unplaced_links.removeAll(g.links));
-
-        // iterate split nodes.
-        // Grow networks from each splitnode link into each network
-        for (SplitNode splitNode : split_nodes) {
-            for (Graph g : graphs.values()) {
-                for (Long link : splitNode.get_links(g.name)) {
-                    Long internal_link = get_internal_link(link, splitNode, g);
-                    g.add_link(internal_link);
-                    grow_graph(internal_link, g);
-                    if (unplaced_links.isEmpty()) break;
-                }
-                if (unplaced_links.isEmpty()) break;
-            }
-            if (unplaced_links.isEmpty()) break;
-        }
-
-        Set<Long> unplaced_nodes_clone = new HashSet<>();
-        unplaced_nodes_clone.addAll(unplaced_nodes);
-
-        for (Long node_id : unplaced_nodes_clone) {
-
-            // links adjacent to the node
-            Node node = api.scenario.network.nodes.get(node_id);
-            Set<Long> adj_links = new HashSet<>();
-            adj_links.addAll(node.in_links.keySet());
-            adj_links.addAll(node.out_links.keySet());
-
-            // graphs containing all of these links
-            Set<Graph> in_graphs = graphs.values().stream().filter(g -> g.links.containsAll(adj_links)).collect(Collectors.toSet());
-
-            if (in_graphs.size() != 1) {
-                System.err.println("What happened here?");
-                continue;
-            }
-
-            in_graphs.iterator().next().add_node(node_id);
-
-        }
-
-        if (!unplaced_nodes.isEmpty() || !unplaced_links.isEmpty())
-            System.err.println("Something bad.");
-
-        // validate the graphs
-        for(Graph graph : graphs.values())
-            graph.validate();
-
-        return graphs;
-    }
-
-    private static void grow_graph(Long curr_link_id, Graph graph) {
-
-        if (boundary_links.contains(curr_link_id))
-            return;
-
-        // get start and end nodes
-        Link curr_link = api.scenario.network.links.get(curr_link_id);
-        Node start_node = curr_link.start_node;
-        Node end_node = curr_link.end_node;
-
-        // collect all attached graph2links.
-        Set<Long> add_links = new HashSet<>();
-
-        // add all incident on start node
-        add_links.addAll(start_node.out_links.keySet());
-        add_links.addAll(start_node.in_links.keySet());
-
-        // add all incident on end node
-        add_links.addAll(end_node.out_links.keySet());
-        add_links.addAll(end_node.in_links.keySet());
-
-        // keep only unplaced graph2links
-        add_links.remove(curr_link_id);
-        add_links.retainAll(unplaced_links);
-
-        if (!add_links.isEmpty()) {
-
-            // add all of these to the graph
-            graph.add_links(add_links);
-
-            // recursive call
-            add_links.forEach(link -> grow_graph(link, graph));
-        }
-    }
-
-    private static Long get_internal_link(Long blink_id, SplitNode splitNode, Graph g) {
-
-        Link blink = api.scenario.network.links.get(blink_id);
-        Long start_node = blink.start_node.getId();
-        Long end_node = blink.end_node.getId();
-
-        Long internal_link = null;
-        if (splitNode.node_id == start_node && !blink.end_node.out_links.isEmpty()) {
-            internal_link = blink.end_node.out_links.values().iterator().next().getId();
-        } else if (splitNode.node_id == end_node && !blink.start_node.in_links.isEmpty()) {
-            internal_link = blink.start_node.in_links.values().iterator().next().getId();
-        }
-        return internal_link;
-    }
+//    private static Long get_internal_link(Long blink_id, SplitNode splitNode, Graph g) {
+//
+//        Link blink = api.scenario.network.links.get(blink_id);
+//        Long start_node = blink.start_node.getId();
+//        Long end_node = blink.end_node.getId();
+//
+//        Long internal_link = null;
+//        if (splitNode.node_id == start_node && !blink.end_node.out_links.isEmpty()) {
+//            internal_link = blink.end_node.out_links.iterator().next().getId();
+//        } else if (splitNode.node_id == end_node && !blink.start_node.in_links.isEmpty()) {
+//            internal_link = blink.start_node.in_links.iterator().next().getId();
+//        }
+//        return internal_link;
+//    }
 
     /////////////////////////////////////////////////////////////////////////////////////
     // classes

@@ -152,7 +152,7 @@ public class OutputQueues extends AbstractOutputTimed {
             if(profile==null)
                 profile = queueinfo.waiting_profile.clone();
             else
-                profile.add(queueinfo.waiting_profile);
+                profile.sum(queueinfo.waiting_profile);
         }
         return profile.get_values();
     }
@@ -176,7 +176,7 @@ public class OutputQueues extends AbstractOutputTimed {
             if(profile==null)
                 profile = queueinfo.transit_profile.clone();
             else
-                profile.add(queueinfo.transit_profile);
+                profile.sum(queueinfo.transit_profile);
         }
         return profile.get_values();
     }

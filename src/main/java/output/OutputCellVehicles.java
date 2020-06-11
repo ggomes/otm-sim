@@ -50,8 +50,8 @@ public class OutputCellVehicles extends AbstractOutputTimedCell {
     //////////////////////////////////////////////////////
 
     @Override
-    protected double[] get_value_for_lanegroup(FluidLaneGroup lg){
-        double [] X = new double[lg.cells.size()];
+    protected Double[] get_value_for_lanegroup(FluidLaneGroup lg){
+        Double [] X = new Double[lg.cells.size()];
         for(int i=0;i<lg.cells.size();i++)
             X[i] = lg.cells.get(i).get_veh_for_commodity(commodity == null ? null : commodity.getId());
         return X;

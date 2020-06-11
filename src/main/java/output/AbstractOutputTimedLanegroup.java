@@ -171,7 +171,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
             this.profile = new Profile1D(null, outDt);
         }
         public void add_value(double value){
-            profile.add(value);
+            profile.add_entry(value);
         }
     }
 }

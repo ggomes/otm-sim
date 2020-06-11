@@ -10,6 +10,7 @@ import models.fluid.FluidLaneGroup;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import profiles.Profile1D;
+import utils.OTMUtils;
 
 import java.io.*;
 import java.util.*;
@@ -19,7 +20,7 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
 
     public ArrayList<FluidLaneGroup> ordered_lgs;
     public Map<Long, List<CellProfile>> lgprofiles;  // lgid -> list<profiles>
-    abstract protected double[] get_value_for_lanegroup(FluidLaneGroup lg);
+    abstract protected Double[] get_value_for_lanegroup(FluidLaneGroup lg);
 
     //////////////////////////////////////////////////////
     // construction
@@ -68,7 +69,8 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
                     if(!isfirst)
                         writer.write(AbstractOutputTimed.delim);
                     isfirst = false;
-                    writer.write(String.format("%f",get_value_for_lanegroup(lg)));  // TODO THIS WILL FAIL
+                    String str = OTMUtils.format_delim(get_value_for_lanegroup(lg)," ");
+                    writer.write(str);  // TODO THIS WILL FAIL
                 }
                 writer.write("\n");
             } catch (IOException e) {
@@ -77,7 +79,7 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
         } else {
             for(FluidLaneGroup lg : ordered_lgs){
                 List<CellProfile> cellprofs = lgprofiles.get(lg.id);
-                double [] values = get_value_for_lanegroup(lg);
+                Double [] values = get_value_for_lanegroup(lg);
                 for(int i=0;i<values.length;i++)
                     cellprofs.get(i).add_value(values[i]);
             }
@@ -86,7 +88,7 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
 
     //////////////////////////////////////////////////////
     // AbstractOutput
-    //////////////////////////////////////////////////////
+    /////////////////////avail/////////////////////////////////
 
     @Override
     public void validate(OTMErrorLog errorLog) {
@@ -141,21 +143,6 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
     // final
     //////////////////////////////////////////////////////
 
-//    public final Map<Long,Profile1D> get_profiles_for_linkid(Long link_id){
-//
-//        if(!scenario.network.links.containsKey(link_id))
-//            return null;
-//        if(write_to_file)
-//            return null;
-//
-//        Map<Long,Profile1D> profiles = new HashMap<>();
-//        for(AbstractLaneGroup lg : scenario.network.links.get(link_id).lanegroups_flwdn.values())
-//            if(lgprofiles.containsKey(lg.id))
-//                profiles.put(lg.id,lgprofiles.get(lg.id).profile);
-//
-//        return profiles;
-//    }
-
     public final void plot_for_links(Set<Long> link_ids,String filename) throws OTMException {
 
         Set<FluidLaneGroup> lgs = new HashSet<>();
@@ -183,7 +170,7 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
             this.profile = new Profile1D(null, outDt);
         }
         public void add_value(double value){
-            profile.add(value);
+            profile.add_entry(value);
         }
     }
 

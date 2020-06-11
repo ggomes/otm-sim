@@ -160,10 +160,10 @@ public class Commodity implements InterfaceScenarioElement, InterfaceActuatorTar
 
     public Set<Subnetwork> get_subnetworks_for_lanegroup(AbstractLaneGroup lg){
         Link link = lg.link;
-        Set<Long> next_link_ids = lg.get_dwn_links();
+        Set<Link> next_links = lg.get_out_links();
         Set<Subnetwork> x = new HashSet<>();
         for(Subnetwork subnetwork : subnetworks) {
-            if (subnetwork.links.contains(link) && subnetwork.links.stream().anyMatch(z->next_link_ids.contains(z.getId())))
+            if (subnetwork.links.contains(link) && subnetwork.links.stream().anyMatch(z->next_links.contains(z)))
                 x.add(subnetwork);
         }
         return x;

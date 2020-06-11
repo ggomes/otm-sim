@@ -28,6 +28,10 @@ public class Profile1D {
     public Float dt;
     public List<Double> values;
 
+    ////////////////////////////////
+    // construction
+    ////////////////////////////////
+
     public Profile1D(Float start_time,Float dt,List<Double> values){
         this.start_time = start_time==null ? 0f : start_time;
         this.dt = dt;
@@ -58,11 +62,15 @@ public class Profile1D {
             errorLog.addError("Collections.min(values)<0");
     }
 
-    public void add(double x){
+    public void add_entry(double x){
         values.add(x);
     }
 
-    public void add(Profile1D x){
+    ////////////////////////////////
+    // in place operations
+    ////////////////////////////////
+
+    public void sum(Profile1D x){
         if(start_time!=x.start_time || dt!=x.dt || values.size()!=x.values.size())
             return;
         for(int i=0;i<values.size();i++)
@@ -81,6 +89,23 @@ public class Profile1D {
             values.set(i,(double) Math.round(values.get(i)));
     }
 
+    ///////////////////////////////////////
+    // not in place operations
+    ///////////////////////////////////////
+
+    public List<Double> diff(){
+        if(values.size()<2)
+            return null;
+        List<Double> x = new ArrayList<>();
+        for(int i=1;i<values.size();i++)
+            x.add(values.get(i)-values.get(i-1));
+        return x;
+    }
+
+    ////////////////////////////////
+    // get
+    ////////////////////////////////
+
     public Float get_dt(){
         return dt;
     }
@@ -98,15 +123,6 @@ public class Profile1D {
 
     public List<Double> get_values(){
         return values;
-    }
-
-    public List<Double> diff(){
-        if(values.size()<2)
-            return null;
-        List<Double> x = new ArrayList<>();
-        for(int i=1;i<values.size();i++)
-            x.add(values.get(i)-values.get(i-1));
-        return x;
     }
 
     public int get_length(){
@@ -140,11 +156,9 @@ public class Profile1D {
         return values.get(step);
     }
 
-    public Profile1D clone() {
-        Profile1D x = new Profile1D(this.start_time,this.dt);
-        this.values.forEach(v->x.values.add(v));
-        return x;
-    }
+    ///////////////////////////////////////
+    // plot
+    ///////////////////////////////////////
 
     public void plot_and_save(String filename){
 
@@ -211,8 +225,14 @@ public class Profile1D {
     }
 
     ///////////////////////////////////////
-    // toString
+    // other
     ///////////////////////////////////////
+
+    public Profile1D clone() {
+        Profile1D x = new Profile1D(this.start_time,this.dt);
+        this.values.forEach(v->x.values.add(v));
+        return x;
+    }
 
     @Override
     public String toString() {
