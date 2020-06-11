@@ -134,7 +134,7 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
 
         if(start_link!=null && end_link!=null){
             Node node = start_link.end_node;
-            if(!node.out_links.containsKey(end_link.id))
+            if(!node.out_links.contains(end_link))
                 errorLog.addError(String.format("Road connection %d: end link not an outlink of inlink's end node.",id));
         }
 

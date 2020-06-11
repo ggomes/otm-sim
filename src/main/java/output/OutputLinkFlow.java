@@ -63,7 +63,10 @@ public class OutputLinkFlow extends AbstractOutputTimedLink {
     @Override
     public double get_value_for_link(Long link_id) {
         Set<FlowAccumulatorState> fas = flw_acc_sets.get(link_id);
-        return fas.stream().mapToDouble(x->x.get_total_count()).sum();
+        if(commodity==null)
+            return fas.stream().mapToDouble(x->x.get_total_count()).sum();
+        else
+            return fas.stream().mapToDouble(x->x.get_count_for_commodity(commodity.getId())).sum();
     }
 
     @Override

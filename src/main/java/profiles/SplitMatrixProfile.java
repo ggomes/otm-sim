@@ -140,4 +140,7 @@ public class SplitMatrixProfile {
         return splits.clone();
     }
 
+    public boolean has_split_for_outlink(long outlinkid){
+        return splits.values.containsKey(outlinkid);
+    }
 }

@@ -54,7 +54,7 @@ public class NodeModel {
 
             // there is only one dnstream link
             assert(node.out_links.size()==1);
-            Link dn_link = node.out_links.values().iterator().next();
+            Link dn_link = node.out_links.iterator().next();
 
             // there is only one upstream lanegroup
             assert(up_link.lanegroups_flwdn.size()==1);

@@ -172,7 +172,7 @@ public class Subnetwork implements InterfaceScenarioElement {
             if(unchecked.isEmpty())
                 return true;
 
-            Collection<Link> next_links = current.end_node.out_links.values();
+            Collection<Link> next_links = current.end_node.out_links;
             Set<Link> next_link = OTMUtils.intersect(next_links,this.links);
             if(next_link.size()>1)
                 return false;

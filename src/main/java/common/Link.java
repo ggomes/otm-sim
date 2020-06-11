@@ -307,7 +307,7 @@ public class Link implements InterfaceScenarioElement {
 
 
         // out_road_connections all lead to links that are immediately downstream
-        Set dwn_links = end_node.out_links.values().stream().map(x->x.getId()).collect(Collectors.toSet());
+        Set dwn_links = end_node.out_links.stream().map(x->x.getId()).collect(Collectors.toSet());
         if(!dwn_links.containsAll(outlink2roadconnection.keySet()))
             errorLog.addError("some outlinks are not immediately downstream");
 
@@ -428,7 +428,7 @@ public class Link implements InterfaceScenarioElement {
             return;
 
         outlink2lanegroups = new HashMap<>();
-        for(Link outlink : end_node.out_links.values()) {
+        for(Link outlink : end_node.out_links) {
             Set<AbstractLaneGroup> lgs = lanegroups_flwdn.values().stream()
                     .filter(lg -> lg.link_is_link_reachable(outlink.getId()))
                     .collect(Collectors.toSet());
@@ -518,6 +518,9 @@ public class Link implements InterfaceScenarioElement {
                 KeyCommPathOrLink key = e.getKey();
                 Double vehicles = e.getValue();
 
+                if(vehicles==0d)
+                    continue;
+
                 // pathfull
                 if (key.isPath) {
                     Link next_link = path2outlink.get(key.pathOrlink_id);
@@ -547,9 +550,10 @@ public class Link implements InterfaceScenarioElement {
                         for (Map.Entry<Long, Double> e2 : splitinfo.outlink2split.entrySet()) {
                             Long next_link_id = e2.getKey();
                             Double split = e2.getValue();
-                            add_to_lanegroup_packets(split_packets, next_link_id,
-                                    new KeyCommPathOrLink(key.commodity_id, next_link_id, false),
-                                    vehicles * split);
+                            if(split>0d)
+                                add_to_lanegroup_packets(split_packets, next_link_id,
+                                        new KeyCommPathOrLink(key.commodity_id, next_link_id, false),
+                                        vehicles * split);
                         }
                     }
                 }

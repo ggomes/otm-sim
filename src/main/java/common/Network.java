@@ -429,7 +429,7 @@ public class Network {
         int lanes;
         Long rc_id;
 
-        for(Link end_link : link.end_node.out_links.values()){
+        for(Link end_link : link.end_node.out_links){
 
             int start_lane = 1;
             int end_link_lanes = end_link.get_num_up_lanes();

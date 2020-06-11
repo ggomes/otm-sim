@@ -17,8 +17,6 @@ import java.util.Set;
 
 public class FluidLaneGroup extends AbstractLaneGroup {
 
-    public float cell_length_meters;
-
     // nominal fd
     public double nom_ffspeed_cell_per_dt;         // [-]
     public double nom_capacity_veh_per_dt;
