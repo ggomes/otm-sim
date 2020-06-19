@@ -11,7 +11,7 @@ import utils.OTMUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ControllerMaxRate extends AbstractController  {
+public class ControllerFixedRate extends AbstractController  {
 
     public Map<Long, Profile1D> actuator_rate_vph;
 
@@ -19,7 +19,7 @@ public class ControllerMaxRate extends AbstractController  {
     // construction
     ///////////////////////////////////////////////////
 
-    public ControllerMaxRate(Scenario scenario, Controller jaxb_controller) throws OTMException {
+    public ControllerFixedRate(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
         actuator_rate_vph = new HashMap<>();
         if(jaxb_controller.getTargetActuators()!=null){

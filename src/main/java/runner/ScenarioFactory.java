@@ -233,8 +233,8 @@ public class ScenarioFactory {
                 case "alinea":
                     controller = new ControllerAlinea(scenario,jaxb_controller);
                     break;
-                case "maxrate":
-                    controller = new ControllerMaxRate(scenario,jaxb_controller);
+                case "fixed_rate":
+                    controller = new ControllerFixedRate(scenario,jaxb_controller);
                     break;
                 default:
 
