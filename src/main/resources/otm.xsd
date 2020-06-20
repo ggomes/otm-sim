@@ -55,7 +55,7 @@
 			<xs:attribute name="type" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="link|node|rc|commodity"/>
+						<xs:pattern value="lanegroup|node|commodity"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
@@ -610,6 +610,7 @@
 			<xs:all>
 				<xs:element ref="otm:target_actuators" minOccurs="0" maxOccurs="1"/>
 				<xs:element ref="otm:feedback_sensors" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="otm:schedule" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:stages" minOccurs="0" />
 				<xs:element ref="otm:parameters" minOccurs="0" maxOccurs="1" />
 			</xs:all>
@@ -659,6 +660,30 @@
 			<xs:attribute name="usage" type="xs:string"  />
 		</xs:complexType>
 	</xs:element>
+
+
+	<!-- schedule for schedule type controller .................................... -->
+
+	<xs:element name="schedule">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="otm:entry" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="entry">
+		<xs:complexType>
+			<xs:all>
+				<xs:element ref="otm:target_actuators" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="otm:parameters" minOccurs="0" maxOccurs="1" />
+			</xs:all>
+			<xs:attribute name="type" type="xs:string"/>
+			<xs:attribute name="start_time" type="xs:float"/>
+			<xs:attribute name="end_time" type="xs:float"/>
+		</xs:complexType>
+	</xs:element>
+
 
 	<!-- pretimed signal control .................................................. -->
 

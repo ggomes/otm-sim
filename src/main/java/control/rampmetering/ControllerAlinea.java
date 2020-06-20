@@ -1,8 +1,10 @@
-package control;
+package control.rampmetering;
 
 import actuator.AbstractActuator;
 import actuator.ActuatorMeter;
+import common.AbstractLaneGroup;
 import common.Node;
+import control.AbstractController;
 import control.command.CommandNumber;
 import dispatch.Dispatcher;
 import error.OTMException;
@@ -17,7 +19,7 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public class ControllerAlinea extends AbstractController  {
+public class ControllerAlinea extends AbstractController {
 
     public Map<Long,AlineaParams> params;
 
@@ -40,7 +42,8 @@ public class ControllerAlinea extends AbstractController  {
             ActuatorMeter act = (ActuatorMeter) abs_act;
             AlineaParams param = new AlineaParams();
 
-            Link onramp_link = (Link) abs_act.target;
+            AbstractLaneGroup target_lg = (AbstractLaneGroup) abs_act.target;
+            Link onramp_link = target_lg.link;
 
             Node end_node = onramp_link.end_node;
             Set<Link> ml_links = end_node.in_links.values().stream()

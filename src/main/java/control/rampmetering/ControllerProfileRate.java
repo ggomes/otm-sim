@@ -1,17 +1,18 @@
-package control;
+package control.rampmetering;
 
+import common.Scenario;
+import control.AbstractController;
 import control.command.CommandNumber;
 import dispatch.Dispatcher;
 import error.OTMException;
 import jaxb.Controller;
-import common.Scenario;
 import profiles.Profile1D;
 import utils.OTMUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ControllerMaxRate extends AbstractController  {
+public class ControllerProfileRate extends AbstractController {
 
     public Map<Long, Profile1D> actuator_rate_vph;
 
@@ -19,14 +20,14 @@ public class ControllerMaxRate extends AbstractController  {
     // construction
     ///////////////////////////////////////////////////
 
-    public ControllerMaxRate(Scenario scenario, Controller jaxb_controller) throws OTMException {
+    public ControllerProfileRate(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
         actuator_rate_vph = new HashMap<>();
         if(jaxb_controller.getTargetActuators()!=null){
             for(jaxb.TargetActuator ta : jaxb_controller.getTargetActuators().getTargetActuator()){
                 if(!actuators.containsKey(ta.getId()))
                     continue;
-                Profile1D profile = new Profile1D(start_time,dt,OTMUtils.csv2list(ta.getContent()));
+                Profile1D profile = new Profile1D(start_time,dt, OTMUtils.csv2list(ta.getContent()));
                 actuator_rate_vph.put(ta.getId(),profile);
             }
         }

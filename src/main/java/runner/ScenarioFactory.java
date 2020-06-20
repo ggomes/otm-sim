@@ -10,6 +10,7 @@ import common.Network;
 import common.Node;
 import common.Scenario;
 import control.*;
+import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -150,6 +151,44 @@ public class ScenarioFactory {
         return scenario;
     }
 
+    public static AbstractController create_controller_from_jaxb(Scenario scenario, jaxb.Controller jaxb_controller) throws OTMException {
+        AbstractController controller;
+        String controller_type = jaxb_controller.getType();
+        switch(controller_type){
+            case "schedule":
+                controller = new ControllerSchedule(scenario,jaxb_controller);
+                break;
+            case "sig_pretimed":
+                controller = new ControllerSignalPretimed(scenario,jaxb_controller);
+                break;
+            case "alinea":
+                controller = new ControllerAlinea(scenario,jaxb_controller);
+                break;
+            case "fixed_rate":
+                controller = new ControllerFixedRate(scenario,jaxb_controller);
+                break;
+            case "profile_rate":
+                controller = new ControllerProfileRate(scenario,jaxb_controller);
+                break;
+            case "open":
+                controller = new ControllerOpen(scenario,jaxb_controller);
+                break;
+            case "closed":
+                controller = new ControllerClosed(scenario,jaxb_controller);
+                break;
+            default:
+
+                // it might be a plugin
+                controller = PluginLoader.get_controller_instance(controller_type,scenario,jaxb_controller);
+
+                if(controller==null)
+                    throw new OTMException("Bad controller type: " + controller_type);
+                break;
+        }
+
+        return controller;
+    }
+
     ///////////////////////////////////////////
     // private static
     ///////////////////////////////////////////
@@ -224,32 +263,8 @@ public class ScenarioFactory {
         HashMap<Long, AbstractController> controllers = new HashMap<>();
         if(jaxb_controllers==null)
             return controllers;
-        for(jaxb.Controller jaxb_controller : jaxb_controllers.getController()){
-            AbstractController controller;
-            String controller_type = jaxb_controller.getType();
-            if(controllers.containsKey(jaxb_controller.getId()))
-                throw new OTMException("Duplicate controller id found: " + jaxb_controller.getId());
-            switch(controller_type){
-                case "sig_pretimed":
-                    controller = new ControllerSignalPretimed(scenario,jaxb_controller);
-                    break;
-                case "alinea":
-                    controller = new ControllerAlinea(scenario,jaxb_controller);
-                    break;
-                case "maxrate":
-                    controller = new ControllerMaxRate(scenario,jaxb_controller);
-                    break;
-                default:
-
-                    // it might be a plugin
-                    controller = PluginLoader.get_controller_instance(controller_type,scenario,jaxb_controller);
-
-                    if(controller==null)
-                        throw new OTMException("Bad controller type: " + controller_type);
-                    break;
-            }
-            controllers.put(jaxb_controller.getId(),controller);
-        }
+        for(jaxb.Controller jaxb_controller : jaxb_controllers.getController())
+            controllers.put(jaxb_controller.getId(),create_controller_from_jaxb(scenario,jaxb_controller));
         return controllers;
     }
 

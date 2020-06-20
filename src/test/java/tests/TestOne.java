@@ -57,7 +57,7 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "/home/gomes/code/otm/otm-sim/src/test/resources/test_configs/onramp_hov.xml";
+            String configfile = "/home/gomes/Downloads/I210_noormng.xml";
             api.OTM otm = new api.OTM(configfile,true,false);
             assertNotNull(otm);
         } catch (OTMException e) {
@@ -139,6 +139,7 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
+<<<<<<< HEAD
 //            String configfile = "/home/gomes/code/opt/src/test/resources/two_fwy.xml";
             String configfile = "/home/gomes/code/otm/otm-sim/src/test/resources/test_configs/onramp_hov.xml";
 
@@ -146,19 +147,27 @@ public class TestOne extends AbstractTest {
             float outdt = 2f;
 //            String prefix = "x";
 //            String output_folder = "/home/gomes/code/otm/otm-sim/temp";
+=======
+            String configfile = "/home/gomes/Desktop/101/sss.xml";
+
+            float duration = 2500f;
+            float outdt = 2f;
+            String prefix = "x";
+            String output_folder = "/home/gomes/Desktop/101/";
+>>>>>>> master
 
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);
 
             // Output requests .....................
-//            Set<Long> link_ids =  otm.scenario.get_link_ids();
+            Set<Long> link_ids =  otm.scenario.get_link_ids();
 
-            Set<Long> link_ids = new HashSet<>();
-            link_ids.add(2l);
+//            Set<Long> link_ids = new HashSet<>();
+//            link_ids.add(2l);
 
 
-            //            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
-//            otm.output.request_links_veh(prefix,output_folder,null, link_ids, outdt);
+            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
+            otm.output.request_links_veh(prefix,output_folder,null, link_ids, outdt);
 
             otm.output.request_links_flow(null, link_ids, outdt);
             otm.output.request_links_veh(null, link_ids, outdt);
@@ -167,8 +176,8 @@ public class TestOne extends AbstractTest {
 //            otm.output.request_cell_flw(prefix,output_folder,null,link_ids, outdt);
 //            otm.output.request_cell_veh(prefix,output_folder,null,link_ids, outdt);
 
-            otm.output.request_cell_flw(null, link_ids, outdt);
-            otm.output.request_cell_veh(null, link_ids, outdt);
+//            otm.output.request_cell_flw(null, link_ids, outdt);
+//            otm.output.request_cell_veh(null, link_ids, outdt);
 
 //            otm.output.request_lanegroup_flw(null,link_ids,outdt);
 //            otm.output.request_lanegroup_veh(null,link_ids,outdt);
