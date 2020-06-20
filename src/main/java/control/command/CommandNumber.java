@@ -2,9 +2,9 @@ package control.command;
 
 public class CommandNumber implements InterfaceCommand {
 
-    public float value;
+    public Float value;
 
-    public CommandNumber(float value){
+    public CommandNumber(Float value){
         this.value = value;
     }
 

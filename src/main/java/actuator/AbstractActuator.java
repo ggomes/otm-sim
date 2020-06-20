@@ -52,9 +52,21 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
                 type = ScenarioElementType.valueOf(e.getType());
 
                 // otherwise we can find the element and register
-                Object x = scenario.get_element(type,e.getId());
+                Object x;
+
+                // if it is a lanegroup, then the id is for the link, and lanes must be used
+                if(type==ScenarioElementType.lanegroup){
+                    Link link = (Link) scenario.get_element(ScenarioElementType.link,e.getId());
+                    int [] lanes = OTMUtils.read_lanes(e.getLanes(),link.full_lanes);
+                    Set<AbstractLaneGroup> lgs = link.get_unique_lanegroups_for_dn_lanes(lanes[0],lanes[1]);
+                    if(lgs.size()!=1)
+                        throw new OTMException("Actuator target does not define a unique lane group");
+                    x = lgs.iterator().next();
+                } else {
+                    x = scenario.get_element(type,e.getId());
+                }
                 if( x instanceof InterfaceActuatorTarget){
-                    this.target = (InterfaceActuatorTarget) scenario.get_element(type,e.getId());
+                    this.target = (InterfaceActuatorTarget) x;
                     if(target!=null)
                         target.register_actuator(this);
                 }

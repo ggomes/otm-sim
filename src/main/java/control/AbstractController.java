@@ -22,6 +22,7 @@ import java.util.*;
 public abstract class AbstractController implements Pokable, InterfaceScenarioElement, InterfaceEventWriter {
 
     public enum Algorithm {
+        schedule,
         sig_pretimed,
         alinea,
         fixed_rate,
@@ -39,9 +40,9 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     public final Scenario scenario;
     public final long id;
     public final Algorithm type;
-    public final float dt;
-    public final float start_time;
-    public final float end_time;
+    public float dt;
+    public float start_time;
+    public float end_time;
 
     public Map<Long,AbstractActuator> actuators;
     public Map<String,AbstractActuator> actuator_by_usage;
@@ -194,7 +195,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
             event_output.write(new EventWrapperController(timestamp,command));
 
         // wake up in dt, if dt is defined
-        if(dt >0)
+        if(dt>0)
             dispatcher.register_event(new EventPoke(dispatcher,2,timestamp+dt,this));
     }
 

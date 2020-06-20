@@ -51,7 +51,9 @@ public abstract class AbstractActuatorLanegroupCapacity extends AbstractActuator
     public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException {
         if(command==null)
             return;
-        double rate_vps = ((CommandNumber) command).value;
+        Float rate_vps = ((CommandNumber) command).value;
+        if(rate_vps==null)
+            return;
         for(AbstractLaneGroup lg : lanegroups)
             lg.set_actuator_capacity_vps(rate_vps * lg.num_lanes / total_lanes);
     }
