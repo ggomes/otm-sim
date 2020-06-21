@@ -57,7 +57,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     abstract public void update_command(Dispatcher dispatcher) throws OTMException;
 
     ///////////////////////////////////////////
-    // construction
+    // construction and initialization
     ///////////////////////////////////////////
 
     public AbstractController(Scenario scenario, jaxb.Controller jaxb_controller) throws OTMException {
@@ -142,6 +142,12 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
             }
         }
 
+    }
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        System.out.println(String.format("%.2f\tinitialize\t%s",scenario.dispatcher.current_time,this.getClass().getName()));
+        register_with_dispatcher(scenario.dispatcher);
     }
 
     ///////////////////////////////////////////

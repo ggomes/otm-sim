@@ -99,11 +99,6 @@ public class ControllerSignalPretimed extends AbstractController {
         }
     }
 
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-
-    }
-
     ///////////////////////////////////////////////////
     // AbstractController
     ///////////////////////////////////////////////////

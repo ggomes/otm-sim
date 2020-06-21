@@ -37,10 +37,6 @@ public class ControllerProfileRate extends AbstractController {
     // InterfaceScenarioElement
     ///////////////////////////////////////////////////
 
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-
-    }
 
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {

@@ -37,6 +37,9 @@ public class ControllerAlinea extends AbstractController {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+
+        System.out.println(String.format("%.2f\tinitialize\t%s",scenario.dispatcher.current_time,this.getClass().getName()));
         params = new HashMap<>();
         for(AbstractActuator abs_act : actuators.values()){
             ActuatorMeter act = (ActuatorMeter) abs_act;
@@ -70,6 +73,9 @@ public class ControllerAlinea extends AbstractController {
 
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
+
+        System.out.println(String.format("%.2f\tupdate_command\t%s",scenario.dispatcher.current_time,this.getClass().getName()));
+
         for(AbstractActuator abs_act : this.actuators.values()){
             ActuatorMeter act = (ActuatorMeter) abs_act;
             AlineaParams p = params.get(abs_act.id);

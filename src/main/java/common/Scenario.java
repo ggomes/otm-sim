@@ -164,13 +164,13 @@ public class Scenario {
         // register initial events ......................................
         if(path_tt_manager!=null)
             path_tt_manager.initialize(dispatcher);
+
         data_demands.values().forEach(x -> x.register_with_dispatcher(dispatcher));
         network.nodes.values().stream()
                 .filter(node->node.splits!=null)
                 .flatMap(node->node.splits.values().stream())
                 .forEach(x->x.register_with_dispatcher(dispatcher));
 
-        controllers.values().forEach(x->x.register_with_dispatcher(dispatcher));
         actuators.values().forEach(x->x.register_with_dispatcher(dispatcher));
         sensors.values().forEach(x->x.register_with_dispatcher(dispatcher));
 
