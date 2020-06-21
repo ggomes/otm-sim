@@ -2,6 +2,7 @@ package control;
 
 import actuator.AbstractActuator;
 import common.Scenario;
+import dispatch.AbstractEvent;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import error.OTMException;
@@ -14,6 +15,7 @@ import java.util.List;
 public class ControllerSchedule extends AbstractController {
 
     protected List<ScheduleEntry> entries;
+    private ScheduleEntry curr_entry;
     private int curr_entry_index;
     private float next_entry_start;
 
@@ -53,26 +55,30 @@ public class ControllerSchedule extends AbstractController {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-        update_entry_index(scenario.get_current_time());
+        super.initialize(scenario);
+
+        curr_entry_index = -1;
+//        update_entry_index(scenario.get_current_time());
+
+        // assign actuator to entry controllers
         AbstractActuator act = this.actuators.values().iterator().next();
-        for (ScheduleEntry entry : entries) {
+        for (ScheduleEntry entry : entries)
             entry.cntrl.actuators.put(act.id,act);
-            entry.cntrl.initialize(scenario);
-        }
+
     }
 
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
 
+        System.out.println(String.format("%.2f\tupdate_command\t%s",scenario.dispatcher.current_time,this.getClass().getName()));
+
         float now = dispatcher.current_time;
-        System.out.println(now + "\tControllerSchedule " + id + " update_command");
 
         // possibly update the entry
         if(now>=next_entry_start)
             update_entry_index(now);
 
-        if(curr_entry_index>=0){
-            ScheduleEntry curr_entry = entries.get(curr_entry_index);
+        if(curr_entry!=null){
 
             // get command for the current entry and record it to command
             AbstractController ctrl = curr_entry.cntrl;
@@ -90,7 +96,9 @@ public class ControllerSchedule extends AbstractController {
     // private
     ///////////////////////////////////////////////////
 
-    private void update_entry_index(float now) {
+    private void update_entry_index(float now) throws OTMException {
+
+        int prev_entry_index = curr_entry_index;
 
         int next_index = entries.size();
 
@@ -104,6 +112,25 @@ public class ControllerSchedule extends AbstractController {
         curr_entry_index = next_index - 1;
         next_entry_start = next_index<entries.size() ? entries.get(next_index).start_time : Float.POSITIVE_INFINITY;
 
+        if(curr_entry_index<0){
+            curr_entry = null;
+            return;
+        }
+
+        // if the index has changed, update curr_entry, delete pending controller actions
+        // and register current with dispatcher (initialize).
+        if(curr_entry_index!=prev_entry_index){
+
+            // delete pending controller actions
+            if(curr_entry!=null)
+                scenario.dispatcher.remove_events_for_recipient(EventPoke.class,curr_entry);
+
+            // assign
+            curr_entry = entries.get(curr_entry_index);
+
+            // initialize
+            curr_entry.cntrl.initialize(scenario);
+        }
     }
 
     ///////////////////////////////////////////////////
