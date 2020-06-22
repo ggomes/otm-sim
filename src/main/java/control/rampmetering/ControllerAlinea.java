@@ -28,7 +28,6 @@ public class ControllerAlinea extends AbstractController {
 
     // queue control
     private boolean has_queue_control;
-    private float queue_threshold;
 
     ///////////////////////////////////////////////////
     // construction
@@ -39,6 +38,7 @@ public class ControllerAlinea extends AbstractController {
 
         cntrl_max_rate_vpspl = Float.POSITIVE_INFINITY;
         cntrl_min_rate_vpspl = Float.NEGATIVE_INFINITY;
+        this.has_queue_control = false;
         if(jaxb_controller.getParameters()!=null){
             for(jaxb.Parameter p : jaxb_controller.getParameters().getParameter()){
                 if(p.getName().compareTo("max_rate_vphpl")==0)
@@ -75,6 +75,10 @@ public class ControllerAlinea extends AbstractController {
             param.max_rate_vps = Math.min(cntrl_max_rate_vpspl*act.total_lanes,act.max_rate_vps);
             param.min_rate_vps = Math.max(cntrl_min_rate_vpspl*act.total_lanes,act.min_rate_vps);
             param.target_link = ml_link;
+
+            Link orlink = ((AbstractLaneGroup)act.target).link;
+            param.queue_threshold = orlink.road_param.getJamDensity() * orlink.full_lanes * orlink.length / 1000;
+
             params.put(abs_act.id , param);
 
             command.put(act.id,
@@ -90,7 +94,7 @@ public class ControllerAlinea extends AbstractController {
             AlineaParams p = params.get(act.id);
             double queue = has_queue_control ? ((AbstractLaneGroup) act.target).link.get_veh() : 0f;
             command.put(act.id,
-                    new CommandNumber( queue<queue_threshold ? compute_alinea_rate_vps(act,p) : p.max_rate_vps ) );
+                    new CommandNumber( queue<p.queue_threshold ? compute_alinea_rate_vps(act,p) : p.max_rate_vps ) );
         }
     }
 
@@ -98,6 +102,9 @@ public class ControllerAlinea extends AbstractController {
         float density_veh = (float) p.target_link.get_veh();
         float previous_rate_vps = ((CommandNumber) command.get(act.id)).value;
         float alinea_rate_vps = previous_rate_vps +  p.gain_per_sec * (p.target_density_veh - density_veh);
+
+        System.out.println(alinea_rate_vps*3600f);
+
         return Math.min( Math.max(alinea_rate_vps,p.min_rate_vps) , p.max_rate_vps );
     }
 
@@ -107,5 +114,6 @@ public class ControllerAlinea extends AbstractController {
         float min_rate_vps;
         float max_rate_vps;
         Link target_link;
+        float queue_threshold;
     }
 }
