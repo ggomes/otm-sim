@@ -23,7 +23,6 @@ public class ControllerOpen extends AbstractController {
 
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
-        System.out.println(String.format("%.2f\tupdate_command\t%s",scenario.dispatcher.current_time,this.getClass().getName()));
         this.command.put(actuators.keySet().iterator().next(),new CommandNumber(Float.POSITIVE_INFINITY));
     }
 

@@ -25,6 +25,8 @@ public class ControllerSchedule extends AbstractController {
     public ControllerSchedule(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
 
+        AbstractActuator act = this.actuators.values().iterator().next();
+
         // make sure this is not a periodic controller
         this.dt = 0;
 
@@ -43,8 +45,14 @@ public class ControllerSchedule extends AbstractController {
             jcntrl.setParameters(e.getParameters());
             jcntrl.setStartTime(start_time);
             jcntrl.setEndTime(end_time);
+            jcntrl.setFeedbackSensors(e.getFeedbackSensors());
             AbstractController cntrl = ScenarioFactory.create_controller_from_jaxb(scenario,jcntrl);
-            entries.add(new ScheduleEntry(start_time,end_time,cntrl));
+
+
+            ScheduleEntry entry = new ScheduleEntry(start_time,end_time,cntrl);
+            entries.add(entry);
+
+            cntrl.actuators.put(act.id,act);
         }
 
     }
@@ -59,17 +67,15 @@ public class ControllerSchedule extends AbstractController {
 
         curr_entry_index = -1;
 
-        // assign actuator to entry controllers
-        AbstractActuator act = this.actuators.values().iterator().next();
-        for (ScheduleEntry entry : entries)
-            entry.cntrl.actuators.put(act.id,act);
+//        // assign actuator to entry controllers
+//        AbstractActuator act = this.actuators.values().iterator().next();
+//        for (ScheduleEntry entry : entries)
+//            entry.cntrl.actuators.put(act.id,act);
 
     }
 
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
-
-        System.out.println(String.format("%.2f\tupdate_command\t%s",scenario.dispatcher.current_time,this.getClass().getName()));
 
         float now = dispatcher.current_time;
 

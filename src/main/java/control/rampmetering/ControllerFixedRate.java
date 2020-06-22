@@ -11,7 +11,8 @@ import common.Scenario;
 
 public class ControllerFixedRate extends AbstractController {
 
-    private float rate_vphpl = Float.POSITIVE_INFINITY;
+    private float rate_vphpl;
+    private float max_rate_vphpl;
     private boolean in_queue_override;
 
     ///////////////////////////////////////////////////
@@ -21,13 +22,18 @@ public class ControllerFixedRate extends AbstractController {
     public ControllerFixedRate(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
 
+        max_rate_vphpl = Float.POSITIVE_INFINITY;
         if(jaxb_controller.getParameters()!=null){
             for(jaxb.Parameter p : jaxb_controller.getParameters().getParameter()){
-                if(p.getName().compareTo("rate_vphpl")==0){
+                if(p.getName().compareTo("rate_vphpl")==0)
                     rate_vphpl = Float.parseFloat(p.getValue());
-                }
+                if(p.getName().compareTo("max_rate_vphpl")==0)
+                    max_rate_vphpl = Float.parseFloat(p.getValue());
             }
         }
+
+
+
     }
 
     @Override
@@ -63,10 +69,6 @@ public class ControllerFixedRate extends AbstractController {
             }
 
             for(AbstractActuator act : actuators.values()) {
-
-                System.out.println(String.format("%.2f\t Fixed rate: %f",scenario.dispatcher.current_time,rate_vpspl));
-
-
                 this.command.put(act.id, new CommandNumber(((AbstractActuatorLanegroupCapacity) act).total_lanes * rate_vpspl));
             }
 
