@@ -146,7 +146,6 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-        System.out.println(String.format("%.2f\tinitialize\t%s",scenario.dispatcher.current_time,this.getClass().getName()));
         register_with_dispatcher(scenario.dispatcher);
     }
 
@@ -166,7 +165,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     @Override
     public void register_with_dispatcher(Dispatcher dispatcher) {
-        dispatcher.register_event(new EventPoke(dispatcher,2,dispatcher.current_time,this));
+        dispatcher.register_event(new EventPoke(dispatcher,20,dispatcher.current_time,this));
     }
 
     @Override

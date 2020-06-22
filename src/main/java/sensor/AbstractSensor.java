@@ -52,7 +52,7 @@ public abstract class AbstractSensor implements Pokable, InterfaceScenarioElemen
 
     @Override
     public void register_with_dispatcher(Dispatcher dispatcher){
-        dispatcher.register_event(new EventPoke(dispatcher,1,dispatcher.current_time,this));
+        dispatcher.register_event(new EventPoke(dispatcher,10,dispatcher.current_time,this));
     }
 
     @Override

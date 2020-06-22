@@ -6,7 +6,7 @@ import output.AbstractOutputTimed;
 public class EventTimedWrite extends AbstractEvent {
 
     public EventTimedWrite(Dispatcher dispatcher,float timestamp,Object obj){
-        super(dispatcher,7,timestamp,obj);
+        super(dispatcher,70,timestamp,obj);
     }
 
     @Override

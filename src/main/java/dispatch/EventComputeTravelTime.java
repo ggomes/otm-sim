@@ -9,7 +9,7 @@ public class EventComputeTravelTime extends AbstractEvent  {
     public EventComputeTravelTime(Dispatcher dispatcher, float timestamp, Object recipient) {
 
         // Note: dispatch order is 6 so that it happens before times write which is 7
-        super(dispatcher, 6, timestamp, recipient);
+        super(dispatcher, 65, timestamp, recipient);
     }
 
     @Override

@@ -2,7 +2,6 @@ package control;
 
 import actuator.AbstractActuator;
 import common.Scenario;
-import dispatch.AbstractEvent;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import error.OTMException;
@@ -38,7 +37,8 @@ public class ControllerSchedule extends AbstractController {
             float start_time = e.getStartTime();
             float end_time = e.getEndTime()==null ? Float.POSITIVE_INFINITY : e.getEndTime();
             jaxb.Controller jcntrl = new jaxb.Controller();
-//            jcntrl.setTargetActuators(jaxb_controller.getTargetActuators());
+            if(e.getDt()!=null)
+                jcntrl.setDt(e.getDt());
             jcntrl.setType(e.getType());
             jcntrl.setParameters(e.getParameters());
             jcntrl.setStartTime(start_time);
@@ -58,7 +58,6 @@ public class ControllerSchedule extends AbstractController {
         super.initialize(scenario);
 
         curr_entry_index = -1;
-//        update_entry_index(scenario.get_current_time());
 
         // assign actuator to entry controllers
         AbstractActuator act = this.actuators.values().iterator().next();
@@ -78,17 +77,12 @@ public class ControllerSchedule extends AbstractController {
         if(now>=next_entry_start)
             update_entry_index(now);
 
-        if(curr_entry!=null){
-
-            // get command for the current entry and record it to command
-            AbstractController ctrl = curr_entry.cntrl;
-            ctrl.update_command(dispatcher);
-            this.command = ctrl.command;
-        }
+        if(curr_entry!=null)
+            this.command = curr_entry.cntrl.command;
 
         // register next poke
         if(Float.isFinite(next_entry_start))
-            dispatcher.register_event(new EventPoke(dispatcher,2,next_entry_start,this));
+            dispatcher.register_event(new EventPoke(dispatcher,25,next_entry_start,this));
 
     }
 
@@ -102,12 +96,11 @@ public class ControllerSchedule extends AbstractController {
 
         int next_index = entries.size();
 
-        for (int i = 0; i < entries.size(); i++) {
+        for (int i = 0; i < entries.size(); i++)
             if (entries.get(i).start_time > now) {
                 next_index = i;
                 break;
             }
-        }
 
         curr_entry_index = next_index - 1;
         next_entry_start = next_index<entries.size() ? entries.get(next_index).start_time : Float.POSITIVE_INFINITY;
@@ -123,7 +116,7 @@ public class ControllerSchedule extends AbstractController {
 
             // delete pending controller actions
             if(curr_entry!=null)
-                scenario.dispatcher.remove_events_for_recipient(EventPoke.class,curr_entry);
+                scenario.dispatcher.remove_events_for_recipient(EventPoke.class,curr_entry.cntrl);
 
             // assign
             curr_entry = entries.get(curr_entry_index);

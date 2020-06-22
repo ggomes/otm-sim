@@ -6,7 +6,7 @@ import common.Scenario;
 public class EventStopSimulation extends AbstractEvent {
 
     public EventStopSimulation(Scenario scenario, Dispatcher dispatcher, float timestamp){
-        super(dispatcher,8,timestamp,scenario);
+        super(dispatcher,100,timestamp,scenario);
     }
 
     @Override

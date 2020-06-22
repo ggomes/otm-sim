@@ -7,7 +7,7 @@ import error.OTMException;
 public class EventFluidModelUpdate extends AbstractEvent {
 
     public EventFluidModelUpdate(Dispatcher dispatcher, float timestamp, Object model){
-        super(dispatcher,5,timestamp,model);
+        super(dispatcher,50,timestamp,model);
     }
 
     @Override

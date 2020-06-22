@@ -101,7 +101,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     @Override
     public void register_with_dispatcher(Dispatcher dispatcher) {
-        dispatcher.register_event(new EventPoke(dispatcher,3,dispatcher.current_time,this));
+        dispatcher.register_event(new EventPoke(dispatcher,30,dispatcher.current_time,this));
     }
 
     @Override

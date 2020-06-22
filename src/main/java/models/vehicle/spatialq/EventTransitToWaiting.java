@@ -10,7 +10,7 @@ import output.InterfaceVehicleListener;
 public class EventTransitToWaiting extends AbstractEvent {
 
     public EventTransitToWaiting(Dispatcher dispatcher, float timestamp, Object vehicle) {
-        super(dispatcher,4,timestamp,vehicle);
+        super(dispatcher,44,timestamp,vehicle);
     }
 
     @Override

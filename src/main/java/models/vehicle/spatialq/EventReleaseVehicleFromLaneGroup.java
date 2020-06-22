@@ -8,7 +8,7 @@ import error.OTMException;
 public class EventReleaseVehicleFromLaneGroup extends AbstractEvent {
 
     public EventReleaseVehicleFromLaneGroup(Dispatcher dispatcher, float timestamp, Object obj) {
-        super(dispatcher,4,timestamp,obj);
+        super(dispatcher,45,timestamp,obj);
 
         // add dispatch to vehicle release map if the lanegroup is actuated
         // NOTE: OTHER CONDITIONS FOR CHANGING SATURATION FLOW INCLUDE INCIDENTS

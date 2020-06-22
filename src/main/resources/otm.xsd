@@ -657,9 +657,11 @@
 	<xs:element name="entry">
 		<xs:complexType>
 			<xs:all>
+				<xs:element ref="otm:feedback_sensors" minOccurs="0" maxOccurs="1"/>
 				<xs:element ref="otm:target_actuators" minOccurs="0" maxOccurs="1"/>
 				<xs:element ref="otm:parameters" minOccurs="0" maxOccurs="1" />
 			</xs:all>
+			<xs:attribute name="dt" type="xs:float"/>
 			<xs:attribute name="type" type="xs:string"/>
 			<xs:attribute name="start_time" type="xs:float"/>
 			<xs:attribute name="end_time" type="xs:float"/>

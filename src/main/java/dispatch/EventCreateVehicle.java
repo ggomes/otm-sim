@@ -7,7 +7,7 @@ import models.vehicle.VehicleSource;
 public class EventCreateVehicle extends AbstractEvent {
 
     public EventCreateVehicle(Dispatcher dispatcher, float timestamp, AbstractSource source) {
-        super(dispatcher,4, timestamp,source);
+        super(dispatcher,40, timestamp,source);
     }
 
     @Override
