@@ -146,7 +146,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
         Set<AbstractLaneGroup> lanegroups = new HashSet<>();
 
-        if(jact.getActuatorTarget()!=null && jact.getActuatorTarget().getType().equalsIgnoreCase("link")) {
+        if(jact.getActuatorTarget()!=null && jact.getActuatorTarget().getType().equalsIgnoreCase("lanegroup")) {
             jaxb.ActuatorTarget e = jact.getActuatorTarget();
 
             long link_id = e.getId();

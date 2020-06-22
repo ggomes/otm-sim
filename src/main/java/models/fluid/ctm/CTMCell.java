@@ -83,7 +83,7 @@ public class CTMCell extends AbstractCell {
 
         // update supply ..............................................
         if (laneGroup.link.is_sink)
-            supply = laneGroup.nom_capacity_veh_per_dt;
+            supply = laneGroup.capacity_veh_per_dt;
         else {
 
 
@@ -93,7 +93,7 @@ public class CTMCell extends AbstractCell {
 //                case ctm:
             double total_vehicles = get_vehicles();
             if(am_dnstrm)
-                supply = Math.min(laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - total_vehicles), laneGroup.nom_capacity_veh_per_dt);
+                supply = Math.min(laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - total_vehicles), laneGroup.capacity_veh_per_dt);
             else {
 
                 if(am_upstrm && laneGroup.link.is_model_source_link)
@@ -136,11 +136,11 @@ public class CTMCell extends AbstractCell {
             // compute total flow leaving the cell in the absence of flow control
             if (laneGroup.link.is_source)
                 // sources discharge at capacity
-                total_demand = Math.min(total_vehicles, laneGroup.nom_capacity_veh_per_dt);
+                total_demand = Math.min(total_vehicles, laneGroup.capacity_veh_per_dt);
             else {
                 // assume speed control acts equally on all cells in the link
                 if(am_dnstrm)
-                    total_demand = Math.min(laneGroup.ffspeed_cell_per_dt * total_vehicles, laneGroup.nom_capacity_veh_per_dt);
+                    total_demand = Math.min(laneGroup.ffspeed_cell_per_dt * total_vehicles, laneGroup.capacity_veh_per_dt);
                 else
                     total_demand = laneGroup.ffspeed_cell_per_dt * total_vehicles;
             }
