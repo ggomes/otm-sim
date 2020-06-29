@@ -3,7 +3,6 @@ package control.rampmetering;
 import actuator.AbstractActuator;
 import actuator.ActuatorMeter;
 import common.AbstractLaneGroup;
-import common.Node;
 import control.AbstractController;
 import control.command.CommandNumber;
 import dispatch.Dispatcher;
@@ -16,9 +15,6 @@ import sensor.FixedSensor;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-
-import static java.util.stream.Collectors.toSet;
 
 public class ControllerAlinea extends AbstractController {
 
@@ -35,7 +31,6 @@ public class ControllerAlinea extends AbstractController {
 
     public ControllerAlinea(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
-
         cntrl_max_rate_vpspl = Float.POSITIVE_INFINITY;
         cntrl_min_rate_vpspl = Float.NEGATIVE_INFINITY;
         this.has_queue_control = false;
@@ -93,8 +88,10 @@ public class ControllerAlinea extends AbstractController {
             ActuatorMeter act = (ActuatorMeter) abs_act;
             AlineaParams p = params.get(act.id);
             double queue = has_queue_control ? ((AbstractLaneGroup) act.target).link.get_veh() : 0f;
+            float alinea_rate = compute_alinea_rate_vps(act,p);
+            float rate_vps = queue<p.queue_threshold ? alinea_rate : p.max_rate_vps;
             command.put(act.id,
-                    new CommandNumber( queue<p.queue_threshold ? compute_alinea_rate_vps(act,p) : p.max_rate_vps ) );
+                    new CommandNumber( rate_vps ) );
         }
     }
 
@@ -102,9 +99,6 @@ public class ControllerAlinea extends AbstractController {
         float density_veh = (float) p.target_link.get_veh();
         float previous_rate_vps = ((CommandNumber) command.get(act.id)).value;
         float alinea_rate_vps = previous_rate_vps +  p.gain_per_sec * (p.target_density_veh - density_veh);
-
-        System.out.println(alinea_rate_vps*3600f);
-
         return Math.min( Math.max(alinea_rate_vps,p.min_rate_vps) , p.max_rate_vps );
     }
 

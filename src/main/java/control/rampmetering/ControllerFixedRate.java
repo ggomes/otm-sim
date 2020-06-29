@@ -11,13 +11,16 @@ import error.OTMException;
 import jaxb.Controller;
 import common.Scenario;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ControllerFixedRate extends AbstractController {
 
     private float rate_vpspl;
 
     // queue control
     private boolean has_queue_control;
-    private float queue_threshold;
+    private Map<Long,Float> queue_threshold;
     private float max_rate_vpspl;
 
     ///////////////////////////////////////////////////
@@ -40,17 +43,23 @@ public class ControllerFixedRate extends AbstractController {
             }
         }
 
-        queue_threshold = Float.POSITIVE_INFINITY;
-
     }
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
 
+        queue_threshold = new HashMap<>();
+        for(AbstractActuator act : actuators.values()) {
+            Link orlink = ((AbstractLaneGroup) act.target).link;
+            this.queue_threshold.put(act.id,orlink.road_param.getJamDensity() * orlink.full_lanes * orlink.length / 1000);
+        }
+
         update_command(scenario.dispatcher);
+
         for(AbstractActuator act : actuators.values())
             this.command.put(act.id, new CommandNumber(((AbstractActuatorLanegroupCapacity) act).total_lanes * rate_vpspl));
+
     }
 
     ///////////////////////////////////////////////////
@@ -62,7 +71,8 @@ public class ControllerFixedRate extends AbstractController {
 
         for(AbstractActuator act : actuators.values()) {
             double queue = has_queue_control ? ((AbstractLaneGroup) act.target).link.get_veh() : 0f;
-            float qrate_vpspl = queue>queue_threshold ? max_rate_vpspl : rate_vpspl;
+            float thresh = queue_threshold.get(act.id);
+            float qrate_vpspl = queue<thresh ? rate_vpspl : max_rate_vpspl ;
             this.command.put(act.id, new CommandNumber(((AbstractActuatorLanegroupCapacity) act).total_lanes * qrate_vpspl));
         }
 
