@@ -107,11 +107,11 @@ public class OTMErrorLog {
     }
 
     public void check() throws OTMException {
-        if( haswarning )
+        if( haswarning  && !haserror)
             System.out.print(this.format_warnings());
         if( haserror ) {
-            System.out.print(this.format_errors());
-            throw new OTMException("Errors found.");
+            System.out.print(this.format());
+            throw new OTMException("Errors found.",this);
         }
     }
 }

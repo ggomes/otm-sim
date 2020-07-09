@@ -21,7 +21,7 @@ import static java.util.stream.Collectors.toSet;
 
 public class Link implements InterfaceScenarioElement {
 
-    public enum RoadType {none,offramp,onramp,freeway,connector,bridge}
+    public enum RoadType {none,offramp,onramp,freeway,connector,bridge,ghost}
 
     // basics ........................................
     protected final long id;

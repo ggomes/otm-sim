@@ -18,8 +18,15 @@ import java.io.Serializable;
 
 public class OTMException extends Exception implements Serializable {
 
+    public OTMErrorLog errorLog;
+
     public OTMException(String string){
         super(string);
+    }
+
+    public OTMException(String string,OTMErrorLog errorLog){
+        super(string);
+        this.errorLog = errorLog;
     }
 
     public OTMException(String message, Throwable cause) {

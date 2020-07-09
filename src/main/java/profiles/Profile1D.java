@@ -89,6 +89,14 @@ public class Profile1D {
             values.set(i,(double) Math.round(values.get(i)));
     }
 
+    public void pad_to_length(int newsize){
+        if(newsize<=values.size())
+            return;
+        double lastvalue = values.get(values.size()-1);
+        for(int i=values.size();i<newsize;i++)
+            values.add(lastvalue);
+    }
+
     ///////////////////////////////////////
     // not in place operations
     ///////////////////////////////////////

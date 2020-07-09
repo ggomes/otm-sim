@@ -273,10 +273,10 @@ public class ScenarioFactory {
             throw new OTMException("Subnetwork id '0' is not allowed.");
 
         // create global commodity
-        if(have_global_commodity) {
-            Subnetwork subnet = new Subnetwork(network);
-            subnetworks.put(0l, subnet.isPath() ? new Path(network) : subnet );
-        }
+//        if(have_global_commodity) {
+//            Subnetwork subnet = new Subnetwork(network);
+//            subnetworks.put(0l, subnet.isPath() ? new Path(network) : subnet );
+//        }
 
         if ( jaxb_subnets != null ){
             // initialize

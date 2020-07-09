@@ -190,7 +190,7 @@
 			<xs:attribute name="road_type" >
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="onramp|offramp|freeway|connector|bridge"/>
+						<xs:pattern value="onramp|offramp|freeway|connector|bridge|ghost"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>

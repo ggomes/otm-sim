@@ -92,9 +92,18 @@ public class Commodity implements InterfaceScenarioElement {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-        for(Subnetwork subnetwork : subnetworks)
-            for(Link link : subnetwork.links)
-                register_commodity(link,this,subnetwork);
+
+        if(pathfull){
+            for(Subnetwork subnetwork : subnetworks)
+                for(Link link : subnetwork.links)
+                    register_commodity(link,this,subnetwork);
+        }
+
+        else {
+            for(Link link : scenario.network.links.values())
+                register_commodity(link,this,null);
+        }
+
     }
 
     @Override
@@ -202,8 +211,8 @@ public class Commodity implements InterfaceScenarioElement {
 
                 // for pathless non-sink, add a state for each next link
                 for( Long next_link_id : link.outlink2lanegroups.keySet()  ){
-                    if (!subnet.has_link_id(next_link_id))
-                        continue;
+//                    if (!subnet.has_link_id(next_link_id))
+//                        continue;
                     for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
                         lg.add_state(comm.getId(), null,next_link_id, false);
                 }
