@@ -1,7 +1,7 @@
 package output.animation.macro;
 
 import common.AbstractLaneGroup;
-import keys.KeyCommPathOrLink;
+import keys.State;
 import models.fluid.FluidLaneGroup;
 import output.animation.AbstractLaneGroupInfo;
 
@@ -35,7 +35,7 @@ public class LaneGroupInfo extends AbstractLaneGroupInfo {
         return cell_info.size();
     }
 
-    public Map<KeyCommPathOrLink,Double> get_vehicles_by_cell(int i){
+    public Map<State,Double> get_vehicles_by_cell(int i){
         return cell_info.get(i).comm_vehicles;
     }
 

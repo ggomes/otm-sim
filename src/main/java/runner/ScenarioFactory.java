@@ -45,11 +45,6 @@ public class ScenarioFactory {
         // network ...........................................................
         scenario.network = ScenarioFactory.create_network_from_jaxb(scenario, js.getModels(), js.getNetwork());
 
-        // control ...............................................
-        scenario.actuators = ScenarioFactory.create_actuators_from_jaxb(scenario, js.getActuators() );
-        scenario.sensors = ScenarioFactory.create_sensors_from_jaxb(scenario, js.getSensors() );
-        scenario.controllers = ScenarioFactory.create_controllers_from_jaxb(scenario,js.getControllers() );
-
         // commodities ......................................................
         scenario.subnetworks = ScenarioFactory.create_subnetworks_from_jaxb(
                 scenario.network,
@@ -60,6 +55,11 @@ public class ScenarioFactory {
                 scenario,
                 scenario.subnetworks,
                 js.getCommodities());
+
+        // control ...............................................
+        scenario.actuators = ScenarioFactory.create_actuators_from_jaxb(scenario, js.getActuators() );
+        scenario.sensors = ScenarioFactory.create_sensors_from_jaxb(scenario, js.getSensors() );
+        scenario.controllers = ScenarioFactory.create_controllers_from_jaxb(scenario,js.getControllers() );
 
         // link.commodity2split (requires link.outlink2lanegroups and commodities)
         scenario.network.links.values().forEach(link->link.populate_commodity2split(scenario.commodities.values()));
@@ -246,6 +246,9 @@ public class ScenarioFactory {
                     break;
                 case "stop":
                     actuator = new ActuatorStop(scenario,jaxb_actuator);
+                    break;
+                case "laneclosure":
+                    actuator = new ActuatorLanegroupClosure(scenario,jaxb_actuator);
                     break;
                 default:
                     actuator = null;

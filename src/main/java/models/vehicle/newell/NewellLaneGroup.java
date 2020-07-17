@@ -8,7 +8,7 @@ import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.Roadparam;
-import keys.KeyCommPathOrLink;
+import keys.State;
 import common.AbstractLaneGroup;
 import models.vehicle.VehicleLaneGroup;
 import packet.PacketLaneGroup;
@@ -195,13 +195,13 @@ public class NewellLaneGroup extends VehicleLaneGroup {
         else{
 
             // get next link
-            KeyCommPathOrLink key = vehicle.get_key();
-            Long next_link_id = key.isPath ? link.path2outlink.get(key.pathOrlink_id).getId() : key.pathOrlink_id;
+            State state = vehicle.get_state();
+            Long next_link_id = state.isPath ? link.path2outlink.get(state.pathOrlink_id).getId() : state.pathOrlink_id;
 
             // vehicle should be in a target lane group
-            assert(link.outlink2roadconnection.containsKey(next_link_id));
+            assert(outlink2roadconnection.containsKey(next_link_id));
 
-            RoadConnection rc = link.outlink2roadconnection.get(next_link_id);
+            RoadConnection rc = outlink2roadconnection.get(next_link_id);
             Link next_link = rc.end_link;
 
             // at least one candidate lanegroup must have space for one vehicle.
@@ -247,7 +247,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
 
         // tell the flow accumulators
         if(released) {
-            update_flow_accummulators(vehicle.get_key(), 1f);
+            update_flow_accummulators(vehicle.get_state(), 1f);
             update_supply();
         }
 

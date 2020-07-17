@@ -3,7 +3,7 @@ package common;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import keys.KeyCommPathOrLink;
+import keys.State;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -257,10 +257,10 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         return end_link==null ? null : end_link.getId();
     }
 
-    public Set<KeyCommPathOrLink> get_states(){
+    public Set<State> get_states(){
 
-        Set<KeyCommPathOrLink> upstr_states = in_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
-        Set<KeyCommPathOrLink> dnstr_states = out_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
+        Set<State> upstr_states = in_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
+        Set<State> dnstr_states = out_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
 
         // keep those pathfull states that are also present in the downstream lane groups
         // and  those pathless states that are going to a downstream link

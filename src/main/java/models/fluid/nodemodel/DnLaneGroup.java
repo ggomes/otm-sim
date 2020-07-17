@@ -1,6 +1,6 @@
 package models.fluid.nodemodel;
 
-import keys.KeyCommPathOrLink;
+import keys.State;
 import common.AbstractLaneGroup;
 
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class DnLaneGroup {
     public double s_h;                                    // supply
     public boolean is_blocked;                            // sh==0
     public Double gamma_h;
-    public Map<KeyCommPathOrLink,StateInfo> state_infos;
+    public Map<State,StateInfo> state_infos;
 
     ////////////////////////////////////////////
     // construction
@@ -39,7 +39,7 @@ public class DnLaneGroup {
         rcs.put(rc.id,rc);
     }
 
-    public void add_state(KeyCommPathOrLink state){
+    public void add_state(State state){
         state_infos.put(state,new StateInfo());
     }
 

@@ -5,7 +5,7 @@ import commodity.Path;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import keys.KeyCommPathOrLink;
+import keys.State;
 import profiles.DemandProfile;
 
 public abstract class AbstractSource {
@@ -45,12 +45,12 @@ public abstract class AbstractSource {
         source_demand_vps = vps;
     }
 
-    public final KeyCommPathOrLink sample_key(){
+    public final State sample_key(){
         if(commodity.pathfull){
-            return new KeyCommPathOrLink(commodity.getId(),path.getId(),true);
+            return new State(commodity.getId(),path.getId(),true);
         } else {
             Long next_link_id = link.commodity2split.get(commodity.getId()).sample_output_link();
-            return new KeyCommPathOrLink(commodity.getId(),next_link_id,false);
+            return new State(commodity.getId(),next_link_id,false);
         }
     }
 

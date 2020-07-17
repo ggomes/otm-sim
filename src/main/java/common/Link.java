@@ -8,7 +8,7 @@ import geometry.RoadGeometry;
 import geometry.Side;
 import jaxb.Points;
 import jaxb.Roadparam;
-import keys.KeyCommPathOrLink;
+import keys.State;
 import models.AbstractModel;
 import traveltime.LinkTravelTimer;
 import packet.PacketLaneGroup;
@@ -72,7 +72,7 @@ public class Link implements InterfaceScenarioElement {
 
     // map from outlink to road-connection. For one-to-one links with no road connection defined,
     // this returns a null.
-    public Map<Long, RoadConnection> outlink2roadconnection;
+//    public Map<Long, RoadConnection> outlink2roadconnection;
 
     // splits
     // populated by ScenarioFactory.create_scenario
@@ -131,7 +131,6 @@ public class Link implements InterfaceScenarioElement {
         path2outlink = new HashMap<>();
         outlink2lanegroups = new HashMap<>();
         commodity2split = new HashMap<>();
-        this.outlink2roadconnection = new HashMap<>();
 
         // demands ............................................
         sources = new HashSet<>();
@@ -305,10 +304,11 @@ public class Link implements InterfaceScenarioElement {
 //        }
 
 
-
         // out_road_connections all lead to links that are immediately downstream
-        Set dwn_links = end_node.out_links.stream().map(x->x.getId()).collect(Collectors.toSet());
-        if(!dwn_links.containsAll(outlink2roadconnection.keySet()))
+        Set<Link> dwn_links = this.get_roadconnections_leaving().stream()
+                .map(rc->rc.end_link)
+                .collect(toSet());
+        if(!end_node.out_links.containsAll(dwn_links))
             errorLog.addError("some outlinks are not immediately downstream");
 
 
@@ -397,7 +397,6 @@ public class Link implements InterfaceScenarioElement {
         model = null;
 //        travel_timers = null;
         shape = null;
-        outlink2roadconnection = null;
     }
 
 //    public void add_travel_timer(PathTravelTimeWriter x){
@@ -513,9 +512,9 @@ public class Link implements InterfaceScenarioElement {
         // process the macro state
         if(has_macro) {
 
-            for (Map.Entry<KeyCommPathOrLink, Double> e : vp.state2vehicles.entrySet()) {
+            for (Map.Entry<State, Double> e : vp.state2vehicles.entrySet()) {
 
-                KeyCommPathOrLink key = e.getKey();
+                State key = e.getKey();
                 Double vehicles = e.getValue();
 
                 if(vehicles==0d)
@@ -534,7 +533,7 @@ public class Link implements InterfaceScenarioElement {
 
                     if( is_sink ){
                         add_to_lanegroup_packets(split_packets, id,
-                                new KeyCommPathOrLink(key.commodity_id, id, false),
+                                new State(key.commodity_id, id, false),
                                 vehicles );
 
                     }
@@ -542,7 +541,7 @@ public class Link implements InterfaceScenarioElement {
                     else if(splitinfo.sole_downstream_link!=null){
                         Long next_link_id = splitinfo.sole_downstream_link;
                         add_to_lanegroup_packets(split_packets, next_link_id,
-                                new KeyCommPathOrLink(key.commodity_id, next_link_id, false),
+                                new State(key.commodity_id, next_link_id, false),
                                 vehicles );
                     }
 
@@ -552,7 +551,7 @@ public class Link implements InterfaceScenarioElement {
                             Double split = e2.getValue();
                             if(split>0d)
                                 add_to_lanegroup_packets(split_packets, next_link_id,
-                                        new KeyCommPathOrLink(key.commodity_id, next_link_id, false),
+                                        new State(key.commodity_id, next_link_id, false),
                                         vehicles * split);
                         }
                     }
@@ -564,7 +563,7 @@ public class Link implements InterfaceScenarioElement {
         if(has_micro){
             for(AbstractVehicle vehicle : vp.vehicles){
 
-                KeyCommPathOrLink key = vehicle.get_key();
+                State key = vehicle.get_state();
 
                 // pathfull case
                 if(key.isPath){
@@ -583,14 +582,14 @@ public class Link implements InterfaceScenarioElement {
                     if(is_sink){
                         vehicle.set_next_link_id(id);
                         add_to_lanegroup_packets(split_packets,id ,
-                                new KeyCommPathOrLink(key.commodity_id, id, false),
+                                new State(key.commodity_id, id, false),
                                 vehicle);
 
                     } else {
                         Long next_link_id = commodity2split.get(key.commodity_id).sample_output_link();
                         vehicle.set_next_link_id(next_link_id);
                         add_to_lanegroup_packets(split_packets,next_link_id ,
-                                new KeyCommPathOrLink(key.commodity_id, next_link_id, false),
+                                new State(key.commodity_id, next_link_id, false),
                                 vehicle);
 
                     }
@@ -637,23 +636,17 @@ public class Link implements InterfaceScenarioElement {
     }
 
     public Set<RoadConnection> get_roadconnections_leaving(){
-        Set<RoadConnection> rcs = new HashSet<>();
-        rcs.addAll(outlink2roadconnection.values());
-        return rcs;
+        return lanegroups_flwdn.values().stream()
+                .flatMap(lg->lg.outlink2roadconnection.values().stream())
+                .collect(toSet());
     }
 
     public Set<RoadConnection> get_roadconnections_entering(){
-        Set<RoadConnection> rcs = new HashSet<>();
-
-//        for(Link uplink : start_node.in_links.values())
-//            if(uplink.outlink2lanegroups.containsKey(getId()))
-//                for(AbstractLaneGroup lg : uplink.outlink2lanegroups.get(id) )
-//                    if(lg.outlink2roadconnection.containsKey(getId()))
-//                        rcs.add(lg.outlink2roadconnection.get(getId()));
-
-        for(Link uplink : start_node.in_links.values())
-            if(uplink.outlink2roadconnection.containsKey(getId()))
-                rcs.add(uplink.outlink2roadconnection.get(getId()));
+        Set<RoadConnection> rcs = start_node.in_links.values().stream()
+                .flatMap(lk->lk.lanegroups_flwdn.values().stream())
+                .flatMap(lg->lg.outlink2roadconnection.values().stream())
+                .filter(rc->rc.end_link.getId()==this.getId())
+                .collect(toSet());
         return rcs;
     }
 
@@ -787,7 +780,7 @@ public class Link implements InterfaceScenarioElement {
     // private
     ///////////////////////////////////////////
 
-    private void add_to_lanegroup_packets(Map<Long, PacketLaneGroup> split_packets,Long nextlink_id,KeyCommPathOrLink key,Double vehicles){
+    private void add_to_lanegroup_packets(Map<Long, PacketLaneGroup> split_packets, Long nextlink_id, State key, Double vehicles){
         PacketLaneGroup new_packet;
         if(split_packets.containsKey(nextlink_id)){
             new_packet = split_packets.get(nextlink_id);
@@ -798,7 +791,7 @@ public class Link implements InterfaceScenarioElement {
         new_packet.add_fluid(key,vehicles);
     }
 
-    private void add_to_lanegroup_packets(Map<Long, PacketLaneGroup> split_packets,Long nextlink_id,KeyCommPathOrLink key,AbstractVehicle vehicle){
+    private void add_to_lanegroup_packets(Map<Long, PacketLaneGroup> split_packets, Long nextlink_id, State key, AbstractVehicle vehicle){
         PacketLaneGroup new_packet;
         if(split_packets.containsKey(nextlink_id)){
             new_packet = split_packets.get(nextlink_id);

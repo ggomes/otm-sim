@@ -406,7 +406,7 @@ public class Scenario {
             Long next_link_id = splitinfo.sample_output_link();
             vehicle.set_next_link_id(next_link_id);
 
-            // set the vehicle's lane group and key
+            // set the vehicle's lane group and state
             vehicle.lg = lg;
             vehicle.my_queue = tq;
 

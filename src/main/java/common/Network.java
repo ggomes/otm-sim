@@ -90,7 +90,10 @@ public class Network {
         for(RoadConnection rc : road_connections.values()){
             if(rc.start_link!=null && rc.end_link!=null) {
                 link2outrcs.get(rc.start_link.id).add(rc);
-                rc.start_link.outlink2roadconnection.put(rc.get_end_link_id(),rc);
+
+
+
+//                rc.start_link.outlink2roadconnection.put(rc.get_end_link_id(),rc);
             }
         }
 

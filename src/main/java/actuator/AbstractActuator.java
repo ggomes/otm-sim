@@ -21,7 +21,8 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         signal,
         rc,
         greenred,
-        stop
+        stop,
+        laneclosure
     }
 
     public long id;

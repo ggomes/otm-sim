@@ -1,6 +1,6 @@
 package output.animation.macro;
 
-import keys.KeyCommPathOrLink;
+import keys.State;
 import models.fluid.AbstractCell;
 
 import java.util.*;
@@ -8,7 +8,7 @@ import java.util.*;
 public class CellInfo {
 
     public int index;
-    public Map<KeyCommPathOrLink,Double> comm_vehicles;  // commodity->vehicles
+    public Map<State,Double> comm_vehicles;  // commodity->vehicles
 
     //////////////////////////////////////////////////
     // construction
@@ -47,7 +47,7 @@ public class CellInfo {
 
         if(this.comm_vehicles.keySet().size()>1) {
             String str = "\t\t\tcell " + index + "\n";
-            for(Map.Entry<KeyCommPathOrLink,Double> e : comm_vehicles.entrySet())
+            for(Map.Entry<State,Double> e : comm_vehicles.entrySet())
                 str += "\t\t\t\t" + "comm " + e.getKey()  +"\t" + e.getValue() + "\n";
             return str;
         } else {

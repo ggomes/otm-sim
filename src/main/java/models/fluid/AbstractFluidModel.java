@@ -7,7 +7,7 @@ import dispatch.Dispatcher;
 import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
-import keys.KeyCommPathOrLink;
+import keys.State;
 import models.AbstractModel;
 import models.fluid.nodemodel.NodeModel;
 import models.fluid.nodemodel.RoadConnection;
@@ -177,7 +177,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
         for(Link link : source_links){
             for(AbstractSource asource : link.sources){
                 FluidSource source = (FluidSource) asource;
-                for(Map.Entry<Long,Map<KeyCommPathOrLink,Double>> e : source.source_flows.entrySet()){
+                for(Map.Entry<Long,Map<State,Double>> e : source.source_flows.entrySet()){
                     FluidLaneGroup lg = (FluidLaneGroup) link.lanegroups_flwdn.get(e.getKey());
                     AbstractCell upcell = lg.cells.get(0);
                     upcell.add_vehicles(e.getValue(),null,null);
@@ -190,11 +190,11 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
             for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
                 FluidLaneGroup lg = (FluidLaneGroup) alg;
-                Map<KeyCommPathOrLink,Double> flow_dwn = lg.get_demand();
+                Map<State,Double> flow_dwn = lg.get_demand();
 
                 lg.release_vehicles(flow_dwn);
 
-                for(Map.Entry<KeyCommPathOrLink,Double> e : flow_dwn.entrySet())
+                for(Map.Entry<State,Double> e : flow_dwn.entrySet())
                     if(e.getValue()>0)
                         lg.update_flow_accummulators(e.getKey(),e.getValue());
             }
@@ -215,7 +215,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
                 ulg.lg.release_vehicles(ulg.f_gs);
 
                 // send lanegroup exit flow to flow accumulator
-                for(Map.Entry<KeyCommPathOrLink,Double> e : ulg.f_gs.entrySet())
+                for(Map.Entry<State,Double> e : ulg.f_gs.entrySet())
                     if(e.getValue()>0)
                         ulg.lg.update_flow_accummulators(e.getKey(),e.getValue());
             }

@@ -1,7 +1,7 @@
 package common;
 
 import commodity.Path;
-import keys.KeyCommPathOrLink;
+import keys.State;
 import output.InterfaceVehicleListener;
 import utils.OTMUtils;
 
@@ -12,7 +12,7 @@ public abstract class AbstractVehicle {
 
     private long id;
     private Long comm_id;
-    private KeyCommPathOrLink key;
+    private State state;
     public AbstractLaneGroup lg;
     public Path path;
 
@@ -23,7 +23,7 @@ public abstract class AbstractVehicle {
 
     public AbstractVehicle(AbstractVehicle that){
         this.id = that.getId();
-        this.key = that.key;
+        this.state = that.state;
         this.comm_id = that.comm_id;
         this.event_listeners = that.event_listeners;
     }
@@ -38,9 +38,9 @@ public abstract class AbstractVehicle {
     }
 
     public void set_next_link_id(Long nextlink_id){
-        if(key!=null && key.isPath)
+        if(state !=null && state.isPath)
             return;
-        key = new KeyCommPathOrLink(comm_id,nextlink_id,false);
+        state = new State(comm_id,nextlink_id,false);
     }
 
     ////////////////////////////////////////////////
@@ -75,24 +75,23 @@ public abstract class AbstractVehicle {
         return event_listeners;
     }
 
-
     ////////////////////////////////////////////
-    // key
+    // state
     ////////////////////////////////////////////
 
-    public void set_key(KeyCommPathOrLink key){
-        assert(key.commodity_id==this.comm_id);
-        this.key = key;
+    public void set_state(State state){
+        assert(state.commodity_id==this.comm_id);
+        this.state = state;
     }
 
-    public KeyCommPathOrLink get_key(){
-        return key;
+    public State get_state(){
+        return state;
     }
 
     public Long get_next_link_id(){
         if(lg.link.is_sink)
             return null;
-        return key.isPath ? path.get_link_following(lg.link).getId() : key.pathOrlink_id;
+        return state.isPath ? path.get_link_following(lg.link).getId() : state.pathOrlink_id;
     }
 
     // NOTE: We do not update the next link id when it is null. This happens in

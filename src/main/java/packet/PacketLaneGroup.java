@@ -1,7 +1,7 @@
 package packet;
 
 import common.AbstractVehicle;
-import keys.KeyCommPathOrLink;
+import keys.State;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,22 +39,22 @@ public class PacketLaneGroup {
 
     public void add_link_packet(PacketLink vp) {
         if(vp.vehicles!=null)
-            vp.vehicles.forEach(v-> add_vehicle(v.get_key(),v));
+            vp.vehicles.forEach(v-> add_vehicle(v.get_state(),v));
         if(vp.state2vehicles!=null)
             vp.state2vehicles.forEach( (k,v)-> add_fluid(k,v));
     }
 
-    public void add_fluid(KeyCommPathOrLink key, Double value) {
-        container.set_value(key, container.get_value(key) + value);
+    public void add_fluid(State state, Double value) {
+        container.set_value(state, container.get_value(state) + value);
     }
 
-    public void add_vehicle(KeyCommPathOrLink key, AbstractVehicle vehicle) {
+    public void add_vehicle(State key, AbstractVehicle vehicle) {
         vehicles.add(vehicle);
     }
 
     public PacketLaneGroup times(double x) {
-        Map<KeyCommPathOrLink,Double> z_amount = new HashMap<>();
-        for(Map.Entry<KeyCommPathOrLink,Double> e : container.amount.entrySet())
+        Map<State,Double> z_amount = new HashMap<>();
+        for(Map.Entry<State,Double> e : container.amount.entrySet())
             z_amount.put(e.getKey(),e.getValue()*x);
 
         PacketLaneGroup z = new PacketLaneGroup();

@@ -3,7 +3,7 @@ package packet;
 import commodity.Commodity;
 import commodity.Path;
 import common.AbstractVehicle;
-import keys.KeyCommPathOrLink;
+import keys.State;
 import common.AbstractLaneGroup;
 import models.vehicle.AbstractVehicleModel;
 import common.Scenario;
@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class StateContainer {
 
-    public Map<KeyCommPathOrLink,Double> amount;
+    public Map<State,Double> amount;
 
     ////////////////////////////////////////////////////////////
     // construction
@@ -42,8 +42,8 @@ public class StateContainer {
         Set<AbstractVehicle> vehicles = new HashSet<>();
 
         // iterate through all keys ion the packet
-        for(Map.Entry<KeyCommPathOrLink,Double> e : container.amount.entrySet()){
-            KeyCommPathOrLink key = e.getKey();
+        for(Map.Entry<State,Double> e : container.amount.entrySet()){
+            State key = e.getKey();
             double value = amount.containsKey(key) ? amount.get(key) + e.getValue() : e.getValue();
 
             if(value>=1d){
@@ -53,7 +53,7 @@ public class StateContainer {
                     Scenario scenario = lg.link.network.scenario;
                     Commodity commodity = scenario.commodities.get(key.commodity_id);
                     AbstractVehicle vehicle = model.create_vehicle(key.commodity_id, commodity.vehicle_event_listeners);
-                    vehicle.set_key(key);
+                    vehicle.set_state(key);
                     if(key.isPath)
                         vehicle.path = (Path) scenario.subnetworks.get(key.pathOrlink_id);
                     vehicles.add(vehicle);
@@ -71,26 +71,26 @@ public class StateContainer {
         // vehicle part
         if(packet.vehicles!=null && !packet.vehicles.isEmpty()){
             for(AbstractVehicle vehicle : packet.vehicles){
-                KeyCommPathOrLink key = vehicle.get_key();
+                State key = vehicle.get_state();
                 amount.put(key, amount.containsKey(key) ? (amount.get(key)+1d) : 1d);
             }
         }
 
         // fluid part
         if(packet.container!=null && !packet.container.amount.isEmpty()){
-            for(Map.Entry<KeyCommPathOrLink,Double> e : packet.container.amount.entrySet()){
-                KeyCommPathOrLink key = e.getKey();
+            for(Map.Entry<State,Double> e : packet.container.amount.entrySet()){
+                State key = e.getKey();
                 amount.put(key, amount.containsKey(key) ? (amount.get(key)+e.getValue()) : e.getValue());
             }
         }
 
     }
 
-    public double get_value(KeyCommPathOrLink key){
+    public double get_value(State key){
         return amount.containsKey(key) ? amount.get(key) : 0d;
     }
 
-    public void set_value(KeyCommPathOrLink key,double val){
+    public void set_value(State key, double val){
         amount.put(key,val);
     }
 

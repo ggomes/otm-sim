@@ -6,7 +6,7 @@ import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.Roadparam;
-import keys.KeyCommPathOrLink;
+import keys.State;
 import packet.PacketLaneGroup;
 import utils.OTMUtils;
 
@@ -162,14 +162,14 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         // otherwise, this is an internal link, and the packet is guaranteed to be
         // purely fluid.
         else {
-            for(Map.Entry<KeyCommPathOrLink,Double> e : vp.container.amount.entrySet()) {
-                KeyCommPathOrLink key = e.getKey();
+            for(Map.Entry<State,Double> e : vp.container.amount.entrySet()) {
+                State state = e.getKey();
 
                 // update state
-                if(!key.isPath)
-                    key = new KeyCommPathOrLink(key.commodity_id,nextlink_id,false);
+                if(!state.isPath)
+                    state = new State(state.commodity_id,nextlink_id,false);
 
-                cell.add_vehicles(key,e.getValue());
+                cell.add_vehicles(state,e.getValue());
             }
         }
         update_supply();
@@ -218,9 +218,9 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         for(AbstractCell cell : cells){
             if(cell.flw_acc==null)
                 cell.flw_acc = new FlowAccumulatorState();
-            for(KeyCommPathOrLink key : states)
-                if(comm_id==null || key.commodity_id==comm_id)
-                    cell.flw_acc.add_key(key);
+            for(State state : states)
+                if(comm_id==null || state.commodity_id==comm_id)
+                    cell.flw_acc.add_state(state);
             X.add(cell.flw_acc);
         }
         return X;
@@ -234,7 +234,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         return cells.get(cells.size()-1);
     }
 
-    public final Map<KeyCommPathOrLink,Double> get_demand(){
+    public final Map<State,Double> get_demand(){
         return get_dnstream_cell().get_demand();
     }
 
@@ -303,7 +303,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     // SHOULD THESE BE MOVED TO CTM?
     ///////////////////////////////////////////
 
-    public void release_vehicles(Map<KeyCommPathOrLink,Double> X){
+    public void release_vehicles(Map<State,Double> X){
         cells.get(cells.size()-1).subtract_vehicles(X,null,null);
 
         // if this is a single cell lane group, then releasing a vehicle will affect the supply
@@ -323,8 +323,8 @@ public class FluidLaneGroup extends AbstractLaneGroup {
                     double total_space = cell.supply;
 //        double total_space = jam_density_veh_per_cell - cell.get_vehicles();
         double factor = Math.min( 1d , total_space / buffer_size );
-        for(Map.Entry<KeyCommPathOrLink,Double> e : buffer.amount.entrySet()) {
-            KeyCommPathOrLink key = e.getKey();
+        for(Map.Entry<State,Double> e : buffer.amount.entrySet()) {
+            State key = e.getKey();
             Double buffer_vehs = e.getValue() ;
 
             // add to cell
