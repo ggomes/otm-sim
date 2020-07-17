@@ -110,6 +110,16 @@ public class Profile1D {
         return x;
     }
 
+    /** used to convert cumulative counts to flows **/
+    public List<Double> difftimes(double alpha){
+        if(values.size()<2)
+            return null;
+        List<Double> x = new ArrayList<>();
+        for(int i=1;i<values.size();i++)
+            x.add(alpha*(values.get(i)-values.get(i-1)));
+        return x;
+    }
+
     ////////////////////////////////
     // get
     ////////////////////////////////

@@ -94,9 +94,7 @@ public class OutputCellFlow extends AbstractOutputTimedCell {
 
     private Profile1D get_flow_profile_in_vph(CellProfile cellprof){
         Profile1D profile = cellprof.profile.clone();
-        Profile1D diffprofile = new Profile1D(profile.start_time,profile.dt,profile.diff());
-        diffprofile.multiply(3600d/outDt);
-        return diffprofile;
+        return new Profile1D(profile.start_time,profile.dt,profile.difftimes(3600d/outDt));
     }
 
 }
