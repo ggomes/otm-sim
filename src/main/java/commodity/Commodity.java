@@ -87,17 +87,21 @@ public class Commodity implements InterfaceScenarioElement, InterfaceActuatorTar
     }
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
+    public void initialize(Scenario scenario){
+        System.err.println("NOT USED");
+    }
+
+    public void initialize(Scenario scenario,Map<Long,Map<Long,Set<RoadConnection>>> link_outlink2rcs) throws OTMException {
 
         if(pathfull){
             for(Subnetwork subnetwork : subnetworks)
                 for(Link link : subnetwork.links)
-                    register_commodity(link,this,subnetwork);
+                    register_commodity(link,this,subnetwork,link_outlink2rcs.get(link.getId()));
         }
 
         else {
             for(Link link : scenario.network.links.values())
-                register_commodity(link,this,null);
+                register_commodity(link,this,null,link_outlink2rcs.get(link.getId()));
         }
 
     }

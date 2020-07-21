@@ -532,6 +532,9 @@ public class Network {
             for (int lane = 1; lane <= num_dn_lanes; lane++) {
 
                 AbstractLaneGroup lg = long_lgs.get(lane - 1);
+
+                assert(lg!=null);
+
                 if (prev_lg == null)
                     prev_lg = lg;
                 if (lg != prev_lg) {
@@ -606,18 +609,23 @@ public class Network {
 
             // special code for singleton
             if(out_rcs.size()==1) {
-                lanegroups.add(create_dnflw_lanegroup(link, 1, link.full_lanes, out_rcs));
-                return lanegroups;
+                RoadConnection rc = out_rcs.iterator().next();
+                if (rc.start_link_from_lane == 1 && rc.get_in_lanes()==link.get_num_dn_lanes()){
+                    int start_lane = rc.start_link_from_lane;
+                    int numlanes = rc.get_in_lanes();
+                    lanegroups.add(create_dnflw_lanegroup(link, start_lane, numlanes, out_rcs));
+                    return lanegroups;
+                }
             }
 
             // create map from lanes to road connection sets
             Map<Integer,Set<RoadConnection>> dnlane2rcs = new HashMap<>();
             for(int lane=1;lane<=link.get_num_dn_lanes();lane++) {
                 int finalLane = lane;
-                dnlane2rcs.put(finalLane, out_rcs.stream()
+                Set<RoadConnection> r = out_rcs.stream()
                         .filter(rc->rc.start_link_from_lane <= finalLane && rc.start_link_to_lane >= finalLane)
-                        .collect(toSet())
-                );
+                        .collect(toSet());
+                dnlane2rcs.put(finalLane, r);
             }
 
             // set of unique road connection sets
@@ -626,6 +634,8 @@ public class Network {
 
             // create a lane group for each unique_rc_sets
             for(Set<RoadConnection> my_rcs : unique_rc_sets) {
+                if(my_rcs.isEmpty())
+                    continue;
                 Set<Integer> lg_lanes = dnlane2rcs.entrySet().stream()
                         .filter(entry -> entry.getValue().equals(my_rcs))
                         .map(entry->entry.getKey())
@@ -634,6 +644,34 @@ public class Network {
                 int num_lanes = lg_lanes.size();
                 lanegroups.add(create_dnflw_lanegroup(link, dn_start_lane, num_lanes, my_rcs));
             }
+
+
+            // check for lanes without lanegroups
+            if(dnlane2rcs.values().stream().anyMatch(x->x.isEmpty())){
+                boolean in_new_lg = false;
+                int lg_start_lane = 0;
+                int lg_end_lane = 0;
+                for(int lane=1;lane<=link.get_num_dn_lanes();lane++) {
+                    boolean is_empty = dnlane2rcs.get(lane).isEmpty();
+                    if(is_empty && !in_new_lg){
+                        lg_start_lane = lane;
+                        in_new_lg = true;
+                    }
+                    if(!is_empty && in_new_lg){
+                        lg_end_lane = lane-1;
+                        in_new_lg = false;
+                        lanegroups.add(create_dnflw_lanegroup(link, lg_start_lane,
+                                lg_end_lane-lg_start_lane+1, null));
+                    }
+                }
+                if(in_new_lg){
+                    lg_end_lane = link.get_num_dn_lanes();
+                    lanegroups.add(create_dnflw_lanegroup(link, lg_start_lane,
+                            lg_end_lane-lg_start_lane+1, null));
+                }
+            }
+
+
         }
 
         return lanegroups;

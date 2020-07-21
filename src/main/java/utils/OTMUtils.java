@@ -218,10 +218,12 @@ public class OTMUtils {
     public static int[] int_hash_int(String str){
         int [] res = new int[2];
         String [] strsplt = str.split("#");
-        if(strsplt.length<1 || strsplt.length>2)
-            return null;
-        res[0] = Integer.parseInt(strsplt[0]);
-        res[1] = strsplt.length==1 ? res[0] : Integer.parseInt(strsplt[1]);
+        if(strsplt.length==0)
+            return res;
+        if(strsplt.length>0)
+            res[0] = Integer.parseInt(strsplt[0]);
+        if(strsplt.length>1)
+            res[1] = Integer.parseInt(strsplt[1]);
         return res;
     }
 

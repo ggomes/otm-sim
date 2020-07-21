@@ -39,34 +39,23 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         end_link = links.get(jaxb_rc.getOutLink())==null ? null : links.get(jaxb_rc.getOutLink());
 //        external_max_flow_vps = Float.POSITIVE_INFINITY;
 
-        if(jaxb_rc.getInLinkLanes()!=null) {
-            int [] in_lanes = OTMUtils.int_hash_int(jaxb_rc.getInLinkLanes());
-            if(in_lanes!=null && in_lanes.length==2){
-                start_link_from_lane = in_lanes[0];
-                start_link_to_lane = in_lanes[1];
-            }
-            else{
-                start_link_from_lane = 0;
-                start_link_to_lane = 0;
-            }
-        } else { // in_link_lanes is not defined => assign all lanes
+        if(jaxb_rc.getInLinkLanes()==null) {
             start_link_from_lane = 1;
             start_link_to_lane = start_link.get_num_dn_lanes();
+        } else {
+            int [] in_lanes = OTMUtils.int_hash_int(jaxb_rc.getInLinkLanes());
+            start_link_from_lane = in_lanes[0]!=0 ? in_lanes[0] : 1;
+            start_link_to_lane   = in_lanes[1]!=0 ? in_lanes[1] : start_link.get_num_dn_lanes();
         }
 
-        if(jaxb_rc.getOutLinkLanes()!=null) {
-            int[] out_lanes = OTMUtils.int_hash_int(jaxb_rc.getOutLinkLanes());
-            if (out_lanes != null && out_lanes.length == 2) {
-                end_link_from_lane = out_lanes[0];
-                end_link_to_lane = out_lanes[1];
-            } else {
-                end_link_from_lane = 0;
-                end_link_to_lane = 0;
-            }
-        }
-        else{  // out_link_lanes is not defined => assign all lanes
+        if(jaxb_rc.getOutLinkLanes()==null) {
             end_link_from_lane = 1;
-            end_link_to_lane = end_link.get_num_up_lanes();
+            end_link_to_lane = end_link.get_num_dn_lanes();
+        } else {
+            int [] out_lanes = OTMUtils.int_hash_int(jaxb_rc.getOutLinkLanes());
+            end_link_from_lane = out_lanes[0]!=0 ? out_lanes[0] : 1;
+            end_link_to_lane   = out_lanes[1]!=0 ? out_lanes[1] : end_link.get_num_up_lanes();
+
         }
 
     }
@@ -257,16 +246,19 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         return end_link==null ? null : end_link.getId();
     }
 
-    public Set<State> get_states(){
-
-        Set<State> upstr_states = in_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
-        Set<State> dnstr_states = out_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
-
-        // keep those pathfull states that are also present in the downstream lane groups
-        // and  those pathless states that are going to a downstream link
-        return upstr_states.stream()
-                .filter(k-> ( k.isPath && dnstr_states.contains(k) ) || (!k.isPath && k.pathOrlink_id==end_link.id))
-                .collect(toSet());
+    public int get_in_lanes(){
+        return start_link_to_lane-start_link_from_lane+1;
     }
+//    public Set<State> get_states(){
+//
+//        Set<State> upstr_states = in_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
+//        Set<State> dnstr_states = out_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
+//
+//        // keep those pathfull states that are also present in the downstream lane groups
+//        // and  those pathless states that are going to a downstream link
+//        return upstr_states.stream()
+//                .filter(k-> ( k.isPath && dnstr_states.contains(k) ) || (!k.isPath && k.pathOrlink_id==end_link.id))
+//                .collect(toSet());
+//    }
 
 }

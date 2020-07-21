@@ -49,13 +49,11 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
             float r = link.length/max_cell_length;
             boolean is_source_or_sink = link.is_source || link.is_sink;
 
-            int num_full_cells = is_source_or_sink ?
+            int num_cells = is_source_or_sink ?
                     1 :
                     OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
 
-            float cell_length_meters = is_source_or_sink ?
-                    link.length :
-                    link.length/num_full_cells;
+            float cell_length_meters = link.length/num_cells;
 
             // create cells ....................
             for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())

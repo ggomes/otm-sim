@@ -131,7 +131,17 @@ public class Scenario {
             dispatcher.initialize(now);
 
         // To initialize the commodities I will need a map, for each link, from outlink to viable road connections
-        Map<Long,Map<Long,Set<RoadConnection>>> link_outlink2rcs = build_link_to_outrc_map();
+        Map<Long,Map<Long,Set<RoadConnection>>> link_outlink2rcs = new HashMap<>();
+        for(Link link : network.links.values()) {
+            Map<Long,Set<RoadConnection>> X = new HashMap<>();
+            link_outlink2rcs.put(link.getId(),X);
+            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                for (Map.Entry<Long, RoadConnection> e : lg.outlink2roadconnection.entrySet()) {
+                    if (!X.containsKey(e.getKey()))
+                        X.put(e.getKey(), new HashSet<>());
+                    X.get(e.getKey()).add(e.getValue());
+                }
+        }
 
         for(Commodity commodity : commodities.values())
             commodity.initialize(this,link_outlink2rcs);
@@ -397,29 +407,29 @@ public class Scenario {
     // private
     ///////////////////////////////////////////////////
 
-    private Map<Long,Map<Long,Set<RoadConnection>>> build_link_to_outrc_map(){
-
-        // I will need a map from links to outgoing road connections to initialize commodities.
-        // First build set of used links
-        Set<Link> used_links = commodities.values().stream()
-                .flatMap(c->c.subnetworks.stream())
-                .flatMap(s->s.get_links().stream())
-                .collect(Collectors.toSet());
-
-        // make temporary map from links to outgoing road connections
-        Map<Long,Map<Long,Set<RoadConnection>>> link_outlink2rcs = new HashMap<>();
-        for(Link link : used_links) {
-            Map<Long,Set<RoadConnection>> X = new HashMap<>();
-            link_outlink2rcs.put(link.getId(),X);
-            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                for (Map.Entry<Long, RoadConnection> e : lg.outlink2roadconnection.entrySet()) {
-                    if (!X.containsKey(e.getKey()))
-                        X.put(e.getKey(), new HashSet<>());
-                    X.get(e.getKey()).add(e.getValue());
-                }
-        }
-
-        return link_outlink2rcs;
-    }
+//    private Map<Long,Map<Long,Set<RoadConnection>>> build_link_to_outrc_map(){
+//
+////        // I will need a map from links to outgoing road connections to initialize commodities.
+////        // First build set of used links
+////        Set<Link> used_links = commodities.values().stream()
+////                .flatMap(c->c.subnetworks.stream())
+////                .flatMap(s->s.get_links().stream())
+////                .collect(Collectors.toSet());
+//
+//        // make temporary map from links to outgoing road connections
+//        Map<Long,Map<Long,Set<RoadConnection>>> link_outlink2rcs = new HashMap<>();
+//        for(Link link : used_links) {
+//            Map<Long,Set<RoadConnection>> X = new HashMap<>();
+//            link_outlink2rcs.put(link.getId(),X);
+//            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+//                for (Map.Entry<Long, RoadConnection> e : lg.outlink2roadconnection.entrySet()) {
+//                    if (!X.containsKey(e.getKey()))
+//                        X.put(e.getKey(), new HashSet<>());
+//                    X.get(e.getKey()).add(e.getValue());
+//                }
+//        }
+//
+//        return link_outlink2rcs;
+//    }
 
 }
