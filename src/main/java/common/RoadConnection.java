@@ -21,8 +21,8 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     public final int end_link_from_lane;
     public final int end_link_to_lane;
 
-    public Set<AbstractLaneGroup> in_lanegroups;
-    public Set<AbstractLaneGroup> out_lanegroups;
+    public Set<AbstractLaneGroup> in_lanegroups= new HashSet<>();
+    public Set<AbstractLaneGroup> out_lanegroups= new HashSet<>();
 
     // control
 //    public float external_max_flow_vps;

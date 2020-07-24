@@ -31,7 +31,7 @@ public class AddLanesInfo {
         this.side = x.side.toString();
         this.isopen = x.isopen;
         this.position = x.position.toString();
-        this.length = x.length;
+        this.length = x.isfull ? Float.NaN : x.length;
         this.gates = new ArrayList<>();
         for(Gate gate : x.gates)
             this.gates.add(new GateInfo(gate));

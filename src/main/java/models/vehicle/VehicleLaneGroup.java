@@ -37,8 +37,7 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
 
     @Override
     public float vehs_out_for_comm(Long comm_id) {
-        System.err.println("NOT IMPLEMENTED");
-        return Float.NaN;
+        return 0f;
     }
 
     @Override
@@ -53,8 +52,7 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
 
     @Override
     public float vehs_in_for_comm(Long comm_id) {
-        System.err.println("NOT IMPLEMENTED");
-        return Float.NaN;
+        return 0f;
     }
 
     ////////////////////////////////////////

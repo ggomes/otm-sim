@@ -54,7 +54,7 @@ public class OutputLaneGroupVehicles extends AbstractOutputTimedLanegroup {
         if(!lgprofiles.containsKey(lg.id))
             return Double.NaN;
         else {
-            return lg.vehs_dwn_for_comm(commodity == null ? null : commodity.getId());
+            return lg.get_total_vehicles_for_commodity(commodity == null ? null : commodity.getId());
         }
     }
 

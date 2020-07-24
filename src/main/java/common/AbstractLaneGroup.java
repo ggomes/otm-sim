@@ -90,9 +90,13 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 //                out_barriers
 
         this.outlink2roadconnection = new HashMap<>();
-        if(out_rcs!=null)
-            for(RoadConnection rc : out_rcs)
-                outlink2roadconnection.put(rc.end_link.getId(),rc);
+        if(out_rcs!=null) {
+            for (RoadConnection rc : out_rcs) {
+                rc.in_lanegroups.add(this);
+                if (rc.end_link != null)
+                    outlink2roadconnection.put(rc.end_link.getId(), rc);
+            }
+        }
 
     }
 
@@ -210,8 +214,12 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     }
 
+    public final float get_total_vehicles_for_commodity(Long commid) {
+        return vehs_dwn_for_comm(commid)+vehs_in_for_comm(commid)+vehs_out_for_comm(commid);
+    }
+
     public final float get_total_vehicles() {
-        return vehs_dwn_for_comm(null);
+        return get_total_vehicles_for_commodity(null);
     }
 
     public final double get_supply(){
@@ -221,10 +229,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public final double get_supply_per_lane() {
         return supply/num_lanes;
     }
-
-//    public final float get_space() {
-//        return max_vehicles- vehs_dwn_for_comm(null);
-//    }
 
     public final List<Integer> get_dn_lanes(){
         return IntStream.range(start_lane_dn,start_lane_dn+num_lanes).boxed().collect(toList());
@@ -254,10 +258,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public final Set<Link> get_out_links(){
         return link.end_node.out_links;
-    }
-
-    public final boolean link_is_link_reachable(Long link_id){
-        return outlink2roadconnection.containsKey(link_id);
     }
 
     public final void update_flow_accummulators(State state, double num_vehicles){

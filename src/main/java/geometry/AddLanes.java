@@ -12,6 +12,7 @@ public class AddLanes {
 
     public Side side;
     public FlowPosition position;
+    public boolean isfull;
     public float length;        // meters
     public int lanes;
     public jaxb.Roadparam roadparam;
@@ -21,6 +22,7 @@ public class AddLanes {
         this.side = side;
         this.position = pos;
         this.length = 0f;
+        this.isfull = false;
         this.roadparam = rp;
     }
 
@@ -36,12 +38,17 @@ public class AddLanes {
         this.isopen = jaxb_al.isIsopen();
         this.side = Side.valueOf(jaxb_al.getSide().toLowerCase());
         this.position = jaxb_al.getPos()==null ? FlowPosition.dn : FlowPosition.valueOf(jaxb_al.getPos().toLowerCase());
-        this.length = jaxb_al.getLength()==null ? Float.NaN : jaxb_al.getLength();
+        this.isfull = jaxb_al.getLength()==null;
+        this.length = isfull ? Float.NaN : jaxb_al.getLength();
         this.lanes = jaxb_al.getLanes();
 
         if(jaxb_al.getGates()!=null)
             for(jaxb.Gate jaxb_gate : jaxb_al.getGates().getGate())
                 gates.add(new Gate(jaxb_gate));
+    }
+
+    public float get_length(float linklength){
+        return isfull ? linklength : length;
     }
 
     public boolean isUp(){
@@ -66,7 +73,7 @@ public class AddLanes {
             if( gates.first().start_pos<0 )
                 errorLog.addError("gates.first().start_pos<0");
 
-            if( gates.last().end_pos>this.length)
+            if( !isfull && gates.last().end_pos>this.length)
                 errorLog.addError("gates.last().end_pos>this.length");
 
             // validate gates

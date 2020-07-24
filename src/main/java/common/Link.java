@@ -310,8 +310,6 @@ public class Link implements InterfaceScenarioElement {
                 .collect(toSet());
         if(!end_node.out_links.containsAll(dwn_links))
             errorLog.addError("some outlinks are not immediately downstream");
-
-
     }
 
     @Override
@@ -419,22 +417,6 @@ public class Link implements InterfaceScenarioElement {
         for (AbstractLaneGroup lg : lgs)
             for (int lane=lg.start_lane_dn;lane<lg.start_lane_dn+lg.num_lanes;lane++)                       // iterate through dn lanes
                 dnlane2lanegroup.put(lane, lg);
-    }
-
-    public void populate_outlink2lanegroups(){
-
-        if(is_sink)
-            return;
-
-        outlink2lanegroups = new HashMap<>();
-        for(Link outlink : end_node.out_links) {
-            Set<AbstractLaneGroup> lgs = lanegroups_flwdn.values().stream()
-                    .filter(lg -> lg.link_is_link_reachable(outlink.getId()))
-                    .collect(Collectors.toSet());
-            if(!lgs.isEmpty())
-                outlink2lanegroups.put(outlink.getId(), lgs);
-        }
-
     }
 
     public void populate_commodity2split(Collection<Commodity> commodities){
@@ -727,14 +709,6 @@ public class Link implements InterfaceScenarioElement {
         return x;
     }
 
-    public Set<AbstractLaneGroup> get_unique_lanegroups_for_up_lanes(int from_lane, int to_lane) {
-        Set<AbstractLaneGroup> x = new HashSet<>();
-        for (int lane = from_lane; lane <= to_lane; lane++)
-            x.add(get_lanegroup_for_up_lane(lane));
-
-        return x;
-    }
-
     public AbstractLaneGroup get_lanegroup_for_dn_lane(int lane){
         return dnlane2lanegroup.get(lane);
     }
@@ -752,11 +726,20 @@ public class Link implements InterfaceScenarioElement {
     }
 
     public AbstractLaneGroup get_inner_full_lanegroup(){
-        return dnlane2lanegroup.get( road_geom==null || road_geom.dn_in==null ? 1 : road_geom.dn_in.lanes+1 );
+        if(road_geom==null || road_geom.dn_in==null || road_geom.dn_in.isfull ){
+            return dnlane2lanegroup.get(1);
+        }
+        else {
+            return dnlane2lanegroup.get(road_geom.dn_in.lanes + 1);
+        }
     }
 
     public AbstractLaneGroup get_outer_full_lanegroup(){
-        return dnlane2lanegroup.get( road_geom==null || road_geom.dn_in==null ? full_lanes : road_geom.dn_in.lanes+full_lanes );
+        return dnlane2lanegroup.get(
+                road_geom==null || road_geom.dn_in==null ?
+                full_lanes :
+                road_geom.dn_in.lanes+full_lanes );
+
     }
 
 
