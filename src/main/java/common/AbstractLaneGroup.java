@@ -59,7 +59,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     // target lane group to direction
     public Map<State,Set<Side>> state2lanechangedirections = new HashMap<>();
-    public Map<State,Set<Side>> disallowed_state2lanechangedirections = new HashMap<>();
+    private Map<State,Set<Side>> disallowed_state2lanechangedirections = new HashMap<>();
 
     public AbstractLaneGroupTimer travel_timer;
 
@@ -169,6 +169,30 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     ///////////////////////////////////////////////////
     // final
     ///////////////////////////////////////////////////
+
+    public final long getId(){
+        return id;
+    }
+
+    public final Link get_link(){
+        return link;
+    }
+
+    public final Side get_side(){
+        return side;
+    }
+
+    public final int get_start_lane_dn(){
+        return start_lane_dn;
+    }
+
+    public final int get_num_lanes(){
+        return num_lanes;
+    }
+
+    public final float get_length(){
+        return length;
+    }
 
     public final FlowAccumulatorState request_flow_accumulator(Long comm_id){
         if(flw_acc==null)

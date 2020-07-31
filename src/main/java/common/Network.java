@@ -3,7 +3,6 @@ package common;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.*;
-import jaxb.Roadparam;
 import models.AbstractModel;
 import models.fluid.ctm.ModelCTM;
 import models.none.ModelNone;
@@ -23,7 +22,7 @@ import static java.util.stream.Collectors.toSet;
 
 public class Network {
 
-    public static Long max_rcid;
+    protected static Long max_rcid;
 
     public Scenario scenario;
     public boolean node_positions_in_meters;    // true->meters, false->gps
@@ -35,7 +34,7 @@ public class Network {
     public Map<Long,Node> nodes;
     public Map<Long,Link> links;
     public Map<Long, RoadGeometry> road_geoms;
-    public Map<Long,RoadConnection> road_connections;
+    protected Map<Long,RoadConnection> road_connections;
 
     ///////////////////////////////////////////
     // construction
@@ -69,7 +68,6 @@ public class Network {
         road_connections = read_road_connections(jaxb_conns,links);
 
         // store list of road connections in nodes
-        // create link to road connections map
         for(RoadConnection rc : road_connections.values()) {
             if(rc.start_link!=null){
                 rc.start_link.end_node.add_road_connection(rc);
@@ -408,68 +406,64 @@ public class Network {
         return models;
     }
 
-    private static HashMap<Long,RoadConnection> read_road_connections(jaxb.Roadconnections jaxb_conns,Map<Long,Link> links) throws OTMException {
+    private static HashMap<Long,RoadConnection> read_road_connections(jaxb.Roadconnections jrcs,Map<Long,Link> links) throws OTMException {
 
-        HashMap<Long,RoadConnection> road_connections = new HashMap<>();
-        Set<Long> no_road_connection = new HashSet<>();
-        no_road_connection.addAll(links.values().stream().filter(x->!x.is_sink).map(y->y.getId()).collect(toSet()));
-        if (jaxb_conns != null && jaxb_conns.getRoadconnection() != null) {
-            for (jaxb.Roadconnection jaxb_rc : jaxb_conns.getRoadconnection()) {
-                if(road_connections.containsKey(jaxb_rc.getId()))
+        // read jaxb road connections
+        HashMap<Long,RoadConnection> rcs = new HashMap<>();
+        Set<Long> no_rc = new HashSet<>();
+        no_rc.addAll(links.values().stream().filter(x->!x.is_sink).map(y->y.getId()).collect(toSet()));
+        if (jrcs != null && jrcs.getRoadconnection() != null) {
+            for (jaxb.Roadconnection jrc : jrcs.getRoadconnection()) {
+                if(rcs.containsKey(jrc.getId()))
                     throw new OTMException("Repeated road connection id");
-                RoadConnection rc =  new RoadConnection(links, jaxb_rc);
-                road_connections.put(jaxb_rc.getId(),rc);
-                no_road_connection.remove(rc.get_start_link_id());
+                RoadConnection rc =  new RoadConnection(links, jrc);
+                rcs.put(jrc.getId(),rc);
+                no_rc.remove(rc.get_start_link_id());
             }
         }
-
-        max_rcid = road_connections.isEmpty() ? 0L : road_connections.keySet().stream().max(Long::compareTo).get();
 
         // create absent road connections
-        for(Long link_id : no_road_connection)
-            road_connections.putAll(create_missing_road_connections(links.get(link_id)));
+        max_rcid = rcs.isEmpty() ? 0L : rcs.keySet().stream().max(Long::compareTo).get();
+        for(Long link_id : no_rc){
+            Link link = links.get(link_id);
+            Map<Long,RoadConnection> new_rcs = new HashMap<>();
+            int lanes;
+            Long rc_id;
 
-        return road_connections;
-    }
+            for(Link end_link : link.end_node.out_links){
 
-    private static Map<Long,RoadConnection> create_missing_road_connections(Link link){
-        Map<Long,RoadConnection> new_rcs = new HashMap<>();
-        int lanes;
-        Long rc_id;
+                int start_lane = 1;
+                int end_link_lanes = end_link.get_num_up_lanes();
 
-        for(Link end_link : link.end_node.out_links){
+                // dn in rc
+                if(link.road_geom!=null && link.road_geom.dn_in!=null){
+                    rc_id = ++max_rcid;
+                    lanes = link.road_geom.dn_in.lanes;
+                    RoadConnection rc_dnin = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
+                    new_rcs.put(rc_id, rc_dnin);
+                    start_lane += lanes;
+                }
 
-            int start_lane = 1;
-            int end_link_lanes = end_link.get_num_up_lanes();
-
-            // dn in rc
-            if(link.road_geom!=null && link.road_geom.dn_in!=null){
+                // stay rc
                 rc_id = ++max_rcid;
-                lanes = link.road_geom.dn_in.lanes;
-                RoadConnection rc_dnin = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
-                new_rcs.put(rc_id, rc_dnin);
+                lanes = link.full_lanes;
+                RoadConnection rc_stay = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
+                new_rcs.put(rc_id, rc_stay);
                 start_lane += lanes;
+
+                // dn out rc
+                if(link.road_geom!=null && link.road_geom.dn_out!=null){
+                    rc_id = ++max_rcid;
+                    lanes = link.road_geom.dn_out.lanes;
+                    RoadConnection rc_dnout = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
+                    new_rcs.put(rc_id, rc_dnout);
+                }
+
             }
-
-            // stay rc
-            rc_id = ++max_rcid;
-            lanes = link.full_lanes;
-            RoadConnection rc_stay = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
-            new_rcs.put(rc_id, rc_stay);
-            start_lane += lanes;
-
-            // dn out rc
-            if(link.road_geom!=null && link.road_geom.dn_out!=null){
-                rc_id = ++max_rcid;
-                lanes = link.road_geom.dn_out.lanes;
-                RoadConnection rc_dnout = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
-                new_rcs.put(rc_id, rc_dnout);
-            }
-
+            rcs.putAll(new_rcs);
         }
 
-
-        return new_rcs;
+        return rcs;
     }
 
     private static void create_lane_groups(Link link,final Set<RoadConnection> out_rcs) throws OTMException {
@@ -725,8 +719,6 @@ public class Network {
     }
 
     private static AbstractLaneGroup create_dnflw_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
-
-        System.out.println(String.format("%d\t%d\t%d",link.id,dn_start_lane,num_lanes));
 
         // Determine whether it is an addlane lanegroup or a full lane lane group.
         Set<Side> sides = new HashSet<>();

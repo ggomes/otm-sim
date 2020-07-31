@@ -10,6 +10,7 @@ import models.fluid.FluidLaneGroup;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import profiles.Profile1D;
+import profiles.Profile2D;
 import utils.OTMUtils;
 
 import java.io.*;
@@ -128,6 +129,18 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
     // incomplete implementation
     //////////////////////////////////////////////////////
 
+    public Profile2D get_values_for_lg(FluidLaneGroup lg){
+        Profile2D X = new Profile2D(0f,outDt);
+        try {
+            List<CellProfile> cellprofs = lgprofiles.get(lg.id);
+            for(int i=0;i<cellprofs.size();i++)
+                X.add_entry(i,cellprofs.get(i).profile.values);
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+        return X;
+    }
+
     public List<XYSeries> get_series_for_lg(FluidLaneGroup lg) {
         List<XYSeries> X = new ArrayList<>();
         List<CellProfile> cellprofs = lgprofiles.get(lg.id);
@@ -142,6 +155,10 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
     //////////////////////////////////////////////////////
     // final
     //////////////////////////////////////////////////////
+
+    public final ArrayList<FluidLaneGroup> get_ordered_lgs(){
+        return ordered_lgs;
+    }
 
     public final void plot_for_links(Set<Long> link_ids,String filename) throws OTMException {
 

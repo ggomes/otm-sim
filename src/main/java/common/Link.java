@@ -641,19 +641,43 @@ public class Link implements InterfaceScenarioElement {
     }
 
     public int get_num_dn_in_lanes(){
-        return road_geom==null||road_geom.dn_in==null ? 0 : road_geom.dn_in.lanes;
+        if(road_geom==null)
+            return 0;
+        if(road_geom.dn_in!=null)
+            return road_geom.dn_in.lanes;
+        if(road_geom.up_in!=null && road_geom.up_in.isfull)
+            return road_geom.up_in.lanes;
+        return 0;
     }
 
     public int get_num_dn_out_lanes(){
-        return road_geom==null||road_geom.dn_out==null ? 0 : road_geom.dn_out.lanes;
+        if(road_geom==null)
+            return 0;
+        if(road_geom.dn_out!=null)
+            return road_geom.dn_out.lanes;
+        if(road_geom.up_out!=null && road_geom.up_out.isfull)
+            return road_geom.up_out.lanes;
+        return 0;
     }
 
     public int get_num_up_in_lanes(){
-        return road_geom==null||road_geom.up_in==null ? 0 : road_geom.up_in.lanes;
+        if(road_geom==null)
+            return 0;
+        if(road_geom.up_in!=null)
+            return road_geom.up_in.lanes;
+        if(road_geom.dn_in!=null && road_geom.dn_in.isfull)
+            return road_geom.dn_in.lanes;
+        return 0;
     }
 
     public int get_num_up_out_lanes(){
-        return road_geom==null||road_geom.up_out==null ? 0 : road_geom.up_out.lanes;
+        if(road_geom==null)
+            return 0;
+        if(road_geom.up_out!=null)
+            return road_geom.up_out.lanes;
+        if(road_geom.dn_out!=null && road_geom.dn_out.isfull)
+            return road_geom.dn_out.lanes;
+        return 0;
     }
 
     public int get_num_dn_lanes(){

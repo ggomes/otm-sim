@@ -213,6 +213,10 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     // helper methods (final)
     ////////////////////////////////////////////
 
+    public final int get_num_cells(){
+        return cells.size();
+    }
+
     public final List<FlowAccumulatorState> request_flow_accumulators_for_cells(Long comm_id){
         List<FlowAccumulatorState> X = new ArrayList<>();
         for(AbstractCell cell : cells){

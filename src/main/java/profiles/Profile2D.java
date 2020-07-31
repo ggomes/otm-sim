@@ -104,6 +104,18 @@ public class Profile2D {
     // get
     ////////////////////////////////
 
+    public List<Double> get(Long key){
+        return values.get(key);
+    }
+
+    public int get_num_times(){
+        return num_times;
+    }
+
+    public float get_dt(){
+        return dt;
+    }
+
     public boolean have_key(long key){
         return values.containsKey(key);
     }
