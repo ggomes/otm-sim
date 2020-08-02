@@ -25,6 +25,12 @@ public class NoneLaneGroup extends AbstractLaneGroup {
     }
 
     @Override
+    public void set_actuator_isopen(boolean isopen,Set<Long> commids) {
+        System.out.println("NOT IMPLEMENTED!!");
+    }
+
+
+    @Override
     public Double get_upstream_vehicle_position() {
         return null;
     }

@@ -17,22 +17,19 @@ import java.util.Set;
 public abstract class AbstractActuator implements Pokable, InterfaceScenarioElement {
 
     public enum Type {
-        meter,
+        lanegroupclosure,
+        lanegroupspeed,
         signal,
-        rc,
-        greenred,
-        stop,
-        laneclosure
+        meter,
+        stop
     }
 
     public long id;
-    private Type type;
+    public abstract Type getType();
     public float dt;
 
     public AbstractController myController;
     public InterfaceActuatorTarget target;
-
-//    public OutputActuator event_output;
 
     abstract public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException;
 
@@ -42,10 +39,11 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     public AbstractActuator(Scenario scenario, jaxb.Actuator jaxb_actuator) throws OTMException {
         this.id = jaxb_actuator.getId();
-        this.type = Type.valueOf(jaxb_actuator.getType());
+//        this.type = Type.valueOf(jaxb_actuator.getType());
         this.dt = jaxb_actuator.getDt();
         if(jaxb_actuator.getActuatorTarget()!=null){
             jaxb.ActuatorTarget e = jaxb_actuator.getActuatorTarget();
+            Long id = e.getId()==null ? null : Long.parseLong(e.getId());
 
             ScenarioElementType type = null;
             try {
@@ -53,24 +51,54 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
                 type = ScenarioElementType.valueOf(e.getType());
 
                 // otherwise we can find the element and register
-                Object x;
+                InterfaceActuatorTarget x;
 
                 // if it is a lanegroup, then the id is for the link, and lanes must be used
-                if(type==ScenarioElementType.lanegroup){
-                    Link link = (Link) scenario.get_element(ScenarioElementType.link,e.getId());
-                    int [] lanes = OTMUtils.read_lanes(e.getLanes(),link.full_lanes);
-                    Set<AbstractLaneGroup> lgs = link.get_unique_lanegroups_for_dn_lanes(lanes[0],lanes[1]);
-                    if(lgs.size()!=1)
-                        throw new OTMException("Actuator target does not define a unique lane group");
-                    x = lgs.iterator().next();
+                if(type==ScenarioElementType.lanegroups){
+                    String str = e.getContent();
+                    LaneGroupSet xx = new LaneGroupSet();
+
+                    // READ LANEGROUP STRING
+                    String [] a0 = str.split(",");
+                    if(a0.length<1)
+                        throw new OTMException("Poorly formatted string. (CN_23v4-str0)");
+                    for(String lg_str : a0){
+                        String [] a1 = lg_str.split("[(]");
+
+                        if(a1.length!=2)
+                            throw new OTMException("Poorly formatted string. (90hm*@$80)");
+
+                        Long linkid = Long.parseLong(a1[0]);
+                        Link link = scenario.network.links.get(linkid);
+
+                        if(link==null)
+                            throw new OTMException("Poorly formatted string. (24n2349))");
+
+                        String [] a2 = a1[1].split("[)]");
+
+                        if(a2.length!=1)
+                            throw new OTMException("Poorly formatted string. (3g50jmdrthk)");
+
+                        int [] lanes = OTMUtils.read_lanes(a2[0],link.full_lanes);
+
+                        Set<AbstractLaneGroup> lgs = link.get_unique_lanegroups_for_dn_lanes(lanes[0],lanes[1]);
+                        if(lgs.size()!=1)
+                            throw new OTMException("Actuator target does not define a unique lane group");
+
+                        xx.lgs.add(lgs.iterator().next());
+
+                    }
+
+                    x = xx;
+
                 } else {
-                    x = scenario.get_element(type,e.getId());
+                    x = (InterfaceActuatorTarget) scenario.get_element(type,id);
                 }
-                if( x instanceof InterfaceActuatorTarget){
-                    this.target = (InterfaceActuatorTarget) x;
-                    if(target!=null)
-                        target.register_actuator(this);
-                }
+
+                this.target = x;
+                if(target!=null)
+                    target.register_actuator(this);
+
 
             } catch (IllegalArgumentException illegalArgumentException) {
                 // if exception is thrown, set target to null.
@@ -150,16 +178,16 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         if(jact.getActuatorTarget()!=null && jact.getActuatorTarget().getType().equalsIgnoreCase("lanegroup")) {
             jaxb.ActuatorTarget e = jact.getActuatorTarget();
 
-            long link_id = e.getId();
+            Long link_id = null; //e.getId();
             if(!scenario.network.links.containsKey(link_id))
                 throw new OTMException("Unknown link id in actuator " + id );
             Link link = scenario.network.links.get(link_id);
 
-            int [] x = OTMUtils.read_lanes(e.getLanes(),link.full_lanes);
-            int start_lane = x[0];
-            int end_lane = x[1];
-
-            lanegroups = link.get_unique_lanegroups_for_dn_lanes(start_lane, end_lane);
+//            int [] x = OTMUtils.read_lanes(e.getLanes(),link.full_lanes);
+//            int start_lane = x[0];
+//            int end_lane = x[1];
+//
+//            lanegroups = link.get_unique_lanegroups_for_dn_lanes(start_lane, end_lane);
 
         }
 
@@ -170,8 +198,8 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     // get
     /////////////////////////////////////////////////////////////////////
 
-    public Type getType() {
-        return type;
-    }
+//    public Type getType() {
+//        return type;
+//    }
 
 }

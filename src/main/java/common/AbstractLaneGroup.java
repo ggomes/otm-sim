@@ -2,6 +2,7 @@ package common;
 
 import actuator.AbstractActuator;
 import actuator.AbstractActuatorLanegroupCapacity;
+import actuator.ActuatorLanegroupClosure;
 import actuator.InterfaceActuatorTarget;
 import commodity.Commodity;
 import error.OTMException;
@@ -45,6 +46,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     protected double supply;       // [veh]
 
     public AbstractActuatorLanegroupCapacity actuator_capacity;
+    public ActuatorLanegroupClosure actuator_closure;
 
     // flow accumulator
     public FlowAccumulatorState flw_acc;
@@ -111,12 +113,19 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
                 throw new OTMException(String.format("Multiple capacity actuators on link %d, lanes %d through %d.",link.getId(),start_lane_dn,start_lane_dn+num_lanes-1));
             this.actuator_capacity = (AbstractActuatorLanegroupCapacity) act;
         }
+
+        if(act.getType()== AbstractActuator.Type.lanegroupclosure ){
+            if(this.actuator_closure!=null)
+                throw new OTMException(String.format("Multiple closure actuators on link %d, lanes %d through %d.",link.getId(),start_lane_dn,start_lane_dn+num_lanes-1));
+            this.actuator_closure = (ActuatorLanegroupClosure) act;
+        }
+
     }
 
-    @Override
-    public long getIdAsTarget() {
-        return id;
-    }
+//    @Override
+//    public long getIdAsTarget() {
+//        return id;
+//    }
 
     ///////////////////////////////////////////////////
     // Comparable
@@ -294,9 +303,36 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return outlink2roadconnection.get(outlink_id);
     }
 
-    public final void disallow_state(State state){
-        if(!states.contains(state))
-            return;
+
+
+
+
+
+
+
+
+
+    ///////////////////////////////////////////////////
+    // lane group closures
+    ///////////////////////////////////////////////////
+
+
+    @Override
+    public void set_actuator_isopen(boolean isopen,Set<Long> commids) {
+        if(isopen)
+            for (Long commid : commids)
+                states.stream()
+                        .filter(s->s.commodity_id==commid)
+                        .forEach(s->reallow_state(s));
+
+        else
+            for (Long commid : commids)
+                states.stream()
+                        .filter(s->s.commodity_id==commid)
+                        .forEach(s->disallow_state(s));
+    }
+
+    private void disallow_state(State state){
         // disallow movement into this lanegroup from adjacent lanegroups
         if(neighbor_in!=null)
             neighbor_in.disallow_state_lanechangedirection(state,Side.out);
@@ -308,15 +344,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             neighbor_up_out.disallow_state_lanechangedirection(state,Side.in);
     }
 
-    public final void disallow_commodity(Commodity comm){
-        states.stream()
-                .filter(s->s.commodity_id==comm.getId())
-                .forEach(s->disallow_state(s));
-    }
-
-    public final void reallow_state(State state){
-        if(!states.contains(state))
-            return;
+    private void reallow_state(State state){
         // reallow movement into this lanegroup from adjacent lanegroups
         if(neighbor_in!=null)
             neighbor_in.reallow_state_lanechangedirection(state,Side.out);
@@ -326,12 +354,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             neighbor_up_in.reallow_state_lanechangedirection(state,Side.out);
         if(neighbor_up_out!=null)
             neighbor_up_out.reallow_state_lanechangedirection(state,Side.in);
-    }
-
-    public final void reallow_commodity(Commodity comm){
-        states.stream()
-                .filter(s->s.commodity_id==comm.getId())
-                .forEach(s->reallow_state(s));
     }
 
     ///////////////////////////////////////////////////

@@ -91,6 +91,11 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     }
 
     @Override
+    public void set_actuator_isopen(boolean isopen,Set<Long> commids) {
+        System.out.println("NOT IMPLEMENTED!!");
+    }
+
+    @Override
     public void allocate_state() {
 
     }

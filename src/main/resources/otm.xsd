@@ -49,17 +49,19 @@
 
 	<!-- generics ................................................................. -->
 
+	<!-- the string content of the actuator_target is used to identify a
+	complex target, such as a set of lanegroups. The id is used to identify a
+	 simple target, such as a node. -->
 	<xs:element name="actuator_target">
-		<xs:complexType>
-			<xs:attribute name="id" type="xs:long" use="required" />
+		<xs:complexType mixed="true">
+			<xs:attribute name="id" type="xs:string" />
 			<xs:attribute name="type" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="lanegroup|node|commodity"/>
+						<xs:pattern value="lanegroups|node|commodity"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
-			<xs:attribute name="lanes" type="xs:string" />
 		</xs:complexType>
 	</xs:element>
 
@@ -488,13 +490,13 @@
 			<xs:all>
 				<xs:element ref="otm:actuator_target" minOccurs="1" maxOccurs="1" />
 				<xs:element ref="otm:signal" minOccurs="0" maxOccurs="1" />
-				<xs:element ref="otm:linklanes" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="otm:lanegroups" minOccurs="0" maxOccurs="1" />
 			</xs:all>
 			<xs:attribute name="id" type="xs:long" use="required"/>
 			<xs:attribute name="type" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="meter|signal|rc|greenred|stop|laneclosure"/>
+						<xs:pattern value="meter|signal|rc|greenred|stop|lanegroupclosure"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
@@ -546,15 +548,15 @@
 
 	<!-- lane closure ............................................................. -->
 
-	<xs:element name="linklanes">
+	<xs:element name="lanegroups">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="otm:linklane" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="otm:lanegroup" minOccurs="0" maxOccurs="unbounded" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
 
-	<xs:element name="linklane">
+	<xs:element name="lanegroup">
 		<xs:complexType>
 			<xs:attribute name="link" type="xs:long" use="required"/>
 			<xs:attribute name="lanes" type="xs:string" />

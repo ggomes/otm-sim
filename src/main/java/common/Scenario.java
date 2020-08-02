@@ -355,8 +355,6 @@ public class Scenario {
                 return actuators.get(id);
             case sensor:
                 return sensors.get(id);
-            case lanegroup:
-                return null;
             default:
                 System.err.println("Bad element type in get_element");
         }

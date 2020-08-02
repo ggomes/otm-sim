@@ -11,5 +11,5 @@ public enum ScenarioElementType {
     controller,
     actuator,
     sensor,
-    lanegroup
+    lanegroups
 }

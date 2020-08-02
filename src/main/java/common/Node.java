@@ -89,11 +89,11 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
                                     id,comm.getId(),inlink.id));
                             continue;
                         }
-                        SplitMatrixProfile smp = splits.get(key);
-                        for(Link olink : out_links)
-                            if(!smp.has_split_for_outlink(olink.id))
-                                errorLog.addError(String.format("Node %d is missing split ratios for commodity %d from link %d to link %d",
-                                        id,comm.getId(),inlink.id,olink.id));
+//                        SplitMatrixProfile smp = splits.get(key);
+//                        for(Link olink : out_links)
+//                            if(!smp.has_split_for_outlink(olink.id))
+//                                errorLog.addError(String.format("Node %d is missing split ratios for commodity %d from link %d to link %d",
+//                                        id,comm.getId(),inlink.id,olink.id));
                     }
 
                 }
@@ -137,10 +137,10 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
         this.actuator = act;
     }
 
-    @Override
-    public long getIdAsTarget() {
-        return id;
-    }
+//    @Override
+//    public long getIdAsTarget() {
+//        return id;
+//    }
 
     ///////////////////////////////////////////
     // XXX

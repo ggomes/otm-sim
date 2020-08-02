@@ -221,10 +221,10 @@ public class Commodity implements InterfaceScenarioElement, InterfaceActuatorTar
 
     }
 
-    @Override
-    public long getIdAsTarget() {
-        return id;
-    }
+//    @Override
+//    public long getIdAsTarget() {
+//        return id;
+//    }
 
     @Override
     public void register_actuator(AbstractActuator act) throws OTMException {

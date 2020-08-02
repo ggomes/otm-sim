@@ -63,6 +63,11 @@ public class ActuatorSignal extends AbstractActuatorLanegroupCapacity {
     ///////////////////////////////////////////////////
 
     @Override
+    public Type getType() {
+        return Type.signal;
+    }
+
+    @Override
     public void process_controller_command(InterfaceCommand obj, float timestamp) throws OTMException {
         // The command is a map from signal phase to color.
         // anything not in the map should be set to red

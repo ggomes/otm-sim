@@ -192,7 +192,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
         // send immediately to actuators that lack a dt
         for(AbstractActuator act : actuators.values())
-            if(act.dt<0)
+            if(act.dt<=0)
                 act.process_controller_command(command.get(act.id),timestamp);
 
         // write to output

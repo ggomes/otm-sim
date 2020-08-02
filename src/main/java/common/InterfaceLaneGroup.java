@@ -4,6 +4,8 @@ import error.OTMErrorLog;
 import error.OTMException;
 import packet.PacketLaneGroup;
 
+import java.util.Set;
+
 public interface InterfaceLaneGroup {
 
     void validate(OTMErrorLog errorLog);
@@ -16,6 +18,7 @@ public interface InterfaceLaneGroup {
     void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) throws OTMException;
     void set_actuator_capacity_vps(double rate_vps);
     void set_actuator_speed_mps(double speed_mps);
+    void set_actuator_isopen(boolean isopen, Set<Long> commids);
 
     void set_road_params(jaxb.Roadparam r);
 

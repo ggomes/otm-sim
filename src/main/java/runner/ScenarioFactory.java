@@ -10,6 +10,7 @@ import common.Network;
 import common.Node;
 import common.Scenario;
 import control.*;
+import control.commodity.ControllerLanegroupClosure;
 import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
@@ -176,6 +177,9 @@ public class ScenarioFactory {
             case "closed":
                 controller = new ControllerClosed(scenario,jaxb_controller);
                 break;
+            case "lanegroupclosure":
+                controller = new ControllerLanegroupClosure(scenario,jaxb_controller);
+                break;
             default:
 
                 // it might be a plugin
@@ -247,7 +251,7 @@ public class ScenarioFactory {
                 case "stop":
                     actuator = new ActuatorStop(scenario,jaxb_actuator);
                     break;
-                case "laneclosure":
+                case "lanegroupclosure":
                     actuator = new ActuatorLanegroupClosure(scenario,jaxb_actuator);
                     break;
                 default:
