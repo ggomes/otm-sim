@@ -6,6 +6,12 @@
  */
 package utils;
 
+import common.AbstractLaneGroup;
+import common.LaneGroupSet;
+import common.Link;
+import common.Scenario;
+import error.OTMException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -258,6 +264,44 @@ public class OTMUtils {
             }
         }
         return x;
+    }
+
+    public static LaneGroupSet read_lanegroups(String str, Scenario scenario) throws OTMException {
+
+        LaneGroupSet X = new LaneGroupSet();
+
+        // READ LANEGROUP STRING
+        String [] a0 = str.split(",");
+        if(a0.length<1)
+            throw new OTMException("Poorly formatted string. (CN_23v4-str0)");
+        for(String lg_str : a0){
+            String [] a1 = lg_str.split("[(]");
+
+            if(a1.length!=2)
+                throw new OTMException("Poorly formatted string. (90hm*@$80)");
+
+            Long linkid = Long.parseLong(a1[0]);
+            Link link = scenario.network.links.get(linkid);
+
+            if(link==null)
+                throw new OTMException("Poorly formatted string. (24n2349))");
+
+            String [] a2 = a1[1].split("[)]");
+
+            if(a2.length!=1)
+                throw new OTMException("Poorly formatted string. (3g50jmdrthk)");
+
+            int [] lanes = OTMUtils.read_lanes(a2[0],link.full_lanes);
+
+            Set<AbstractLaneGroup> lgs = link.get_unique_lanegroups_for_dn_lanes(lanes[0],lanes[1]);
+            if(lgs.size()!=1)
+                throw new OTMException("Actuator target does not define a unique lane group");
+
+            X.lgs.add(lgs.iterator().next());
+
+        }
+
+        return X;
     }
 
     ///////////////////////////////////////////////////

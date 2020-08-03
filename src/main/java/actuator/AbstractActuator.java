@@ -51,54 +51,15 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
                 type = ScenarioElementType.valueOf(e.getType());
 
                 // otherwise we can find the element and register
-                InterfaceActuatorTarget x;
 
                 // if it is a lanegroup, then the id is for the link, and lanes must be used
-                if(type==ScenarioElementType.lanegroups){
-                    String str = e.getContent();
-                    LaneGroupSet xx = new LaneGroupSet();
+                if(type==ScenarioElementType.lanegroups)
+                    this.target = OTMUtils.read_lanegroups(e.getContent(),scenario);
+                else
+                    this.target = (InterfaceActuatorTarget) scenario.get_element(type,id);
 
-                    // READ LANEGROUP STRING
-                    String [] a0 = str.split(",");
-                    if(a0.length<1)
-                        throw new OTMException("Poorly formatted string. (CN_23v4-str0)");
-                    for(String lg_str : a0){
-                        String [] a1 = lg_str.split("[(]");
-
-                        if(a1.length!=2)
-                            throw new OTMException("Poorly formatted string. (90hm*@$80)");
-
-                        Long linkid = Long.parseLong(a1[0]);
-                        Link link = scenario.network.links.get(linkid);
-
-                        if(link==null)
-                            throw new OTMException("Poorly formatted string. (24n2349))");
-
-                        String [] a2 = a1[1].split("[)]");
-
-                        if(a2.length!=1)
-                            throw new OTMException("Poorly formatted string. (3g50jmdrthk)");
-
-                        int [] lanes = OTMUtils.read_lanes(a2[0],link.full_lanes);
-
-                        Set<AbstractLaneGroup> lgs = link.get_unique_lanegroups_for_dn_lanes(lanes[0],lanes[1]);
-                        if(lgs.size()!=1)
-                            throw new OTMException("Actuator target does not define a unique lane group");
-
-                        xx.lgs.add(lgs.iterator().next());
-
-                    }
-
-                    x = xx;
-
-                } else {
-                    x = (InterfaceActuatorTarget) scenario.get_element(type,id);
-                }
-
-                this.target = x;
                 if(target!=null)
                     target.register_actuator(this);
-
 
             } catch (IllegalArgumentException illegalArgumentException) {
                 // if exception is thrown, set target to null.
@@ -172,26 +133,12 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     /////////////////////////////////////////////////////////////////////
 
     protected Set<AbstractLaneGroup> read_lanegroups(Scenario scenario, Actuator jact) throws OTMException {
-
-        Set<AbstractLaneGroup> lanegroups = new HashSet<>();
-
-        if(jact.getActuatorTarget()!=null && jact.getActuatorTarget().getType().equalsIgnoreCase("lanegroup")) {
-            jaxb.ActuatorTarget e = jact.getActuatorTarget();
-
-            Long link_id = null; //e.getId();
-            if(!scenario.network.links.containsKey(link_id))
-                throw new OTMException("Unknown link id in actuator " + id );
-            Link link = scenario.network.links.get(link_id);
-
-//            int [] x = OTMUtils.read_lanes(e.getLanes(),link.full_lanes);
-//            int start_lane = x[0];
-//            int end_lane = x[1];
-//
-//            lanegroups = link.get_unique_lanegroups_for_dn_lanes(start_lane, end_lane);
-
-        }
-
-        return lanegroups;
+        if(jact.getActuatorTarget()==null || !jact.getActuatorTarget().getType().equalsIgnoreCase("lanegroups"))
+            return null;
+        jaxb.ActuatorTarget e = jact.getActuatorTarget();
+        String str = e.getContent();
+        LaneGroupSet lgs = OTMUtils.read_lanegroups(str,scenario);
+        return lgs.lgs;
     }
 
     /////////////////////////////////////////////////////////////////////
