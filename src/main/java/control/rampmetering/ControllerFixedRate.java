@@ -3,6 +3,7 @@ package control.rampmetering;
 import actuator.AbstractActuator;
 import actuator.AbstractActuatorLanegroupCapacity;
 import common.AbstractLaneGroup;
+import common.LaneGroupSet;
 import common.Link;
 import control.AbstractController;
 import control.command.CommandNumber;
@@ -13,6 +14,8 @@ import common.Scenario;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ControllerFixedRate extends AbstractController {
 
@@ -51,7 +54,12 @@ public class ControllerFixedRate extends AbstractController {
 
         queue_threshold = new HashMap<>();
         for(AbstractActuator act : actuators.values()) {
-            Link orlink = ((AbstractLaneGroup) act.target).link;
+            // all lanegroups in the actuator must be in the same link
+            LaneGroupSet lgs = (LaneGroupSet)act.target;
+            Set<Link> ors = lgs.lgs.stream().map(lg->lg.link).collect(Collectors.toSet());
+            if(ors.size()!=1)
+                throw new OTMException("All lanegroups in any single actuator used by a Fixed rate controller must belong to the same link.");
+            Link orlink = ors.iterator().next();
             this.queue_threshold.put(act.id,orlink.road_param.getJamDensity() * orlink.full_lanes * orlink.length / 1000);
         }
 
@@ -70,9 +78,12 @@ public class ControllerFixedRate extends AbstractController {
     public void update_command(Dispatcher dispatcher) throws OTMException {
 
         for(AbstractActuator act : actuators.values()) {
-            double queue = has_queue_control ? ((AbstractLaneGroup) act.target).link.get_veh() : 0f;
-            float thresh = queue_threshold.get(act.id);
-            float qrate_vpspl = queue<thresh ? rate_vpspl : max_rate_vpspl ;
+            float qrate_vpspl = rate_vpspl;
+            if(has_queue_control){
+                Link or = ((LaneGroupSet) act.target).lgs.iterator().next().link;
+                if( or.get_veh() >= queue_threshold.get(act.id) )
+                    qrate_vpspl = max_rate_vpspl;
+            }
             this.command.put(act.id, new CommandNumber(((AbstractActuatorLanegroupCapacity) act).total_lanes * qrate_vpspl));
         }
 

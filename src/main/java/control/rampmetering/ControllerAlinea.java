@@ -2,7 +2,7 @@ package control.rampmetering;
 
 import actuator.AbstractActuator;
 import actuator.ActuatorMeter;
-import common.AbstractLaneGroup;
+import common.LaneGroupSet;
 import control.AbstractController;
 import control.command.CommandNumber;
 import dispatch.Dispatcher;
@@ -15,6 +15,8 @@ import sensor.FixedSensor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ControllerAlinea extends AbstractController {
 
@@ -44,6 +46,7 @@ public class ControllerAlinea extends AbstractController {
                     has_queue_control = Boolean.parseBoolean(p.getValue());
             }
         }
+
     }
 
     ///////////////////////////////////////////////////
@@ -53,6 +56,8 @@ public class ControllerAlinea extends AbstractController {
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
+
+        assert(actuators.size()==1);
 
         params = new HashMap<>();
         for(AbstractActuator abs_act : actuators.values()){
@@ -65,17 +70,22 @@ public class ControllerAlinea extends AbstractController {
             Roadparam p = ml_link.road_param;
             param.gain_per_sec = p.getSpeed() * 1000f / 3600f / ml_link.length ; // [kph]*1000/3600/[m] -> [mps]
             float critical_density_vpkpl = p.getCapacity() / p.getSpeed();  // vpkpl
-            param.target_density_veh = critical_density_vpkpl * ml_link.full_lanes * ml_link.length / 1000f;
+            param.ref_density_veh = critical_density_vpkpl * ml_link.full_lanes * ml_link.length / 1000f;
 
             param.max_rate_vps = Math.min(cntrl_max_rate_vpspl*act.total_lanes,act.max_rate_vps);
             param.min_rate_vps = Math.max(cntrl_min_rate_vpspl*act.total_lanes,act.min_rate_vps);
-            param.target_link = ml_link;
+            param.ref_link = ml_link;
 
-            Link orlink = ((AbstractLaneGroup)act.target).link;
+            // all lanegroups in the actuator must be in the same link
+            LaneGroupSet lgs = (LaneGroupSet)act.target;
+            Set<Link> ors = lgs.lgs.stream().map(lg->lg.link).collect(Collectors.toSet());
+
+            if(ors.size()!=1)
+                throw new OTMException("All lanegroups in any single actuator used by an Alinea controller must belong to the same link.");
+
+            Link orlink = ors.iterator().next();
             param.queue_threshold = orlink.road_param.getJamDensity() * orlink.full_lanes * orlink.length / 1000;
-
             params.put(abs_act.id , param);
-
             command.put(act.id,
                     new CommandNumber(Float.isInfinite(act.max_rate_vps) ? (float) ml_link.full_lanes*900f/3600f : act.max_rate_vps)
             );
@@ -87,27 +97,29 @@ public class ControllerAlinea extends AbstractController {
         for(AbstractActuator abs_act : this.actuators.values()){
             ActuatorMeter act = (ActuatorMeter) abs_act;
             AlineaParams p = params.get(act.id);
-            double queue = has_queue_control ? ((AbstractLaneGroup) act.target).link.get_veh() : 0f;
-            float alinea_rate = compute_alinea_rate_vps(act,p);
-            float rate_vps = queue<p.queue_threshold ? alinea_rate : p.max_rate_vps;
-            command.put(act.id,
-                    new CommandNumber( rate_vps ) );
+            float rate_vps  = compute_alinea_rate_vps(act,p);
+            if(has_queue_control){
+                Link or = ((LaneGroupSet) act.target).lgs.iterator().next().link;
+                if(or.get_veh()>= p.queue_threshold)
+                    rate_vps = p.max_rate_vps;
+            }
+            command.put(act.id, new CommandNumber( rate_vps ) );
         }
     }
 
     private float compute_alinea_rate_vps(ActuatorMeter act,AlineaParams p){
-        float density_veh = (float) p.target_link.get_veh();
+        float density_veh = (float) p.ref_link.get_veh();
         float previous_rate_vps = ((CommandNumber) command.get(act.id)).value;
-        float alinea_rate_vps = previous_rate_vps +  p.gain_per_sec * (p.target_density_veh - density_veh);
+        float alinea_rate_vps = previous_rate_vps +  p.gain_per_sec * (p.ref_density_veh - density_veh);
         return Math.min( Math.max(alinea_rate_vps,p.min_rate_vps) , p.max_rate_vps );
     }
 
     public class AlineaParams {
         float gain_per_sec;
-        float target_density_veh;
+        float ref_density_veh;
         float min_rate_vps;
         float max_rate_vps;
-        Link target_link;
+        Link ref_link;
         float queue_threshold;
     }
 }
