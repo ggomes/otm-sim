@@ -113,8 +113,8 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         this.capacity_veh_per_dt = Math.min(act_capacity_veh_per_dt,nom_capacity_veh_per_dt);
 
         // set w
-        double critical_veh = capacity_veh_per_dt / ffspeed_cell_per_dt;
-        wspeed_cell_per_dt = capacity_veh_per_dt / (jam_density_veh_per_cell -critical_veh);
+//        double critical_veh = capacity_veh_per_dt / ffspeed_cell_per_dt;
+//        wspeed_cell_per_dt = capacity_veh_per_dt / (jam_density_veh_per_cell -critical_veh);
     }
 
     @Override
