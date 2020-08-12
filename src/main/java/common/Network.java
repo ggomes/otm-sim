@@ -422,43 +422,21 @@ public class Network {
             }
         }
 
-        // create absent road connections
+        // create road connections for non-sink links with no road connections
         max_rcid = rcs.isEmpty() ? 0L : rcs.keySet().stream().max(Long::compareTo).get();
         for(Long link_id : no_rc){
             Link link = links.get(link_id);
             Map<Long,RoadConnection> new_rcs = new HashMap<>();
-            int lanes;
-            Long rc_id;
-
             for(Link end_link : link.end_node.out_links){
-
-                int start_lane = 1;
-                int end_link_lanes = end_link.get_num_up_lanes();
-
-                // dn in rc
-                if(link.road_geom!=null && link.road_geom.dn_in!=null){
-                    rc_id = ++max_rcid;
-                    lanes = link.road_geom.dn_in.lanes;
-                    RoadConnection rc_dnin = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
-                    new_rcs.put(rc_id, rc_dnin);
-                    start_lane += lanes;
-                }
-
-                // stay rc
-                rc_id = ++max_rcid;
-                lanes = link.full_lanes;
-                RoadConnection rc_stay = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
-                new_rcs.put(rc_id, rc_stay);
-                start_lane += lanes;
-
-                // dn out rc
-                if(link.road_geom!=null && link.road_geom.dn_out!=null){
-                    rc_id = ++max_rcid;
-                    lanes = link.road_geom.dn_out.lanes;
-                    RoadConnection rc_dnout = new RoadConnection(rc_id,link,start_lane,start_lane+lanes-1,end_link,1,end_link_lanes);
-                    new_rcs.put(rc_id, rc_dnout);
-                }
-
+                RoadConnection rc_stay = new RoadConnection(
+                        ++max_rcid,
+                        link,
+                        1,
+                        link.get_num_dn_lanes(),
+                        end_link,
+                        1,
+                        end_link.get_num_up_lanes() );
+                new_rcs.put(rc_stay.id, rc_stay);
             }
             rcs.putAll(new_rcs);
         }
@@ -471,7 +449,6 @@ public class Network {
         if (link.model == null)
             throw new OTMException("Not all links have a model.");
 
-        // no road connections: create them, if it is not a sink
         if (out_rcs.isEmpty() && !link.is_sink)
             throw new OTMException("out_rcs.isEmpty() && !link.is_sink FOR LINK "+link.id);
 
@@ -575,147 +552,87 @@ public class Network {
         // empty out_rc <=> sink
         assert(out_rcs.isEmpty()==link.is_sink);
 
-        // CASE SINK -----------------------
-        if(link.is_sink){
-
-            // trivial case
-            if(link.road_geom==null) {
-                lanegroups.add(create_dnflw_lanegroup(link, 1, link.full_lanes, null));
-                return lanegroups;
-            }
-
-            int lane = 0;
-
-            // create inner addlane
-            if(link.road_geom.dn_in!=null) {
-                lanegroups.add(create_dnflw_lanegroup(link, 1, link.road_geom.dn_in.lanes, null));
-                lane += link.road_geom.dn_in.lanes;
-            }
-
-            // create full lanes
-            if(link.full_lanes>0){
-                lanegroups.add(create_dnflw_lanegroup(link, lane+1, link.full_lanes, null));
-                lane += link.full_lanes;
-            }
-
-            // create outer addlane
-            if(link.road_geom.dn_out!=null)
-                lanegroups.add(create_dnflw_lanegroup(link, lane+1, link.road_geom.dn_out.lanes, null));
-
-            return lanegroups;
-        }
-
-        // CASE NON-SINK, TRIVIAL RC -----------------------
-        int num_dn_lanes = link.get_num_dn_lanes();
-        RoadConnection trivialrc = out_rcs.iterator().next();
-        boolean trivialcase = out_rcs.size()==1 &&
-                trivialrc.start_link_from_lane==1 &&
-                trivialrc.start_link_to_lane==num_dn_lanes;
-
-        if(trivialcase){
-            Set<RoadConnection> rcs = new HashSet<>();
-            rcs.add(trivialrc);
-            lanegroups.add(create_dnflw_lanegroup(link,
-                    1, num_dn_lanes,rcs));
-            return lanegroups;
-        }
-
-        // CASE NON-SINK, NON-TRIVIAL, MULTIPLE RC -----------------------
         int start_lane = 1;
-        Set<RoadConnection> myrcs;
+
+        // inner addlane ..................................
+        if(link.road_geom!=null && link.road_geom.dn_in!=null){
+
+            // collect road connections for this addlane
+            final int end_lane = link.road_geom.dn_in.lanes;
+            Set<RoadConnection> myrcs = out_rcs.stream()
+                    .filter(rc->rc.start_link_from_lane <= end_lane)
+                    .collect(toSet());
+
+            // add lanes have either no road connection or all
+            // road connections span all lanes.
+            if(myrcs!=null && !myrcs.isEmpty() && !myrcs.stream().allMatch(rc-> rc.start_link_from_lane==1 && rc.start_link_to_lane>=end_lane))
+                throw new OTMException("Road connections do not conform to rules.");
+
+            // create the lane group
+            lanegroups.add(create_dnflw_lanegroup(link,
+                    1,
+                    link.road_geom.dn_in.lanes,
+                    myrcs));
+
+            start_lane = end_lane + 1;
+        }
+
+        // middle lanes .................................
+        final int fstartlane = start_lane;
         Set<RoadConnection> prevrcs = out_rcs.stream()
-                .filter(rc->rc.start_link_from_lane==1)
+                .filter(rc->rc.start_link_from_lane <= fstartlane &&
+                        rc.start_link_to_lane >= fstartlane)
                 .collect(toSet());
 
-        for(int lane=2;lane<=num_dn_lanes;lane++) {
-            final int end_lane = lane;
-            myrcs = out_rcs.stream()
-                    .filter(rc->rc.start_link_from_lane <= end_lane && rc.start_link_to_lane >= end_lane)
+        int lg_start_lane = start_lane;
+        int lane;
+        for(lane=start_lane+1;lane<start_lane+link.full_lanes;lane++) {
+            final int flane = lane;
+            Set<RoadConnection> myrcs = out_rcs.stream()
+                    .filter(rc->rc.start_link_from_lane <= flane &&
+                                rc.start_link_to_lane >= flane)
                     .collect(toSet());
-            boolean newlg = !myrcs.equals(prevrcs);
-            if(newlg){
-                int num_lanes = lane-start_lane;
-                lanegroups.add(create_dnflw_lanegroup(link,start_lane, num_lanes,prevrcs));
+            if(!myrcs.equals(prevrcs)){
+                lanegroups.add(create_dnflw_lanegroup(link,
+                        lg_start_lane,
+                        lane-lg_start_lane,
+                        myrcs));
                 prevrcs = myrcs;
-                start_lane = lane;
+                lg_start_lane = lane;
             }
         }
-        lanegroups.add(create_dnflw_lanegroup(link,start_lane, num_dn_lanes-start_lane+1,prevrcs));
+
+        lanegroups.add(create_dnflw_lanegroup(link,
+                lg_start_lane,
+                lane-lg_start_lane,
+                prevrcs));
+
+        // outer addlane ..................................
+        if(link.road_geom!=null && link.road_geom.dn_out!=null){
+
+            final int fstart_lane = start_lane + link.full_lanes;
+            final int fend_lane = fstart_lane + link.road_geom.dn_out.lanes -1;
+
+            // collect road connections for this addlane
+            final int end_lane = start_lane+link.road_geom.dn_out.lanes-1;
+            Set<RoadConnection> myrcs = out_rcs==null ? null : out_rcs.stream()
+                    .filter(rc->rc.start_link_to_lane >= fstart_lane )
+                    .collect(toSet());
+
+            // add lanes have either no road connection or all
+            // road connections span all lanes.
+            if(myrcs!=null && !myrcs.isEmpty() && !myrcs.stream().allMatch(rc-> rc.start_link_from_lane<=fstart_lane && rc.start_link_to_lane==fend_lane))
+                throw new OTMException("Road connections do not conform to rules.");
+
+            // create the lane group
+            lanegroups.add(create_dnflw_lanegroup(link,
+                    fstart_lane,
+                    link.road_geom.dn_out.lanes,
+                    myrcs));
+
+        }
 
         return lanegroups;
-
-//        // create map from lanes to road connection sets
-//        Map<Integer,Set<RoadConnection>> dnlane2rcs = new HashMap<>();
-//        for(int lane=1;lane<=link.get_num_dn_lanes();lane++) {
-//            final int finalLane = lane;
-//            Set<RoadConnection> r = out_rcs.stream()
-//                    .filter(rc->rc.start_link_from_lane <= finalLane && rc.start_link_to_lane >= finalLane)
-//                    .collect(toSet());
-//            dnlane2rcs.put(finalLane, r);
-//        }
-//
-//
-//
-//
-//
-//        if(out_rcs.size()==1) {
-//            Set<RoadConnection> rcs = new HashSet<>();
-//            rcs.add(out_rcs.iterator().next());
-//            unique_rc_sets.add(rcs);
-//        }
-//        else {
-//            // set of unique road connection sets
-//            unique_rc_sets.addAll(dnlane2rcs.values());
-//        }
-//
-//        // create a lane group for each unique_rc_sets
-//        boolean [] has_lg = new boolean[num_dn_lanes];
-//        Arrays.fill(has_lg,false);
-//
-//        for(Set<RoadConnection> my_rcs : unique_rc_sets) {
-//            if(my_rcs.isEmpty())
-//                continue;
-//            Set<Integer> lg_lanes = dnlane2rcs.entrySet().stream()
-//                    .filter(entry -> entry.getValue().equals(my_rcs))
-//                    .map(entry->entry.getKey())
-//                    .collect(Collectors.toSet());
-//            int dn_start_lane = lg_lanes.stream().mapToInt(x->x).min().getAsInt();
-//            int num_lanes = lg_lanes.size();
-//            lanegroups.add(create_dnflw_lanegroup(link, dn_start_lane, num_lanes, my_rcs));
-//            for(int lane=dn_start_lane;lane<dn_start_lane+num_lanes;lane++) {
-//                has_lg[lane - 1] = true;
-//            }
-//        }
-//
-//        System.out.println(link.id);
-//
-//
-//        // check for lanes without lanegroups
-//        if(dnlane2rcs.values().stream().anyMatch(x->x.isEmpty())){
-//            boolean in_new_lg = false;
-//            int lg_start_lane = 0;
-//            int lg_end_lane = 0;
-//            for(int lane=1;lane<=link.get_num_dn_lanes();lane++) {
-//                boolean is_empty = dnlane2rcs.get(lane).isEmpty();
-//                if(is_empty && !in_new_lg){
-//                    lg_start_lane = lane;
-//                    in_new_lg = true;
-//                }
-//                if(!is_empty && in_new_lg){
-//                    lg_end_lane = lane-1;
-//                    in_new_lg = false;
-//                    lanegroups.add(create_dnflw_lanegroup(link, lg_start_lane,
-//                            lg_end_lane-lg_start_lane+1, null));
-//                }
-//            }
-//            if(in_new_lg){
-//                lg_end_lane = link.get_num_dn_lanes();
-//                lanegroups.add(create_dnflw_lanegroup(link, lg_start_lane,
-//                        lg_end_lane-lg_start_lane+1, null));
-//            }
-//        }
-//
-//        return lanegroups;
     }
 
     private static AbstractLaneGroup create_dnflw_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
@@ -727,8 +644,8 @@ public class Network {
 
         // all lanes must belong to one of the 3
         // That is, there are no lane groups that is both inner and full length, or outer and full length.
-        if(sides.size()!=1)
-            throw new OTMException(String.format("Rule broken: Lane groups must be contained in addlanes or stay lanes. Check link %d",link.getId()));
+//        if(sides.size()!=1)
+//            throw new OTMException(String.format("Rule broken: Lane groups must be contained in addlanes or stay lanes. Check link %d",link.getId()));
 
         float length = 0f;
         Side side = sides.iterator().next();
