@@ -91,7 +91,15 @@ public class Network {
             create_lane_groups(link, out_rc);
         }
 
-        // Lanegroup connections .........................................................
+
+        // assign road params
+        for( jaxb.Link jl : jaxb_links ) {
+            Link link = links.get(jl.getId());
+            jaxb.Roadparam rp = road_params.get(jl.getRoadparam());
+            if(rp==null)
+                throw new OTMException("No road parameters for link id " + jl.getId()  );
+            link.model.set_road_param(link,rp);
+        }
 
         // set out lanegroups on road connections
         for(RoadConnection rc : road_connections.values()) {
@@ -122,15 +130,6 @@ public class Network {
         // models .................................................
         for(AbstractModel model : models.values())
             model.build();
-
-        // assign road params
-        for( jaxb.Link jl : jaxb_links ) {
-            Link link = links.get(jl.getId());
-            jaxb.Roadparam rp = road_params.get(jl.getRoadparam());
-            if(rp==null)
-                throw new OTMException("No road parameters for link id " + jl.getId()  );
-            link.model.set_road_param(link,rp);
-        }
 
     }
 

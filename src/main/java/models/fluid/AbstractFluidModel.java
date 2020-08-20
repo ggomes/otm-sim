@@ -43,6 +43,13 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     //////////////////////////////////////////////////////////////
 
     public final void build() throws OTMException {
+
+        if(Float.isNaN(dt_sec))
+            return;
+
+        // normalize
+        float dt_hr = dt_sec /3600f;
+
         for(Link link : links) {
 
             // compute cell length .............
@@ -54,10 +61,24 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
                     OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
 
             float cell_length_meters = link.length/num_cells;
+//        float cell_length = length / cells.size() / 1000f;
 
             // create cells ....................
-            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                ((FluidLaneGroup) lg).create_cells(this, cell_length_meters);
+            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+
+                FluidLaneGroup flg = (FluidLaneGroup) lg;
+                flg.create_cells(this, cell_length_meters);
+
+                // translate parameters to per-cell units
+                float cell_length = flg.length / flg.cells.size() / 1000f;
+                if (!link.is_source) {
+                    flg.nom_ffspeed_cell_per_dt /= cell_length;
+                    flg.ffspeed_cell_per_dt /= cell_length;
+                    flg.jam_density_veh_per_cell *= cell_length;
+                    flg.wspeed_cell_per_dt /= cell_length;
+                }
+
+            }
 
             // barriers .........................
             barriers_to_cells(link,link.in_barriers,cell_length_meters,link.get_num_dn_in_lanes());
