@@ -69,7 +69,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // construction
     ///////////////////////////////////////////////////
 
-    public AbstractLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
+    public AbstractLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp){
         this.link = link;
         this.side = side;
         this.flwpos = flwpos;
@@ -99,6 +99,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
                     outlink2roadconnection.put(rc.end_link.getId(), rc);
             }
         }
+
+        set_road_params(rp);
 
     }
 

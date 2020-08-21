@@ -63,8 +63,8 @@ public class ModelNone extends AbstractModel {
     }
 
     @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs){
-        return new NoneLaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs);
+    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs,jaxb.Roadparam rp){
+        return new NoneLaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs,rp);
     }
 
     @Override

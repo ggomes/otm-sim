@@ -33,8 +33,8 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     // construction
     ///////////////////////////////////////////
 
-    public FluidLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        super(link, side, flwpos,length, num_lanes, start_lane, out_rcs);
+    public FluidLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+        super(link, side, flwpos,length, num_lanes, start_lane, out_rcs,rp);
     }
 
     ////////////////////////////////////////////
@@ -242,9 +242,6 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     public final Map<State,Double> get_demand(){
         return get_dnstream_cell().get_demand();
     }
-
-
-
 
 
     // THIS CAN PROBABLY BE REMOVED .........................

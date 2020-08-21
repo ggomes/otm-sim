@@ -1,6 +1,7 @@
 package output;
 
 import common.AbstractLaneGroup;
+import common.Link;
 import dispatch.Dispatcher;
 import error.OTMException;
 import runner.RunParameters;
@@ -8,6 +9,9 @@ import common.Scenario;
 import utils.OTMUtils;
 
 import java.io.IOException;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 public class OutputLaneGroups extends AbstractOutput {
 
@@ -37,13 +41,32 @@ public class OutputLaneGroups extends AbstractOutput {
         if(writer==null)
             return;
         try {
-            for(AbstractLaneGroup lg : scenario.network.get_lanegroups())
-                writer.write(lg.id + "\t" + lg.link.getId() + "\t{" + OTMUtils.comma_format(lg.get_dn_lanes()) + "}\n");
+
+            for(Link link : scenario.network.links.values()){
+                for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                    writer.write(dnlgstring(lg));
+
+                if(link.lanegroup_up_in!=null)
+                    writer.write(uplgstring(link.lanegroup_up_in));
+
+                if(link.lanegroup_up_out!=null)
+                    writer.write(uplgstring(link.lanegroup_up_out));
+
+            }
+
             writer.close();
             writer = null;
         } catch (IOException e) {
             return;
         }
+    }
+
+    private static String dnlgstring(AbstractLaneGroup lg){
+        return String.format("%d\t%d\t%d\t%d\t%d\n",lg.id , lg.link.getId(),0,lg.start_lane_dn,lg.num_lanes);
+    }
+
+    private static String uplgstring(AbstractLaneGroup lg){
+        return String.format("%d\t%d\t%d\t%d\t%d\n",lg.id , lg.link.getId(),1,lg.start_lane_up,lg.num_lanes);
     }
 
 }

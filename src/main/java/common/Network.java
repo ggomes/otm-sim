@@ -91,16 +91,6 @@ public class Network {
             create_lane_groups(link, out_rc);
         }
 
-
-        // assign road params
-        for( jaxb.Link jl : jaxb_links ) {
-            Link link = links.get(jl.getId());
-            jaxb.Roadparam rp = road_params.get(jl.getRoadparam());
-            if(rp==null)
-                throw new OTMException("No road parameters for link id " + jl.getId()  );
-            link.model.set_road_param(link,rp);
-        }
-
         // set out lanegroups on road connections
         for(RoadConnection rc : road_connections.values()) {
             if (rc.end_link != null) {
@@ -646,22 +636,26 @@ public class Network {
 //        if(sides.size()!=1)
 //            throw new OTMException(String.format("Rule broken: Lane groups must be contained in addlanes or stay lanes. Check link %d",link.getId()));
 
+        jaxb.Roadparam rp = null;
         float length = 0f;
         Side side = sides.iterator().next();
         switch(side){
             case in:    // inner addlane lane group
+                rp = link.road_geom.dn_in.roadparam;
                 length = link.road_geom.dn_in.get_length(link.length);
                 break;
             case middle:    // full lane lane group
+                rp = link.road_param;
                 length = link.length;
                 break;
             case out:    // outer addlane lane group
+                rp = link.road_geom.dn_out.roadparam;
                 length = link.road_geom.dn_out.get_length(link.length);
                 break;
         }
 
         // This precludes multiple lane groups of the same side: multiple 'stay' lane
-        return link.model.create_lane_group(link,side, FlowPosition.dn,length,num_lanes,dn_start_lane,out_rcs);
+        return link.model.create_lane_group(link,side, FlowPosition.dn,length,num_lanes,dn_start_lane,out_rcs,rp);
     }
 
     private static void create_up_side_lanegroups(Link link) throws OTMException {
@@ -679,7 +673,9 @@ public class Network {
         Side side = addlanes.side;
         int start_lane_up = side==Side.in ? 1 : link.get_num_up_lanes() - addlanes.lanes + 1;
 
-        return link.model.create_lane_group(link,side, FlowPosition.up,length,num_lanes,start_lane_up,null);
+        jaxb.Roadparam rp = null;
+
+        return link.model.create_lane_group(link,side, FlowPosition.up,length,num_lanes,start_lane_up,null,rp);
     }
 
     private static HashSet<Barrier> generate_barriers(Link link,AddLanes addlanes){
@@ -704,9 +700,9 @@ public class Network {
     // get / set
     ///////////////////////////////////////////
 
-    public Set<AbstractLaneGroup> get_lanegroups(){
-        return links.values().stream().flatMap(link->link.lanegroups_flwdn.values().stream()).collect(toSet());
-    }
+//    public Set<AbstractLaneGroup> get_lanegroups(){
+//        return links.values().stream().flatMap(link->link.lanegroups_flwdn.values().stream()).collect(toSet());
+//    }
 
     public Collection<RoadConnection> get_road_connections(){
         return road_connections.values();

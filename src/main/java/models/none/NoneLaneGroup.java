@@ -85,7 +85,7 @@ public class NoneLaneGroup extends AbstractLaneGroup {
 
     }
 
-    public NoneLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs) {
-        super(link, side, flwpos, length, num_lanes, start_lane, out_rcs);
+    public NoneLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+        super(link, side, flwpos, length, num_lanes, start_lane, out_rcs, rp);
     }
 }
