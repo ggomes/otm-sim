@@ -243,50 +243,6 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         return get_dnstream_cell().get_demand();
     }
 
-
-    // THIS CAN PROBABLY BE REMOVED .........................
-
-//
-//    public double get_total_incoming_flow(){
-//        double flow = 0d;
-//        if(flow_stay !=null && flow_stay.get(0)!=null)
-//            flow += OTMUtils.sum(flow_stay.get(0));
-//        if(flow_lc_in !=null && flow_lc_in.get(0)!=null)
-//            flow += OTMUtils.sum(flow_lc_in.get(0));
-//        if(flow_lc_out !=null && flow_lc_out.get(0)!=null)
-//            flow += OTMUtils.sum(flow_lc_out.get(0));
-//        return flow;
-//    }
-//
-//    @Override
-//    public float get_current_travel_time() {
-//        double sim_dt = ((models.fluid.ctm.Model_CTM)link.model).dt;
-//        float sum = 0f;
-//        for(int i=0;i<cells.size();i++){
-//            Cell cell = cells.get(i);
-//
-//            double tt;
-//            double veh = cell.get_vehicles();   // [veh]
-//
-//            if(veh>0) {
-//
-//                Map<KeyCommPathOrLink,Double> bf = flow_stay.get(i+1);
-//                double out_flow = bf==null ? 0d : bf.values().stream().mapToDouble(x->x).sum();
-//
-//                if(out_flow==0)
-//                    tt = link.is_source ? sim_dt : sim_dt / ffspeed_cell_per_dt;
-//                else
-//                    tt = sim_dt * veh / out_flow;
-//
-//            } else
-//                tt = link.is_source ? sim_dt : sim_dt / ffspeed_cell_per_dt;
-//
-//            sum += tt;
-//        }
-//        return sum;
-//    }
-    // .............................................................
-
     public final void create_cells(AbstractFluidModel model,float cell_length_meters) throws OTMException {
 
         int num_cells = Math.round(this.length/cell_length_meters);

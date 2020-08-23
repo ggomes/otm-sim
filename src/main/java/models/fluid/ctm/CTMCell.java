@@ -13,18 +13,18 @@ import java.util.Set;
 public class CTMCell extends AbstractCell {
 
     // vehicles and demand already in their target lanegroup
-    public Map<State, Double> veh_dwn;      // comm,path|nlink -> number of vehicles
-    public Map<State, Double> demand_dwn;   // comm,path|nlink -> number of vehicles
+    public Map<State, Double> veh_dwn;      // state -> number of vehicles
+    public Map<State, Double> demand_dwn;   // state -> number of vehicles
     public double total_vehs_dwn;
 
     // vehicles wishing to change lanes outward (regardless if there is a barrier in this cell)
-    public Map<State, Double> veh_out;      // comm,path|nlink -> number of vehicles
-    public Map<State, Double> demand_out;   // comm,path|nlink -> number of vehicles
+    public Map<State, Double> veh_out;      // state -> number of vehicles
+    public Map<State, Double> demand_out;   // state -> number of vehicles
     public double total_vehs_out;
 
     // vehicles wishing to change lanes inward (regardless if there is a barrier in this cell)
-    public Map<State, Double> veh_in;      // comm,path|nlink -> number of vehicles
-    public Map<State, Double> demand_in;   // comm,path|nlink -> number of vehicles
+    public Map<State, Double> veh_in;      // state -> number of vehicles
+    public Map<State, Double> demand_in;   // state -> number of vehicles
     public double total_vehs_in;
 
     public CTMCell(FluidLaneGroup laneGroup) {
@@ -97,21 +97,12 @@ public class CTMCell extends AbstractCell {
             if(am_dnstrm)
                 supply = Math.min(laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - total_vehicles), laneGroup.capacity_veh_per_dt);
             else {
-
                 if(am_upstrm && laneGroup.link.is_model_source_link)
                     total_vehicles += laneGroup.buffer.get_total_veh();
-
                 supply = laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - total_vehicles);
-//                    break;
-//                case mn:
-//                    supply = Float.POSITIVE_INFINITY;
-//                    break;
-//                default:
-//                    System.err.println("Wha??");
-//            }8
-
-
             }
+
+
         }
     }
 
@@ -158,7 +149,7 @@ public class CTMCell extends AbstractCell {
                 }
             }
 
-            // split among in|out target, commodities, paths|nextlinks
+            // split among states
             double alpha = total_demand / total_vehicles;
             for (State state : demand_dwn.keySet())
                 demand_dwn.put(state, veh_dwn.get(state) * alpha);

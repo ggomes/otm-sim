@@ -109,9 +109,9 @@ public class ModelCTM extends AbstractFluidModel {
                     double total_flow = Math.min(total_demand, dncell.supply);
                     double gamma = total_flow / total_demand;
 
-                    Map<State, Double> flow_stay = OTMUtils.times(dem_dwn, gamma);
-                    Map<State, Double> flow_lc_in = OTMUtils.times(dem_in, gamma);
-                    Map<State, Double> flow_lc_out = OTMUtils.times(dem_out, gamma);
+                    Map<State, Double> flow_dwn = OTMUtils.times(dem_dwn, gamma);
+                    Map<State, Double> flow_in = OTMUtils.times(dem_in, gamma);
+                    Map<State, Double> flow_out = OTMUtils.times(dem_out, gamma);
 
                     // travel time computation
                     if(lg.travel_timer!=null){
@@ -119,7 +119,7 @@ public class ModelCTM extends AbstractFluidModel {
                         double tt;
                         if(veh>0) {
 
-                            double out_flow = flow_stay==null ? 0d : flow_stay.values().stream().mapToDouble(x->x).sum();
+                            double out_flow = flow_dwn==null ? 0d : flow_dwn.values().stream().mapToDouble(x->x).sum();
 
                             if(out_flow==0)
                                 tt = link.is_source ? dt_sec : dt_sec / lg.ffspeed_cell_per_dt;
@@ -131,8 +131,8 @@ public class ModelCTM extends AbstractFluidModel {
                         total_travel_time += tt;
                     }
 
-                    dncell.add_vehicles(flow_stay,flow_lc_in,flow_lc_out);
-                    upcell.subtract_vehicles(flow_stay,flow_lc_in,flow_lc_out);
+                    dncell.add_vehicles(flow_dwn,flow_in,flow_out);
+                    upcell.subtract_vehicles(flow_dwn,flow_in,flow_out);
                 }
 
             }
@@ -190,7 +190,10 @@ public class ModelCTM extends AbstractFluidModel {
                 }
 
                 // TODO: extract xi as a parameter
-                double supply = 0.9d * (1d - lg.wspeed_cell_per_dt) * cell.supply;
+//                double supply = 0.9d * (1d - lg.wspeed_cell_per_dt) * cell.supply;
+
+                double supply = cell.supply * 0.9d * (1d - lg.wspeed_cell_per_dt) / lg.wspeed_cell_per_dt;
+
                 gamma.put(lg.id, demand_to_me > supply ? supply / demand_to_me : 1d);
             }
 
@@ -226,7 +229,7 @@ public class ModelCTM extends AbstractFluidModel {
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
             FluidLaneGroup ctmlg = (FluidLaneGroup) lg;
             if(!ctmlg.states.isEmpty())
-                ctmlg.cells.forEach(cell -> cell.update_supply());
+                ctmlg.cells.forEach(cell->cell.update_supply());
         }
     }
 
