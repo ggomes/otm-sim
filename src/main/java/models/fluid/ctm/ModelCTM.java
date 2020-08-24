@@ -189,12 +189,9 @@ public class ModelCTM extends AbstractFluidModel {
                         demand_to_me += ncell.total_vehs_in;
                 }
 
-                // TODO: extract xi as a parameter
-//                double supply = 0.9d * (1d - lg.wspeed_cell_per_dt) * cell.supply;
+                double lc_supply = cell.supply * lg.lc_w;
 
-                double supply = cell.supply * 0.9d * (1d - lg.wspeed_cell_per_dt) / lg.wspeed_cell_per_dt;
-
-                gamma.put(lg.id, demand_to_me > supply ? supply / demand_to_me : 1d);
+                gamma.put(lg.id, demand_to_me > lc_supply ? lc_supply / demand_to_me : 1d);
             }
 
             // lane change flow

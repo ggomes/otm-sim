@@ -79,26 +79,26 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
         Scenario scenario = network.scenario;
 
         // all pathless commodities must have splits for all outlinks
-        if(out_links.size()>1){
-            for(Commodity comm : scenario.commodities.values()){
-                if(!comm.pathfull){
-                    for(Link inlink : in_links.values()){
-                        KeyCommodityLink key = new KeyCommodityLink(comm.getId(),inlink.id);
-                        if(splits==null || !splits.containsKey(key)){
-                            errorLog.addError(String.format("Node %d is missing split ratios for commodity %d from link %d",
-                                    id,comm.getId(),inlink.id));
-                            continue;
-                        }
-//                        SplitMatrixProfile smp = splits.get(key);
-//                        for(Link olink : out_links)
-//                            if(!smp.has_split_for_outlink(olink.id))
-//                                errorLog.addError(String.format("Node %d is missing split ratios for commodity %d from link %d to link %d",
-//                                        id,comm.getId(),inlink.id,olink.id));
-                    }
-
-                }
-            }
-        }
+//        if(out_links.size()>1){
+//            for(Commodity comm : scenario.commodities.values()){
+//                if(!comm.pathfull){
+//                    for(Link inlink : in_links.values()){
+//                        KeyCommodityLink key = new KeyCommodityLink(comm.getId(),inlink.id);
+//                        if(splits==null || !splits.containsKey(key)){
+//                            errorLog.addError(String.format("Node %d is missing split ratios for commodity %d from link %d",
+//                                    id,comm.getId(),inlink.id));
+//                            continue;
+//                        }
+////                        SplitMatrixProfile smp = splits.get(key);
+////                        for(Link olink : out_links)
+////                            if(!smp.has_split_for_outlink(olink.id))
+////                                errorLog.addError(String.format("Node %d is missing split ratios for commodity %d from link %d to link %d",
+////                                        id,comm.getId(),inlink.id,olink.id));
+//                    }
+//
+//                }
+//            }
+//        }
 
         if(splits!=null){
             splits.values().stream().forEach(x -> x.validate(scenario,errorLog));

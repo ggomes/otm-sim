@@ -76,6 +76,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
                     flg.ffspeed_cell_per_dt /= cell_length;
                     flg.jam_density_veh_per_cell *= cell_length;
                     flg.wspeed_cell_per_dt /= cell_length;
+                    flg.compute_lcw();
                 }
 
             }

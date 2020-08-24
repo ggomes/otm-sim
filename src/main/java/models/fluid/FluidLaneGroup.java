@@ -23,6 +23,8 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     // actual (actuated) parameters
     public double wspeed_cell_per_dt;          // [-]
+
+    public double lc_w;          // = 0.9d * (1d - lg.wspeed_cell_per_dt) / lg.wspeed_cell_per_dt;
     public double ffspeed_cell_per_dt;         // [-]
     public double capacity_veh_per_dt;
     public double jam_density_veh_per_cell;
@@ -96,6 +98,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
             ffspeed_cell_per_dt = Double.NaN;
             jam_density_veh_per_cell = Double.NaN;
             wspeed_cell_per_dt = Double.NaN;
+            lc_w = Double.NaN;
             capacity_veh_per_dt = nom_capacity_veh_per_dt;
         } else {
             nom_ffspeed_cell_per_dt = ffspeed_veh;
@@ -103,6 +106,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
             jam_density_veh_per_cell = jam_density_vehperlane * num_lanes;
             double critical_veh = capacity_vehperlane / nom_ffspeed_cell_per_dt;
             wspeed_cell_per_dt = capacity_vehperlane / (jam_density_vehperlane - critical_veh);
+            compute_lcw();
             capacity_veh_per_dt = nom_capacity_veh_per_dt;
         }
 
@@ -128,6 +132,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         // set w
         double critical_veh = capacity_veh_per_dt / ffspeed_cell_per_dt;
         wspeed_cell_per_dt = capacity_veh_per_dt / (jam_density_veh_per_cell -critical_veh);
+        compute_lcw();
     }
 
     @Override
@@ -293,6 +298,11 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         }
 
     }
+
+    public void compute_lcw(){
+        lc_w = .9d * (1d - wspeed_cell_per_dt) / wspeed_cell_per_dt;
+    }
+
 }
 
 
