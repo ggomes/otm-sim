@@ -496,7 +496,7 @@
 			<xs:attribute name="type" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="meter|signal|rc|greenred|stop|lanegroupclosure"/>
+						<xs:pattern value="lg_restrict|lg_speed|signal|meter|stop"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>

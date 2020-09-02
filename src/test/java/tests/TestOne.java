@@ -51,11 +51,10 @@ public class TestOne extends AbstractTest {
         }
     }
 
-    @Ignore
     @Test
     public void load_one() {
         try {
-            String configfile = "/home/gomes/Downloads/I210_noormng.xml";
+            String configfile = "/home/gomes/Desktop/hovhot/hov1_0_policy.xml";
             api.OTM otm = new api.OTM(configfile,true,false);
             assertNotNull(otm);
         } catch (OTMException e) {
@@ -145,13 +144,12 @@ public class TestOne extends AbstractTest {
 
 //            System.out.println("t\tlg\tc\tflwin\tflwdwn\tflwout");
 
+            String configfile = "/home/gomes/Desktop/hovhot/hov1_0_policy.xml";
 
-            String configfile = "/home/gomes/Desktop/test/133/133_0.xml";
-
-            float duration = 7200f;
+            float duration = 100f;
             float outdt = 2f;
-            String prefix = "low";
-            String output_folder = "/home/gomes/Desktop/test/133/";
+            String prefix = "x";
+            String output_folder = "/home/gomes/Desktop/hovhot/";
 
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);

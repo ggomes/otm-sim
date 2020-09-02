@@ -10,7 +10,7 @@ import common.Network;
 import common.Node;
 import common.Scenario;
 import control.*;
-import control.commodity.ControllerLanegroupClosure;
+import control.commodity.ControllerLanegroupRestrict;
 import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
@@ -154,39 +154,39 @@ public class ScenarioFactory {
 
     public static AbstractController create_controller_from_jaxb(Scenario scenario, jaxb.Controller jaxb_controller) throws OTMException {
         AbstractController controller;
-        String controller_type = jaxb_controller.getType();
-        switch(controller_type){
-            case "schedule":
+        AbstractController.Algorithm type = AbstractController.Algorithm.valueOf(jaxb_controller.getType());
+        switch(type){
+            case schedule:
                 controller = new ControllerSchedule(scenario,jaxb_controller);
                 break;
-            case "sig_pretimed":
+            case sig_pretimed:
                 controller = new ControllerSignalPretimed(scenario,jaxb_controller);
                 break;
-            case "alinea":
+            case rm_alinea:
                 controller = new ControllerAlinea(scenario,jaxb_controller);
                 break;
-            case "fixed_rate":
+            case rm_fixed_rate:
                 controller = new ControllerFixedRate(scenario,jaxb_controller);
                 break;
-            case "profile_rate":
-                controller = new ControllerProfileRate(scenario,jaxb_controller);
+//            case "profile_rate":
+//                controller = new ControllerProfileRate(scenario,jaxb_controller);
+//                break;
+            case rm_open:
+                controller = new ControllerRampMeterOpen(scenario,jaxb_controller);
                 break;
-            case "open":
-                controller = new ControllerOpen(scenario,jaxb_controller);
+            case rm_closed:
+                controller = new ControllerRampMeterClosed(scenario,jaxb_controller);
                 break;
-            case "closed":
-                controller = new ControllerClosed(scenario,jaxb_controller);
-                break;
-            case "lanegroupclosure":
-                controller = new ControllerLanegroupClosure(scenario,jaxb_controller);
+            case lg_restrict:
+                controller = new ControllerLanegroupRestrict(scenario,jaxb_controller);
                 break;
             default:
 
                 // it might be a plugin
-                controller = PluginLoader.get_controller_instance(controller_type,scenario,jaxb_controller);
+                controller = PluginLoader.get_controller_instance(jaxb_controller.getType(),scenario,jaxb_controller);
 
                 if(controller==null)
-                    throw new OTMException("Bad controller type: " + controller_type);
+                    throw new OTMException("Bad controller type: " + jaxb_controller.getType());
                 break;
         }
 
@@ -241,19 +241,24 @@ public class ScenarioFactory {
             AbstractActuator actuator;
             if(actuators.containsKey(jaxb_actuator.getId()))
                 throw new OTMException("Duplicate actuator id found: " + jaxb_actuator.getId());
-            switch(jaxb_actuator.getType()){
-                case "meter":
+
+
+            AbstractActuator.Type type = AbstractActuator.Type.valueOf(jaxb_actuator.getType());
+            switch(type){
+                case meter:
                     actuator = new ActuatorMeter(scenario,jaxb_actuator);
                     break;
-                case "signal":
+                case signal:
                     actuator = new ActuatorSignal(scenario,jaxb_actuator);
                     break;
-                case "stop":
+                case stop:
                     actuator = new ActuatorStop(scenario,jaxb_actuator);
                     break;
-                case "lanegroupclosure":
-                    actuator = new ActuatorLanegroupClosure(scenario,jaxb_actuator);
+                case lg_restrict:
+                    actuator = new ActuatorLanegroupRestrict(scenario,jaxb_actuator);
                     break;
+                case lg_speed:
+                    throw new OTMException("NOT IMPLEMENTED YET");
                 default:
                     actuator = null;
                     break;

@@ -24,10 +24,11 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     public enum Algorithm {
         schedule,
         sig_pretimed,
-        alinea,
-        fixed_rate,
-        open,
-        closed,
+        rm_alinea,
+        rm_fixed_rate,
+        rm_open,
+        rm_closed,
+        lg_restrict,
         plugin
     }
 //    public static final Map<Algorithm, AbstractActuator.Type> map_algorithm_actuator = new HashMap<>();

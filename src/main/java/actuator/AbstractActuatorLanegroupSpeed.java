@@ -10,8 +10,7 @@ import jaxb.Actuator;
 import java.util.Set;
 
 /** This is an abstract class for actuators whose target is
- * a set of lane group capacities.
- * The command is a single rate for all lane groups in veh/sec
+ * a set of lane group free flow speeds.
  */
 public abstract class AbstractActuatorLanegroupSpeed extends AbstractActuator {
 
@@ -41,7 +40,7 @@ public abstract class AbstractActuatorLanegroupSpeed extends AbstractActuator {
 
     @Override
     public Type getType() {
-        return Type.lanegroupspeed;
+        return Type.lg_speed;
     }
 
     @Override

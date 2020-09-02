@@ -7,13 +7,13 @@ import dispatch.Dispatcher;
 import error.OTMException;
 import jaxb.Controller;
 
-public class ControllerClosed extends AbstractController {
+public class ControllerRampMeterOpen extends AbstractController {
 
     ///////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////
 
-    public ControllerClosed(Scenario scenario, Controller jaxb_controller) throws OTMException {
+    public ControllerRampMeterOpen(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
     }
 
@@ -23,7 +23,7 @@ public class ControllerClosed extends AbstractController {
 
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
-        this.command.put(actuators.keySet().iterator().next(),new CommandNumber(0f));
+        this.command.put(actuators.keySet().iterator().next(),new CommandNumber(Float.POSITIVE_INFINITY));
     }
 
 }

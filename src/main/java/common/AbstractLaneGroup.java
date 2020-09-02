@@ -2,9 +2,8 @@ package common;
 
 import actuator.AbstractActuator;
 import actuator.AbstractActuatorLanegroupCapacity;
-import actuator.ActuatorLanegroupClosure;
+import actuator.ActuatorLanegroupRestrict;
 import actuator.InterfaceActuatorTarget;
-import commodity.Commodity;
 import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
@@ -46,7 +45,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     protected double supply;       // [veh]
 
     public AbstractActuatorLanegroupCapacity actuator_capacity;
-    public ActuatorLanegroupClosure actuator_closure;
+    public ActuatorLanegroupRestrict actuator_closure;
 
     // flow accumulator
     public FlowAccumulatorState flw_acc;
@@ -116,10 +115,10 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             this.actuator_capacity = (AbstractActuatorLanegroupCapacity) act;
         }
 
-        if(act.getType()== AbstractActuator.Type.lanegroupclosure ){
+        if(act.getType()== AbstractActuator.Type.lg_restrict){
             if(this.actuator_closure!=null)
                 throw new OTMException(String.format("Multiple closure actuators on link %d, lanes %d through %d.",link.getId(),start_lane_dn,start_lane_dn+num_lanes-1));
-            this.actuator_closure = (ActuatorLanegroupClosure) act;
+            this.actuator_closure = (ActuatorLanegroupRestrict) act;
         }
 
     }

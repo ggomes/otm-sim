@@ -17,8 +17,8 @@ import java.util.Set;
 public abstract class AbstractActuator implements Pokable, InterfaceScenarioElement {
 
     public enum Type {
-        lanegroupclosure,
-        lanegroupspeed,
+        lg_restrict,
+        lg_speed,
         signal,
         meter,
         stop

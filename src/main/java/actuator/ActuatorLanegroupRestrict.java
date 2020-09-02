@@ -3,23 +3,25 @@ package actuator;
 import common.AbstractLaneGroup;
 import common.LaneGroupSet;
 import common.Scenario;
-import control.command.CommandNumber;
 import control.command.CommandOpenClosed;
 import control.command.InterfaceCommand;
-import control.commodity.ControllerLanegroupClosure;
+import control.commodity.ControllerLanegroupRestrict;
 import error.OTMException;
 import jaxb.Actuator;
 
 import java.util.Set;
 
-public class ActuatorLanegroupClosure extends AbstractActuator {
+public class ActuatorLanegroupRestrict extends AbstractActuator {
+
+    protected Set<AbstractLaneGroup> lanegroups;
 
     ///////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////
 
-    public ActuatorLanegroupClosure(Scenario scenario, Actuator jaxb_actuator) throws OTMException {
-        super(scenario, jaxb_actuator);
+    public ActuatorLanegroupRestrict(Scenario scenario, Actuator jact) throws OTMException {
+        super(scenario, jact);
+        this.lanegroups = read_lanegroups(scenario,jact);
     }
 
     ///////////////////////////////////////////////////
@@ -28,6 +30,7 @@ public class ActuatorLanegroupClosure extends AbstractActuator {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
+        System.out.println("ActuatorLanegroupRestrict\tinitialize");
     }
 
     ///////////////////////////////////////////////////
@@ -36,18 +39,21 @@ public class ActuatorLanegroupClosure extends AbstractActuator {
 
     @Override
     public Type getType() {
-        return Type.lanegroupclosure;
+        return Type.lg_restrict;
     }
 
     @Override
     public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException {
         if(command==null)
             return;
-        boolean isopen = command==CommandOpenClosed.open;
-        Set<Long> commids = ((ControllerLanegroupClosure)this.myController).commids;
 
-        for(AbstractLaneGroup lg : ((LaneGroupSet)this.target).lgs)
-            lg.set_actuator_isopen(isopen,commids);
+        System.out.println(String.format("%.1f\tActuatorLanegroupRestrict\tprocess_controller_command",timestamp));
+
+        boolean isopen = command==CommandOpenClosed.open;
+        Set<Long> commids = ((ControllerLanegroupRestrict)this.myController).commids;
+
+//        for(AbstractLaneGroup lg : ((LaneGroupSet)this.target).lgs)
+//            lg.set_actuator_isopen(isopen,commids);
     }
 
 }
