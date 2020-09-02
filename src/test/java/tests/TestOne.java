@@ -7,6 +7,8 @@ import output.*;
 import runner.OTM;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -135,12 +137,21 @@ public class TestOne extends AbstractTest {
     public void run_one() {
         try {
 
-            String configfile = "/home/gomes/Desktop/101/sss.xml";
+            // redirect System.out to a file
+//            File file = new File("/home/gomes/Desktop/test/122/log.txt");
+//            PrintStream stream = new PrintStream(file);
+//            System.out.println("From now on "+file.getAbsolutePath()+" will be your console");
+//            System.setOut(stream);
 
-            float duration = 2500f;
+//            System.out.println("t\tlg\tc\tflwin\tflwdwn\tflwout");
+
+
+            String configfile = "/home/gomes/Desktop/test/133/133_0.xml";
+
+            float duration = 7200f;
             float outdt = 2f;
-            String prefix = "x";
-            String output_folder = "/home/gomes/Desktop/101/";
+            String prefix = "low";
+            String output_folder = "/home/gomes/Desktop/test/133/";
 
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);
@@ -151,9 +162,14 @@ public class TestOne extends AbstractTest {
 //            Set<Long> link_ids = new HashSet<>();
 //            link_ids.add(2l);
 
+            otm.output.request_lanegroups(prefix,output_folder);
+            for(Long commid : otm.scenario.get_commodity_ids()){
+                otm.output.request_cell_flw(prefix,output_folder,commid,link_ids,outdt);
+                otm.output.request_cell_veh(prefix,output_folder,commid,link_ids,outdt);
+            }
 
-            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
-            otm.output.request_links_veh(prefix,output_folder,null, link_ids, outdt);
+//            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
+//            otm.output.request_links_veh(prefix,output_folder,null, link_ids, outdt);
 
 //            otm.output.request_links_flow(null, link_ids, outdt);
 //            otm.output.request_links_veh(null, link_ids, outdt);
@@ -222,6 +238,10 @@ public class TestOne extends AbstractTest {
             System.out.print(e);
             fail();
         }
+//        catch (FileNotFoundException e) {
+//            System.out.print(e);
+//            fail();
+//        }
     }
 
     @Ignore
