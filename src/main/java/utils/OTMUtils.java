@@ -304,6 +304,30 @@ public class OTMUtils {
         return X;
     }
 
+    public static int [][] read_int_table(String str){
+        String [] rows = str.split("\\s*;\\s*");
+        int [][] table = new int[rows.length][];
+        for(int i=0;i<rows.length;i++){
+            String [] values = rows[i].split("\\s*,\\s*");
+            int num_cols = values.length;
+            table[i] = new int [num_cols];
+            for(int j=0;j<num_cols;j++)
+                table[i][j] = Integer.parseInt(values[j]);
+        }
+        return table;
+    }
+
+    public static String write_int_table(int [][] table){
+        String str = "";
+        int i=0;
+        while(i<table.length-1){
+            str += String.format("%d,%d;",table[i][0],table[i][1]);
+            i++;
+        }
+        str += String.format("%d,%d",table[i][0],table[i][1]);
+        return str;
+    }
+
     ///////////////////////////////////////////////////
     // counter
     ///////////////////////////////////////////////////
