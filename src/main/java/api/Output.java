@@ -252,6 +252,38 @@ public class Output {
         }
     }
 
+
+    /**
+     * Request lane group average of vehicles.
+     * @param prefix Prefix for the output files.
+     * @param output_folder Output folder.
+     * @param commodity_id Id for the requested vehicle type.
+     * @param link_ids Collection of requested link ids
+     * @param outDt Output sampling time in seconds.
+     */
+    public void request_lanegroup_avg_veh(String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt){
+        try {
+            this.myapi.scn.outputs.add(new OutputLaneGroupAvgVehicles(myapi.scn,prefix,output_folder,commodity_id,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Request lane group average vehicles.
+     * @param commodity_id Id for the requested vehicle type.
+     * @param link_ids Collection of requested link ids
+     * @param outDt Output sampling time in seconds.
+     */
+    public void request_lanegroup_avg_veh(Long commodity_id,Collection<Long> link_ids,Float outDt){
+        try {
+            this.myapi.scn.outputs.add(new OutputLaneGroupAvgVehicles(myapi.scn,null,null,commodity_id,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     // ----------------------------------------------
     // Cell state (fluid only)
     // ----------------------------------------------
