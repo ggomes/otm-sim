@@ -144,12 +144,12 @@ public class TestOne extends AbstractTest {
 
 //            System.out.println("t\tlg\tc\tflwin\tflwdwn\tflwout");
 
-            String configfile = "/home/gomes/Desktop/hovhot/hov1_0_policy.xml";
+            String configfile = "/home/gomes/Desktop/xxx/line_ctm.xml";
 
-            float duration = 100f;
-            float outdt = 2f;
+            float duration = 2500f;
+            float outdt = 30f;
             String prefix = "x";
-            String output_folder = "/home/gomes/Desktop/hovhot/";
+            String output_folder = "/home/gomes/Desktop/xxx/output";
 
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);
@@ -160,14 +160,18 @@ public class TestOne extends AbstractTest {
 //            Set<Long> link_ids = new HashSet<>();
 //            link_ids.add(2l);
 
-            otm.output.request_lanegroups(prefix,output_folder);
-            for(Long commid : otm.scenario.get_commodity_ids()){
-                otm.output.request_cell_flw(prefix,output_folder,commid,link_ids,outdt);
-                otm.output.request_cell_veh(prefix,output_folder,commid,link_ids,outdt);
-            }
+//            otm.output.request_lanegroups(prefix,output_folder);
+//            for(Long commid : otm.scenario.get_commodity_ids()){
+//                otm.output.request_cell_flw(prefix,output_folder,commid,link_ids,outdt);
+//                otm.output.request_cell_veh(prefix,output_folder,commid,link_ids,outdt);
+//            }
 
 //            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
 //            otm.output.request_links_veh(prefix,output_folder,null, link_ids, outdt);
+
+//            otm.output.request_lanegroup_veh(prefix,output_folder,null,link_ids,outdt);
+//            otm.output.request_lanegroup_avg_veh(prefix,output_folder,null,link_ids,outdt);
+
 
 //            otm.output.request_links_flow(null, link_ids, outdt);
 //            otm.output.request_links_veh(null, link_ids, outdt);
@@ -180,9 +184,11 @@ public class TestOne extends AbstractTest {
 //            otm.output.request_cell_veh(null, link_ids, outdt);
 
 //            otm.output.request_lanegroup_flw(null,link_ids,outdt);
-//            otm.output.request_lanegroup_veh(null,link_ids,outdt);
 
-            //
+
+            otm.output.request_lanegroup_veh(null,link_ids,outdt);
+            otm.output.request_lanegroup_avg_veh(null,link_ids,outdt);
+
 //            List<ODInfo> od_infos = api.get_od_info();
 //            ODInfo od_info = od_infos.get(0);
 //            List<SubnetworkInfo> paths = od_info.get_subnetworks();
@@ -214,6 +220,9 @@ public class TestOne extends AbstractTest {
 
                 if (output instanceof OutputLaneGroupVehicles)
                     ((OutputLaneGroupVehicles) output).plot_for_links(null, String.format("%s/lg_veh.png", output_folder));
+
+                if (output instanceof OutputLaneGroupAvgVehicles)
+                    ((OutputLaneGroupAvgVehicles) output).plot_for_links(null, String.format("%s/lg_avgveh.png", output_folder));
 
 //                if (output instanceof OutputController)
 //                    ((OutputController) output).plot(String.format("%s/controller%d.png",output_folder,((OutputController) output).controller_id));

@@ -4,13 +4,15 @@ import common.AbstractLaneGroup;
 import common.Link;
 import common.Scenario;
 import dispatch.Dispatcher;
-import dispatch.EventTimedWrite;
 import error.OTMErrorLog;
 import error.OTMException;
 import models.fluid.AbstractFluidModel;
+import models.fluid.EventUpdateTotalVehicles;
 import runner.RunParameters;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
@@ -18,7 +20,7 @@ import static java.util.stream.Collectors.toSet;
 public class OutputLaneGroupAvgVehicles extends AbstractOutputTimedLanegroup {
 
     public Float simDt;
-    public float totals;
+    public Map<Long,Float> lg2total;
 
     //////////////////////////////////////////////////////
     // construction
@@ -35,7 +37,9 @@ public class OutputLaneGroupAvgVehicles extends AbstractOutputTimedLanegroup {
         if(dts.size()==1)
             this.simDt = dts.iterator().next();
 
-        totals = 0;
+        lg2total = new HashMap<>();
+        for(Long lgid : lgprofiles.keySet())
+            lg2total.put(lgid,0f);
     }
 
     @Override
@@ -43,8 +47,7 @@ public class OutputLaneGroupAvgVehicles extends AbstractOutputTimedLanegroup {
         super.register(props, dispatcher); // registers write to files
 
         // regsister read vehicles event
-        dispatcher.register_event(new EventTimedWrite(dispatcher,props.start_time,this));
-
+        dispatcher.register_event(new EventUpdateTotalVehicles(dispatcher,props.start_time,this));
     }
 
     @Override
@@ -64,8 +67,12 @@ public class OutputLaneGroupAvgVehicles extends AbstractOutputTimedLanegroup {
     }
 
     public void update_total_vehicles(float timestamp){
-        totals += 1;
-        System.out.println(timestamp + "\t" + totals);
+        Long commid = commodity==null ? null : commodity.getId();
+        for(AbstractLaneGroup lg : ordered_lgs){
+            float current_value = lg2total.get(lg.id);
+            lg2total.put(lg.id,current_value + lg.get_total_vehicles_for_commodity(commid));
+        }
+
     }
 
     //////////////////////////////////////////////////////
@@ -102,14 +109,9 @@ public class OutputLaneGroupAvgVehicles extends AbstractOutputTimedLanegroup {
 
     @Override
     protected double get_value_for_lanegroup(AbstractLaneGroup lg){
-        double value = totals;
-        totals = 0f;
+        double value = lg2total.get(lg.id);
+        lg2total.put(lg.id,0f);
         return value;
-
-//        if(!lgprofiles.containsKey(lg.id))
-//            return Double.NaN;
-//        else
-//            return lg.get_total_vehicles_for_commodity(commodity == null ? null : commodity.getId());
     }
 
 }

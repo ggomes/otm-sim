@@ -61,7 +61,6 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
                     OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
 
             float cell_length_meters = link.length/num_cells;
-//        float cell_length = length / cells.size() / 1000f;
 
             // create cells ....................
             for (AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
