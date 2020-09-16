@@ -7,9 +7,6 @@ import output.*;
 import runner.OTM;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
-import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertNotNull;
@@ -187,7 +184,7 @@ public class TestOne extends AbstractTest {
 
 
             otm.output.request_lanegroup_veh(null,link_ids,outdt);
-            otm.output.request_lanegroup_avg_veh(null,link_ids,outdt);
+            otm.output.request_lanegroup_sum_veh(null,link_ids,outdt);
 
 //            List<ODInfo> od_infos = api.get_od_info();
 //            ODInfo od_info = od_infos.get(0);
@@ -221,8 +218,8 @@ public class TestOne extends AbstractTest {
                 if (output instanceof OutputLaneGroupVehicles)
                     ((OutputLaneGroupVehicles) output).plot_for_links(null, String.format("%s/lg_veh.png", output_folder));
 
-                if (output instanceof OutputLaneGroupAvgVehicles)
-                    ((OutputLaneGroupAvgVehicles) output).plot_for_links(null, String.format("%s/lg_avgveh.png", output_folder));
+                if (output instanceof OutputLaneGroupSumVehicles)
+                    ((OutputLaneGroupSumVehicles) output).plot_for_links(null, String.format("%s/lg_avgveh.png", output_folder));
 
 //                if (output instanceof OutputController)
 //                    ((OutputController) output).plot(String.format("%s/controller%d.png",output_folder,((OutputController) output).controller_id));

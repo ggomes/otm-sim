@@ -254,40 +254,38 @@ public class Output {
 
 
     /**
-     * Request lane group average of vehicles.
+     * Request lane group sum vehicles over simulation time steps. Works only for timestep-based models.
      * @param prefix Prefix for the output files.
      * @param output_folder Output folder.
      * @param commodity_id Id for the requested vehicle type.
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_lanegroup_avg_veh(String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt){
+    public void request_lanegroup_sum_veh(String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt){
         try {
-            this.myapi.scn.outputs.add(new OutputLaneGroupAvgVehicles(myapi.scn,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scn.outputs.add(new OutputLaneGroupSumVehicles(myapi.scn,prefix,output_folder,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
     }
 
     /**
-     * Request lane group average vehicles.
+     * Request lane group sum vehicles over simulation time steps. Works only for timestep-based models.
      * @param commodity_id Id for the requested vehicle type.
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_lanegroup_avg_veh(Long commodity_id,Collection<Long> link_ids,Float outDt){
+    public void request_lanegroup_sum_veh(Long commodity_id, Collection<Long> link_ids, Float outDt){
         try {
-            this.myapi.scn.outputs.add(new OutputLaneGroupAvgVehicles(myapi.scn,null,null,commodity_id,link_ids,outDt));
+            this.myapi.scn.outputs.add(new OutputLaneGroupSumVehicles(myapi.scn,null,null,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
     }
 
-
     // ----------------------------------------------
     // Cell state (fluid only)
     // ----------------------------------------------
-
 
     /**
      * Request cell flows.
@@ -348,6 +346,37 @@ public class Output {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Request cell sum of vehicles. Works only for timestep-based models.
+     * @param prefix Prefix for the output files.
+     * @param output_folder Output folder.
+     * @param commodity_id Id for the requested vehicle type.
+     * @param link_ids Collection of requested link ids
+     * @param outDt Output sampling time in seconds.
+     */
+    public void request_cell_sum_veh(String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt){
+        try {
+            this.myapi.scn.outputs.add(new OutputCellSumVehicles(myapi.scn,prefix,output_folder,commodity_id,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Request cell sum vehicles over simulation time steps. Works only for timestep-based models.
+     * @param commodity_id Id for the requested vehicle type.
+     * @param link_ids Collection of requested link ids
+     * @param outDt Output sampling time in seconds.
+     */
+    public void request_cell_sum_veh(Long commodity_id, Collection<Long> link_ids, Float outDt){
+        try {
+            this.myapi.scn.outputs.add(new OutputCellSumVehicles(myapi.scn,null,null,commodity_id,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     // ----------------------------------------------
     // Subnetwork state

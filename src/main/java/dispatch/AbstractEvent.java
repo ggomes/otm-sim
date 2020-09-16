@@ -16,7 +16,8 @@ import error.OTMException;
 //    55	models.fluid.EventFluidStateUpdate
 //    60	model.Newell.poke
 //    65	dispatch.EventComputeTravelTime
-//    69    models.fluid.EventUpdateTotalVehicles
+//    69    models.fluid.EventUpdateTotalLanegroupVehicles
+//    69    models.fluid.EventUpdateTotalCellVehicles
 //    70	dispatch.EventTimedWrite
 //    100	dispatch.EventStopSimulation
 
