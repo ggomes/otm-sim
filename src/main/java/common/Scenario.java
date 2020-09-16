@@ -101,9 +101,9 @@ public class Scenario {
         return errorLog;
     }
 
-//    public void initialize(Dispatcher dispatcher) throws OTMException {
-//        this.initialize(dispatcher,new RunParameters(0f));
-//    }
+    public void initialize(Dispatcher dispatcher) throws OTMException {
+        this.initialize(dispatcher,new RunParameters(0f));
+    }
 
     // Use to initialize all of the components of the scenario
     // Use to initialize a scenario that has already been run

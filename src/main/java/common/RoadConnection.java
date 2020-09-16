@@ -249,16 +249,18 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     public int get_in_lanes(){
         return start_link_to_lane-start_link_from_lane+1;
     }
-//    public Set<State> get_states(){
-//
-//        Set<State> upstr_states = in_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
-//        Set<State> dnstr_states = out_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
-//
-//        // keep those pathfull states that are also present in the downstream lane groups
-//        // and  those pathless states that are going to a downstream link
-//        return upstr_states.stream()
-//                .filter(k-> ( k.isPath && dnstr_states.contains(k) ) || (!k.isPath && k.pathOrlink_id==end_link.id))
-//                .collect(toSet());
-//    }
+
+
+    public Set<State> get_states(){
+
+        Set<State> upstr_states = in_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
+        Set<State> dnstr_states = out_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
+
+        // keep those pathfull states that are also present in the downstream lane groups
+        // and  those pathless states that are going to a downstream link
+        return upstr_states.stream()
+                .filter(k-> ( k.isPath && dnstr_states.contains(k) ) || (!k.isPath && k.pathOrlink_id==end_link.id))
+                .collect(toSet());
+    }
 
 }

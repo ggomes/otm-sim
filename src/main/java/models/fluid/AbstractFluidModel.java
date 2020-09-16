@@ -177,7 +177,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     }
 
     // update supplies and demands, then run node model to obtain inter-link flows
-    protected void update_flow_I(float timestamp) throws OTMException {
+    public void update_flow_I(float timestamp) throws OTMException {
 
         // lane changes and compute demand and supply
         for(Link link : links)
@@ -190,7 +190,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
     // compute source and source flows
     // node model exchange packets
-    protected void update_flow_II(float timestamp) throws OTMException {
+    public void update_flow_II(float timestamp) throws OTMException {
 
         // add to source links
         for(Link link : source_links){
