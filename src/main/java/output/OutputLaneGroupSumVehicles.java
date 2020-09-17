@@ -8,6 +8,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import models.fluid.AbstractFluidModel;
 import models.fluid.EventUpdateTotalLanegroupVehicles;
+import profiles.Profile1D;
 import runner.RunParameters;
 
 import java.util.Collection;
@@ -113,5 +114,12 @@ public class OutputLaneGroupSumVehicles extends AbstractOutputTimedLanegroup {
         lg2total.put(lg.id,0f);
         return value;
     }
+
+
+    public Profile1D get_veh_profile_for_lg(Long lgid){
+        Profile1D profile = lgprofiles.get(lgid).profile;
+        return new Profile1D(profile.start_time,profile.dt,profile.difftimes(3600d/outDt));
+    }
+    
 
 }

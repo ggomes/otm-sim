@@ -1,12 +1,10 @@
 package output;
 
-import common.AbstractLaneGroup;
 import common.Link;
 import common.Scenario;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import models.fluid.AbstractCell;
 import models.fluid.AbstractFluidModel;
 import models.fluid.EventUpdateTotalCellVehicles;
 import models.fluid.FluidLaneGroup;
@@ -19,7 +17,7 @@ import static java.util.stream.Collectors.toSet;
 public class OutputCellSumVehicles  extends AbstractOutputTimedCell  {
 
     public Float simDt;
-    public Map<Long, Double[] > lg2totals;  // lgid -> cell array of totals
+    public Map<Long, double[] > lg2totals;  // lgid -> cell array of totals
 
     //////////////////////////////////////////////////////
     // construction
@@ -39,7 +37,7 @@ public class OutputCellSumVehicles  extends AbstractOutputTimedCell  {
 
         lg2totals = new HashMap<>();
         for(FluidLaneGroup lg : ordered_lgs)
-            lg2totals.put(lg.id,new Double[lg.get_num_cells()]);
+            lg2totals.put(lg.id,new double[lg.get_num_cells()]);
     }
 
     @Override
@@ -69,7 +67,7 @@ public class OutputCellSumVehicles  extends AbstractOutputTimedCell  {
     public void update_total_vehicles(float timestamp){
         Long commid = commodity==null ? null : commodity.getId();
         for(FluidLaneGroup lg : ordered_lgs){
-            Double[] current_values = lg2totals.get(lg.id);
+            double[] current_values = lg2totals.get(lg.id);
             for(int i=0;i<lg.cells.size();i++)
                 current_values[i] += lg.cells.get(i).get_veh_for_commodity(commid);
         }
@@ -108,9 +106,9 @@ public class OutputCellSumVehicles  extends AbstractOutputTimedCell  {
     //////////////////////////////////////////////////////
 
     @Override
-    protected Double[] get_value_for_lanegroup(FluidLaneGroup lg) {
-        Double [] values = lg2totals.get(lg.id);
-        lg2totals.put(lg.id,new Double[lg.get_num_cells()]);
+    protected double[] get_value_for_lanegroup(FluidLaneGroup lg) {
+        double [] values = lg2totals.get(lg.id);
+        lg2totals.put(lg.id,new double[lg.get_num_cells()]);
         return values;
     }
 

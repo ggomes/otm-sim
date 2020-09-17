@@ -85,12 +85,8 @@ public class OutputLaneGroupFlow extends AbstractOutputTimedLanegroup {
         return get_flow_profile_for_lg_in_vph(lg.id).get_series(String.format("%d (%d-%d)",lg.link.getId(),lg.start_lane_dn,lg.start_lane_dn+lg.num_lanes-1));
     }
 
-    //////////////////////////////////////////////////////
-    // private
-    //////////////////////////////////////////////////////
-
-    private Profile1D get_flow_profile_for_lg_in_vph(Long lgid){
-        Profile1D profile = lgprofiles.get(lgid).profile.clone();
+    public Profile1D get_flow_profile_for_lg_in_vph(Long lgid){
+        Profile1D profile = lgprofiles.get(lgid).profile;
         return new Profile1D(profile.start_time,profile.dt,profile.difftimes(3600d/outDt));
     }
 

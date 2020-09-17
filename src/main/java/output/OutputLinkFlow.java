@@ -102,7 +102,7 @@ public class OutputLinkFlow extends AbstractOutputTimedLink {
     //////////////////////////////////////////////////////
 
     private Profile1D get_flow_profile_for_link_in_vph(Long link_id){
-        Profile1D profile = linkprofiles.get(link_id).profile.clone();
+        Profile1D profile = linkprofiles.get(link_id).profile;
         return new Profile1D(profile.start_time,profile.dt,profile.difftimes(3600d/outDt));
     }
 

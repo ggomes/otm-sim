@@ -162,6 +162,36 @@ public class Output {
     }
 
     /**
+     * Request link vehicles.
+     * @param prefix Prefix for the output files.
+     * @param output_folder Output folder.
+     * @param commodity_id Id for the requested vehicle type.
+     * @param link_ids Collection of requested link ids
+     * @param outDt Output sampling time in seconds.
+     */
+    public void request_links_sum_veh(String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt){
+        try {
+            this.myapi.scn.outputs.add(new OutputLinkSumVehicles(myapi.scn,prefix,output_folder,commodity_id,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Request link vehicles.
+     * @param commodity_id Id for the requested vehicle type.
+     * @param link_ids Collection of requested link ids
+     * @param outDt Output sampling time in seconds.
+     */
+    public void request_links_sum_veh(Long commodity_id,Collection<Long> link_ids,Float outDt){
+        try {
+            this.myapi.scn.outputs.add(new OutputLinkSumVehicles(myapi.scn,null,null,commodity_id,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Request vehicles in a mesoscopic queue.
      * @param commodity_id Id for the requested vehicle type.
      * @param link_ids Collection of requested link ids

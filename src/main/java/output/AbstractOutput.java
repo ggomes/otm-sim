@@ -22,6 +22,7 @@ public abstract class AbstractOutput implements InterfaceOutput {
     public enum Type {
         link_flw,
         link_veh,
+        link_sumveh,
         vht,
         lanegroup_flw,
         lanegroup_veh,

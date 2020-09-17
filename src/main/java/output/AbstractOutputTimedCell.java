@@ -21,7 +21,7 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
 
     public ArrayList<FluidLaneGroup> ordered_lgs;
     public Map<Long, List<CellProfile>> lgprofiles;  // lgid -> list<profiles>
-    abstract protected Double[] get_value_for_lanegroup(FluidLaneGroup lg);
+    abstract protected double[] get_value_for_lanegroup(FluidLaneGroup lg);
 
     //////////////////////////////////////////////////////
     // construction
@@ -80,7 +80,7 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
         } else {
             for(FluidLaneGroup lg : ordered_lgs){
                 List<CellProfile> cellprofs = lgprofiles.get(lg.id);
-                Double [] values = get_value_for_lanegroup(lg);
+                double [] values = get_value_for_lanegroup(lg);
                 for(int i=0;i<values.length;i++)
                     cellprofs.get(i).add_value(values[i]);
             }

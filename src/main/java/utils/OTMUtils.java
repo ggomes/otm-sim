@@ -243,6 +243,16 @@ public class OTMUtils {
         return str;
     }
 
+    public static String format_delim(double [] array,String delim){
+        String str = "";
+        if(array==null || array.length==0)
+            return str;
+        for(int i=0;i<array.length-1;i++)
+            str += array[i] + delim;
+        str += array[array.length-1];
+        return str;
+    }
+
     public static <T> String comma_format(Collection<T> x){
         return format_delim(x.toArray(),",");
     }

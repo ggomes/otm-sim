@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
 
-    public List<Long> ordered_ids;
+    public long [] ordered_ids;
     public Map<Long,LinkProfile> linkprofiles;
     abstract public double get_value_for_link(Long link_id);
 
@@ -30,12 +30,13 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
         if(link_ids==null)
             link_ids = scenario.network.links.values().stream().map(link->link.getId()).collect(Collectors.toSet());
 
-        ordered_ids = new ArrayList<>();
+        ordered_ids = new long[link_ids.size()];
         linkprofiles = new HashMap<>();
+        int i = 0;
         for(Long link_id : link_ids){
             Link link = scenario.network.links.get(link_id);
             if(link!=null) {
-                ordered_ids.add(link.getId());
+                ordered_ids[i++] = link.getId();
                 linkprofiles.put(link.getId(), new LinkProfile(link));
             }
         }
@@ -55,10 +56,12 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
         }
 
         // subnetwork==null, all links in common, otherwise, all links in subnetwork
-        ordered_ids = new ArrayList<>();
+        Collection<Link> links = subnetwork==null?scenario.network.links.values():subnetwork.get_links();
+        ordered_ids = new long[links.size()];
         linkprofiles = new HashMap<>();
-        for(Link link : subnetwork==null?scenario.network.links.values():subnetwork.get_links()) {
-            ordered_ids.add(link.getId());
+        int i = 0;
+        for(Link link : links) {
+            ordered_ids[i++] = link.getId();
             linkprofiles.put(link.getId(), new LinkProfile(link));
         }
 
@@ -158,7 +161,7 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
         return linkprofiles.values().iterator().next().profile.get_times();
     }
 
-    public final List<Long> get_link_ids(){
+    public final long [] get_link_ids(){
         return ordered_ids;
     }
 
