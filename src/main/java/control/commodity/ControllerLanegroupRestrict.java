@@ -38,7 +38,7 @@ public class ControllerLanegroupRestrict extends AbstractController {
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
 
-        System.out.println("ControllerLanegroupRestrict\tinitialize");
+//        System.out.println("ControllerLanegroupRestrict\tinitialize");
 
     }
 
@@ -46,7 +46,7 @@ public class ControllerLanegroupRestrict extends AbstractController {
     public void update_command(Dispatcher dispatcher) throws OTMException {
         float timestamp = dispatcher.current_time;
 
-        System.out.println(String.format("%.1f\tControllerLanegroupRestrict\tupdate_command",timestamp));
+//        System.out.println(String.format("%.1f\tControllerLanegroupRestrict\tupdate_command",timestamp));
 
 //        if(timestamp<start_time) {
 //            for (Long actid : command.keySet())
