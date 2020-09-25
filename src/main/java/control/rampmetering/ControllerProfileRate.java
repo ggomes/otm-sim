@@ -1,5 +1,6 @@
 package control.rampmetering;
 
+import actuator.ActuatorMeter;
 import common.Scenario;
 import control.AbstractController;
 import control.command.CommandNumber;
@@ -12,7 +13,7 @@ import utils.OTMUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ControllerProfileRate extends AbstractController {
+public class ControllerProfileRate extends AbstractControllerRampMetering {
 
     public Map<Long, Profile1D> actuator_rate_vph;
 
@@ -33,14 +34,24 @@ public class ControllerProfileRate extends AbstractController {
         }
     }
 
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+        update_command(scenario.dispatcher);
+    }
+
     ///////////////////////////////////////////////////
     // InterfaceScenarioElement
     ///////////////////////////////////////////////////
 
+    @Override
+    protected float compute_nooverride_rate_vps(ActuatorMeter act,float timestamp) {
+        return ((float)actuator_rate_vph.get(act.id).get_value_for_time(timestamp))/3600f;
+    }
 
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
-
         for(Map.Entry<Long,Profile1D> e : actuator_rate_vph.entrySet()){
             Long act_id = e.getKey();
             Profile1D profile = e.getValue();
@@ -48,9 +59,5 @@ public class ControllerProfileRate extends AbstractController {
             command.put(act_id, new CommandNumber( rate_vph / 3600f) );
         }
     }
-
-//    public void set_rate_vph_for_actuator(Long id,Float rate_vph){
-//        actuator_rate_vph.put(id,rate_vph);
-//    }
 
 }
