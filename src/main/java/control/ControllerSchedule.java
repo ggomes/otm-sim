@@ -75,8 +75,8 @@ public class ControllerSchedule extends AbstractController {
 
         curr_entry_index = -1;
 
-        for(ScheduleEntry entry : entries)
-            entry.initialize(scenario);
+//        for(ScheduleEntry entry : entries)
+//            entry.initialize(scenario);
 
 //        // assign actuator to entry controllers
 //        AbstractActuator act = this.actuators.values().iterator().next();

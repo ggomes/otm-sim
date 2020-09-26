@@ -4,7 +4,6 @@ import actuator.AbstractActuator;
 import actuator.ActuatorMeter;
 import common.LaneGroupSet;
 import control.command.CommandNumber;
-import dispatch.Dispatcher;
 import error.OTMException;
 import jaxb.Controller;
 import common.Link;

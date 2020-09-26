@@ -21,13 +21,12 @@ import java.util.Set;
 
 public abstract class AbstractControllerRampMetering extends AbstractController {
 
+    protected boolean has_queue_control;
     protected float max_rate_vpspl;
     protected float min_rate_vpspl;
-
-    // queue control
-    protected boolean has_queue_control;
     protected float override_threshold;
-    protected Map<Long,Float> queue_threshold;
+
+    protected Map<Long,MeterParams> meterparams;
 
     protected abstract float compute_nooverride_rate_vps(ActuatorMeter act,float timestamp);
 
@@ -55,12 +54,19 @@ public abstract class AbstractControllerRampMetering extends AbstractController 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
-        queue_threshold = new HashMap<>();
-        if(has_queue_control)
-            for(AbstractActuator act : actuators.values()) {
+        meterparams = new HashMap<>();
+        for (AbstractActuator abs_act : actuators.values()) {
+            ActuatorMeter act = (ActuatorMeter) abs_act;
+            float min_rate_vps = min_rate_vpspl * act.total_lanes;
+            float max_rate_vps = max_rate_vpspl * act.total_lanes;
+            float thres = Float.NaN;
+            if(has_queue_control) {
                 FluidLaneGroup lg = (FluidLaneGroup) ((LaneGroupSet) act.target).lgs.iterator().next();
-                this.queue_threshold.put(act.id, (float) (override_threshold * lg.jam_density_veh_per_cell));
+                thres = (float) (override_threshold * lg.jam_density_veh_per_cell);
             }
+            meterparams.put(abs_act.id,new MeterParams(thres,min_rate_vps,max_rate_vps));
+        }
+
     }
 
     @Override
@@ -83,14 +89,30 @@ public abstract class AbstractControllerRampMetering extends AbstractController 
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
         for(AbstractActuator abs_act : actuators.values()) {
+            MeterParams params = meterparams.get(abs_act.id);
             float rate_vps = compute_nooverride_rate_vps((ActuatorMeter) abs_act,dispatcher.current_time);
             if(has_queue_control){
                 FluidLaneGroup orlg = (FluidLaneGroup) ((LaneGroupSet) abs_act.target).lgs.iterator().next();
                 double veh = orlg.cells.get(0).get_vehicles();
-                if(veh >= queue_threshold.get(abs_act.id))
-                    rate_vps = max_rate_vpspl;
+                if(veh >= params.queue_threshold)
+                    rate_vps = params.max_rate_vps;
             }
+            if(rate_vps<params.min_rate_vps)
+                rate_vps = params.min_rate_vps;
+            if(rate_vps>params.max_rate_vps)
+                rate_vps = params.max_rate_vps;
             this.command.put(abs_act.id, new CommandNumber(rate_vps));
+        }
+    }
+
+    public class MeterParams {
+        float queue_threshold;
+        float max_rate_vps;
+        float min_rate_vps;
+        public MeterParams(float queue_threshold,float min_rate_vps,float max_rate_vps) {
+            this.queue_threshold = queue_threshold;
+            this.min_rate_vps = min_rate_vps;
+            this.max_rate_vps = max_rate_vps;
         }
     }
 
