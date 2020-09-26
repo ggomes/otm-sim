@@ -7,6 +7,7 @@ import output.*;
 import runner.OTM;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertNotNull;
@@ -141,36 +142,36 @@ public class TestOne extends AbstractTest {
 
 //            System.out.println("t\tlg\tc\tflwin\tflwdwn\tflwout");
 
-            String configfile = "/home/gomes/Desktop/xxx/opt_line.xml";
+            String configfile = "/home/gomes/Desktop/rmoverride/A.xml";
 
-            float duration = 1600f;
-            float outdt = 10f;
+            float duration = 500f;
+            float outdt = 0.5f;
             String prefix = "x";
-            String output_folder = "/home/gomes/Desktop/xxx/output";
+            String output_folder = "/home/gomes/Desktop/rmoverride";
 
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);
 
             // Output requests .....................
-            Set<Long> link_ids =  otm.scenario.get_link_ids();
+//            Set<Long> link_ids =  otm.scenario.get_link_ids();
 
-//            Set<Long> link_ids = new HashSet<>();
-//            link_ids.add(2l);
+            Set<Long> link_ids = new HashSet<>();
+            link_ids.add(4l);
 
             // links
 
-            otm.output.request_links_flow(null, link_ids, outdt);
-            otm.output.request_links_veh(null, link_ids, outdt);
-            otm.output.request_links_sum_veh(null,link_ids,outdt);
+//            otm.output.request_links_flow(null, link_ids, outdt);
+//            otm.output.request_links_veh(null, link_ids, outdt);
+//            otm.output.request_links_sum_veh(null,link_ids,outdt);
 
 //            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
 //            otm.output.request_links_veh(prefix,output_folder,null, link_ids, outdt);
 
             // lanegroups
 
-            otm.output.request_lanegroup_flw(null,link_ids,outdt);
-            otm.output.request_lanegroup_veh(null,link_ids,outdt);
-            otm.output.request_lanegroup_sum_veh(null,link_ids,outdt);
+//            otm.output.request_lanegroup_flw(null,link_ids,outdt);
+//            otm.output.request_lanegroup_veh(null,link_ids,outdt);
+//            otm.output.request_lanegroup_sum_veh(null,link_ids,outdt);
 
 //            otm.output.request_lanegroups(prefix,output_folder);
 //            otm.output.request_lanegroup_flw(prefix,output_folder,null,link_ids,outdt);
@@ -181,7 +182,7 @@ public class TestOne extends AbstractTest {
 
             otm.output.request_cell_flw(null, link_ids, outdt);
             otm.output.request_cell_veh(null,link_ids, outdt);
-            otm.output.request_cell_sum_veh(null, link_ids, outdt);
+//            otm.output.request_cell_sum_veh(null, link_ids, outdt);
 
 //            otm.output.request_cell_flw(prefix,output_folder,null, link_ids, outdt);
 //            otm.output.request_cell_veh(prefix,output_folder,null,link_ids, outdt);
@@ -216,7 +217,6 @@ public class TestOne extends AbstractTest {
 
                 if (output instanceof OutputLinkSumVehicles)
                     ((OutputLinkSumVehicles) output).plot_for_links(null, String.format("%s/link_sumveh.png", output_folder));
-
 
                 if (output instanceof OutputLaneGroupFlow)
                     ((OutputLaneGroupFlow) output).plot_for_links(null, String.format("%s/lg_flow.png", output_folder));

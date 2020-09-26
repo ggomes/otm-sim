@@ -3,17 +3,17 @@ package control.rampmetering;
 import actuator.AbstractActuator;
 import actuator.AbstractActuatorLanegroupCapacity;
 import actuator.ActuatorMeter;
-import common.LaneGroupSet;
-import common.Link;
-import control.command.CommandNumber;
-import dispatch.Dispatcher;
 import error.OTMException;
 import jaxb.Controller;
 import common.Scenario;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ControllerFixedRate extends AbstractControllerRampMetering {
 
-    private float rate_vps;
+    private float rate_vpspl;
+    private Map<Long,Float> rate_vps;
 
     ///////////////////////////////////////////////////
     // construction
@@ -21,15 +21,10 @@ public class ControllerFixedRate extends AbstractControllerRampMetering {
 
     public ControllerFixedRate(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
-
-        assert(this.actuators.size()==1);
-
-        AbstractActuatorLanegroupCapacity act = (AbstractActuatorLanegroupCapacity) actuators.values().iterator().next();
-
         if(jaxb_controller.getParameters()!=null){
             for(jaxb.Parameter p : jaxb_controller.getParameters().getParameter()){
                 if(p.getName().compareTo("rate_vphpl")==0)
-                    rate_vps = act.total_lanes * Float.parseFloat(p.getValue())/3600f;
+                    rate_vpspl = Float.parseFloat(p.getValue())/3600f;
             }
         }
     }
@@ -37,12 +32,19 @@ public class ControllerFixedRate extends AbstractControllerRampMetering {
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
+
+        rate_vps = new HashMap<>();
+        for(AbstractActuator abs_act : actuators.values()){
+            AbstractActuatorLanegroupCapacity act = (AbstractActuatorLanegroupCapacity) abs_act;
+            rate_vps.put(act.id, act.total_lanes * rate_vpspl);
+        }
+
         update_command(scenario.dispatcher);
     }
 
     @Override
     protected float compute_nooverride_rate_vps(ActuatorMeter act,float timestamp) {
-        return rate_vps;
+        return rate_vps.get(act.id);
     }
 
 }

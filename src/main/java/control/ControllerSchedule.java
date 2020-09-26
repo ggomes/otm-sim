@@ -4,6 +4,7 @@ import actuator.AbstractActuator;
 import common.Scenario;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
+import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Controller;
 import runner.ScenarioFactory;
@@ -62,10 +63,20 @@ public class ControllerSchedule extends AbstractController {
     ///////////////////////////////////////////////////
 
     @Override
+    public void validate(OTMErrorLog errorLog) {
+        super.validate(errorLog);
+        for(ScheduleEntry entry : entries)
+            entry.validate(errorLog);
+    }
+
+    @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
 
         curr_entry_index = -1;
+
+        for(ScheduleEntry entry : entries)
+            entry.initialize(scenario);
 
 //        // assign actuator to entry controllers
 //        AbstractActuator act = this.actuators.values().iterator().next();
@@ -140,11 +151,19 @@ public class ControllerSchedule extends AbstractController {
         public float start_time;
         public float end_time;
         public AbstractController cntrl;
-        public ScheduleEntry(float start_time,float end_time,AbstractController cntrl){
+
+        public ScheduleEntry(float start_time, float end_time, AbstractController cntrl) {
             this.start_time = start_time;
             this.end_time = end_time;
             this.cntrl = cntrl;
         }
-    }
 
+        public void initialize(Scenario scenario) throws OTMException {
+            cntrl.initialize(scenario);
+        }
+
+        public void validate(OTMErrorLog errorLog) {
+            cntrl.validate(errorLog);
+        }
+    }
 }

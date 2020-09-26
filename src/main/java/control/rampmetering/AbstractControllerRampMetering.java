@@ -2,19 +2,22 @@ package control.rampmetering;
 
 import actuator.AbstractActuator;
 import actuator.ActuatorMeter;
+import common.AbstractLaneGroup;
 import common.LaneGroupSet;
 import common.Link;
 import common.Scenario;
 import control.AbstractController;
 import control.command.CommandNumber;
 import dispatch.Dispatcher;
+import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Controller;
+import models.AbstractModel;
+import models.fluid.FluidLaneGroup;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public abstract class AbstractControllerRampMetering extends AbstractController {
 
@@ -52,18 +55,29 @@ public abstract class AbstractControllerRampMetering extends AbstractController 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
-
         queue_threshold = new HashMap<>();
-        for(AbstractActuator act : actuators.values()) {
-            // all lanegroups in the actuator must be in the same link
-            LaneGroupSet lgs = (LaneGroupSet)act.target;
-            Set<Link> ors = lgs.lgs.stream().map(lg->lg.link).collect(Collectors.toSet());
-            if(ors.size()!=1)
-                throw new OTMException("All lanegroups in any single actuator used by a Fixed rate controller must belong to the same link.");
-            Link orlink = ors.iterator().next();
-            this.queue_threshold.put(act.id,override_threshold * orlink.road_param.getJamDensity() * orlink.full_lanes * orlink.length / 1000);
-        }
+        if(has_queue_control)
+            for(AbstractActuator act : actuators.values()) {
+                FluidLaneGroup lg = (FluidLaneGroup) ((LaneGroupSet) act.target).lgs.iterator().next();
+                this.queue_threshold.put(act.id, (float) (override_threshold * lg.jam_density_veh_per_cell));
+            }
+    }
 
+    @Override
+    public void validate(OTMErrorLog errorLog) {
+        super.validate(errorLog);
+        if(has_queue_control){
+            for(AbstractActuator abs_act : actuators.values()) {
+                Set<AbstractLaneGroup> lgs =  ((LaneGroupSet) abs_act.target).lgs;
+                if(lgs.size()!=1)
+                    errorLog.addError("Queue overide actuators must be associated with a single lane group");
+                Link or = lgs.iterator().next().link;
+                if(or.is_source)
+                    errorLog.addError("Queue override does not work when the onramp is a source link.");
+                if(!or.model.type.equals(AbstractModel.Type.Fluid))
+                    errorLog.addError("Queue override is only implemented for fluid models.");
+            }
+        }
     }
 
     @Override
@@ -71,11 +85,13 @@ public abstract class AbstractControllerRampMetering extends AbstractController 
         for(AbstractActuator abs_act : actuators.values()) {
             float rate_vps = compute_nooverride_rate_vps((ActuatorMeter) abs_act,dispatcher.current_time);
             if(has_queue_control){
-                Link or = ((LaneGroupSet) abs_act.target).lgs.iterator().next().link;
-                if(or.get_veh() >= queue_threshold.get(abs_act.id))
+                FluidLaneGroup orlg = (FluidLaneGroup) ((LaneGroupSet) abs_act.target).lgs.iterator().next();
+                double veh = orlg.cells.get(0).get_vehicles();
+                if(veh >= queue_threshold.get(abs_act.id))
                     rate_vps = max_rate_vpspl;
             }
             this.command.put(abs_act.id, new CommandNumber(rate_vps));
         }
     }
+
 }
