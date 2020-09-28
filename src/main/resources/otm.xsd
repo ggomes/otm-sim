@@ -53,7 +53,7 @@
 	complex target, such as a set of lanegroups. The id is used to identify a
 	 simple target, such as a node. -->
 	<xs:element name="actuator_target">
-		<xs:complexType> <!--  mixed="true" -->
+		<xs:complexType>
 			<xs:all>
 				<xs:element ref="otm:parameters" minOccurs="0" maxOccurs="1" />
 			</xs:all>
@@ -65,6 +65,7 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
+			<xs:attribute name="lanegroups" type="xs:string" />
 		</xs:complexType>
 	</xs:element>
 
@@ -103,7 +104,7 @@
 	<xs:element name="scenario">
 		<xs:complexType>
 			<xs:all>
-                <xs:element ref="otm:plugins" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="otm:plugins" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:commodities" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:network" minOccurs="1" maxOccurs="1" />
 				<xs:element ref="otm:subnetworks" minOccurs="0" maxOccurs="1" />

@@ -11,7 +11,6 @@ import error.OTMException;
 import jaxb.Actuator;
 import utils.OTMUtils;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public abstract class AbstractActuator implements Pokable, InterfaceScenarioElement {
@@ -54,7 +53,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
                 // if it is a lanegroup, then the id is for the link, and lanes must be used
                 if(type==ScenarioElementType.lanegroups)
-                    this.target = OTMUtils.read_lanegroups("",scenario); // TODO FIX THIS e.getContent(),scenario);
+                    this.target = OTMUtils.read_lanegroups(e.getLanegroups(),scenario);
                 else
                     this.target = (InterfaceActuatorTarget) scenario.get_element(type,id);
 
@@ -136,8 +135,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         if(jact.getActuatorTarget()==null || !jact.getActuatorTarget().getType().equalsIgnoreCase("lanegroups"))
             return null;
         jaxb.ActuatorTarget e = jact.getActuatorTarget();
-        String str = ""; // TODO FIX THIS e.getContent();
-        LaneGroupSet lgs = OTMUtils.read_lanegroups(str,scenario);
+        LaneGroupSet lgs = OTMUtils.read_lanegroups(e.getLanegroups(),scenario);
         return lgs.lgs;
     }
 
