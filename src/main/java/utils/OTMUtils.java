@@ -45,6 +45,12 @@ public class OTMUtils {
     // type conversion
     ///////////////////////////////////////////////////
 
+    public static <T> HashSet<T> hashset(T x){
+        HashSet<T> X = new HashSet<>();
+        X.add(x);
+        return X;
+    }
+
     public static double[] toDoubleArray(List list) {
         double retValue[] = new double[list.size()];
         ListIterator iterator = list.listIterator();

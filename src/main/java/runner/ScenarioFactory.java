@@ -7,7 +7,6 @@ import commodity.Commodity;
 import commodity.Subnetwork;
 import common.Link;
 import common.Network;
-import common.Node;
 import common.Scenario;
 import control.*;
 import control.commodity.ControllerLanegroupRestrict;
@@ -17,12 +16,10 @@ import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.KeyCommodityDemandTypeId;
-import keys.KeyCommodityLink;
 import plugin.PluginLoader;
 import profiles.*;
 import sensor.AbstractSensor;
 import sensor.CommoditySensor;
-import sensor.FixedSensor;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -221,9 +218,6 @@ public class ScenarioFactory {
             if(sensors.containsKey(jaxb_sensor.getId()))
                 throw new OTMException("Duplicate sensor id found: " + jaxb_sensor.getId());
             switch(jaxb_sensor.getType()){
-                case "fixed":
-                    sensor = new FixedSensor(scenario,jaxb_sensor);
-                    break;
                 case "commodity":
                     sensor = new CommoditySensor(scenario,jaxb_sensor);
                     break;

@@ -6,6 +6,7 @@ import common.Scenario;
 import common.FlowAccumulatorState;
 import org.jfree.data.xy.XYSeries;
 import profiles.Profile1D;
+import utils.OTMUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ public class OutputLaneGroupFlow extends AbstractOutputTimedLanegroup {
         super.initialize(scenario);
         flw_accs = new HashMap<>();
         for(LaneGroupProfile lgprofile : lgprofiles.values())
-            flw_accs.put(lgprofile.lg.id,lgprofile.lg.request_flow_accumulator(commodity==null ? null : commodity.getId()));
+            flw_accs.put(lgprofile.lg.id,lgprofile.lg.request_flow_accumulator(commodity==null ? null : OTMUtils.hashset(commodity.getId())));
     }
 
     //////////////////////////////////////////////////////

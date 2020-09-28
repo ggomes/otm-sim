@@ -506,7 +506,6 @@ public class Link implements InterfaceScenarioElement {
                 // pathless
                 else {
 
-                    SplitMatrixProfile smp = split_profile.get(key.commodity_id);
 
                     if( is_sink ){
                         add_to_lanegroup_packets(split_packets, id,
@@ -523,6 +522,7 @@ public class Link implements InterfaceScenarioElement {
                     }
 
                     else {
+                        SplitMatrixProfile smp = split_profile.get(key.commodity_id);
                         for (Map.Entry<Long, Double> e2 : smp.outlink2split.entrySet()) {
                             Long next_link_id = e2.getKey();
                             Double split = e2.getValue();

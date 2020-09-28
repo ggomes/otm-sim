@@ -14,7 +14,6 @@ import error.OTMException;
 import dispatch.Dispatcher;
 import jaxb.Split;
 import keys.KeyCommodityDemandTypeId;
-import keys.KeyCommodityLink;
 import output.AbstractOutput;
 import output.OutputPathTravelTime;
 import profiles.*;

@@ -6,6 +6,7 @@ import error.OTMException;
 import org.jfree.data.xy.XYSeries;
 import profiles.Profile1D;
 import common.Scenario;
+import utils.OTMUtils;
 
 import java.util.*;
 
@@ -43,7 +44,7 @@ public class OutputLinkFlow extends AbstractOutputTimedLink {
             Set<FlowAccumulatorState> flw_acc_set = new HashSet<>();
             flw_acc_sets.put(linkProfile.link.getId(),flw_acc_set);
             for(AbstractLaneGroup lg : linkProfile.link.lanegroups_flwdn.values())
-                flw_acc_set.add(lg.request_flow_accumulator(commodity==null ? null : commodity.getId()));
+                flw_acc_set.add(lg.request_flow_accumulator(commodity == null ? null : OTMUtils.hashset(commodity.getId())));
         }
     }
 

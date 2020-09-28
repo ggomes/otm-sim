@@ -22,7 +22,7 @@ public class SplitMatrixProfile {
 
     // current splits
     public Map<Long,Double> outlink2split;        // output link id -> split
-    public List<LinkCumSplit> link_cumsplit;      // output link id -> cummulative split
+    private List<LinkCumSplit> link_cumsplit;      // output link id -> cummulative split
 
     ////////////////////////////////////////////
     // construction
@@ -81,7 +81,7 @@ public class SplitMatrixProfile {
 
     public void initialize(Dispatcher dispatcher) throws OTMException {
         float now = dispatcher.current_time;
-        this.set_splits(splits.get_value_for_time(now));
+        this.set_current_splits(splits.get_value_for_time(now));
         Map<Long,Double> time_splits = splits.get_value_for_time(now);
         dispatcher.register_event(new EventSplitChange(dispatcher,now, this, time_splits));
     }
@@ -112,14 +112,14 @@ public class SplitMatrixProfile {
     // used by EventSplitChange
     ///////////////////////////////////////////
 
-    public void set_splits(Map<Long,Double> outlink2split) {
+    public void set_current_splits(Map<Long,Double> outlink2split) {
 
         this.outlink2split = outlink2split;
 
         if(outlink2split.size()<=1)
             return;
 
-        double s = 0d;
+        float s = 0f;
         link_cumsplit = new ArrayList<>();
         for(Map.Entry<Long,Double> e : outlink2split.entrySet()){
             link_cumsplit.add(new LinkCumSplit(e.getKey(),s));
@@ -127,8 +127,7 @@ public class SplitMatrixProfile {
         }
     }
 
-    public void register_next_change(Dispatcher dispatcher,float timestamp){
-        TimeMap time_map = splits.get_change_following(timestamp);
+    public void register_next_change(Dispatcher dispatcher,TimeMap time_map){
         if(time_map!=null)
             dispatcher.register_event(new EventSplitChange(dispatcher,time_map.time, this, time_map.value));
     }
@@ -159,8 +158,8 @@ public class SplitMatrixProfile {
 
     private class LinkCumSplit{
         public Long link_id;
-        public Double cumsplit;
-        public LinkCumSplit(Long link_id, Double cumsplit) {
+        public Float cumsplit;
+        public LinkCumSplit(Long link_id, Float cumsplit) {
             this.link_id = link_id;
             this.cumsplit = cumsplit;
         }

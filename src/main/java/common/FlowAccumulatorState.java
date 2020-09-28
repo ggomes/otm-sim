@@ -10,7 +10,8 @@ public class FlowAccumulatorState {
     public Map<State,Double> count = new HashMap<>();     // key -> count
 
     public void reset(){
-        count = new HashMap<>();
+        for(State state : count.keySet())
+            count.put(state,0d);
     }
 
     public void add_state(State state){
@@ -18,10 +19,10 @@ public class FlowAccumulatorState {
             count.put(state,0d);
     }
 
-    public void increment(State key, Double x){
-        if(x.isNaN())
+    public void increment(State state, Double x){
+        if(!count.containsKey(state) || x.isNaN())
             return;
-        count.put(key,x + (count.containsKey(key)?count.get(key):0d));
+        count.put(state,x + count.get(state));
     }
 
     public double get_total_count(){

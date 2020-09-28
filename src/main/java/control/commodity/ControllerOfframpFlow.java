@@ -10,13 +10,17 @@ import error.OTMException;
 import jaxb.Controller;
 import jaxb.Parameter;
 import profiles.Profile1D;
+import sensor.CommoditySensor;
 import utils.OTMUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ControllerOfframpFlow extends AbstractController {
 
+    private CommoditySensor sensor;
     private Profile1D ref;
 
     public ControllerOfframpFlow(Scenario scenario, Controller jaxb_controller) throws OTMException {
@@ -37,6 +41,12 @@ public class ControllerOfframpFlow extends AbstractController {
             }
         }
         this.ref = new Profile1D(start_time,refdt,values);
+
+        // sensor
+        ActuatorSplit act = (ActuatorSplit) actuators.values().iterator().next();
+        Set<Long> commids = new HashSet<>();
+        commids.add(act.comm.getId());
+        this.sensor = new CommoditySensor(dt, act.linkin,1,act.linkin.full_lanes,act.linkin.length,commids);
     }
 
     @Override
@@ -48,24 +58,31 @@ public class ControllerOfframpFlow extends AbstractController {
     }
 
     @Override
-    public void update_command(Dispatcher dispatcher) throws OTMException {
-        System.out.println(String.format("%.1f\tControllerOfframpFlow\tupdate_command",scenario.dispatcher.current_time));
+    public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+        sensor.initialize(scenario);
+    }
 
+    @Override
+    public void update_command(Dispatcher dispatcher) throws OTMException {
 
         ActuatorSplit act = (ActuatorSplit) actuators.values().iterator().next();
 
         // get the flow that is currently entering linkin for this commodity
-        double flow_in_vps = 1000f;
+        double flow_in_vph = sensor.get_flow_vph();
 
         // get the desired exit flow
-        double des_flow_out_vps = ref.get_value_for_time(dispatcher.current_time)/3600f;
+        double des_flow_out_vph = ref.get_value_for_time(dispatcher.current_time);
 
         // compute the split ratio
-        float split = flow_in_vps==0f ? 1f : (float) ( des_flow_out_vps / flow_in_vps );
+        float split = flow_in_vph==0f ? 1f : (float) ( des_flow_out_vph / flow_in_vph );
         if(split<0f)
             split = 0f;
         if(split>1f)
             split = 1f;
+
+        if(split>1)
+            split=1f;
 
         // update the command
         command.put(act.id, new CommandNumber(split));

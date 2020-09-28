@@ -204,11 +204,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return length;
     }
 
-    public final FlowAccumulatorState request_flow_accumulator(Long comm_id){
+    public final FlowAccumulatorState request_flow_accumulator(Set<Long> comm_ids){
         if(flw_acc==null)
             flw_acc = new FlowAccumulatorState();
         for(State state : states)
-                if(comm_id==null || state.commodity_id==comm_id)
+                if(comm_ids==null || comm_ids.contains(state.commodity_id))
                     flw_acc.add_state(state);
         return flw_acc;
     }

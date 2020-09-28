@@ -17,24 +17,27 @@ public abstract class AbstractSensor implements Pokable, InterfaceScenarioElemen
         plugin
     }
 
-    public long id;
+    public Long id;
     public Type type;
     public float dt;
     public double dt_inv;
 
     public Object target;
 
-//    public OutputSensor event_output;
-
     /////////////////////////////////////////////////////////////////////
     // construction
     /////////////////////////////////////////////////////////////////////
 
-    public AbstractSensor(Scenario scenario, jaxb.Sensor jaxb_sensor) {
-        this.id = jaxb_sensor.getId();
-        this.type = Type.valueOf(jaxb_sensor.getType());
-        this.dt = jaxb_sensor.getDt();
+
+    public AbstractSensor(Long id, Type type, float dt) {
+        this.id = id;
+        this.type = type;
+        this.dt = dt;
         this.dt_inv = 3600d/dt;
+    }
+
+    public AbstractSensor(jaxb.Sensor jaxb_sensor) {
+        this(jaxb_sensor.getId(),Type.valueOf(jaxb_sensor.getType()),jaxb_sensor.getDt());
     }
 
     ////////////////////////////////////////////

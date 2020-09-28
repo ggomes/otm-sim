@@ -2,6 +2,7 @@ package dispatch;
 
 import error.OTMException;
 import profiles.SplitMatrixProfile;
+import profiles.TimeMap;
 
 import java.util.Map;
 
@@ -22,8 +23,9 @@ public class EventSplitChange extends AbstractEvent {
                 System.out.println("\t\toutlinkid = " + e.getKey() + " , value=" + e.getValue());
         }
         SplitMatrixProfile smp = (SplitMatrixProfile)recipient;
-        smp.set_splits(outlink2value);
-        smp.register_next_change(dispatcher,timestamp);
+        smp.set_current_splits(outlink2value);
+        TimeMap time_map = smp.splits.get_change_following(timestamp);
+        smp.register_next_change(dispatcher,time_map);
     }
 
 }
