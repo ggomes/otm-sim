@@ -53,12 +53,15 @@
 	complex target, such as a set of lanegroups. The id is used to identify a
 	 simple target, such as a node. -->
 	<xs:element name="actuator_target">
-		<xs:complexType mixed="true">
+		<xs:complexType> <!--  mixed="true" -->
+			<xs:all>
+				<xs:element ref="otm:parameters" minOccurs="0" maxOccurs="1" />
+			</xs:all>
 			<xs:attribute name="id" type="xs:string" />
 			<xs:attribute name="type" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="lanegroups|node|commodity"/>
+						<xs:pattern value="lanegroups|node|commodity|split"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
@@ -488,15 +491,16 @@
 	<xs:element name="actuator">
 		<xs:complexType>
 			<xs:all>
-				<xs:element ref="otm:actuator_target" minOccurs="1" maxOccurs="1" />
+				<xs:element ref="otm:actuator_target" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:signal" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:lanegroups" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="otm:parameters" minOccurs="0" maxOccurs="1" />
 			</xs:all>
 			<xs:attribute name="id" type="xs:long" use="required"/>
 			<xs:attribute name="type" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="lg_restrict|lg_speed|signal|meter|stop"/>
+						<xs:pattern value="lg_restrict|lg_speed|signal|meter|stop|split"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>

@@ -9,6 +9,7 @@ import error.OTMException;
 //    20	AbstractController.poke
 //    25    ControllerSchedule.poke
 //    30 	AbstractActuator.poke
+//    35    EventInitializeController -- calls AbstractController.initialize
 //    40	dispatch.EventCreateVehicle
 //    44 	models.vehicle.spatialq.EventTransitToWaiting
 //    45	models.vehicle.spatialq.EventReleaseVehicleFromLaneGroup

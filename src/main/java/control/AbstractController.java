@@ -29,6 +29,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         rm_open,
         rm_closed,
         lg_restrict,
+        frflow,
         plugin
     }
 //    public static final Map<Algorithm, AbstractActuator.Type> map_algorithm_actuator = new HashMap<>();
@@ -147,7 +148,12 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-        register_with_dispatcher(scenario.dispatcher);
+
+        for(AbstractActuator x : actuators.values())
+            x.initialize(scenario);
+
+        poke(scenario.dispatcher,scenario.dispatcher.current_time);
+
     }
 
     ///////////////////////////////////////////
@@ -162,11 +168,6 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     @Override
     public final ScenarioElementType getSEType() {
         return ScenarioElementType.controller;
-    }
-
-    @Override
-    public void register_with_dispatcher(Dispatcher dispatcher) {
-        dispatcher.register_event(new EventPoke(dispatcher,20,dispatcher.current_time,this));
     }
 
     @Override
@@ -202,7 +203,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
         // wake up in dt, if dt is defined
         if(dt>0)
-            dispatcher.register_event(new EventPoke(dispatcher,2,timestamp+dt,this));
+            dispatcher.register_event(new EventPoke(dispatcher,20,timestamp+dt,this));
     }
 
     ///////////////////////////////////////////////////

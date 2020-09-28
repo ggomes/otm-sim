@@ -25,15 +25,6 @@ public class ActuatorLanegroupRestrict extends AbstractActuator {
     }
 
     ///////////////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////////////
-
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        System.out.println("ActuatorLanegroupRestrict\tinitialize");
-    }
-
-    ///////////////////////////////////////////////////
     // AbstractActuator
     ///////////////////////////////////////////////////
 

@@ -55,7 +55,7 @@ public  class Dispatcher {
     // update
     ///////////////////////////////////////////////////
 
-    public void remove_events_for_recipient(Class<? extends AbstractEvent> clazz){
+    public void remove_events_of_type(Class<? extends AbstractEvent> clazz){
 
         Set<AbstractEvent> remove = events.stream()
                 .filter(x-> x.getClass()==clazz)

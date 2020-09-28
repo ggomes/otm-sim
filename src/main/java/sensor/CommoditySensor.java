@@ -66,6 +66,7 @@ public class CommoditySensor extends AbstractSensor {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
         this.measurements = null;
         measurements = new HashMap<>();
         scenario.commodities.keySet().forEach(c->measurements.put(c,new Measurement()));

@@ -1,7 +1,6 @@
 package common;
 
 import commodity.Commodity;
-import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.RoadGeometry;
@@ -10,12 +9,12 @@ import jaxb.Points;
 import jaxb.Roadparam;
 import keys.State;
 import models.AbstractModel;
+import profiles.SplitMatrixProfile;
 import traveltime.LinkTravelTimer;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -75,8 +74,8 @@ public class Link implements InterfaceScenarioElement {
 //    public Map<Long, RoadConnection> outlink2roadconnection;
 
     // splits
-    // populated by ScenarioFactory.create_scenario
-    public Map<Long, SplitInfo> commodity2split;
+    public Map<Long, SplitMatrixProfile> split_profile; // commodity -> split matrix profile
+//    public Map<Long, SplitInfo> curr_splits;  // commodity_id -> splitinfo
 
     // demands ............................................
     // populated by DemandProfile constructor
@@ -130,13 +129,13 @@ public class Link implements InterfaceScenarioElement {
         // routing ............................................
         path2outlink = new HashMap<>();
         outlink2lanegroups = new HashMap<>();
-        commodity2split = new HashMap<>();
 
         // demands ............................................
         sources = new HashSet<>();
 
 //        // output ...........................................
 //        travel_timers = new HashSet<>();
+
 
     }
 
@@ -159,6 +158,12 @@ public class Link implements InterfaceScenarioElement {
 
     }
 
+    public void allocate_splits(Set<Long> pathless_comms){
+        split_profile = new HashMap<>();
+        for(Long c : pathless_comms) {
+            split_profile.put(c, new SplitMatrixProfile(c,this));
+        }
+    }
     ///////////////////////////////////////////
     // InterfaceScenarioElement
     ///////////////////////////////////////////
@@ -310,17 +315,20 @@ public class Link implements InterfaceScenarioElement {
                 .collect(toSet());
         if(!end_node.out_links.containsAll(dwn_links))
             errorLog.addError("some outlinks are not immediately downstream");
+
+
+        if(split_profile!=null)
+            split_profile.values().stream().forEach(x -> x.validate(network.scenario,errorLog));
     }
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         for(AbstractLaneGroup lg : lanegroups_flwdn.values())
             lg.initialize(scenario);
-    }
 
-    @Override
-    public void register_with_dispatcher(Dispatcher dispatcher) {
-
+        if(split_profile!=null)
+            for(SplitMatrixProfile x : split_profile.values())
+                x.initialize(scenario.dispatcher);
     }
 
     @Override
@@ -386,7 +394,7 @@ public class Link implements InterfaceScenarioElement {
         dnlane2lanegroup = null;
         path2outlink = null;
         outlink2lanegroups = null;
-        commodity2split = null;
+        split_profile = null;
         if(sources!=null)
             sources.forEach(s->s.delete());
         sources = null;
@@ -419,13 +427,6 @@ public class Link implements InterfaceScenarioElement {
                 dnlane2lanegroup.put(lane, lg);
     }
 
-    public void populate_commodity2split(Collection<Commodity> commodities){
-        Long trivial_next_link = outlink2lanegroups.keySet().size() == 1 ? outlink2lanegroups.keySet().iterator().next() : null;
-        commodity2split = new HashMap<>();
-        for(Commodity c : commodities)
-            commodity2split.put(c.getId(), new SplitInfo(trivial_next_link));
-    }
-
 //    public void set_lat_lanegroups(Collection<AbstractLaneGroupLateral> lgs) {
 //        lat_lanegroups = new HashMap<>();
 //        if(lgs==null || lgs.isEmpty())
@@ -433,12 +434,6 @@ public class Link implements InterfaceScenarioElement {
 //        for(AbstractLaneGroupLateral lg : lgs)
 //            lat_lanegroups.put(lg.id,lg);
 //    }
-
-    // called from EventSplitChange cascade, during initialization
-    public void set_splits(long commodity_id,Map<Long,Double> outlink2value){
-        if(commodity2split.containsKey(commodity_id))
-            commodity2split.get(commodity_id).set_splits(outlink2value);
-    }
 
     public void set_model(AbstractModel newmodel, boolean is_model_source_link) throws OTMException {
 
@@ -511,7 +506,7 @@ public class Link implements InterfaceScenarioElement {
                 // pathless
                 else {
 
-                    SplitInfo splitinfo = commodity2split.get(key.commodity_id);
+                    SplitMatrixProfile smp = split_profile.get(key.commodity_id);
 
                     if( is_sink ){
                         add_to_lanegroup_packets(split_packets, id,
@@ -520,15 +515,15 @@ public class Link implements InterfaceScenarioElement {
 
                     }
 
-                    else if(splitinfo.sole_downstream_link!=null){
-                        Long next_link_id = splitinfo.sole_downstream_link;
+                    else if( this.outlink2lanegroups.size()==1){
+                        Long next_link_id = outlink2lanegroups.keySet().iterator().next();
                         add_to_lanegroup_packets(split_packets, next_link_id,
                                 new State(key.commodity_id, next_link_id, false),
                                 vehicles );
                     }
 
                     else {
-                        for (Map.Entry<Long, Double> e2 : splitinfo.outlink2split.entrySet()) {
+                        for (Map.Entry<Long, Double> e2 : smp.outlink2split.entrySet()) {
                             Long next_link_id = e2.getKey();
                             Double split = e2.getValue();
                             if(split>0d)
@@ -568,7 +563,7 @@ public class Link implements InterfaceScenarioElement {
                                 vehicle);
 
                     } else {
-                        Long next_link_id = commodity2split.get(key.commodity_id).sample_output_link();
+                        Long next_link_id = split_profile.get(key.commodity_id).sample_output_link();
                         vehicle.set_next_link_id(next_link_id);
                         add_to_lanegroup_packets(split_packets,next_link_id ,
                                 new State(key.commodity_id, next_link_id, false),
@@ -589,9 +584,9 @@ public class Link implements InterfaceScenarioElement {
 
     // return outlink to split
     public Map<Long,Double> get_splits_for_commodity(Long comm_id){
-        if(!commodity2split.containsKey(comm_id))
+        if(!split_profile.containsKey(comm_id))
             return null;
-        return commodity2split.get(comm_id).outlink2split;
+        return split_profile.get(comm_id).outlink2split;
     }
 
 //    public Link sample_nextlink_for_commodity(Commodity comm){

@@ -3,6 +3,7 @@ package common;
 import actuator.AbstractActuator;
 import commodity.Commodity;
 import commodity.Subnetwork;
+import dispatch.EventInitializeController;
 import models.AbstractModel;
 import models.fluid.AbstractFluidModel;
 import runner.RunParameters;
@@ -25,7 +26,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -162,27 +162,18 @@ public class Scenario {
         for(AbstractSensor x : sensors.values())
             x.initialize(this);
 
-        // actuators should come before controllers (signals set
-        // bulbs to dark, signal controllers then reset to the
-        // correct color)
-        for(AbstractActuator x : actuators.values())
-            x.initialize(this);
-
         for(AbstractController x : controllers.values())
-            x.initialize(this);
+            dispatcher.register_event(new EventInitializeController(dispatcher,x.start_time,x));
 
         // register initial events ......................................
         if(path_tt_manager!=null)
             path_tt_manager.initialize(dispatcher);
 
         data_demands.values().forEach(x -> x.register_with_dispatcher(dispatcher));
-        network.nodes.values().stream()
-                .filter(node->node.splits!=null)
-                .flatMap(node->node.splits.values().stream())
-                .forEach(x->x.register_with_dispatcher(dispatcher));
-
-        actuators.values().forEach(x->x.register_with_dispatcher(dispatcher));
-        sensors.values().forEach(x->x.register_with_dispatcher(dispatcher));
+//        network.nodes.values().stream()
+//                .filter(node->node.splits!=null)
+//                .flatMap(node->node.splits.values().stream())
+//                .forEach(x->x.register_with_dispatcher(dispatcher));
 
         is_initialized = true;
     }
@@ -248,20 +239,20 @@ public class Scenario {
         // splits
         jaxb.Splits jsplits = new jaxb.Splits();
         jsc.setSplits(jsplits);
-        for(common.Node node : network.nodes.values()){
-            if(node.splits!=null && !node.splits.isEmpty()) {
-                for(Map.Entry<KeyCommodityLink, SplitMatrixProfile> e : node.splits.entrySet()){
-                    KeyCommodityLink key = e.getKey();
+        for(common.Link link : network.links.values()){
+            if(link.split_profile!=null){
+                for(Map.Entry<Long, SplitMatrixProfile> e : link.split_profile.entrySet()){
+                    Long commodity_id = e.getKey();
                     SplitMatrixProfile profile = e.getValue();
 
                     jaxb.SplitNode jspltnode = new jaxb.SplitNode();
                     jsplits.getSplitNode().add(jspltnode);
 
-                    jspltnode.setCommodityId(key.commodity_id);
+                    jspltnode.setCommodityId(commodity_id);
                     jspltnode.setDt(profile.get_dt());
                     jspltnode.setStartTime(profile.get_start_time());
-                    jspltnode.setLinkIn(profile.link_in_id);
-                    jspltnode.setNodeId(node.getId());
+                    jspltnode.setLinkIn(profile.link_in.getId());
+                    jspltnode.setNodeId(link.end_node.getId());
 
                     List<Split> splitlist = jspltnode.getSplit();
                     for(Map.Entry<Long,List<Double>> e1 : profile.get_outlink_to_profile().entrySet()){
@@ -339,7 +330,8 @@ public class Scenario {
         return dispatcher.current_time;
     }
 
-    public InterfaceScenarioElement get_element(ScenarioElementType type, long id){
+    public InterfaceScenarioElement get_element(ScenarioElementType type, Long id){
+
         switch(type){
             case commodity:
                 return commodities.get(id);

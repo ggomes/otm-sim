@@ -1,7 +1,6 @@
 package commodity;
 
 import common.*;
-import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import utils.OTMUtils;
@@ -85,10 +84,6 @@ public class Subnetwork implements InterfaceScenarioElement {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-    }
-
-    @Override
-    public void register_with_dispatcher(Dispatcher dispatcher) {
     }
 
     @Override

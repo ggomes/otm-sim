@@ -1,7 +1,6 @@
 package geometry;
 
 import common.Scenario;
-import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Roadparam;
@@ -82,11 +81,6 @@ public class RoadGeometry implements InterfaceScenarioElement {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-
-    }
-
-    @Override
-    public void register_with_dispatcher(Dispatcher dispatcher) {
 
     }
 

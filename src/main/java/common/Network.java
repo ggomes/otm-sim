@@ -3,6 +3,7 @@ package common;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.*;
+import jaxb.Commodity;
 import models.AbstractModel;
 import models.fluid.ctm.ModelCTM;
 import models.none.ModelNone;
@@ -46,7 +47,7 @@ public class Network {
         links = new HashMap<>();
     }
 
-    public Network(Scenario scenario,List<jaxb.Model> jaxb_models,jaxb.Nodes jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadgeoms jaxb_geoms, jaxb.Roadconnections jaxb_conns, jaxb.Roadparams jaxb_params) throws OTMException {
+    public Network(Scenario scenario, List<jaxb.Commodity> jaxb_comms, List<jaxb.Model> jaxb_models, jaxb.Nodes jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadgeoms jaxb_geoms, jaxb.Roadconnections jaxb_conns, jaxb.Roadparams jaxb_params) throws OTMException {
 
         this(scenario);
 
@@ -62,6 +63,20 @@ public class Network {
         for(Link link : links.values()){
             link.is_source = link.start_node.in_links.isEmpty();
             link.is_sink = link.end_node.out_links.isEmpty();
+        }
+
+        // allocate split matrix
+        if(jaxb_comms!=null){
+
+            Set<Long> pathless_comms = jaxb_comms.stream()
+                    .filter(c->!c.isPathfull())
+                    .map(c->c.getId())
+                    .collect(toSet());
+
+            links.values().stream()
+                    .filter(link -> !link.is_sink && link.end_node.out_links.size()>1)
+                    .forEach(link -> link.allocate_splits(pathless_comms));
+
         }
 
         // read road connections (requires links)
@@ -124,7 +139,7 @@ public class Network {
     }
 
     // constructor for static scenario
-    public Network(Scenario scenario,List<jaxb.Node> jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadparams jaxb_params) throws OTMException {
+    public Network(Scenario scenario,List<Commodity> jaxb_comms, List<jaxb.Node> jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadparams jaxb_params) throws OTMException {
 
         this(scenario);
 

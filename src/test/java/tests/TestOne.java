@@ -142,12 +142,12 @@ public class TestOne extends AbstractTest {
 
 //            System.out.println("t\tlg\tc\tflwin\tflwdwn\tflwout");
 
-            String configfile = "/home/gomes/Desktop/rmoverride/A.xml";
+            String configfile = "/home/gomes/Dropbox/gabriel/_transfer/splitcalc/A_0.xml";
 
-            float duration = 500f;
-            float outdt = 0.5f;
+            float duration = 1000f;
+            float outdt = 300f;
             String prefix = "x";
-            String output_folder = "/home/gomes/Desktop/rmoverride";
+            String output_folder = "/home/gomes/Dropbox/gabriel/_transfer/splitcalc";
 
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);
@@ -156,7 +156,7 @@ public class TestOne extends AbstractTest {
 //            Set<Long> link_ids =  otm.scenario.get_link_ids();
 
             Set<Long> link_ids = new HashSet<>();
-            link_ids.add(4l);
+            link_ids.add(41l);
 
             // links
 
@@ -180,8 +180,8 @@ public class TestOne extends AbstractTest {
 
             // cells
 
-            otm.output.request_cell_flw(null, link_ids, outdt);
-            otm.output.request_cell_veh(null,link_ids, outdt);
+//            otm.output.request_cell_flw(null, link_ids, outdt);
+//            otm.output.request_cell_veh(null,link_ids, outdt);
 //            otm.output.request_cell_sum_veh(null, link_ids, outdt);
 
 //            otm.output.request_cell_flw(prefix,output_folder,null, link_ids, outdt);

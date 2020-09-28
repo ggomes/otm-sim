@@ -49,7 +49,7 @@ public abstract class AbstractSource {
         if(commodity.pathfull){
             return new State(commodity.getId(),path.getId(),true);
         } else {
-            Long next_link_id = link.commodity2split.get(commodity.getId()).sample_output_link();
+            Long next_link_id = link.split_profile.get(commodity.getId()).sample_output_link();
             return new State(commodity.getId(),next_link_id,false);
         }
     }

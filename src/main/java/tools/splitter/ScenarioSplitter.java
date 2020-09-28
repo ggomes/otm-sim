@@ -300,26 +300,28 @@ public class ScenarioSplitter {
         jsc.setSplits(jsplits);
         for(Long node_id : graph.nodes){
             common.Node node = base.network.nodes.get(node_id);
-            if(node.splits!=null && !node.splits.isEmpty()) {
-                for(Map.Entry<KeyCommodityLink, SplitMatrixProfile> e : node.splits.entrySet()){
-                    KeyCommodityLink key = e.getKey();
-                    SplitMatrixProfile profile = e.getValue();
+            for(common.Link linkin : node.in_links.values()){
+                if(linkin.split_profile!=null && !linkin.split_profile.isEmpty()){
+                    for(Map.Entry<Long, SplitMatrixProfile> e : linkin.split_profile.entrySet()){
+                        Long commid = e.getKey();
+                        SplitMatrixProfile profile = e.getValue();
 
-                    jaxb.SplitNode jspltnode = new jaxb.SplitNode();
-                    jsplits.getSplitNode().add(jspltnode);
+                        jaxb.SplitNode jspltnode = new jaxb.SplitNode();
+                        jsplits.getSplitNode().add(jspltnode);
 
-                    jspltnode.setCommodityId(key.commodity_id);
-                    jspltnode.setDt(profile.get_dt());
-                    jspltnode.setStartTime(profile.get_start_time());
-                    jspltnode.setLinkIn(profile.link_in_id);
-                    jspltnode.setNodeId(node_id);
+                        jspltnode.setCommodityId(commid);
+                        jspltnode.setDt(profile.get_dt());
+                        jspltnode.setStartTime(profile.get_start_time());
+                        jspltnode.setLinkIn(profile.link_in.getId());
+                        jspltnode.setNodeId(node_id);
 
-                    List<Split> splitlist = jspltnode.getSplit();
-                    for(Map.Entry<Long,List<Double>> e1 : profile.get_outlink_to_profile().entrySet()){
-                        jaxb.Split split = new jaxb.Split();
-                        splitlist.add(split);
-                        split.setLinkOut(e1.getKey());
-                        split.setContent( OTMUtils.comma_format(e1.getValue()));
+                        List<Split> splitlist = jspltnode.getSplit();
+                        for(Map.Entry<Long,List<Double>> e1 : profile.get_outlink_to_profile().entrySet()){
+                            jaxb.Split split = new jaxb.Split();
+                            splitlist.add(split);
+                            split.setLinkOut(e1.getKey());
+                            split.setContent( OTMUtils.comma_format(e1.getValue()));
+                        }
                     }
                 }
             }

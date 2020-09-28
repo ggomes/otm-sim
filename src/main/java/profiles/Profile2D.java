@@ -1,5 +1,6 @@
 package profiles;
 
+import common.Link;
 import error.OTMErrorLog;
 import error.OTMException;
 import utils.OTMUtils;
@@ -25,47 +26,45 @@ public class Profile2D {
         values = new HashMap<>();
     }
 
-    public void validate(OTMErrorLog errorLog,long node_id,long link_in_id,long commodity_id){
+    public void validate(OTMErrorLog errorLog){
 
-        String str = "split: node=" + node_id + ", link_in=" + link_in_id + " commodity=" + commodity_id;
 
         // start_time >= 0
         if(start_time<0)
-            errorLog.addError( str + " : start_time<0");
+            errorLog.addError("start_time<0");
 
         // dt >= 0
         if(dt!=null && dt<0)
-            errorLog.addError(str + " : dt<0");
+            errorLog.addError("dt<0");
 
         // positivity
         for(List<Double> list : values.values() ) {
             if(list.size()>1 && dt==null)
-                errorLog.addError(str + " : list.size()>1 && dt==null");
+                errorLog.addError("list.size()>1 && dt==null");
             if (Collections.min(list) < 0)
-                errorLog.addError(str + " : Collections.min(list)<0");
+                errorLog.addError("Collections.min(list)<0");
         }
 
         // non NaNs
         for(List<Double> list : values.values() )
             for(Double x : list)
                 if(Double.isNaN(x))
-                    errorLog.addError(str + " : NaN in split ratio.");
+                    errorLog.addError("NaN in Profile2D.");
 
-        // all the same length
-        boolean isfirst = true;
-        boolean allequal = true;
-        int L = 0;
-        for(List<Double> list : values.values() ) {
-            if(isfirst)
-                L = list.size();
-            else
-                if(L!=list.size()) {
-                    errorLog.addError(str + " : L!=list.size()");
-                    allequal = false;
-                    break;
-                }
-
-        }
+//        // all the same length
+//        boolean isfirst = true;
+//        boolean allequal = true;
+//        int L = 0;
+//        for(List<Double> list : values.values() ) {
+//            if(isfirst)
+//                L = list.size();
+//            else
+//                if(L!=list.size()) {
+//                    errorLog.addError("L!=list.size()");
+//                    allequal = false;
+//                    break;
+//                }
+//        }
 
         // sum to 1
 //        if(allequal)

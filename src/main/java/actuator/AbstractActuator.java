@@ -21,7 +21,8 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         lg_speed,
         signal,
         meter,
-        stop
+        stop,
+        split
     }
 
     public long id;
@@ -39,13 +40,12 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     public AbstractActuator(Scenario scenario, jaxb.Actuator jaxb_actuator) throws OTMException {
         this.id = jaxb_actuator.getId();
-//        this.type = Type.valueOf(jaxb_actuator.getType());
         this.dt = jaxb_actuator.getDt();
         if(jaxb_actuator.getActuatorTarget()!=null){
             jaxb.ActuatorTarget e = jaxb_actuator.getActuatorTarget();
             Long id = e.getId()==null ? null : Long.parseLong(e.getId());
 
-            ScenarioElementType type = null;
+            ScenarioElementType type ;
             try {
                 // this will throw an exception if the type is not a ScenarioElementType
                 type = ScenarioElementType.valueOf(e.getType());
@@ -54,7 +54,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
                 // if it is a lanegroup, then the id is for the link, and lanes must be used
                 if(type==ScenarioElementType.lanegroups)
-                    this.target = OTMUtils.read_lanegroups(e.getContent(),scenario);
+                    this.target = OTMUtils.read_lanegroups("",scenario); // TODO FIX THIS e.getContent(),scenario);
                 else
                     this.target = (InterfaceActuatorTarget) scenario.get_element(type,id);
 
@@ -84,14 +84,14 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     }
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        if(target==null)
-            errorLog.addWarning("Actuator has no target");
+    public void initialize(Scenario scenario) throws OTMException {
+        poke(scenario.dispatcher,scenario.dispatcher.current_time);
     }
 
     @Override
-    public void register_with_dispatcher(Dispatcher dispatcher) {
-        dispatcher.register_event(new EventPoke(dispatcher,30,dispatcher.current_time,this));
+    public void validate(OTMErrorLog errorLog) {
+        if(target==null)
+            errorLog.addWarning("Actuator has no target");
     }
 
     @Override
@@ -136,7 +136,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         if(jact.getActuatorTarget()==null || !jact.getActuatorTarget().getType().equalsIgnoreCase("lanegroups"))
             return null;
         jaxb.ActuatorTarget e = jact.getActuatorTarget();
-        String str = e.getContent();
+        String str = ""; // TODO FIX THIS e.getContent();
         LaneGroupSet lgs = OTMUtils.read_lanegroups(str,scenario);
         return lgs.lgs;
     }

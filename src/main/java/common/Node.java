@@ -1,12 +1,8 @@
 package common;
 
 import actuator.AbstractActuator;
-import commodity.Commodity;
-import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import keys.KeyCommodityLink;
-import profiles.SplitMatrixProfile;
 import actuator.InterfaceActuatorTarget;
 
 import java.util.*;
@@ -25,10 +21,6 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
 
     public boolean is_many2one;
 
-    // split ratio data
-    public Map<KeyCommodityLink, SplitMatrixProfile> splits;   // these hold split profiles and issue events when they change
-                                                        // they are not used to retrieve split data. for this use the
-                                                        // branders
     // actuator
     public AbstractActuator actuator;
 
@@ -76,44 +68,10 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
 
     @Override
     public void validate(OTMErrorLog errorLog) {
-        Scenario scenario = network.scenario;
-
-        // all pathless commodities must have splits for all outlinks
-//        if(out_links.size()>1){
-//            for(Commodity comm : scenario.commodities.values()){
-//                if(!comm.pathfull){
-//                    for(Link inlink : in_links.values()){
-//                        KeyCommodityLink key = new KeyCommodityLink(comm.getId(),inlink.id);
-//                        if(splits==null || !splits.containsKey(key)){
-//                            errorLog.addError(String.format("Node %d is missing split ratios for commodity %d from link %d",
-//                                    id,comm.getId(),inlink.id));
-//                            continue;
-//                        }
-////                        SplitMatrixProfile smp = splits.get(key);
-////                        for(Link olink : out_links)
-////                            if(!smp.has_split_for_outlink(olink.id))
-////                                errorLog.addError(String.format("Node %d is missing split ratios for commodity %d from link %d to link %d",
-////                                        id,comm.getId(),inlink.id,olink.id));
-//                    }
-//
-//                }
-//            }
-//        }
-
-        if(splits!=null){
-            splits.values().stream().forEach(x -> x.validate(scenario,errorLog));
-        }
     }
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-        if(splits!=null)
-            for(SplitMatrixProfile x : splits.values())
-                x.initialize(scenario.dispatcher.current_time);
-    }
-
-    @Override
-    public void register_with_dispatcher(Dispatcher dispatcher) {
 
     }
 
@@ -137,21 +95,11 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
         this.actuator = act;
     }
 
-//    @Override
-//    public long getIdAsTarget() {
-//        return id;
-//    }
-
-    ///////////////////////////////////////////
-    // XXX
-    ///////////////////////////////////////////
-
     public void delete(){
         network = null;
         in_links = null;
         out_links = null;
         road_connections = null;
-        splits = null;
         actuator = null;
     }
 
@@ -169,22 +117,10 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
         is_sink = false;
     }
 
-    public void add_split(KeyCommodityLink key,SplitMatrixProfile smp){
-        if(splits==null)
-            splits = new HashMap<>();
-        if(!splits.containsKey(key))
-            splits.put(key,smp);
-    }
 
     ////////////////////////////////////////////
     // get / set
     ///////////////////////////////////////////
-
-    public void send_splits_to_inlinks(long commodity_id, long linkinid, Map<Long,Double> outlink2value) throws OTMException {
-        Link linkin = in_links.  get(linkinid);
-        if(linkin!=null)
-           linkin.set_splits(commodity_id,outlink2value);
-    }
 
     public int num_inputs(){
         return in_links.size();

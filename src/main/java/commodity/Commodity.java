@@ -3,7 +3,6 @@ package commodity;
 import actuator.AbstractActuator;
 import actuator.InterfaceActuatorTarget;
 import common.*;
-import dispatch.Dispatcher;
 import keys.DemandType;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -103,11 +102,6 @@ public class Commodity implements InterfaceScenarioElement, InterfaceActuatorTar
             for(Link link : scenario.network.links.values())
                 register_commodity(link,this,null,link_outlink2rcs.get(link.getId()));
         }
-
-    }
-
-    @Override
-    public void register_with_dispatcher(Dispatcher dispatcher) {
 
     }
 

@@ -13,6 +13,7 @@ import control.sigint.ControllerSignalPretimed;
 import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import dispatch.EventDemandChange;
+import jaxb.Split;
 import models.vehicle.spatialq.EventTransitToWaiting;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -394,7 +395,7 @@ public class Scenario {
 
         long comm_id = myapi.scn.commodities.keySet().iterator().next();
         MesoLaneGroup lg = (MesoLaneGroup) link.lanegroups_flwdn.values().iterator().next();
-        common.SplitInfo splitinfo = lg.link.commodity2split.get(comm_id);
+        SplitMatrixProfile smp = lg.link.split_profile.get(comm_id);
 
         // transit queue ................
         models.vehicle.spatialq.Queue tq = lg.transit_queue;
@@ -403,7 +404,7 @@ public class Scenario {
             MesoVehicle vehicle = new MesoVehicle(comm_id, null);
 
             // sample the split ratio to decide where the vehicle will go
-            Long next_link_id = splitinfo.sample_output_link();
+            Long next_link_id = smp.sample_output_link();
             vehicle.set_next_link_id(next_link_id);
 
             // set the vehicle's lane group and state
@@ -427,7 +428,7 @@ public class Scenario {
             MesoVehicle vehicle = new MesoVehicle(comm_id, null);
 
             // sample the split ratio to decide where the vehicle will go
-            Long next_link_id = splitinfo.sample_output_link();
+            Long next_link_id = smp.sample_output_link();
             vehicle.set_next_link_id(next_link_id);
 
             // set the vehicle's lane group and key
@@ -495,8 +496,8 @@ public class Scenario {
 
         // delete all EventCreateVehicle and EventDemandChange from dispatcher
         if(myapi.scn.dispatcher!=null) {
-            myapi.scn.dispatcher.remove_events_for_recipient(EventCreateVehicle.class);
-            myapi.scn.dispatcher.remove_events_for_recipient(EventDemandChange.class);
+            myapi.scn.dispatcher.remove_events_of_type(EventCreateVehicle.class);
+            myapi.scn.dispatcher.remove_events_of_type(EventDemandChange.class);
         }
 
         // delete all demand profiles
@@ -609,10 +610,12 @@ public class Scenario {
 
     public Map<Long,Set<api.info.SplitInfo>> get_splits(){
         Map<Long,Set<api.info.SplitInfo>> x = new HashMap<>();
-        for(Node node : myapi.scn.network.nodes.values().stream().filter(n->n.splits!=null).collect(Collectors.toSet())) {
+        for(Link link : myapi.scn.network.links.values()){
+            if(link.split_profile==null || link.split_profile.isEmpty())
+                continue;
             Set<api.info.SplitInfo> y = new HashSet<>();
-            x.put(node.getId(),y);
-            for (SplitMatrixProfile p : node.splits.values())
+            x.put(link.getId(),y);
+            for (SplitMatrixProfile p : link.split_profile.values())
                 y.add(new api.info.SplitInfo(p));
         }
         return x;

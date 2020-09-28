@@ -72,6 +72,7 @@ public class FixedSensor extends AbstractSensor {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
         measurement.initialize();
     }
 

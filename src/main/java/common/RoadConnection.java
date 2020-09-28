@@ -1,6 +1,5 @@
 package common;
 
-import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.State;
@@ -151,11 +150,6 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-
-    }
-
-    @Override
-    public void register_with_dispatcher(Dispatcher dispatcher) {
 
     }
 

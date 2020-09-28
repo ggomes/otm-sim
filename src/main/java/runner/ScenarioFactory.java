@@ -11,6 +11,7 @@ import common.Node;
 import common.Scenario;
 import control.*;
 import control.commodity.ControllerLanegroupRestrict;
+import control.commodity.ControllerOfframpFlow;
 import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
@@ -44,7 +45,7 @@ public class ScenarioFactory {
         PluginLoader.load_plugins( js.getPlugins() );
 
         // network ...........................................................
-        scenario.network = ScenarioFactory.create_network_from_jaxb(scenario, js.getModels(), js.getNetwork());
+        scenario.network = ScenarioFactory.create_network_from_jaxb(scenario, js.getCommodities(),js.getModels(), js.getNetwork());
 
         // commodities ......................................................
         scenario.subnetworks = ScenarioFactory.create_subnetworks_from_jaxb(
@@ -61,9 +62,6 @@ public class ScenarioFactory {
         scenario.actuators = ScenarioFactory.create_actuators_from_jaxb(scenario, js.getActuators() );
         scenario.sensors = ScenarioFactory.create_sensors_from_jaxb(scenario, js.getSensors() );
         scenario.controllers = ScenarioFactory.create_controllers_from_jaxb(scenario,js.getControllers() );
-
-        // link.commodity2split (requires link.outlink2lanegroups and commodities)
-        scenario.network.links.values().forEach(link->link.populate_commodity2split(scenario.commodities.values()));
 
         // populate link.path2outlink (requires commodities)
         Set<Subnetwork> used_paths = scenario.commodities.values().stream()
@@ -107,6 +105,7 @@ public class ScenarioFactory {
         // common ...........................................................
         scenario.network = new common.Network(
                 scenario ,
+                js.getCommodities().getCommodity(),
                 js.getNetwork().getNodes().getNode(),
                 js.getNetwork().getLinks().getLink(),
                 js.getNetwork().getRoadparams() );
@@ -180,6 +179,9 @@ public class ScenarioFactory {
             case lg_restrict:
                 controller = new ControllerLanegroupRestrict(scenario,jaxb_controller);
                 break;
+            case frflow:
+                controller = new ControllerOfframpFlow(scenario,jaxb_controller);
+                break;
             default:
 
                 // it might be a plugin
@@ -197,9 +199,10 @@ public class ScenarioFactory {
     // private static
     ///////////////////////////////////////////
 
-    private static common.Network create_network_from_jaxb(Scenario scenario, jaxb.Models jaxb_models,jaxb.Network jaxb_network) throws OTMException {
+    private static common.Network create_network_from_jaxb(Scenario scenario, jaxb.Commodities jaxb_comms,jaxb.Models jaxb_models,jaxb.Network jaxb_network) throws OTMException {
         common.Network network = new common.Network(
                 scenario ,
+                jaxb_comms==null ? null : jaxb_comms.getCommodity(),
                 jaxb_models==null ? null : jaxb_models.getModel(),
                 jaxb_network.getNodes(),
                 jaxb_network.getLinks().getLink(),
@@ -259,6 +262,9 @@ public class ScenarioFactory {
                     break;
                 case lg_speed:
                     throw new OTMException("NOT IMPLEMENTED YET");
+                case split:
+                    actuator = new ActuatorSplit(scenario,jaxb_actuator);
+                    break;
                 default:
                     actuator = null;
                     break;
@@ -416,30 +422,29 @@ public class ScenarioFactory {
             return;
 
         for (jaxb.SplitNode jaxb_split_node : jaxb_splits.getSplitNode()) {
-
-            long node_id = jaxb_split_node.getNodeId();
             long commodity_id = jaxb_split_node.getCommodityId();
             long link_in_id = jaxb_split_node.getLinkIn();
 
             if(!network.links.containsKey(link_in_id))
                 continue;
-            if(!network.nodes.containsKey(node_id))
-                continue;
-            Node node = network.nodes.get(node_id);
-            if(node.is_source)
+            Link link_in = network.links.get(link_in_id);
+
+            if(!link_in.split_profile.containsKey(commodity_id))
                 continue;
 
-            KeyCommodityLink key = new KeyCommodityLink(commodity_id,link_in_id);
+            SplitMatrixProfile smp = link_in.split_profile.get(commodity_id);
+
             float start_time = jaxb_split_node.getStartTime();
             Float dt = jaxb_split_node.getDt();
-            SplitMatrixProfile smp = new SplitMatrixProfile(commodity_id,node,link_in_id,start_time,dt);
+            smp.splits = new Profile2D(start_time,dt);
 
             for(jaxb.Split jaxb_split : jaxb_split_node.getSplit()) {
-                if(network.links.containsKey(jaxb_split.getLinkOut()))
-                    smp.add_split(jaxb_split);
+                long linkout_id = jaxb_split.getLinkOut();
+                if(network.links.containsKey(linkout_id))
+                    smp.splits.add_entry(linkout_id,  jaxb_split.getContent() );
             }
 
-            node.add_split(key,smp);
+
         }
     }
 

@@ -7,6 +7,7 @@ import error.OTMErrorLog;
 import common.InterfaceScenarioElement;
 import common.Scenario;
 import common.ScenarioElementType;
+import error.OTMException;
 
 public abstract class AbstractSensor implements Pokable, InterfaceScenarioElement {
 
@@ -40,6 +41,13 @@ public abstract class AbstractSensor implements Pokable, InterfaceScenarioElemen
     // InterfaceScenarioElement
     ///////////////////////////////////////////
 
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        Dispatcher dispatcher = scenario.dispatcher;
+        dispatcher.register_event(new EventPoke(dispatcher,10,dispatcher.current_time,this));
+    }
+
     @Override
     public final ScenarioElementType getSEType() {
         return ScenarioElementType.sensor;
@@ -48,11 +56,6 @@ public abstract class AbstractSensor implements Pokable, InterfaceScenarioElemen
     @Override
     public final Long getId() {
         return id;
-    }
-
-    @Override
-    public void register_with_dispatcher(Dispatcher dispatcher){
-        dispatcher.register_event(new EventPoke(dispatcher,10,dispatcher.current_time,this));
     }
 
     @Override
