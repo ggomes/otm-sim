@@ -32,14 +32,11 @@ public class ControllerFixedRate extends AbstractControllerRampMetering {
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
-
         rate_vps = new HashMap<>();
         for(AbstractActuator abs_act : actuators.values()){
             AbstractActuatorLanegroupCapacity act = (AbstractActuatorLanegroupCapacity) abs_act;
             rate_vps.put(act.id, act.total_lanes * rate_vpspl);
         }
-
-        update_command(scenario.dispatcher);
     }
 
     @Override

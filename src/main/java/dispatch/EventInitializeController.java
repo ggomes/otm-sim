@@ -12,5 +12,6 @@ public class EventInitializeController extends AbstractEvent {
     public void action(boolean verbose) throws OTMException {
         super.action(verbose);
         ((InterfaceScenarioElement) this.recipient).initialize(dispatcher.scenario);
+        ((Pokable) this.recipient).poke(dispatcher,dispatcher.current_time);
     }
 }

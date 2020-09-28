@@ -35,14 +35,6 @@ public class ControllerLanegroupRestrict extends AbstractController {
     ///////////////////////////////////////////////////
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
-
-//        System.out.println("ControllerLanegroupRestrict\tinitialize");
-
-    }
-
-    @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
         float timestamp = dispatcher.current_time;
 

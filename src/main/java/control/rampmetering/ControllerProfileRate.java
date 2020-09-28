@@ -35,11 +35,11 @@ public class ControllerProfileRate extends AbstractControllerRampMetering {
     }
 
 
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
-        update_command(scenario.dispatcher);
-    }
+//    @Override
+//    public void initialize(Scenario scenario) throws OTMException {
+//        super.initialize(scenario);
+//        update_command(scenario.dispatcher);
+//    }
 
     ///////////////////////////////////////////////////
     // InterfaceScenarioElement

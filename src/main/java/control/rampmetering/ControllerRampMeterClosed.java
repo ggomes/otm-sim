@@ -23,11 +23,11 @@ public class ControllerRampMeterClosed extends AbstractControllerRampMetering {
     // InterfaceScenarioElement
     ///////////////////////////////////////////////////
 
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
-        update_command(scenario.dispatcher);
-    }
+//    @Override
+//    public void initialize(Scenario scenario) throws OTMException {
+//        super.initialize(scenario);
+//        update_command(scenario.dispatcher);
+//    }
 
     @Override
     protected float compute_nooverride_rate_vps(ActuatorMeter act,float timestamp) {

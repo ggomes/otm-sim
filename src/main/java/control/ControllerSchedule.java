@@ -75,13 +75,10 @@ public class ControllerSchedule extends AbstractController {
 
         curr_entry_index = -1;
 
-//        for(ScheduleEntry entry : entries)
-//            entry.initialize(scenario);
-
-//        // assign actuator to entry controllers
-//        AbstractActuator act = this.actuators.values().iterator().next();
-//        for (ScheduleEntry entry : entries)
-//            entry.cntrl.actuators.put(act.id,act);
+        // assign actuator to entry controllers
+        AbstractActuator act = this.actuators.values().iterator().next();
+        for (ScheduleEntry entry : entries)
+            entry.cntrl.actuators.put(act.id,act);
 
     }
 
@@ -140,6 +137,7 @@ public class ControllerSchedule extends AbstractController {
 
             // initialize
             curr_entry.cntrl.initialize(scenario);
+            curr_entry.cntrl.poke(scenario.dispatcher,scenario.dispatcher.current_time);
         }
     }
 

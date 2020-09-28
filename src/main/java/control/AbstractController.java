@@ -151,9 +151,6 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
         for(AbstractActuator x : actuators.values())
             x.initialize(scenario);
-
-        poke(scenario.dispatcher,scenario.dispatcher.current_time);
-
     }
 
     ///////////////////////////////////////////
@@ -190,6 +187,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     @Override
     public final void poke(Dispatcher dispatcher, float timestamp) throws OTMException  {
+
         update_command(dispatcher);
 
         // send immediately to actuators that lack a dt
