@@ -7,7 +7,7 @@ import actuator.InterfaceActuatorTarget;
 
 import java.util.*;
 
-public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
+public class Node implements InterfaceScenarioElement {
 
     public Network network;
     protected final long id;
@@ -20,9 +20,6 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     public boolean is_sink;
 
     public boolean is_many2one;
-
-    // actuator
-    public AbstractActuator actuator;
 
     // node flwpos
     public Float xcoord;
@@ -88,19 +85,11 @@ public class Node implements InterfaceActuatorTarget, InterfaceScenarioElement {
     // InterfaceActuatorTarget
     ///////////////////////////////////////////
 
-    @Override
-    public void register_actuator(AbstractActuator act) throws OTMException {
-        if(this.actuator!=null)
-            throw new OTMException("Multiple actuators on node");
-        this.actuator = act;
-    }
-
     public void delete(){
         network = null;
         in_links = null;
         out_links = null;
         road_connections = null;
-        actuator = null;
     }
 
     public void add_road_connection(RoadConnection rc){

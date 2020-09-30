@@ -86,7 +86,7 @@ public class SignalPhase {
 
     public void initialize(float now) throws OTMException {
         for(AbstractLaneGroup lg : lanegroups)
-            lg.register_actuator(my_signal);
+            lg.register_actuator(null,my_signal);
         set_bulb_color(now,BulbColor.DARK);
     }
 

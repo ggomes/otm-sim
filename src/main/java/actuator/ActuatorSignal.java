@@ -50,6 +50,10 @@ public class ActuatorSignal extends AbstractActuatorLanegroupCapacity {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+
+        if(initialized)
+            return;
 
         float now = scenario.get_current_time();
 

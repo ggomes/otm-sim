@@ -81,6 +81,10 @@ public class ActuatorSplit extends AbstractActuator {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+
+        if(initialized)
+            return;
 
         long commid = comm.getId();
 

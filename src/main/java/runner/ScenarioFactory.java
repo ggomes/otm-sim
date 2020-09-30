@@ -9,7 +9,7 @@ import common.Link;
 import common.Network;
 import common.Scenario;
 import control.*;
-import control.commodity.ControllerLanegroupRestrict;
+import control.commodity.ControllerOpenCloseLaneGroup;
 import control.commodity.ControllerOfframpFlow;
 import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
@@ -173,8 +173,8 @@ public class ScenarioFactory {
             case rm_closed:
                 controller = new ControllerRampMeterClosed(scenario,jaxb_controller);
                 break;
-            case lg_restrict:
-                controller = new ControllerLanegroupRestrict(scenario,jaxb_controller);
+            case opencloselg:
+                controller = new ControllerOpenCloseLaneGroup(scenario,jaxb_controller);
                 break;
             case frflow:
                 controller = new ControllerOfframpFlow(scenario,jaxb_controller);
@@ -251,8 +251,8 @@ public class ScenarioFactory {
                 case stop:
                     actuator = new ActuatorStop(scenario,jaxb_actuator);
                     break;
-                case lg_restrict:
-                    actuator = new ActuatorLanegroupRestrict(scenario,jaxb_actuator);
+                case opencloselg:
+                    actuator = new ActuatorOpenCloseLaneGroup(scenario,jaxb_actuator);
                     break;
                 case lg_speed:
                     throw new OTMException("NOT IMPLEMENTED YET");

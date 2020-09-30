@@ -52,7 +52,7 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "/home/gomes/Desktop/hovhot/hov1_0_policy.xml";
+            String configfile = "/home/gomes/Dropbox/gabriel/_transfer/hov/hov0_0.xml";
             api.OTM otm = new api.OTM(configfile,true,false);
             assertNotNull(otm);
         } catch (OTMException e) {
@@ -142,12 +142,12 @@ public class TestOne extends AbstractTest {
 
 //            System.out.println("t\tlg\tc\tflwin\tflwdwn\tflwout");
 
-            String configfile = "/home/gomes/Dropbox/gabriel/_transfer/splitcalc/A_0.xml";
+            String configfile = "/home/gomes/Dropbox/gabriel/_transfer/hov/hov0_0.xml";
 
-            float duration = 1000f;
-            float outdt = 300f;
+            float duration = 300f;
+            float outdt = 3f;
             String prefix = "x";
-            String output_folder = "/home/gomes/Dropbox/gabriel/_transfer/splitcalc";
+            String output_folder = "/home/gomes/Dropbox/gabriel/_transfer/hov";
 
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);
@@ -156,7 +156,9 @@ public class TestOne extends AbstractTest {
 //            Set<Long> link_ids =  otm.scenario.get_link_ids();
 
             Set<Long> link_ids = new HashSet<>();
-            link_ids.add(41l);
+//            link_ids.add(1l);
+            link_ids.add(2l);
+//            link_ids.add(3l);
 
             // links
 
@@ -169,8 +171,8 @@ public class TestOne extends AbstractTest {
 
             // lanegroups
 
-//            otm.output.request_lanegroup_flw(null,link_ids,outdt);
-//            otm.output.request_lanegroup_veh(null,link_ids,outdt);
+            otm.output.request_lanegroup_flw(0l,link_ids,outdt);
+            otm.output.request_lanegroup_veh(0l,link_ids,outdt);
 //            otm.output.request_lanegroup_sum_veh(null,link_ids,outdt);
 
 //            otm.output.request_lanegroups(prefix,output_folder);
@@ -180,8 +182,8 @@ public class TestOne extends AbstractTest {
 
             // cells
 
-//            otm.output.request_cell_flw(null, link_ids, outdt);
-//            otm.output.request_cell_veh(null,link_ids, outdt);
+            otm.output.request_cell_flw(null, link_ids, outdt);
+            otm.output.request_cell_veh(null,link_ids, outdt);
 //            otm.output.request_cell_sum_veh(null, link_ids, outdt);
 
 //            otm.output.request_cell_flw(prefix,output_folder,null, link_ids, outdt);

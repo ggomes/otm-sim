@@ -72,18 +72,24 @@ public class ControllerSchedule extends AbstractController {
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
+        System.out.println(String.format("%.1f\tControllerSchedule initialize",scenario.dispatcher.current_time));
 
         curr_entry_index = -1;
 
+        // disconnect actuators
+        for(AbstractActuator act : actuators.values())
+            act.myController = null;
+
         // assign actuator to entry controllers
-        AbstractActuator act = this.actuators.values().iterator().next();
         for (ScheduleEntry entry : entries)
-            entry.cntrl.actuators.put(act.id,act);
+            for(AbstractActuator act : actuators.values())
+                entry.cntrl.actuators.put(act.id,act);
 
     }
 
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
+        System.out.println(String.format("%.1f\tControllerSchedule update_command",scenario.dispatcher.current_time));
 
         float now = dispatcher.current_time;
 

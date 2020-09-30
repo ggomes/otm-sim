@@ -1,5 +1,6 @@
 package models.fluid;
 
+import actuator.ActuatorLaneChange;
 import common.*;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -10,10 +11,7 @@ import keys.State;
 import packet.PacketLaneGroup;
 import utils.OTMUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class FluidLaneGroup extends AbstractLaneGroup {
 
@@ -30,6 +28,9 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     public double jam_density_veh_per_cell;
 
     public List<AbstractCell> cells;     // sequence of cells
+
+    // lane change controller
+    public Map<Long,ActuatorLaneChange> act_lcs; // comm->lane change actuator
 
     ////////////////////////////////////////////
     // construction
@@ -213,6 +214,28 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     @Override
     public float vehs_out_for_comm(Long comm_id) {
         return (float) cells.stream().mapToDouble(c->c.get_veh_out_for_commodity(comm_id)).sum();
+    }
+
+    ////////////////////////////////////////////
+    // lane change model
+    ////////////////////////////////////////////
+
+    // This is called when vehicles are added to the first cell in a lanegroup.
+    // They decide which way to chenge lanes within the lanegroup.
+    public Map<Side,Double> get_lc_probabilities(State state){
+
+//        if(act_lcs.containsKey(state.commodity_id))
+//            return act_lcs.get(state.commodity_id).get_lanechange_probabilities();
+
+        // The possible directions are given by state2lanechangedirections
+        Set<Side> lcoptions = state2lanechangedirections.get(state);
+
+        double v = 1d/lcoptions.size();
+        Map<Side,Double> X = new HashMap<>();
+        for(Side s:lcoptions)
+            X.put(s,v);
+        return X;
+
     }
 
     ////////////////////////////////////////////

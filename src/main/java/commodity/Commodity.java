@@ -1,7 +1,5 @@
 package commodity;
 
-import actuator.AbstractActuator;
-import actuator.InterfaceActuatorTarget;
 import common.*;
 import keys.DemandType;
 import error.OTMErrorLog;
@@ -14,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
-public class Commodity implements InterfaceScenarioElement, InterfaceActuatorTarget {
+public class Commodity implements InterfaceScenarioElement {
 
     protected final Long id;
     public final String name;
@@ -213,16 +211,6 @@ public class Commodity implements InterfaceScenarioElement, InterfaceActuatorTar
             }
         }
 
-    }
-
-//    @Override
-//    public long getIdAsTarget() {
-//        return id;
-//    }
-
-    @Override
-    public void register_actuator(AbstractActuator act) throws OTMException {
-        System.out.println("Commodity register_actuator");
     }
 
 }

@@ -4,5 +4,5 @@ import error.OTMException;
 
 public interface InterfaceActuatorTarget {
 //    long getIdAsTarget();
-    void register_actuator(AbstractActuator act) throws OTMException;
+    void register_actuator(Long commid,AbstractActuator act) throws OTMException;
 }

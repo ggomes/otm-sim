@@ -28,7 +28,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         rm_fixed_rate,
         rm_open,
         rm_closed,
-        lg_restrict,
+        opencloselg,
         frflow,
         plugin
     }
@@ -92,7 +92,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
                     if(act.myController!=null)
                         throw new OTMException("Multiple controllers assigned to single actuator");
                     actuators.put(act.id,act);
-                    act.myController=this;
+//                    act.myController=this;
                 }
             }
 
@@ -109,7 +109,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
                         throw new OTMException("Repeated value in actuator usage for controller " +this.id);
                     actuator_by_usage.put(jaxb_act.getUsage(),act);
                 }
-                act.myController=this;
+//                act.myController=this;
             }
         }
 
@@ -148,9 +148,10 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-
-        for(AbstractActuator x : actuators.values())
+        for(AbstractActuator x : actuators.values()) {
+            x.myController = this;
             x.initialize(scenario);
+        }
     }
 
     ///////////////////////////////////////////
@@ -192,7 +193,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
         // send immediately to actuators that lack a dt
         for(AbstractActuator act : actuators.values())
-            if(act.dt<=0)
+            if(act.dt<=0 && act.myController==this)
                 act.process_controller_command(command.get(act.id),timestamp);
 
         // write to output

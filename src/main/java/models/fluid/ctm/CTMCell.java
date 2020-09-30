@@ -165,32 +165,35 @@ public class CTMCell extends AbstractCell {
     }
 
     @Override
-    public void add_vehicles(State state, Double value){
+    public void add_vehicles(State state, Double vehs){
         double cur_val;
 
-        Set<Side> lcoptions = laneGroup.state2lanechangedirections.get(state);
+        Map<Side,Double> side2prob = laneGroup.get_lc_probabilities(state);
 
-        // TODO THIS IS WHERE VEHICLES THAT ENTER THE LANE GROUP
-        // TODO MUST DECIDE THEIR TARGET LANE GROUP
-        Side lc = lcoptions.contains(Side.middle) ? Side.middle : lcoptions.iterator().next();
+        for(Map.Entry<Side,Double> e : side2prob.entrySet()){
+            Side lc = e.getKey();
+            double val = e.getValue()*vehs;
 
-        switch(lc){
-            case middle:
-                cur_val = veh_dwn.containsKey(state) ? veh_dwn.get(state) : 0d;
-                veh_dwn.put(state,cur_val + value);
-                total_vehs_dwn += value;
-                break;
-            case in:
-                cur_val = veh_in.containsKey(state) ? veh_in.get(state) : 0d;
-                veh_in.put(state,cur_val + value);
-                total_vehs_in += value;
-                break;
-            case out:
-                cur_val = veh_out.containsKey(state) ? veh_out.get(state) : 0d;
-                veh_out.put(state,cur_val + value);
-                total_vehs_out += value;
-                break;
+            switch(lc){
+                case middle:
+                    cur_val = veh_dwn.containsKey(state) ? veh_dwn.get(state) : 0d;
+                    veh_dwn.put(state,cur_val + val);
+                    total_vehs_dwn += val;
+                    break;
+                case in:
+                    cur_val = veh_in.containsKey(state) ? veh_in.get(state) : 0d;
+                    veh_in.put(state,cur_val + val);
+                    total_vehs_in += val;
+                    break;
+                case out:
+                    cur_val = veh_out.containsKey(state) ? veh_out.get(state) : 0d;
+                    veh_out.put(state,cur_val + val);
+                    total_vehs_out += val;
+                    break;
+            }
+
         }
+
     }
 
     @Override

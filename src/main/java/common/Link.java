@@ -62,28 +62,16 @@ public class Link implements InterfaceScenarioElement {
     // routing information ...............................
 
     // map from path id (uses this link) to next link id (exits this link)
-    // populated by ScenarioFactory.create_scenario
     public Map<Long,Link> path2outlink;
 
     // outlink -> lanegroups from which outlink is reachable
-    // built by Network contstructor.
     public Map<Long,Set<AbstractLaneGroup>> outlink2lanegroups;
-
-    // map from outlink to road-connection. For one-to-one links with no road connection defined,
-    // this returns a null.
-//    public Map<Long, RoadConnection> outlink2roadconnection;
 
     // splits
     public Map<Long, SplitMatrixProfile> split_profile; // commodity -> split matrix profile
-//    public Map<Long, SplitInfo> curr_splits;  // commodity_id -> splitinfo
 
     // demands ............................................
-    // populated by DemandProfile constructor
     public Set<AbstractSource> sources;
-
-    // actuators .........................................
-//    public ActuatorGreenRed ramp_meter;
-//    public actuator.ActuatorFD actuator_fd;
 
     // travel timer
     public LinkTravelTimer link_tt;
@@ -132,10 +120,6 @@ public class Link implements InterfaceScenarioElement {
 
         // demands ............................................
         sources = new HashSet<>();
-
-//        // output ...........................................
-//        travel_timers = new HashSet<>();
-
 
     }
 
@@ -355,29 +339,6 @@ public class Link implements InterfaceScenarioElement {
         return jlink;
     }
 
-    ////////////////////////////////////////////
-    // InterfaceActuatorTarget
-    ///////////////////////////////////////////
-
-//    @Override
-//    public void register_actuator(AbstractActuator act) throws OTMException {
-//
-//        if(act instanceof ActuatorGreenRed) {
-//            if(ramp_meter!=null)
-//                throw new OTMException("Multiple ramp meters assigned to the same link.");
-//            this.ramp_meter = (ActuatorGreenRed) act;
-//        }
-//
-//        if(act instanceof actuator.ActuatorFD){
-//            if(actuator_fd!=null)
-//                throw new OTMException("Multiple fd actiuators assigned to the same link.");
-//            this.actuator_fd = (actuator.ActuatorFD) act;
-//        }
-//
-//    }
-
-    ///////////////////////////////////////////
-    // XXXXX
     ///////////////////////////////////////////
 
     public void delete(){
@@ -455,13 +416,6 @@ public class Link implements InterfaceScenarioElement {
         if(!model.is_default && !newmodel.is_default)
             throw new OTMException("ModelType multiply assigned for link " + this.id);
     }
-
-//    public FlowAccumulatorSet request_flow_accumulator_set(Long commodity_id){
-//        FlowAccumulatorSet fas = new FlowAccumulatorSet();
-//        for(AbstractLaneGroup lg : lanegroups.values())
-//            fas.add_flow_accumulator(lg.request_flow_accumulator(commodity_id));
-//        return fas;
-//    }
 
     public double get_max_vehicles(){
         return lanegroups_flwdn.values().stream().mapToDouble(x->x.get_max_vehicles()).sum();
@@ -588,25 +542,6 @@ public class Link implements InterfaceScenarioElement {
             return null;
         return split_profile.get(comm_id).outlink2split;
     }
-
-//    public Link sample_nextlink_for_commodity(Commodity comm){
-//
-//        // this is a sink, no next link
-//        if(is_sink)
-//            return null;
-//
-//        // get next link id
-//        Long outlink_id;
-//        if(comm.pathfull) {
-//            return path2outlink.get(d);
-//        }
-//
-//        // otherwise use split ratios
-//        else {
-//            outlink_id = commodity2split.get(key.commodity_id).sample_output_link();
-//        }
-//        return outlink_id;
-//    }
 
     public Collection<Link> get_previous_links(){
         return start_node.in_links.values();

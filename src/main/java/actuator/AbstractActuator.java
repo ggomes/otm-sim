@@ -16,7 +16,7 @@ import java.util.Set;
 public abstract class AbstractActuator implements Pokable, InterfaceScenarioElement {
 
     public enum Type {
-        lg_restrict,
+        opencloselg,
         lg_speed,
         signal,
         meter,
@@ -27,9 +27,11 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     public long id;
     public abstract Type getType();
     public float dt;
+    public boolean initialized;
 
     public AbstractController myController;
     public InterfaceActuatorTarget target;
+    public Long commid; // not always used
 
     abstract public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException;
 
@@ -40,6 +42,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     public AbstractActuator(Scenario scenario, jaxb.Actuator jaxb_actuator) throws OTMException {
         this.id = jaxb_actuator.getId();
         this.dt = jaxb_actuator.getDt();
+        this.initialized = false;
         if(jaxb_actuator.getActuatorTarget()!=null){
             jaxb.ActuatorTarget e = jaxb_actuator.getActuatorTarget();
             Long id = e.getId()==null ? null : Long.parseLong(e.getId());
@@ -57,8 +60,9 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
                 else
                     this.target = (InterfaceActuatorTarget) scenario.get_element(type,id);
 
+                this.commid = e.getCommid();
                 if(target!=null)
-                    target.register_actuator(this);
+                    target.register_actuator(commid,this);
 
             } catch (IllegalArgumentException illegalArgumentException) {
                 // if exception is thrown, set target to null.
@@ -84,7 +88,16 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-        poke(scenario.dispatcher,scenario.dispatcher.current_time);
+        System.out.println(String.format("%.1f\tAbstractActuator initialize",scenario.dispatcher.current_time));
+
+        if(initialized)
+            return;
+        if(dt>0f) {
+            Dispatcher dispatcher = scenario.dispatcher;
+            float now = dispatcher.current_time;
+            dispatcher.register_event(new EventPoke(dispatcher, 30, now, this));
+        }
+        initialized=true;
     }
 
     @Override
@@ -104,6 +117,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     @Override
     public void poke(Dispatcher dispatcher, float timestamp) throws OTMException {
+        System.out.println(String.format("%.1f\tAbstractActuator poke",timestamp));
 
         // process the command
         if(myController!=null)

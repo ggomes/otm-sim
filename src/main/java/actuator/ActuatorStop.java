@@ -15,8 +15,4 @@ public class ActuatorStop extends AbstractActuatorLanegroupCapacity  {
         return Type.stop;
     }
 
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-
-    }
 }

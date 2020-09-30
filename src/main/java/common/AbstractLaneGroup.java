@@ -2,7 +2,7 @@ package common;
 
 import actuator.AbstractActuator;
 import actuator.AbstractActuatorLanegroupCapacity;
-import actuator.ActuatorLanegroupRestrict;
+import actuator.ActuatorOpenCloseLaneGroup;
 import actuator.InterfaceActuatorTarget;
 import error.OTMException;
 import geometry.FlowPosition;
@@ -45,7 +45,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     protected double supply;       // [veh]
 
     public AbstractActuatorLanegroupCapacity actuator_capacity;
-    public ActuatorLanegroupRestrict actuator_closure;
+    public Map<Long, ActuatorOpenCloseLaneGroup> actuator_closures;   // commid->actuator
 
     // flow accumulator
     public FlowAccumulatorState flw_acc;
@@ -108,17 +108,20 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     ///////////////////////////////////////////////////
 
     @Override
-    public void register_actuator(AbstractActuator act) throws OTMException {
+    public void register_actuator(Long commid,AbstractActuator act) throws OTMException {
+
         if(act instanceof AbstractActuatorLanegroupCapacity){
             if(this.actuator_capacity!=null)
                 throw new OTMException(String.format("Multiple capacity actuators on link %d, lanes %d through %d.",link.getId(),start_lane_dn,start_lane_dn+num_lanes-1));
             this.actuator_capacity = (AbstractActuatorLanegroupCapacity) act;
         }
 
-        if(act.getType()== AbstractActuator.Type.lg_restrict){
-            if(this.actuator_closure!=null)
-                throw new OTMException(String.format("Multiple closure actuators on link %d, lanes %d through %d.",link.getId(),start_lane_dn,start_lane_dn+num_lanes-1));
-            this.actuator_closure = (ActuatorLanegroupRestrict) act;
+        if(act.getType()== AbstractActuator.Type.opencloselg){
+            if(this.actuator_closures==null)
+                actuator_closures = new HashMap<>();
+            if (actuator_closures.containsKey(commid))
+                throw new OTMException(String.format("Lane group closuer clash for commodity %d", commid));
+            this.actuator_closures.put(commid, (ActuatorOpenCloseLaneGroup) act);
         }
 
     }
@@ -319,22 +322,21 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
 
     @Override
-    public void set_actuator_isopen(boolean isopen,Set<Long> commids) {
+    public void set_actuator_isopen(boolean isopen,long commid) {
         if(isopen)
-            for (Long commid : commids)
-                states.stream()
-                        .filter(s->s.commodity_id==commid)
-                        .forEach(s->reallow_state(s));
+            states.stream()
+                    .filter(s->s.commodity_id==commid)
+                    .forEach(s->reallow_state(s));
 
         else
-            for (Long commid : commids)
-                states.stream()
-                        .filter(s->s.commodity_id==commid)
-                        .forEach(s->disallow_state(s));
+            states.stream()
+                    .filter(s->s.commodity_id==commid)
+                    .forEach(s->disallow_state(s));
     }
 
     private void disallow_state(State state){
         // disallow movement into this lanegroup from adjacent lanegroups
+        this.disallow_state_lanechangedirection(state,Side.middle);
         if(neighbor_in!=null)
             neighbor_in.disallow_state_lanechangedirection(state,Side.out);
         if(neighbor_out!=null)
@@ -347,6 +349,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     private void reallow_state(State state){
         // reallow movement into this lanegroup from adjacent lanegroups
+        this.reallow_state_lanechangedirection(state,Side.middle);
         if(neighbor_in!=null)
             neighbor_in.reallow_state_lanechangedirection(state,Side.out);
         if(neighbor_out!=null)
