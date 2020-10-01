@@ -445,16 +445,16 @@ public class Link implements InterfaceScenarioElement {
 
             for (Map.Entry<State, Double> e : vp.state2vehicles.entrySet()) {
 
-                State key = e.getKey();
+                State state = e.getKey();
                 Double vehicles = e.getValue();
 
                 if(vehicles==0d)
                     continue;
 
                 // pathfull
-                if (key.isPath) {
-                    Link next_link = path2outlink.get(key.pathOrlink_id);
-                    add_to_lanegroup_packets(split_packets,next_link==null?null:next_link.getId(),key,vehicles);
+                if (state.isPath) {
+                    Link next_link = path2outlink.get(state.pathOrlink_id);
+                    add_to_lanegroup_packets(split_packets,next_link==null?null:next_link.getId(),state,vehicles);
                 }
 
                 // pathless
@@ -463,7 +463,7 @@ public class Link implements InterfaceScenarioElement {
 
                     if( is_sink ){
                         add_to_lanegroup_packets(split_packets, id,
-                                new State(key.commodity_id, id, false),
+                                new State(state.commodity_id, id, false),
                                 vehicles );
 
                     }
@@ -471,18 +471,18 @@ public class Link implements InterfaceScenarioElement {
                     else if( this.outlink2lanegroups.size()==1){
                         Long next_link_id = outlink2lanegroups.keySet().iterator().next();
                         add_to_lanegroup_packets(split_packets, next_link_id,
-                                new State(key.commodity_id, next_link_id, false),
+                                new State(state.commodity_id, next_link_id, false),
                                 vehicles );
                     }
 
                     else {
-                        SplitMatrixProfile smp = split_profile.get(key.commodity_id);
+                        SplitMatrixProfile smp = split_profile.get(state.commodity_id);
                         for (Map.Entry<Long, Double> e2 : smp.outlink2split.entrySet()) {
                             Long next_link_id = e2.getKey();
                             Double split = e2.getValue();
                             if(split>0d)
                                 add_to_lanegroup_packets(split_packets, next_link_id,
-                                        new State(key.commodity_id, next_link_id, false),
+                                        new State(state.commodity_id, next_link_id, false),
                                         vehicles * split);
                         }
                     }

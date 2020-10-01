@@ -22,20 +22,18 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public final long id;
     public Link link;
-    public final Side side;               // inner, stay, or outer
+    public final Side side;               // inner, middle, or outer (add lane in, full, add lane out)
     public final FlowPosition flwpos;
     public int start_lane_up = -1;       // counted with respect to upstream boundary
     public int start_lane_dn = -1;       // counted with respect to downstream boundary
     public final int num_lanes;
     public float length;        // [m]
 
-//    public double max_vehicles;
-//    public double max_cong_speed_kph;
-
+    public AbstractLaneGroup neighbor_up_in;
+    public AbstractLaneGroup neighbor_up_out;
     public AbstractLaneGroup neighbor_in;       // lanegroup down and in
     public AbstractLaneGroup neighbor_out;      // lanegroup down and out
-    public AbstractLaneGroup neighbor_up_in;    // lanegroup up and in (stay lanes only)
-    public AbstractLaneGroup neighbor_up_out;   // lanegroup up and out (stay lanes only)
+
 
     // set of keys for states in this lanegroup
     public Set<State> states;   // TODO MOVE THIS TO DISCRETE TIME ONLY?
@@ -347,6 +345,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             neighbor_up_in.disallow_state_lanechangedirection(state,Side.out);
         if(neighbor_up_out!=null)
             neighbor_up_out.disallow_state_lanechangedirection(state,Side.in);
+
     }
 
     private void reallow_state(State state){
