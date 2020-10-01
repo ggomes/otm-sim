@@ -45,7 +45,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     protected double supply;       // [veh]
 
     public AbstractActuatorLanegroupCapacity actuator_capacity;
-    public Map<Long, ActuatorOpenCloseLaneGroup> actuator_closures;   // commid->actuator
+    public Map<Long, ActuatorOpenCloseLaneGroup> actuator_lgrestrict;   // commid->actuator
 
     // flow accumulator
     public FlowAccumulatorState flw_acc;
@@ -108,7 +108,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     ///////////////////////////////////////////////////
 
     @Override
-    public void register_actuator(Long commid,AbstractActuator act) throws OTMException {
+    public void register_actuator(Set<Long> commids,AbstractActuator act) throws OTMException {
 
         if(act instanceof AbstractActuatorLanegroupCapacity){
             if(this.actuator_capacity!=null)
@@ -116,12 +116,14 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             this.actuator_capacity = (AbstractActuatorLanegroupCapacity) act;
         }
 
-        if(act.getType()== AbstractActuator.Type.opencloselg){
-            if(this.actuator_closures==null)
-                actuator_closures = new HashMap<>();
-            if (actuator_closures.containsKey(commid))
-                throw new OTMException(String.format("Lane group closuer clash for commodity %d", commid));
-            this.actuator_closures.put(commid, (ActuatorOpenCloseLaneGroup) act);
+        if(act.getType()== AbstractActuator.Type.lg_restrict){
+            if(this.actuator_lgrestrict ==null)
+                actuator_lgrestrict = new HashMap<>();
+            for(Long commid : commids){
+                if (actuator_lgrestrict.containsKey(commid))
+                    throw new OTMException(String.format("Lane group closure clash for commodity %d", commid));
+                this.actuator_lgrestrict.put(commid, (ActuatorOpenCloseLaneGroup) act);
+            }
         }
 
     }
@@ -322,7 +324,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
 
     @Override
-    public void set_actuator_isopen(boolean isopen,long commid) {
+    public void set_actuator_isopen(boolean isopen,Long commid) {
         if(isopen)
             states.stream()
                     .filter(s->s.commodity_id==commid)

@@ -28,7 +28,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         rm_fixed_rate,
         rm_open,
         rm_closed,
-        opencloselg,
+        lg_restrict,
         frflow,
         plugin
     }

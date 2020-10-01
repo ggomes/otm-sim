@@ -69,7 +69,7 @@
 
 			<!-- if the target is a commodity, then use "id" to specify the commodity id -->
 			<!-- commid is used when the target is a commodity within a lanegroup or split -->
-			<xs:attribute name="commid" type="xs:long" />
+			<xs:attribute name="commids" type="xs:string" />
 		</xs:complexType>
 	</xs:element>
 
@@ -505,7 +505,7 @@
 			<xs:attribute name="type" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="opencloselg|lg_speed|signal|meter|stop|split"/>
+						<xs:pattern value="lg_restrict|lg_speed|signal|meter|stop|split"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>

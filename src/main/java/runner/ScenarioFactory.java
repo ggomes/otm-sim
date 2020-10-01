@@ -9,7 +9,7 @@ import common.Link;
 import common.Network;
 import common.Scenario;
 import control.*;
-import control.commodity.ControllerOpenCloseLaneGroup;
+import control.commodity.ControllerRestrictLaneGroup;
 import control.commodity.ControllerOfframpFlow;
 import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
@@ -173,8 +173,8 @@ public class ScenarioFactory {
             case rm_closed:
                 controller = new ControllerRampMeterClosed(scenario,jaxb_controller);
                 break;
-            case opencloselg:
-                controller = new ControllerOpenCloseLaneGroup(scenario,jaxb_controller);
+            case lg_restrict:
+                controller = new ControllerRestrictLaneGroup(scenario,jaxb_controller);
                 break;
             case frflow:
                 controller = new ControllerOfframpFlow(scenario,jaxb_controller);
@@ -251,7 +251,7 @@ public class ScenarioFactory {
                 case stop:
                     actuator = new ActuatorStop(scenario,jaxb_actuator);
                     break;
-                case opencloselg:
+                case lg_restrict:
                     actuator = new ActuatorOpenCloseLaneGroup(scenario,jaxb_actuator);
                     break;
                 case lg_speed:

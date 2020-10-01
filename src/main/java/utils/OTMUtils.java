@@ -213,7 +213,7 @@ public class OTMUtils {
 
     public static List<Double> csv2list(String csstr){
         List<Double> vals = new ArrayList<>();
-        if(csstr!=null)
+        if(csstr!=null && !csstr.isEmpty())
             for(String str : Arrays.asList(csstr.split("\\s*,\\s*")))
                 vals.add(Double.parseDouble(str));
         return vals;
@@ -221,7 +221,7 @@ public class OTMUtils {
 
     public static List<Long> csv2longlist(String csstr){
         List<Long> vals = new ArrayList<>();
-        if(csstr!=null)
+        if(csstr!=null && !csstr.isEmpty())
             for(String str : Arrays.asList(csstr.split("\\s*,\\s*")))
                 vals.add(Long.parseLong(str));
         return vals;

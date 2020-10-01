@@ -11,12 +11,13 @@ import error.OTMException;
 import jaxb.Actuator;
 import utils.OTMUtils;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public abstract class AbstractActuator implements Pokable, InterfaceScenarioElement {
 
     public enum Type {
-        opencloselg,
+        lg_restrict,
         lg_speed,
         signal,
         meter,
@@ -31,7 +32,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     public AbstractController myController;
     public InterfaceActuatorTarget target;
-    public Long commid; // not always used
+    public Set<Long> commids; // not always used
 
     abstract public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException;
 
@@ -60,9 +61,13 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
                 else
                     this.target = (InterfaceActuatorTarget) scenario.get_element(type,id);
 
-                this.commid = e.getCommid();
+                if(e.getCommids()!=null) {
+                    this.commids = new HashSet<>();
+                    commids.addAll(OTMUtils.csv2longlist(e.getCommids()));
+                }
+
                 if(target!=null)
-                    target.register_actuator(commid,this);
+                    target.register_actuator(commids,this);
 
             } catch (IllegalArgumentException illegalArgumentException) {
                 // if exception is thrown, set target to null.
@@ -88,10 +93,11 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-        System.out.println(String.format("%.1f\tAbstractActuator initialize",scenario.dispatcher.current_time));
 
         if(initialized)
             return;
+
+
         if(dt>0f) {
             Dispatcher dispatcher = scenario.dispatcher;
             float now = dispatcher.current_time;

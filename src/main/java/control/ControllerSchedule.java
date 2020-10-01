@@ -72,7 +72,6 @@ public class ControllerSchedule extends AbstractController {
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
-        System.out.println(String.format("%.1f\tControllerSchedule initialize",scenario.dispatcher.current_time));
 
         curr_entry_index = -1;
 
@@ -89,7 +88,6 @@ public class ControllerSchedule extends AbstractController {
 
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
-        System.out.println(String.format("%.1f\tControllerSchedule update_command",scenario.dispatcher.current_time));
 
         float now = dispatcher.current_time;
 

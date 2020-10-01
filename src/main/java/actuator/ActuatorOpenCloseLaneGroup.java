@@ -3,10 +3,13 @@ package actuator;
 import common.AbstractLaneGroup;
 import common.LaneGroupSet;
 import common.Scenario;
-import control.command.CommandBoolean;
+import control.command.CommandRestrictionMap;
 import control.command.InterfaceCommand;
+import control.commodity.ControllerRestrictLaneGroup;
 import error.OTMException;
 import jaxb.Actuator;
+
+import java.util.Map;
 
 public class ActuatorOpenCloseLaneGroup extends AbstractActuator {
 
@@ -16,6 +19,7 @@ public class ActuatorOpenCloseLaneGroup extends AbstractActuator {
 
     public ActuatorOpenCloseLaneGroup(Scenario scenario, Actuator jact) throws OTMException {
         super(scenario, jact);
+        this.dt=0f;
     }
 
     ///////////////////////////////////////////////////
@@ -24,7 +28,7 @@ public class ActuatorOpenCloseLaneGroup extends AbstractActuator {
 
     @Override
     public Type getType() {
-        return Type.opencloselg;
+        return Type.lg_restrict;
     }
 
     @Override
@@ -33,9 +37,13 @@ public class ActuatorOpenCloseLaneGroup extends AbstractActuator {
         if(command==null)
             return;
 
-        boolean isopen = ((CommandBoolean)command).value;
-        for(AbstractLaneGroup lg : ((LaneGroupSet)target).lgs){
-            lg.set_actuator_isopen(isopen,commid);
+        Map<Long, ControllerRestrictLaneGroup.Restriction> X = ((CommandRestrictionMap)command).values;
+        for(Map.Entry<Long, ControllerRestrictLaneGroup.Restriction> e : ((CommandRestrictionMap)command).values.entrySet()) {
+            Long commid = e.getKey();
+            boolean isopen = e.getValue()== ControllerRestrictLaneGroup.Restriction.Open;
+            for (AbstractLaneGroup lg : ((LaneGroupSet) target).lgs) {
+                lg.set_actuator_isopen(isopen, commid);
+            }
         }
     }
 

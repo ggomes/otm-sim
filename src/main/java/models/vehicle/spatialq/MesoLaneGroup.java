@@ -99,7 +99,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     }
 
     @Override
-    public void set_actuator_isopen(boolean isopen,long commid) {
+    public void set_actuator_isopen(boolean isopen,Long commid) {
         System.out.println("NOT IMPLEMENTED!!");
     }
 
