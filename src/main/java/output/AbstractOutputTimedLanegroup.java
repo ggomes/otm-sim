@@ -8,6 +8,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import profiles.Profile1D;
 import common.Scenario;
+import utils.OTMUtils;
 
 import java.io.*;
 import java.util.*;
@@ -141,20 +142,20 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
         return profiles;
     }
 
-    public final void plot_for_links(Set<Long> link_ids,String filename) throws OTMException {
+    public final void plot_for_links(Set<Long> link_ids,String title,String filename) throws OTMException {
 
         Set<AbstractLaneGroup> lgs = new HashSet<>();
         if(link_ids==null)
             lgs.addAll(ordered_lgs);
         else
-            lgs = ordered_lgs.stream().filter(lg->link_ids.contains(lg.link.getId())).collect(Collectors.toSet());
+            lgs = ordered_lgs.stream().filter(lg -> link_ids.contains(lg.link.getId())).collect(Collectors.toSet());
 
         XYSeriesCollection dataset = new XYSeriesCollection();
 
         for(AbstractLaneGroup lg : lgs)
             dataset.addSeries(get_series_for_lg(lg));
 
-        make_time_chart(dataset,get_yaxis_label(),filename);
+        make_time_chart(dataset,title,get_yaxis_label(),filename);
     }
 
     //////////////////////////////////////////////////////

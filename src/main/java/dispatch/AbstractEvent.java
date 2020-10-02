@@ -3,8 +3,9 @@ package dispatch;
 import error.OTMException;
 
 // Existing events and their dispatch order.
-//    0	dispatch.EventDemandChange
-//    0	dispatch.EventSplitChange
+//    0	    dispatch.EventDemandChange
+//    0	    dispatch.EventSplitChange
+//    5     AbstractLaneSelector.poke
 //    10	AbstractSensor.poke
 //    20	AbstractController.poke
 //    25    ControllerSchedule.poke

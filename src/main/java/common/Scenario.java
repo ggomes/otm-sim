@@ -142,8 +142,8 @@ public class Scenario {
                 }
         }
 
-        for(Commodity commodity : commodities.values())
-            commodity.initialize(this,link_outlink2rcs);
+//        for(Commodity commodity : commodities.values())
+//            commodity.initialize(this);
 
         // initialize and register outputs
         for(AbstractOutput x : outputs)

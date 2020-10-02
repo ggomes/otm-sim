@@ -128,9 +128,9 @@ public abstract class AbstractOutput implements InterfaceOutput {
     // static
     //////////////////////////////////////////////////////
 
-    public static void make_time_chart(XYSeriesCollection dataset,String yaxis_label,String filename) throws OTMException {
+    public static void make_time_chart(XYSeriesCollection dataset,String title,String yaxis_label,String filename) throws OTMException {
 
-        JFreeChart chart = ChartFactory.createXYLineChart("",
+        JFreeChart chart = ChartFactory.createXYLineChart(title,
                 "time", yaxis_label, dataset,
                 PlotOrientation.VERTICAL,
                 true,false,false);

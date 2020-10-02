@@ -18,6 +18,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     public enum Type {
         lg_restrict,
+        lg_lanechange,
         lg_speed,
         signal,
         meter,

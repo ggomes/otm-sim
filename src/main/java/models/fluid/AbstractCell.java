@@ -1,6 +1,7 @@
 package models.fluid;
 
 import common.FlowAccumulatorState;
+import geometry.Side;
 import keys.State;
 
 import java.util.Map;
@@ -23,7 +24,7 @@ public abstract class AbstractCell {
     public abstract void update_supply();
     public abstract void update_demand();
     public abstract void add_vehicles(Map<State, Double> dwn, Map<State, Double> in, Map<State, Double> out);
-    public abstract void add_vehicles(State state, Double value);
+    public abstract void add_vehicles(State state, Double value,Map<Side,Double> side2prob );
     public abstract void subtract_vehicles(Map<State, Double> dwn, Map<State, Double> in, Map<State, Double> out);
     public abstract double get_vehicles();
     public abstract double get_veh_dwn_for_commodity(Long comm_id);

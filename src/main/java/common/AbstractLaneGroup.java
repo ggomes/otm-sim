@@ -8,6 +8,7 @@ import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
 import keys.State;
+import lanechange.AbstractLaneSelector;
 import packet.StateContainer;
 import traveltime.AbstractLaneGroupTimer;
 import utils.OTMUtils;
@@ -59,6 +60,9 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // target lane group to direction
     public Map<State,Set<Side>> state2lanechangedirections = new HashMap<>();
     private Map<State,Set<Side>> disallowed_state2lanechangedirections = new HashMap<>();
+
+    // lane selection model
+    public AbstractLaneSelector lane_selector;
 
     public AbstractLaneGroupTimer travel_timer;
 
@@ -173,6 +177,10 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
         if(flw_acc!=null)
             flw_acc.reset();
+
+        if(lane_selector!=null)
+            lane_selector.initialize(scenario);
+
     }
 
 //    public void set_road_params(jaxb.Roadparam r){
@@ -216,7 +224,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return flw_acc;
     }
 
-    public final void add_state(long comm_id, Long path_id,Long next_link_id, boolean ispathfull,Map<Long,Set<RoadConnection>> link_outlink2rcs) throws OTMException {
+    public final void add_state(long comm_id, Long path_id,Long next_link_id, boolean ispathfull) throws OTMException {
 
         State state = ispathfull ?
                 new State(comm_id, path_id, true) :
@@ -239,10 +247,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
                 state2roadconnection.put(state, my_rc.getId());
 
             // state2lanechangedirection
-            Set<AbstractLaneGroup> target_lgs = link_outlink2rcs.get(next_link_id).stream()
-                    .flatMap(rc->rc.in_lanegroups.stream())
-                    .collect(Collectors.toSet());
-            Set<Side> sides = target_lgs.stream()
+            Set<Side> sides = link.outlink2lanegroups.get(next_link_id).stream()
                     .map(x -> x.get_side_with_respect_to_lg(this))
                     .collect(Collectors.toSet());
             state2lanechangedirections.put(state, sides);

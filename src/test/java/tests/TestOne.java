@@ -7,6 +7,7 @@ import output.*;
 import runner.OTM;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -153,14 +154,14 @@ public class TestOne extends AbstractTest {
             api.OTM otm = new api.OTM(configfile,true,false);
 
             // Output requests .....................
-//            Set<Long> link_ids =  otm.scenario.get_link_ids();
-
-            Set<Long> link_ids = new HashSet<>();
+            Set<Long> link_ids =  new HashSet<>(); //otm.scenario.get_link_ids();
             link_ids.add(1l);
             link_ids.add(2l);
-//            link_ids.add(3l);
+            link_ids.add(3l);
 
-            Long commid = 2l;
+            otm.output.request_lanegroup_flw(1l,link_ids,outdt);
+            otm.output.request_lanegroup_flw(2l,link_ids,outdt);
+            otm.output.request_lanegroup_flw(3l,link_ids,outdt);
 
             // links
 
@@ -173,8 +174,8 @@ public class TestOne extends AbstractTest {
 
             // lanegroups
 
-            otm.output.request_lanegroup_flw(commid,link_ids,outdt);
-            otm.output.request_lanegroup_veh(commid,link_ids,outdt);
+//            otm.output.request_lanegroup_flw(commid,link_ids,outdt);
+//            otm.output.request_lanegroup_veh(commid,link_ids,outdt);
 //            otm.output.request_lanegroup_sum_veh(null,link_ids,outdt);
 
 //            otm.output.request_lanegroups(prefix,output_folder);
@@ -222,16 +223,22 @@ public class TestOne extends AbstractTest {
                 if (output instanceof OutputLinkSumVehicles)
                     ((OutputLinkSumVehicles) output).plot_for_links(null, String.format("%s/link_sumveh.png", output_folder));
 
-                if (output instanceof OutputLaneGroupFlow)
-                    ((OutputLaneGroupFlow) output).plot_for_links(null, String.format("%s/lg_flow.png", output_folder));
+                if (output instanceof OutputLaneGroupFlow) {
+                    OutputLaneGroupFlow x = (OutputLaneGroupFlow) output;
+                    String commid = x.commodity==null ? "all" : String.format("%d",x.commodity.getId());
+                    String title = "Commodity " + x.commodity.name;
+                    x.plot_for_links(null,title,  String.format("%s/lg_flow_%s.png", output_folder, commid));
+                }
 
-                if (output instanceof OutputLaneGroupVehicles)
-                    ((OutputLaneGroupVehicles) output).plot_for_links(null, String.format("%s/lg_veh.png", output_folder));
+                if (output instanceof OutputLaneGroupVehicles) {
+                    String title = "";
+                    ((OutputLaneGroupVehicles) output).plot_for_links(null, title,String.format("%s/lg_veh.png", output_folder));
+                }
 
-                if (output instanceof OutputLaneGroupSumVehicles)
-                    ((OutputLaneGroupSumVehicles) output).plot_for_links(null, String.format("%s/lg_sumveh.png", output_folder));
-
-
+                if (output instanceof OutputLaneGroupSumVehicles) {
+                    String title = "";
+                    ((OutputLaneGroupSumVehicles) output).plot_for_links(null, title,String.format("%s/lg_sumveh.png", output_folder));
+                }
 
                 if (output instanceof OutputCellFlow)
                     ((OutputCellFlow) output).plot_for_links(null, String.format("%s/cell_flow.png", output_folder));

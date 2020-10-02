@@ -1,11 +1,8 @@
 package output;
 
-import output.events.AbstractEventWrapper;
 import control.AbstractController;
-import control.sigint.ControllerSignalPretimed;
 import dispatch.Dispatcher;
 import error.OTMException;
-import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import runner.RunParameters;
 import common.Scenario;
@@ -60,7 +57,7 @@ public class OutputController extends AbstractOutputEvent {
         if(dataset==null)
             throw new OTMException("Plotting not implemented for this type of controller.");
 
-        make_time_chart(dataset,"",filename);
+        make_time_chart(dataset,String.format("Controller %d",controller_id),"",filename);
 
     }
 

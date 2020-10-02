@@ -165,16 +165,14 @@ public class CTMCell extends AbstractCell {
     }
 
     @Override
-    public void add_vehicles(State state, Double vehs){
+    public void add_vehicles(State state, Double vehs,Map<Side,Double> side2prob ){
         double cur_val;
 
-        Map<Side,Double> side2prob = laneGroup.get_lc_probabilities(state);
-
         for(Map.Entry<Side,Double> e : side2prob.entrySet()){
-            Side lc = e.getKey();
+            Side side = e.getKey();
             double val = e.getValue()*vehs;
 
-            switch(lc){
+            switch(side){
                 case middle:
                     cur_val = veh_dwn.containsKey(state) ? veh_dwn.get(state) : 0d;
                     veh_dwn.put(state,cur_val + val);

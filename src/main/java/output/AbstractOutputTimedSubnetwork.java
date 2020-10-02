@@ -42,7 +42,7 @@ public abstract class AbstractOutputTimedSubnetwork extends AbstractOutputTimed 
     public void plot(String filename) throws OTMException {
         XYSeriesCollection dataset = new XYSeriesCollection();
         dataset.addSeries(get_series());
-        make_time_chart(dataset,get_yaxis_label(),filename);
+        make_time_chart(dataset,String.format("Subnetwork %d",subnetwork.getId()),get_yaxis_label(),filename);
     }
 
     //////////////////////////////////////////////////////

@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class ActuatorLaneChange extends AbstractActuator {
 
-    protected Map<Long,Map<Side,Double>> lanechangeprob; // commid->side->prob
+    protected Map<Side,Double> lanechangeprob; // side->prob
 
     public ActuatorLaneChange(Scenario scenario, Actuator jaxb_actuator) throws OTMException {
         super(scenario, jaxb_actuator);
@@ -18,7 +18,7 @@ public class ActuatorLaneChange extends AbstractActuator {
 
     @Override
     public Type getType() {
-        return null;
+        return Type.lg_lanechange;
     }
 
     @Override
@@ -26,8 +26,8 @@ public class ActuatorLaneChange extends AbstractActuator {
 
     }
 
-    public Map<Side,Double> get_lanechange_probabilities(Long commid){
-        return lanechangeprob.get(commid);
+    public Map<Side,Double> get_lanechange_probabilities(){
+        return lanechangeprob;
     }
 
 

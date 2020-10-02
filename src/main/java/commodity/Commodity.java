@@ -88,21 +88,6 @@ public class Commodity implements InterfaceScenarioElement {
         System.err.println("NOT USED");
     }
 
-    public void initialize(Scenario scenario,Map<Long,Map<Long,Set<RoadConnection>>> link_outlink2rcs) throws OTMException {
-
-        if(pathfull){
-            for(Subnetwork subnetwork : subnetworks)
-                for(Link link : subnetwork.links)
-                    register_commodity(link,this,subnetwork,link_outlink2rcs.get(link.getId()));
-        }
-
-        else {
-            for(Link link : scenario.network.links.values())
-                register_commodity(link,this,null,link_outlink2rcs.get(link.getId()));
-        }
-
-    }
-
 //    @Override
     public jaxb.Commodity to_jaxb(){
         jaxb.Commodity jcomm = new jaxb.Commodity();
@@ -138,6 +123,7 @@ public class Commodity implements InterfaceScenarioElement {
     public void add_vehicle_event_listener(InterfaceVehicleListener ev) {
         vehicle_event_listeners.add(ev);
     }
+
 
     public List<Long> get_subnetwork_ids(){
         return this.subnetworks.stream().map(x->x.id).collect(toList());
@@ -183,13 +169,13 @@ public class Commodity implements InterfaceScenarioElement {
     // private
     ///////////////////////////////////////////
 
-    private static void register_commodity(Link link,Commodity comm, Subnetwork subnet,Map<Long,Set<RoadConnection>> link_outlink2rcs) throws OTMException {
+    public static void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException {
 
         if(comm.pathfull) {
             Link next_link = ((Path) subnet).get_link_following(link);
             Long next_link_id = next_link==null ? null : next_link.getId();
             for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                lg.add_state(comm.getId(), subnet.getId(),next_link_id, true,link_outlink2rcs);
+                lg.add_state(comm.getId(), subnet.getId(),next_link_id, true);
         }
 
         else {
@@ -197,7 +183,7 @@ public class Commodity implements InterfaceScenarioElement {
             // for pathless/sink, next link id is same as this id
             if (link.is_sink) {
                 for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                    lg.add_state(comm.getId(), null,link.getId(), false,link_outlink2rcs);
+                    lg.add_state(comm.getId(), null,link.getId(), false);
 
             } else {
 
@@ -206,7 +192,7 @@ public class Commodity implements InterfaceScenarioElement {
 //                    if (!subnet.has_link_id(next_link_id))
 //                        continue;
                     for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                        lg.add_state(comm.getId(), null,next_link_id, false,link_outlink2rcs);
+                        lg.add_state(comm.getId(), null,next_link_id, false);
                 }
             }
         }

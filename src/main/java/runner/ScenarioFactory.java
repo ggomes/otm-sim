@@ -5,10 +5,9 @@ import actuator.ActuatorSignal;
 import commodity.*;
 import commodity.Commodity;
 import commodity.Subnetwork;
-import common.Link;
-import common.Network;
-import common.Scenario;
+import common.*;
 import control.*;
+import control.commodity.ControllerLaneChange;
 import control.commodity.ControllerRestrictLaneGroup;
 import control.commodity.ControllerOfframpFlow;
 import control.rampmetering.*;
@@ -16,6 +15,8 @@ import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.KeyCommodityDemandTypeId;
+import lanechange.LogitLaneSelector;
+import lanechange.UniformLaneSelector;
 import plugin.PluginLoader;
 import profiles.*;
 import sensor.AbstractSensor;
@@ -75,6 +76,37 @@ public class ScenarioFactory {
                 Link link = path.ordered_links.get(i);
                 Link next_link = path.ordered_links.get(i+1);
                 link.path2outlink.put(path.getId(),next_link);
+            }
+        }
+
+        // allocate the state ..............................................
+        for(Commodity commodity : scenario.commodities.values())
+            if(commodity.pathfull)
+                for(Subnetwork subnetwork : commodity.subnetworks)
+                    for(Link link : subnetwork.get_links())
+                        commodity.register_commodity(link,commodity,subnetwork);
+            else
+                for(Link link : scenario.network.links.values())
+                    commodity.register_commodity(link, commodity, null);
+
+        // lane change models .............................
+        String lcmodel = "uniform";
+        for(Link link : scenario.network.links.values()){
+            if(link.lanegroups_flwdn.size()>1){
+                for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()){
+                    switch(lcmodel){
+                        case "logit":
+                            float dt = 30f;
+                            double a0 = 0.6931;
+                            double a1 = 0.0115;
+                            double a2 = 0.0053;
+                            lg.lane_selector = new LogitLaneSelector(lg,dt,a0,a1,a2);
+                            break;
+                        case "uniform":
+                            lg.lane_selector = new UniformLaneSelector(lg);
+                            break;
+                    }
+                }
             }
         }
 
@@ -176,6 +208,9 @@ public class ScenarioFactory {
             case lg_restrict:
                 controller = new ControllerRestrictLaneGroup(scenario,jaxb_controller);
                 break;
+            case lg_lanechange:
+                controller = new ControllerLaneChange(scenario,jaxb_controller);
+                break;
             case frflow:
                 controller = new ControllerOfframpFlow(scenario,jaxb_controller);
                 break;
@@ -253,6 +288,9 @@ public class ScenarioFactory {
                     break;
                 case lg_restrict:
                     actuator = new ActuatorOpenCloseLaneGroup(scenario,jaxb_actuator);
+                    break;
+                case lg_lanechange:
+                    actuator = new ActuatorLaneChange(scenario,jaxb_actuator);
                     break;
                 case lg_speed:
                     throw new OTMException("NOT IMPLEMENTED YET");

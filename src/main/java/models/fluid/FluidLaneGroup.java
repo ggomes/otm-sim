@@ -29,8 +29,8 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     public List<AbstractCell> cells;     // sequence of cells
 
-    // lane change controller
-    public Map<Long,ActuatorLaneChange> act_lcs; // comm->lane change actuator
+    // lane change actuators
+    public Map<State,ActuatorLaneChange> act_lcs;
 
     ////////////////////////////////////////////
     // construction
@@ -176,7 +176,11 @@ public class FluidLaneGroup extends AbstractLaneGroup {
                 if(!state.isPath)
                     state = new State(state.commodity_id,nextlink_id,false);
 
-                cell.add_vehicles(state,e.getValue());
+                Set<Side> lcoptions = state2lanechangedirections.get(state);
+
+                Map<Side,Double> side2prob = get_lc_probabilities(state,lcoptions);
+
+                cell.add_vehicles(state,e.getValue(),side2prob);
             }
         }
         update_supply();
@@ -222,14 +226,17 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     // This is called when vehicles are added to the first cell in a lanegroup.
     // They decide which way to chenge lanes within the lanegroup.
-    public Map<Side,Double> get_lc_probabilities(State state){
+    public Map<Side,Double> get_lc_probabilities(State state,Set<Side> lcoptions){
 
-//        if(act_lcs.containsKey(state.commodity_id))
-//            return act_lcs.get(state.commodity_id).get_lanechange_probabilities();
+        // get from lane change controller, if it exists
+        if(act_lcs!=null && act_lcs.containsKey(state))
+            return act_lcs.get(state).get_lanechange_probabilities();
 
-        // The possible directions are given by state2lanechangedirections
-        Set<Side> lcoptions = state2lanechangedirections.get(state);
+        // otherwise use the lane selector, if it exists
+        if(lane_selector!=null)
+            return lane_selector.get_lanechange_probabilities();
 
+        // otherwise distribute equally
         double v = 1d/lcoptions.size();
         Map<Side,Double> X = new HashMap<>();
         for(Side s:lcoptions)
@@ -321,11 +328,15 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 //        double total_space = jam_density_veh_per_cell - cell.get_vehicles();
         double factor = Math.min( 1d , total_space / buffer_size );
         for(Map.Entry<State,Double> e : buffer.amount.entrySet()) {
-            State key = e.getKey();
+            State state = e.getKey();
             Double buffer_vehs = e.getValue() ;
 
+            Set<Side> lcoptions = state2lanechangedirections.get(state);
+
+            Map<Side,Double> side2prob = get_lc_probabilities(state,lcoptions);
+
             // add to cell
-            cell.add_vehicles(key,buffer_vehs* factor);
+            cell.add_vehicles(state,buffer_vehs* factor,side2prob);
 
             // remove from buffer
             e.setValue(buffer_vehs*(1d-factor));

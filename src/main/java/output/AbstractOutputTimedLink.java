@@ -182,7 +182,7 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
             dataset.addSeries(get_series_for_linkid(link_id));
         }
 
-        make_time_chart(dataset,get_yaxis_label(),filename);
+        make_time_chart(dataset,"",get_yaxis_label(),filename);
     }
 
     //////////////////////////////////////////////////////
