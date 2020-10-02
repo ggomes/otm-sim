@@ -9,7 +9,7 @@ import jaxb.Controller;
 import common.Link;
 import jaxb.Roadparam;
 import common.Scenario;
-import sensor.CommoditySensor;
+import sensor.FixedSensor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class ControllerAlinea extends AbstractControllerRampMetering {
             ActuatorMeter act = (ActuatorMeter) abs_act;
             AlineaParams param = new AlineaParams();
 
-            CommoditySensor ml_sensor = (CommoditySensor) sensors.iterator().next();
+            FixedSensor ml_sensor = (FixedSensor) sensors.iterator().next();
             Link ml_link = ml_sensor.get_link();
 
             Roadparam p = ml_link.road_param;

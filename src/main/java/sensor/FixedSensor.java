@@ -14,7 +14,7 @@ import utils.OTMUtils;
 
 import java.util.*;
 
-public class CommoditySensor extends AbstractSensor {
+public class FixedSensor extends AbstractSensor {
 
     private Link link;
     public int start_lane;
@@ -29,7 +29,7 @@ public class CommoditySensor extends AbstractSensor {
     // construction
     ////////////////////////////////////////
 
-    public CommoditySensor(float dt,Link link,int start_lane,int end_lane,float position,Set<Long> commids) throws OTMException {
+    public FixedSensor(float dt, Link link, int start_lane, int end_lane, float position, Set<Long> commids) throws OTMException {
         super(null, Type.fixed, dt);
         this.link = link;
         this.start_lane = start_lane;
@@ -38,7 +38,7 @@ public class CommoditySensor extends AbstractSensor {
         this.commids = commids;
     }
 
-    public CommoditySensor(Scenario scenario, Sensor jaxb_sensor)  throws OTMException {
+    public FixedSensor(Scenario scenario, Sensor jaxb_sensor)  throws OTMException {
         super(jaxb_sensor);
 
         this.link = scenario.network.links.containsKey((jaxb_sensor.getLinkId())) ?

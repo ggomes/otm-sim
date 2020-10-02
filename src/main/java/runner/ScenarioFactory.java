@@ -20,7 +20,7 @@ import lanechange.UniformLaneSelector;
 import plugin.PluginLoader;
 import profiles.*;
 import sensor.AbstractSensor;
-import sensor.CommoditySensor;
+import sensor.FixedSensor;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -253,8 +253,8 @@ public class ScenarioFactory {
             if(sensors.containsKey(jaxb_sensor.getId()))
                 throw new OTMException("Duplicate sensor id found: " + jaxb_sensor.getId());
             switch(jaxb_sensor.getType()){
-                case "commodity":
-                    sensor = new CommoditySensor(scenario,jaxb_sensor);
+                case "fixed":
+                    sensor = new FixedSensor(scenario,jaxb_sensor);
                     break;
                 default:
                     sensor = null;

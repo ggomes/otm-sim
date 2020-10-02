@@ -10,7 +10,7 @@ import error.OTMException;
 import jaxb.Controller;
 import jaxb.Parameter;
 import profiles.Profile1D;
-import sensor.CommoditySensor;
+import sensor.FixedSensor;
 import utils.OTMUtils;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import java.util.Set;
 
 public class ControllerOfframpFlow extends AbstractController {
 
-    private CommoditySensor sensor;
+    private FixedSensor sensor;
     private Profile1D ref;
 
     public ControllerOfframpFlow(Scenario scenario, Controller jaxb_controller) throws OTMException {
@@ -46,7 +46,7 @@ public class ControllerOfframpFlow extends AbstractController {
         ActuatorSplit act = (ActuatorSplit) actuators.values().iterator().next();
         Set<Long> commids = new HashSet<>();
         commids.add(act.comm.getId());
-        this.sensor = new CommoditySensor(dt, act.linkin,1,act.linkin.full_lanes,act.linkin.length,commids);
+        this.sensor = new FixedSensor(dt, act.linkin,1,act.linkin.full_lanes,act.linkin.length,commids);
     }
 
     @Override

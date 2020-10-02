@@ -12,9 +12,7 @@ import error.OTMException;
 public abstract class AbstractSensor implements Pokable, InterfaceScenarioElement {
 
     public enum Type {
-        fixed,
-        commodity,
-        plugin
+        fixed
     }
 
     public Long id;

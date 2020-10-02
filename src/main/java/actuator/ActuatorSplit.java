@@ -28,8 +28,8 @@ public class ActuatorSplit extends AbstractActuator {
     public ActuatorSplit(Scenario scenario, Actuator jact) throws OTMException {
         super(scenario, jact);
 
-        if(jact.getActuatorTarget()!=null && jact.getActuatorTarget().getParameters()!=null){
-            for(Parameter p : jact.getActuatorTarget().getParameters().getParameter()){
+        if(jact.getParameters()!=null){
+            for(Parameter p : jact.getParameters().getParameter()){
                 switch(p.getName()){
                     case "linkin":
                         this.linkin = scenario.network.links.get(Long.parseLong(p.getValue()));
@@ -81,10 +81,12 @@ public class ActuatorSplit extends AbstractActuator {
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
 
         if(initialized)
             return;
+
+        super.initialize(scenario);
+
 
         long commid = comm.getId();
 
