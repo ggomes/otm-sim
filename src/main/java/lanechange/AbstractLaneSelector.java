@@ -7,6 +7,7 @@ import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMException;
 import geometry.Side;
+import keys.State;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,20 +17,26 @@ public abstract class AbstractLaneSelector implements Pokable {
 
     protected float dt;
     protected AbstractLaneGroup lg;
-    protected Map<Side,Double> side2prob; // side -> probability
+    protected Map<State,Map<Side,Double>> side2prob; // state->side -> probability
 
     // this will be called by a lgrestric controller whenever it changes the lc options.
-    public abstract void update_lane_change_probabilities_with_options(Set<Side> lcoptions);
+    public abstract void update_lane_change_probabilities_with_options(State state,Set<Side> lcoptions);
 
     public AbstractLaneSelector(AbstractLaneGroup lg,float dt){
         this.dt = dt;
         this.lg = lg;
         side2prob = new HashMap<>();
-        side2prob.put(Side.middle,null);
-        if(lg.neighbor_in!=null)
-            side2prob.put(Side.in,null);
-        if(lg.neighbor_out!=null)
-            side2prob.put(Side.out,null);
+
+        for(Map.Entry<State,Set<Side>> e: lg.state2lanechangedirections.entrySet()){
+            State s = e.getKey();
+            Map<Side,Double> x = new HashMap<>();
+            side2prob.put(s,x);
+            Set<Side> sides = e.getValue();
+            double v = 1d/sides.size();
+            for(Side side : sides)
+                x.put(side,v);
+        }
+
     }
 
     public void initialize(Scenario scenario) throws OTMException {
@@ -43,11 +50,12 @@ public abstract class AbstractLaneSelector implements Pokable {
             dispatcher.register_event(new EventPoke(dispatcher,5,timestamp+dt,this));
     }
 
-    public final Map<Side,Double> get_lanechange_probabilities(){
-        return side2prob;
+    public final Map<Side,Double> get_lanechange_probabilities(State state){
+        return side2prob.get(state);
     }
 
     public final void update_lane_change_probabilities() {
-        update_lane_change_probabilities_with_options(side2prob.keySet());
+        for(State state : side2prob.keySet())
+            update_lane_change_probabilities_with_options(state,side2prob.get(state).keySet());
     }
 }

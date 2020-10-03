@@ -2,7 +2,9 @@ package lanechange;
 
 import common.AbstractLaneGroup;
 import geometry.Side;
+import keys.State;
 
+import java.util.Map;
 import java.util.Set;
 
 public class LogitLaneSelector extends AbstractLaneSelector {
@@ -19,13 +21,16 @@ public class LogitLaneSelector extends AbstractLaneSelector {
     }
 
     @Override
-    public void update_lane_change_probabilities_with_options(Set<Side> lcoptions) {
+    public void update_lane_change_probabilities_with_options(State state, Set<Side> lcoptions) {
 
         assert(lcoptions.size()>0);
 
+        Map<Side,Double> myside2prob = side2prob.get(state);
+
+
         if(lcoptions.size()==1){
-            side2prob.clear();
-            side2prob.put(lcoptions.iterator().next(),1d);
+            myside2prob.clear();
+            myside2prob.put(lcoptions.iterator().next(),1d);
             return;
         }
 
@@ -53,21 +58,21 @@ public class LogitLaneSelector extends AbstractLaneSelector {
         }
 
         // clean side2prob
-        if(side2prob.containsKey(Side.in) && !has_in)
-            side2prob.remove(Side.in);
-        if(side2prob.containsKey(Side.middle) && !has_middle)
-            side2prob.remove(Side.middle);
-        if(side2prob.containsKey(Side.out) && !has_out)
-            side2prob.remove(Side.out);
+        if(myside2prob.containsKey(Side.in) && !has_in)
+            myside2prob.remove(Side.in);
+        if(myside2prob.containsKey(Side.middle) && !has_middle)
+            myside2prob.remove(Side.middle);
+        if(myside2prob.containsKey(Side.out) && !has_out)
+            myside2prob.remove(Side.out);
 
         if(has_in)
-            side2prob.put(Side.in,ei/den);
+            myside2prob.put(Side.in,ei/den);
 
         if(has_middle)
-            side2prob.put(Side.middle,em/den);
+            myside2prob.put(Side.middle,em/den);
 
         if(has_out)
-            side2prob.put(Side.out,eo/den);
+            myside2prob.put(Side.out,eo/den);
 
     }
 }

@@ -35,7 +35,8 @@ public class SplitMatrixProfile {
 
     public void validate(Scenario scenario,OTMErrorLog errorLog) {
 
-        // TODO: Validate that you cannot have splits where there are no road connections.
+        if(splits==null)
+            return;
 
         Node node = link_in.end_node;
 
@@ -80,6 +81,8 @@ public class SplitMatrixProfile {
     }
 
     public void initialize(Dispatcher dispatcher) throws OTMException {
+        if(splits==null)
+            return;
         float now = dispatcher.current_time;
         this.set_current_splits(splits.get_value_for_time(now));
         Map<Long,Double> time_splits = splits.get_value_for_time(now);

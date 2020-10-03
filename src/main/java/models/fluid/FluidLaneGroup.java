@@ -234,7 +234,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
         // otherwise use the lane selector, if it exists
         if(lane_selector!=null)
-            return lane_selector.get_lanechange_probabilities();
+            return lane_selector.get_lanechange_probabilities(state);
 
         // otherwise distribute equally
         double v = 1d/lcoptions.size();

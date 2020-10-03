@@ -2,7 +2,9 @@ package lanechange;
 
 import common.AbstractLaneGroup;
 import geometry.Side;
+import keys.State;
 
+import java.util.Map;
 import java.util.Set;
 
 public class UniformLaneSelector extends AbstractLaneSelector {
@@ -12,7 +14,9 @@ public class UniformLaneSelector extends AbstractLaneSelector {
     }
 
     @Override
-    public void update_lane_change_probabilities_with_options(Set<Side> lcoptions) {
+    public void update_lane_change_probabilities_with_options(State state, Set<Side> lcoptions) {
+
+        Map<Side,Double> myside2prob = side2prob.get(state);
 
         double s = 1d/lcoptions.size();
         boolean has_in = lcoptions.contains(Side.in) && lg.neighbor_in!=null;
@@ -20,20 +24,20 @@ public class UniformLaneSelector extends AbstractLaneSelector {
         boolean has_out = lcoptions.contains(Side.out) && lg.neighbor_out!=null;
 
         // clean side2prob
-        if(side2prob.containsKey(Side.in) && !has_in)
-            side2prob.remove(Side.in);
-        if(side2prob.containsKey(Side.middle) && !has_middle)
-            side2prob.remove(Side.middle);
-        if(side2prob.containsKey(Side.out) && !has_out)
-            side2prob.remove(Side.out);
+        if(myside2prob.containsKey(Side.in) && !has_in)
+            myside2prob.remove(Side.in);
+        if(myside2prob.containsKey(Side.middle) && !has_middle)
+            myside2prob.remove(Side.middle);
+        if(myside2prob.containsKey(Side.out) && !has_out)
+            myside2prob.remove(Side.out);
 
         if(has_in)
-            side2prob.put(Side.in,s);
+            myside2prob.put(Side.in,s);
 
         if(has_middle)
-            side2prob.put(Side.middle,s);
+            myside2prob.put(Side.middle,s);
 
         if(has_out)
-            side2prob.put(Side.out,s);
+            myside2prob.put(Side.out,s);
     }
 }
