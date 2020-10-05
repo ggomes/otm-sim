@@ -8,7 +8,6 @@ import utils.OTMUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class CTMCell extends AbstractCell {
 
@@ -101,7 +100,6 @@ public class CTMCell extends AbstractCell {
                     total_vehicles += laneGroup.buffer.get_total_veh();
                 supply = laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - total_vehicles);
             }
-
 
         }
     }

@@ -1,5 +1,6 @@
 package models.fluid.ctm;
 
+import common.FlowAccumulatorState;
 import common.Link;
 
 import error.OTMErrorLog;
@@ -207,14 +208,14 @@ public class ModelCTM extends AbstractFluidModel {
                     FluidLaneGroup from_lg = (FluidLaneGroup) to_lg.neighbor_in;
                     CTMCell ncell = (CTMCell) from_lg.cells.get(i);
                     if(!ncell.out_barrier)
-                        ncell.total_vehs_out -= do_lane_changes(to_lg,to_cell,my_gamma,ncell.veh_out);
+                        ncell.total_vehs_out -= do_lane_changes(to_lg, to_cell, my_gamma, ncell.flw_lcout_acc, ncell.veh_out);
                 }
 
                 if (to_lg.neighbor_out != null) {
                     FluidLaneGroup from_lg = (FluidLaneGroup) to_lg.neighbor_out;
                     CTMCell ncell = (CTMCell) from_lg.cells.get(i);
                     if(!ncell.in_barrier)
-                        ncell.total_vehs_in -= do_lane_changes(to_lg,to_cell,my_gamma,ncell.veh_in);
+                        ncell.total_vehs_in -= do_lane_changes(to_lg,to_cell,my_gamma, ncell.flw_lcin_acc,ncell.veh_in);
                 }
             }
         }
@@ -238,7 +239,7 @@ public class ModelCTM extends AbstractFluidModel {
         }
     }
 
-    private double do_lane_changes(FluidLaneGroup to_lg,CTMCell to_cell,double to_gamma,Map<State, Double> from_vehs){
+    private double do_lane_changes(FluidLaneGroup to_lg, CTMCell to_cell, double to_gamma, FlowAccumulatorState acc, Map<State, Double> from_vehs){
         double total_flw = 0d;
         for (Map.Entry<State, Double> e : from_vehs.entrySet()) {
             Double from_veh = e.getValue();
@@ -251,6 +252,10 @@ public class ModelCTM extends AbstractFluidModel {
                 // remove from this cell
                 from_vehs.put(state, from_veh-flw );
                 total_flw += flw;
+
+                // update accumulator
+                if(acc!=null)
+                    acc.increment(state,flw);
 
                 // choose lane change direction in destination cell
                 // prefer middle

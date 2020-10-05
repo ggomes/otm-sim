@@ -15,6 +15,7 @@ import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.KeyCommodityDemandTypeId;
+import lanechange.KeepLaneSelector;
 import lanechange.LogitLaneSelector;
 import lanechange.UniformLaneSelector;
 import plugin.PluginLoader;
@@ -90,7 +91,7 @@ public class ScenarioFactory {
                     commodity.register_commodity(link, commodity, null);
 
         // lane change models .............................
-        String lcmodel = "uniform";
+        String lcmodel = "keep";
         for(Link link : scenario.network.links.values()){
             if(link.lanegroups_flwdn.size()>1){
                 for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()){
@@ -104,6 +105,9 @@ public class ScenarioFactory {
                             break;
                         case "uniform":
                             lg.lane_selector = new UniformLaneSelector(lg);
+                            break;
+                        case "keep":
+                            lg.lane_selector = new KeepLaneSelector(lg);
                             break;
                     }
                 }

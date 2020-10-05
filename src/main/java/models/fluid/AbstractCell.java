@@ -17,6 +17,8 @@ public abstract class AbstractCell {
     public boolean out_barrier;
 
     public FlowAccumulatorState flw_acc;
+    public FlowAccumulatorState flw_lcout_acc;
+    public FlowAccumulatorState flw_lcin_acc;
 
     public abstract void reset();
     public abstract void allocate_state();

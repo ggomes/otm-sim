@@ -27,7 +27,6 @@ public class LogitLaneSelector extends AbstractLaneSelector {
 
         Map<Side,Double> myside2prob = side2prob.get(state);
 
-
         if(lcoptions.size()==1){
             myside2prob.clear();
             myside2prob.put(lcoptions.iterator().next(),1d);

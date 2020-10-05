@@ -407,6 +407,22 @@ public class Output {
         }
     }
 
+    public void request_cell_lanechange_out(Long commodity_id, Collection<Long> link_ids, Float outDt){
+        try {
+            this.myapi.scn.outputs.add(new OutputCellLanechangeOut(myapi.scn,null,null,commodity_id,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void request_cell_lanechange_in(Long commodity_id, Collection<Long> link_ids, Float outDt){
+        try {
+            this.myapi.scn.outputs.add(new OutputCellLanechangeIn(myapi.scn,null,null,commodity_id,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     // ----------------------------------------------
     // Subnetwork state
