@@ -93,16 +93,21 @@ public class ActuatorSplit extends AbstractActuator {
         // delete the existng splits.
         if(linkin.split_profile.containsKey(commid)){
             scenario.dispatcher.remove_events_for_recipient(EventSplitChange.class,linkin.split_profile.get(commid));
+            this.smp = linkin.split_profile.get(commid);
             linkin.split_profile.remove(commid);
+        }
+        else{
+            this.smp = new SplitMatrixProfile(commid,linkin);
         }
 
         // create the new split ratio matrix
-        this.smp = new SplitMatrixProfile(commid,linkin);
         linkin.split_profile.put(commid, smp);
     }
 
     @Override
     public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException {
+        if(command==null)
+            return;
         double outsplit = (double) ((CommandNumber)command).value;
         Map<Long,Double> outlink2split = new HashMap<>();
         outlink2split.put(linkFR.getId(),outsplit);

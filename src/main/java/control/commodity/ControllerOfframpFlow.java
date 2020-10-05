@@ -66,16 +66,18 @@ public class ControllerOfframpFlow extends AbstractController {
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
 
-        ActuatorSplit act = (ActuatorSplit) actuators.values().iterator().next();
-
         // get the flow that is currently entering linkin for this commodity
         double flow_in_vph = sensor.get_flow_vph();
+
+        // if the sensor registers no flow, then dont do anything.
+        if(flow_in_vph<0.0001)
+            return;
 
         // get the desired exit flow
         double des_flow_out_vph = ref.get_value_for_time(dispatcher.current_time);
 
         // compute the split ratio
-        float split = flow_in_vph==0f ? 1f : (float) ( des_flow_out_vph / flow_in_vph );
+        float split = (float) ( des_flow_out_vph / flow_in_vph );
         if(split<0f)
             split = 0f;
         if(split>1f)
@@ -85,6 +87,7 @@ public class ControllerOfframpFlow extends AbstractController {
             split=1f;
 
         // update the command
+        ActuatorSplit act = (ActuatorSplit) actuators.values().iterator().next();
         command.put(act.id, new CommandNumber(split));
     }
 }
