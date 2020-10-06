@@ -91,28 +91,7 @@ public class ScenarioFactory {
                     commodity.register_commodity(link, commodity, null);
 
         // lane change models .............................
-        String lcmodel = "keep";
-        for(Link link : scenario.network.links.values()){
-            if(link.lanegroups_flwdn.size()>1){
-                for(AbstractLaneGroup lg : link.lanegroups_flwdn.values()){
-                    switch(lcmodel){
-                        case "logit":
-                            float dt = 30f;
-                            double a0 = 0.6931;
-                            double a1 = 0.0115;
-                            double a2 = 0.0053;
-                            lg.lane_selector = new LogitLaneSelector(lg,dt,a0,a1,a2);
-                            break;
-                        case "uniform":
-                            lg.lane_selector = new UniformLaneSelector(lg);
-                            break;
-                        case "keep":
-                            lg.lane_selector = new KeepLaneSelector(lg);
-                            break;
-                    }
-                }
-            }
-        }
+        assign_lane_change_models(scenario.network.links,js.getLanechanges());
 
         // splits ...........................................................
         ScenarioFactory.create_splits_from_jaxb(scenario.network, js.getSplits());
@@ -440,6 +419,41 @@ public class ScenarioFactory {
 
         return commodities;
     }
+
+    private static void assign_lane_change_models(Map<Long,Link> links,jaxb.Lanechanges jlcs) throws OTMException {
+
+        String default_type = "keep";
+
+        if(jlcs==null) {
+            for(Link link : links.values())
+                for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                    lg.assign_lane_selector(default_type);
+            return;
+        }
+
+        Set<Long> unassigned = links.keySet();
+        for(jaxb.Lanechange lc : jlcs.getLanechange()){
+            String type = lc.getType();
+            if(lc.getLinks()==null)
+                continue;
+            List<Long> linkids = OTMUtils.csv2longlist(lc.getLinks());
+            unassigned.removeAll(linkids);
+            for(Long linkid : linkids)
+                if(links.containsKey(linkid))
+                    for(AbstractLaneGroup lg : links.get(linkid).lanegroups_flwdn.values())
+                        lg.assign_lane_selector(type);
+        }
+
+        if(!unassigned.isEmpty()){
+            Optional<String> givendefault = jlcs.getLanechange().stream().filter(x -> x.isIsDefault()).map(x -> x.getType()).findFirst();
+            String my_default_type = givendefault.isPresent() ? givendefault.get() : default_type;
+            for(Long linkid : unassigned)
+                for(AbstractLaneGroup lg : links.get(linkid).lanegroups_flwdn.values())
+                    lg.assign_lane_selector(my_default_type);
+        }
+
+    }
+
 
     private static Map<KeyCommodityDemandTypeId,AbstractDemandProfile> create_demands_from_jaxb(Network network, jaxb.Demands jaxb_demands) throws OTMException  {
         Map<KeyCommodityDemandTypeId,AbstractDemandProfile> demands = new HashMap<>();

@@ -113,6 +113,7 @@
 				<xs:element ref="otm:network" minOccurs="1" maxOccurs="1" />
 				<xs:element ref="otm:subnetworks" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:models" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="otm:lanechanges" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:demands" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:splits" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:controllers" minOccurs="0" maxOccurs="1" />
@@ -364,7 +365,26 @@
 			<xs:attribute name="max_cell_length" type="xs:float" />
 		</xs:complexType>
 	</xs:element>
-	
+
+
+	<!-- model .................................................................... -->
+
+	<xs:element name="lanechanges">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="otm:lanechange" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="lanechange">
+		<xs:complexType>
+			<xs:attribute name="type" type="xs:string" use="required" />
+			<xs:attribute name="links" type="xs:string" />
+			<xs:attribute name="is_default" type="xs:boolean" default="false" />
+		</xs:complexType>
+	</xs:element>
+
 	<!-- commodities .............................................................. -->
 
 	<xs:element name="commodities">

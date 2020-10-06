@@ -9,6 +9,9 @@ import geometry.FlowPosition;
 import geometry.Side;
 import keys.State;
 import lanechange.AbstractLaneSelector;
+import lanechange.KeepLaneSelector;
+import lanechange.LogitLaneSelector;
+import lanechange.UniformLaneSelector;
 import packet.StateContainer;
 import traveltime.AbstractLaneGroupTimer;
 import utils.OTMUtils;
@@ -187,6 +190,26 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 //        this.max_vehicles =  r.getJamDensity() * (length/1000.0) * num_lanes;
 //    }
 
+    public void assign_lane_selector(String type) throws OTMException {
+        switch(type) {
+            case "logit":
+                float dt = 30f;
+                double a0 = 0.6931;
+                double a1 = 0.0115;
+                double a2 = 0.0053;
+                lane_selector = new LogitLaneSelector(this, dt, a0, a1, a2);
+                break;
+            case "uniform":
+                lane_selector = new UniformLaneSelector(this);
+                break;
+            case "keep":
+                lane_selector = new KeepLaneSelector(this);
+                break;
+            default:
+                throw new OTMException("Unknown lane change type");
+        }
+    }
+
     ///////////////////////////////////////////////////
     // final
     ///////////////////////////////////////////////////
@@ -312,19 +335,9 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return outlink2roadconnection.get(outlink_id);
     }
 
-
-
-
-
-
-
-
-
-
     ///////////////////////////////////////////////////
     // lane group closures
     ///////////////////////////////////////////////////
-
 
     @Override
     public void set_actuator_isopen(boolean isopen,Long commid) {
