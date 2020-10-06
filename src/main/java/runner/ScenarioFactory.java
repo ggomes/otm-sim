@@ -423,11 +423,12 @@ public class ScenarioFactory {
     private static void assign_lane_change_models(Map<Long,Link> links,jaxb.Lanechanges jlcs) throws OTMException {
 
         String default_type = "keep";
+        float default_dt = 0f;
 
         if(jlcs==null) {
             for(Link link : links.values())
                 for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                    lg.assign_lane_selector(default_type);
+                    lg.assign_lane_selector(default_type,default_dt,null);
             return;
         }
 
@@ -441,15 +442,16 @@ public class ScenarioFactory {
             for(Long linkid : linkids)
                 if(links.containsKey(linkid))
                     for(AbstractLaneGroup lg : links.get(linkid).lanegroups_flwdn.values())
-                        lg.assign_lane_selector(type);
+                        lg.assign_lane_selector(type,lc.getDt(),lc.getParameters());
         }
 
         if(!unassigned.isEmpty()){
-            Optional<String> givendefault = jlcs.getLanechange().stream().filter(x -> x.isIsDefault()).map(x -> x.getType()).findFirst();
-            String my_default_type = givendefault.isPresent() ? givendefault.get() : default_type;
+            Optional<jaxb.Lanechange> x = jlcs.getLanechange().stream().filter(xx -> xx.isIsDefault()).findFirst();
+            String my_default_type = x.isPresent() ? x.get().getType() : default_type;
+            jaxb.Parameters my_params = x.isPresent() ? x.get().getParameters() : null;
             for(Long linkid : unassigned)
                 for(AbstractLaneGroup lg : links.get(linkid).lanegroups_flwdn.values())
-                    lg.assign_lane_selector(my_default_type);
+                    lg.assign_lane_selector(my_default_type,default_dt,my_params);
         }
 
     }

@@ -45,7 +45,7 @@ public class ControllerAlinea extends AbstractControllerRampMetering {
             FixedSensor ml_sensor = (FixedSensor) sensors.iterator().next();
             Link ml_link = ml_sensor.get_link();
 
-            Roadparam p = ml_link.road_param;
+            Roadparam p = ml_link.road_param_full;
             param.gain_per_sec = p.getSpeed() * 1000f / 3600f / ml_link.length ; // [kph]*1000/3600/[m] -> [mps]
             float critical_density_vpkpl = p.getCapacity() / p.getSpeed();  // vpkpl
             param.ref_density_veh = critical_density_vpkpl * ml_link.full_lanes * ml_link.length / 1000f;

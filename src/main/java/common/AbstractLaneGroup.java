@@ -38,7 +38,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public AbstractLaneGroup neighbor_in;       // lanegroup down and in
     public AbstractLaneGroup neighbor_out;      // lanegroup down and out
 
-
     // set of keys for states in this lanegroup
     public Set<State> states;   // TODO MOVE THIS TO DISCRETE TIME ONLY?
 
@@ -190,14 +189,10 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 //        this.max_vehicles =  r.getJamDensity() * (length/1000.0) * num_lanes;
 //    }
 
-    public void assign_lane_selector(String type) throws OTMException {
+    public void assign_lane_selector(String type,float dt,jaxb.Parameters params) throws OTMException {
         switch(type) {
             case "logit":
-                float dt = 30f;
-                double a0 = 0.6931;
-                double a1 = 0.0115;
-                double a2 = 0.0053;
-                lane_selector = new LogitLaneSelector(this, dt, a0, a1, a2);
+                lane_selector = new LogitLaneSelector(this, dt, params);
                 break;
             case "uniform":
                 lane_selector = new UniformLaneSelector(this);

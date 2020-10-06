@@ -9,15 +9,24 @@ import java.util.Set;
 
 public class LogitLaneSelector extends AbstractLaneSelector {
 
-    private final double a0;
-    private final double a1;
-    private final double a2;
+    private double a_keep = 1f;                // [-] positive utility of keeping your lane
+    private double a_rho_vehperlane = 1f;    // [1/vehperlane] positive utility of changing lanes into a lane with lower density
+//    private double a_toll;                    // [1/cents] positive utility of not paying the toll
 
-    public LogitLaneSelector(AbstractLaneGroup lg, float dt, double a0, double a1, double a2) {
+    public LogitLaneSelector(AbstractLaneGroup lg, float dt,jaxb.Parameters params) {
         super(lg,dt);
-        this.a0 = a0;
-        this.a1 = a1;
-        this.a2 = a2;
+        if(params!=null){
+            for(jaxb.Parameter p : params.getParameter()){
+                switch(p.getName()){
+                    case "keep":
+                        this.a_keep = Float.parseFloat(p.getValue());
+                        break;
+                    case "deltarho_vpkmplane":
+                        this.a_rho_vehperlane = Float.parseFloat(p.getValue())/lg.length;
+                        break;
+                }
+            }
+        }
     }
 
     @Override
@@ -28,8 +37,9 @@ public class LogitLaneSelector extends AbstractLaneSelector {
         Map<Side,Double> myside2prob = side2prob.get(state);
 
         if(lcoptions.size()==1){
+            Side lcoption = lcoptions.iterator().next();
             myside2prob.clear();
-            myside2prob.put(lcoptions.iterator().next(),1d);
+            myside2prob.put(lcoption,1d);
             return;
         }
 
@@ -38,21 +48,21 @@ public class LogitLaneSelector extends AbstractLaneSelector {
         boolean has_in = lcoptions.contains(Side.in) && lg.neighbor_in!=null;
         double ei=0d;
         if(has_in) {
-            ei = Math.exp( -a1*lg.neighbor_in.get_total_vehicles());
+            ei = Math.exp( -a_rho_vehperlane *lg.neighbor_in.get_total_vehicles()/lg.neighbor_in.num_lanes);
             den += ei;
         }
 
         boolean has_middle = lcoptions.contains(Side.middle);
         double em=0d;
         if(has_middle) {
-            em = Math.exp(a0 - a1 * lg.get_total_vehicles()/lg.num_lanes);
+            em = Math.exp(a_keep - a_rho_vehperlane * lg.get_total_vehicles()/lg.num_lanes);
             den += em;
         }
 
         boolean has_out = lcoptions.contains(Side.out) && lg.neighbor_out!=null;
         double eo=0d;
         if(has_out) {
-            eo = Math.exp( -a1*lg.neighbor_out.get_total_vehicles()/lg.neighbor_out.num_lanes );
+            eo = Math.exp( -a_rho_vehperlane *lg.neighbor_out.get_total_vehicles()/lg.neighbor_out.num_lanes );
             den += eo;
         }
 

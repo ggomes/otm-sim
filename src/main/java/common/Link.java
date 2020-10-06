@@ -1,6 +1,5 @@
 package common;
 
-import commodity.Commodity;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.RoadGeometry;
@@ -35,7 +34,7 @@ public class Link implements InterfaceScenarioElement {
     // parameters .........................................
     public RoadType road_type;
     public RoadGeometry road_geom;
-    public Roadparam road_param;        // for the sake of writing again to jaxb
+    public Roadparam road_param_full;        // for the sake of writing again to jaxb
     public List<Point> shape;           // not used by otm-sim
 
     // model .............................................
@@ -105,7 +104,7 @@ public class Link implements InterfaceScenarioElement {
         this.end_node.add_input_link(this);
 
         // parameters .........................................
-        this.road_param = rp;
+        this.road_param_full = rp;
 
         // shape
         this.shape = new ArrayList<>();
@@ -325,7 +324,7 @@ public class Link implements InterfaceScenarioElement {
         jlink.setFullLanes(this.full_lanes);
         if(this.road_geom!=null)
             jlink.setRoadgeom(this.road_geom.id);
-        jlink.setRoadparam(this.road_param.getId());
+        jlink.setRoadparam(this.road_param_full.getId());
         if(!road_type.equals(RoadType.none))
             jlink.setRoadType(this.road_type.toString());
         jaxb.Points jpoints = new jaxb.Points();

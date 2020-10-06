@@ -379,6 +379,10 @@
 
 	<xs:element name="lanechange">
 		<xs:complexType>
+			<xs:all>
+				<xs:element ref="otm:parameters" minOccurs="0" maxOccurs="1" />
+			</xs:all>
+			<xs:attribute name="dt" type="xs:float" default="0"/>
 			<xs:attribute name="type" type="xs:string" use="required" />
 			<xs:attribute name="links" type="xs:string" />
 			<xs:attribute name="is_default" type="xs:boolean" default="false" />

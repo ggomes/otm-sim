@@ -660,7 +660,7 @@ public class Network {
                 length = link.road_geom.dn_in.get_length(link.length);
                 break;
             case middle:    // full lane lane group
-                rp = link.road_param;
+                rp = link.road_param_full;
                 length = link.length;
                 break;
             case out:    // outer addlane lane group

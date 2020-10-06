@@ -58,7 +58,7 @@ public abstract class AbstractModel implements InterfaceModel {
 
     // called by Network constructor
     public void set_road_param(Link link, jaxb.Roadparam r){
-        link.road_param = r;
+        link.road_param_full = r;
         for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
             lg.set_road_params(r);
     }
