@@ -41,10 +41,10 @@ public class KeepLaneSelector extends AbstractLaneSelector {
             myside2prob.put(Side.in,0d);
 
         if(has_middle)
-            myside2prob.put(Side.middle,0d);
+            myside2prob.put(Side.middle,1d);
 
         if(has_out)
-            myside2prob.put(Side.out,1d);
+            myside2prob.put(Side.out,0d);
 
     }
 }
