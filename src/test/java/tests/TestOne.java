@@ -7,7 +7,6 @@ import output.*;
 import runner.OTM;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,7 +24,7 @@ public class TestOne extends AbstractTest {
             float duration = 3600f;
             float advance_time = 1f;
 
-            String configfile = "/home/gomes/Desktop/miami/2/var_dem_miami_cfg_0.xml";
+            String configfile = "/home/gomes/Downloads/z_0.xml";
             String prefix = "test";
             String output_folder = "/home/gomes/Desktop/miami/2/";
 
@@ -53,7 +52,7 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "/home/gomes/Dropbox/gabriel/_transfer/hov/hov0_0.xml";
+            String configfile = "/home/gomes/Downloads/a_0.xml";
             api.OTM otm = new api.OTM(configfile,true,false);
             assertNotNull(otm);
         } catch (OTMException e) {
@@ -143,12 +142,12 @@ public class TestOne extends AbstractTest {
 
 //            System.out.println("t\tlg\tc\tflwin\tflwdwn\tflwout");
 
-            String configfile = "/home/gomes/Dropbox/gabriel/_transfer/hov/A1_0.xml";
+            String configfile = "/home/gomes/Downloads/a_0.xml";
 
-            float duration = 300f;
-            float outdt = 3f;
+            float duration = 20f;
+            float outdt = 2f;
             String prefix = "x";
-            String output_folder = "/home/gomes/Dropbox/gabriel/_transfer/hov";
+            String output_folder = "/home/gomes/Downloads";
 
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);
@@ -156,17 +155,13 @@ public class TestOne extends AbstractTest {
             // Output requests .....................
             Set<Long> link_ids =  new HashSet<>(); //otm.scenario.get_link_ids();
             link_ids.add(1l);
-            link_ids.add(2l);
-            link_ids.add(3l);
-
-            otm.output.request_lanegroup_flw(1l,link_ids,outdt);
-            otm.output.request_lanegroup_flw(2l,link_ids,outdt);
-            otm.output.request_lanegroup_flw(3l,link_ids,outdt);
+//            link_ids.add(2l);
+//            link_ids.add(3l);
 
             // links
 
-//            otm.output.request_links_flow(null, link_ids, outdt);
-//            otm.output.request_links_veh(null, link_ids, outdt);
+            otm.output.request_links_flow(null, link_ids, outdt);
+            otm.output.request_links_veh(null, link_ids, outdt);
 //            otm.output.request_links_sum_veh(null,link_ids,outdt);
 
 //            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);
@@ -174,8 +169,8 @@ public class TestOne extends AbstractTest {
 
             // lanegroups
 
-//            otm.output.request_lanegroup_flw(commid,link_ids,outdt);
-//            otm.output.request_lanegroup_veh(commid,link_ids,outdt);
+            otm.output.request_lanegroup_flw(null,link_ids,outdt);
+            otm.output.request_lanegroup_veh(null,link_ids,outdt);
 //            otm.output.request_lanegroup_sum_veh(null,link_ids,outdt);
 
 //            otm.output.request_lanegroups(prefix,output_folder);
@@ -185,9 +180,12 @@ public class TestOne extends AbstractTest {
 
             // cells
 
-//            otm.output.request_cell_flw(commid, link_ids, outdt);
-//            otm.output.request_cell_veh(commid,link_ids, outdt);
+            otm.output.request_cell_flw(null, link_ids, outdt);
+            otm.output.request_cell_veh(null,link_ids, outdt);
 //            otm.output.request_cell_sum_veh(null, link_ids, outdt);
+
+            otm.output.request_cell_lanechange_out(null, link_ids, outdt);
+            otm.output.request_cell_lanechange_in(null, link_ids, outdt);
 
 //            otm.output.request_cell_flw(prefix,output_folder,null, link_ids, outdt);
 //            otm.output.request_cell_veh(prefix,output_folder,null,link_ids, outdt);
@@ -226,7 +224,7 @@ public class TestOne extends AbstractTest {
                 if (output instanceof OutputLaneGroupFlow) {
                     OutputLaneGroupFlow x = (OutputLaneGroupFlow) output;
                     String commid = x.commodity==null ? "all" : String.format("%d",x.commodity.getId());
-                    String title = "Commodity " + x.commodity.name;
+                    String title = "Commodity " + (x.commodity==null ? "all" : x.commodity.name);
                     x.plot_for_links(null,title,  String.format("%s/lg_flow_%s.png", output_folder, commid));
                 }
 
@@ -248,6 +246,14 @@ public class TestOne extends AbstractTest {
 
                 if (output instanceof OutputCellSumVehicles)
                     ((OutputCellSumVehicles) output).plot_for_links(null, String.format("%s/cell_sumveh.png", output_folder));
+
+                if (output instanceof OutputCellLanechangeOut)
+                    ((OutputCellLanechangeOut) output).plot_for_links(null, String.format("%s/cell_lc_out.png", output_folder));
+
+                if (output instanceof OutputCellLanechangeIn)
+                    ((OutputCellLanechangeIn) output).plot_for_links(null, String.format("%s/cell_lc_in.png", output_folder));
+
+
 
 
 
