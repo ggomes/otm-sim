@@ -8,6 +8,7 @@ import dispatch.Pokable;
 import error.OTMException;
 import geometry.Side;
 import keys.State;
+import models.fluid.AbstractFluidModel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,11 @@ public abstract class AbstractLaneSelector implements Pokable {
             for(Side side : sides)
                 x.put(side,v);
         }
+
+        // dt==0 means update every time step
+        // dt<0 means update only once upon initialization
+        if(this.dt==0)
+            this.dt = ((AbstractFluidModel)lg.link.model).dt_sec;
 
     }
 

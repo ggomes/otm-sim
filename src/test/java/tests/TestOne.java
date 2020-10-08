@@ -142,9 +142,9 @@ public class TestOne extends AbstractTest {
 
 //            System.out.println("t\tlg\tc\tflwin\tflwdwn\tflwout");
 
-            String configfile = "/home/gomes/Downloads/a_0.xml";
+            String configfile = "/home/gomes/Downloads/183_0.xml";
 
-            float duration = 20f;
+            float duration = 300f;
             float outdt = 2f;
             String prefix = "x";
             String output_folder = "/home/gomes/Downloads";
@@ -156,7 +156,7 @@ public class TestOne extends AbstractTest {
             Set<Long> link_ids =  new HashSet<>(); //otm.scenario.get_link_ids();
             link_ids.add(1l);
 //            link_ids.add(2l);
-//            link_ids.add(3l);
+            link_ids.add(3l);
 
             // links
 

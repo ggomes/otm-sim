@@ -26,6 +26,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     public double ffspeed_cell_per_dt;         // [-]
     public double capacity_veh_per_dt;
     public double jam_density_veh_per_cell;
+    public double critical_density_vehpercell;
 
     public List<AbstractCell> cells;     // sequence of cells
 
@@ -94,7 +95,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         float dt_hr = dt_sec /3600f;
         float capacity_vehperlane = r.getCapacity()*dt_hr;
 
-        float jam_density_vehperlane = r.getJamDensity();
+        float jam_density_vehperkmperlane = r.getJamDensity();
         float ffspeed_veh = r.getSpeed() * dt_hr;
 
         nom_capacity_veh_per_dt = capacity_vehperlane * num_lanes;
@@ -102,15 +103,17 @@ public class FluidLaneGroup extends AbstractLaneGroup {
             nom_ffspeed_cell_per_dt = Double.NaN;
             ffspeed_cell_per_dt = Double.NaN;
             jam_density_veh_per_cell = Double.NaN;
+            critical_density_vehpercell = Double.NaN;
             wspeed_cell_per_dt = Double.NaN;
             lc_w = Double.NaN;
             capacity_veh_per_dt = nom_capacity_veh_per_dt;
         } else {
             nom_ffspeed_cell_per_dt = ffspeed_veh;
             ffspeed_cell_per_dt = ffspeed_veh;
-            jam_density_veh_per_cell = jam_density_vehperlane * num_lanes;
-            double critical_veh = capacity_vehperlane / nom_ffspeed_cell_per_dt;
-            wspeed_cell_per_dt = capacity_vehperlane / (jam_density_vehperlane - critical_veh);
+            jam_density_veh_per_cell = jam_density_vehperkmperlane * num_lanes;    // this gets multiplied by cell length in model.build
+            double critical_vehperlane = capacity_vehperlane / nom_ffspeed_cell_per_dt;
+            critical_density_vehpercell = critical_vehperlane * num_lanes;
+            wspeed_cell_per_dt = capacity_vehperlane / (jam_density_vehperkmperlane - critical_vehperlane);
             compute_lcw();
             capacity_veh_per_dt = nom_capacity_veh_per_dt;
         }
@@ -135,8 +138,9 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         this.ffspeed_cell_per_dt = Math.min(act_ffspeed_veh,nom_ffspeed_cell_per_dt);
 
         // set w
-        double critical_veh = capacity_veh_per_dt / ffspeed_cell_per_dt;
-        wspeed_cell_per_dt = capacity_veh_per_dt / (jam_density_veh_per_cell -critical_veh);
+        double critical_vehperlane = capacity_veh_per_dt / ffspeed_cell_per_dt;
+        critical_density_vehpercell = critical_vehperlane * num_lanes;
+        wspeed_cell_per_dt = capacity_veh_per_dt / (jam_density_veh_per_cell -critical_vehperlane);
         compute_lcw();
     }
 
@@ -147,7 +151,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     @Override
     public double get_max_vehicles() {
-        return jam_density_veh_per_cell*cells.size();
+        return jam_density_veh_per_cell *cells.size();
     }
 
     @Override
@@ -305,7 +309,6 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         }
         return X;
     }
-
 
     public final AbstractCell get_upstream_cell(){
         return cells.get(0);

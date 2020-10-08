@@ -448,10 +448,11 @@ public class ScenarioFactory {
         if(!unassigned.isEmpty()){
             Optional<jaxb.Lanechange> x = jlcs.getLanechange().stream().filter(xx -> xx.isIsDefault()).findFirst();
             String my_default_type = x.isPresent() ? x.get().getType() : default_type;
+            float my_dt = x.isPresent() ? x.get().getDt() : default_dt;
             jaxb.Parameters my_params = x.isPresent() ? x.get().getParameters() : null;
             for(Long linkid : unassigned)
                 for(AbstractLaneGroup lg : links.get(linkid).lanegroups_flwdn.values())
-                    lg.assign_lane_selector(my_default_type,default_dt,my_params);
+                    lg.assign_lane_selector(my_default_type,my_dt,my_params);
         }
 
     }
