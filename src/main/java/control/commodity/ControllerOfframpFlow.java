@@ -1,6 +1,7 @@
 package control.commodity;
 
 import actuator.ActuatorSplit;
+import common.Link;
 import common.Scenario;
 import control.AbstractController;
 import control.command.CommandDoubleMap;
@@ -20,7 +21,7 @@ public class ControllerOfframpFlow extends AbstractController {
     private FixedSensor ml_sensor;
     private Map<Long,Profile1D> fr_ref;
     private CommandDoubleMap splitmap;
-    private long actid;
+    private ActuatorSplit act;
 
     public ControllerOfframpFlow(Scenario scenario, Controller jcon) throws OTMException {
         super(scenario, jcon);
@@ -30,16 +31,14 @@ public class ControllerOfframpFlow extends AbstractController {
         if(jcon.getProfiles()!=null){
             for(jaxb.Profile prof : jcon.getProfiles().getProfile()){
                 float prof_start_time = prof.getStartTime();
-                float prof_dt = prof.getDt();
                 long prof_id = prof.getId();
-                List<Double> values = OTMUtils.csv2list(prof.getContent());
-                fr_ref.put(prof_id,new Profile1D(prof_start_time,prof_dt,values));
+                fr_ref.put(prof_id,prof_start_time>86400 ? null :
+                        new Profile1D(prof_start_time,prof.getDt(),OTMUtils.csv2list(prof.getContent())));
             }
         }
 
         // sensor
-        ActuatorSplit act = (ActuatorSplit) actuators.values().iterator().next();
-        this.actid = act.id;
+        act = (ActuatorSplit) actuators.values().iterator().next();
         Set<Long> commids = new HashSet<>();
         commids.add(act.comm.getId());
         this.ml_sensor = new FixedSensor(dt, act.linkMLup,1,act.linkMLup.full_lanes,act.linkMLup.length,commids);
@@ -52,7 +51,7 @@ public class ControllerOfframpFlow extends AbstractController {
         if(actuators.size()!=1)
             errorLog.addError("Offramp flow controller must have exactly one actuator.");
 
-        this.fr_ref.values().forEach(p->p.validate(errorLog));
+        this.fr_ref.values().stream().filter(x->x!=null).forEach(p->p.validate(errorLog));
 
         ActuatorSplit act = (ActuatorSplit) actuators.values().iterator().next();
         Set<Long> act_linkids = act.linkFRs.stream().map(l->l.getId()).collect(Collectors.toSet());
@@ -67,11 +66,12 @@ public class ControllerOfframpFlow extends AbstractController {
 
         Map<Long,Double> temp = new HashMap<>();
         for(Long id : fr_ref.keySet())
-            temp.put(id,0d);
+            if(fr_ref.get(id)!=null)
+                temp.put(id,0d);
         this.splitmap = new CommandDoubleMap(temp);
 
         this.command = new HashMap<>();
-        command.put(actid,splitmap);
+        command.put(act.id,splitmap);
 
     }
 
@@ -88,6 +88,9 @@ public class ControllerOfframpFlow extends AbstractController {
         for(Map.Entry<Long,Profile1D> e : fr_ref.entrySet()){
             Long frid = e.getKey();
             Profile1D prof = e.getValue();
+
+            if(prof==null)
+                continue;
 
             // get the desired exit flow
             double des_flow_out_vph = prof.get_value_for_time(dispatcher.current_time);
