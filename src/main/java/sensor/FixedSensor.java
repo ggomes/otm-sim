@@ -87,7 +87,7 @@ public class FixedSensor extends AbstractSensor {
         super.initialize(scenario);
         create_subsensors( position,commids);
         measurements = new HashMap<>();
-        for(Long c : scenario.commodities.keySet())
+        for(Long c : commids)
             measurements.put(c,new Measurement());
     }
 

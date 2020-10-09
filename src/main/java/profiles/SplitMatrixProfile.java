@@ -130,6 +130,43 @@ public class SplitMatrixProfile {
         }
     }
 
+    public void set_and_rectify_splits(Map<Long,Double> newsplit,Long linkrectify) {
+
+        assert(outlink2split.containsKey(linkrectify));
+        assert(newsplit.keySet().stream().allMatch(x->outlink2split.containsKey(x)));
+
+        double sumnew = 0d;
+        double sumkeep = 0d;
+        for(Map.Entry<Long,Double> e : outlink2split.entrySet()){
+            Long linkid = e.getKey();
+            if(newsplit.containsKey(linkid)){
+                double x = newsplit.get(linkid);
+                outlink2split.put(linkid,x);
+                sumnew += x;
+            }
+            else if(linkid!=linkrectify)
+                sumkeep += e.getValue();
+        }
+
+        if(sumnew+sumkeep<=1d){
+            outlink2split.put(linkrectify,1d-sumnew-sumkeep);
+        }
+        else {
+            outlink2split.put(linkrectify,0d);
+            double alpha = sumnew / (1d-sumkeep); // <1
+            for(long linkid : newsplit.keySet())
+                outlink2split.put(linkid,outlink2split.get(linkid)*alpha);
+        }
+
+        float s = 0f;
+        link_cumsplit = new ArrayList<>();
+        for(Map.Entry<Long,Double> e : outlink2split.entrySet()){
+            link_cumsplit.add(new LinkCumSplit(e.getKey(),s));
+            s += e.getValue();
+        }
+    }
+
+
     public void register_next_change(Dispatcher dispatcher,TimeMap time_map){
         if(time_map!=null)
             dispatcher.register_event(new EventSplitChange(dispatcher,time_map.time, this, time_map.value));

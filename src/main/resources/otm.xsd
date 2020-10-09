@@ -49,6 +49,28 @@
 
 	<!-- generics ................................................................. -->
 
+	<xs:element name="profiles">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="otm:profile" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="profile">
+		<xs:complexType mixed="true">
+			<xs:attribute name="start_time" type="xs:float" default="0" />
+			<xs:attribute name="dt" type="xs:float"/>
+			<xs:attribute name="id" type="xs:long"/>
+		</xs:complexType>
+	</xs:element>
+
+
+
+
+
+
+
 	<!-- the string content of the actuator_target is used to identify a
 	complex target, such as a set of lanegroups. The id is used to identify a
 	 simple target, such as a node. -->
@@ -648,6 +670,7 @@
 				<xs:element ref="otm:schedule" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:stages" minOccurs="0" />
 				<xs:element ref="otm:parameters" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="otm:profiles" minOccurs="0" maxOccurs="1" />
 			</xs:all>
 			<xs:attribute name="id" type="xs:long" use="required" />
 			<xs:attribute name="type" type="xs:string" use="required"/>

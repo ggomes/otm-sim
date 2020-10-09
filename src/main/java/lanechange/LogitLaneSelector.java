@@ -91,17 +91,17 @@ public class LogitLaneSelector extends AbstractLaneSelector {
         if(myside2prob.containsKey(Side.out) && !has_out)
             myside2prob.remove(Side.out);
 
-//        if(lg.link.getId()==1l) {
-//            float timestamp = lg.link.network.scenario.dispatcher.current_time;
-//            if (lg.neighbor_in != null) {
-//                FluidLaneGroup nlg = (FluidLaneGroup) lg.neighbor_in;
-//                System.out.println(String.format("%.1f\t( %.2f , %.2f , %.2f )\t( %.2f , %.2f )\t( %.2f , %.2f )",
-//                        timestamp, ei / den, em / den, eo / den,
-//                        nlg.critical_density_vehpercell,ui, //nlg.get_total_vehicles(),
-//                        ((FluidLaneGroup)lg).critical_density_vehpercell,um // lg.get_total_vehicles()
-//                ));
-//            }
-//        }
+        if(lg.link.getId()==1l) {
+            float timestamp = lg.link.network.scenario.dispatcher.current_time;
+            if (lg.neighbor_in != null) {
+                FluidLaneGroup nlg = (FluidLaneGroup) lg.neighbor_in;
+                System.out.println(String.format("%.1f\t( %.2f , %.2f , %.2f )\t( %.2f , %.2f )\t( %.2f , %.2f )",
+                        timestamp, ei / den, em / den, eo / den,
+                        nlg.critical_density_vehpercell,ui, //nlg.get_total_vehicles(),
+                        ((FluidLaneGroup)lg).critical_density_vehpercell,um // lg.get_total_vehicles()
+                ));
+            }
+        }
 
 
         if(has_in)
