@@ -64,7 +64,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     private Map<State,Set<Side>> disallowed_state2lanechangedirections = new HashMap<>();
 
     // lane selection model
-    public AbstractLaneSelector lane_selector;
+    public Map<Long,AbstractLaneSelector> lane_selector;  // comm->lane selector
 
     public AbstractLaneGroupTimer travel_timer;
 
@@ -181,7 +181,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             flw_acc.reset();
 
         if(lane_selector!=null)
-            lane_selector.initialize(scenario);
+            for(AbstractLaneSelector ls : lane_selector.values())
+                ls.initialize(scenario);
 
     }
 
@@ -189,19 +190,25 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 //        this.max_vehicles =  r.getJamDensity() * (length/1000.0) * num_lanes;
 //    }
 
-    public void assign_lane_selector(String type,float dt,jaxb.Parameters params) throws OTMException {
-        switch(type) {
-            case "logit":
-                lane_selector = new LogitLaneSelector(this, dt, params);
-                break;
-            case "uniform":
-                lane_selector = new UniformLaneSelector(this);
-                break;
-            case "keep":
-                lane_selector = new KeepLaneSelector(this);
-                break;
-            default:
-                throw new OTMException("Unknown lane change type");
+    public void assign_lane_selector(String type,float dt,jaxb.Parameters params,Collection<Long> commids) throws OTMException {
+
+        lane_selector = new HashMap<>();
+        for(Long commid : commids){
+            AbstractLaneSelector ls = null;
+            switch(type) {
+                case "logit":
+                    ls = new LogitLaneSelector(this, dt, params,commid);
+                    break;
+                case "uniform":
+                    ls = new UniformLaneSelector(this,commid);
+                    break;
+                case "keep":
+                    ls = new KeepLaneSelector(this,commid);
+                    break;
+                default:
+                    throw new OTMException("Unknown lane change type");
+            }
+            lane_selector.put(commid,ls);
         }
     }
 

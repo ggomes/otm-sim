@@ -20,7 +20,6 @@ public class ControllerRestrictLaneGroup extends AbstractController {
 
     public Set<Long> free_comms = new HashSet<>();
     public Set<Long> banned_comms = new HashSet<>();
-    public Set<Long> tolled_comms = new HashSet<>();
 
     ///////////////////////////////////////////////////
     // construction
@@ -39,9 +38,6 @@ public class ControllerRestrictLaneGroup extends AbstractController {
                     case "disallowed_comms":
                         banned_comms.addAll(OTMUtils.csv2longlist(p.getValue()));
                         break;
-                    case "tolled_comms":
-                        tolled_comms.addAll(OTMUtils.csv2longlist(p.getValue()));
-                        break;
                 }
             }
     }
@@ -57,8 +53,6 @@ public class ControllerRestrictLaneGroup extends AbstractController {
         Map<Long,Restriction> X = new HashMap<>();
         if (timestamp < end_time) {
             for (Long commid : free_comms)
-                X.put(commid, Restriction.Open);
-            for (Long commid : tolled_comms)
                 X.put(commid, Restriction.Open);
             for (Long commid : banned_comms)
                 X.put(commid, Restriction.Closed);

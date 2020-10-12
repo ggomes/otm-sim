@@ -18,20 +18,24 @@ public abstract class AbstractLaneSelector implements Pokable {
 
     protected float dt;
     protected AbstractLaneGroup lg;
-    protected Map<State,Map<Side,Double>> side2prob; // state->side -> probability
+    protected Map<Long,Map<Side,Double>> side2prob; // pathorlinkid->side -> probability
+    protected long commid;
 
     // this will be called by a lgrestric controller whenever it changes the lc options.
-    public abstract void update_lane_change_probabilities_with_options(State state,Set<Side> lcoptions);
+    public abstract void update_lane_change_probabilities_with_options(Long pathorlinkid,Set<Side> lcoptions);
 
-    public AbstractLaneSelector(AbstractLaneGroup lg,float dt){
+    public AbstractLaneSelector(AbstractLaneGroup lg,float dt,long commid){
         this.dt = dt;
         this.lg = lg;
+        this.commid = commid;
         side2prob = new HashMap<>();
 
         for(Map.Entry<State,Set<Side>> e: lg.state2lanechangedirections.entrySet()){
             State s = e.getKey();
+            if(s.commodity_id!=commid)
+                continue;
             Map<Side,Double> x = new HashMap<>();
-            side2prob.put(s,x);
+            side2prob.put(s.pathOrlink_id,x);
             Set<Side> sides = e.getValue();
             double v = 1d/sides.size();
             for(Side side : sides)
@@ -56,12 +60,12 @@ public abstract class AbstractLaneSelector implements Pokable {
             dispatcher.register_event(new EventPoke(dispatcher,5,timestamp+dt,this));
     }
 
-    public final Map<Side,Double> get_lanechange_probabilities(State state){
-        return side2prob.get(state);
+    public final Map<Side,Double> get_lanechange_probabilities(Long pathorlinkid){
+        return side2prob.get(pathorlinkid);
     }
 
     public final void update_lane_change_probabilities() {
-        for(State state : side2prob.keySet())
-            update_lane_change_probabilities_with_options(state,side2prob.get(state).keySet());
+        for(Long pathorlinkid : side2prob.keySet())
+            update_lane_change_probabilities_with_options(pathorlinkid,side2prob.get(pathorlinkid).keySet());
     }
 }

@@ -9,14 +9,14 @@ import java.util.Set;
 
 public class KeepLaneSelector extends AbstractLaneSelector {
 
-    public KeepLaneSelector(AbstractLaneGroup lg) {
-        super(lg, 0f);
+    public KeepLaneSelector(AbstractLaneGroup lg,Long commid) {
+        super(lg, 0f,commid);
     }
 
     @Override
-    public void update_lane_change_probabilities_with_options(State state, Set<Side> lcoptions) {
+    public void update_lane_change_probabilities_with_options(Long pathorlinkid, Set<Side> lcoptions) {
 
-        Map<Side,Double> myside2prob = side2prob.get(state);
+        Map<Side,Double> myside2prob = side2prob.get(pathorlinkid);
 
         if(lcoptions.size()==1){
             Side s = lcoptions.iterator().next();

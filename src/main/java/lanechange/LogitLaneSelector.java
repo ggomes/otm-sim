@@ -15,8 +15,8 @@ public class LogitLaneSelector extends AbstractLaneSelector {
 //    private double a_toll;                    // [1/cents] positive utility of not paying the toll
 
 
-    public LogitLaneSelector(AbstractLaneGroup lg, float dt,jaxb.Parameters params) {
-        super(lg,dt);
+    public LogitLaneSelector(AbstractLaneGroup lg, float dt,jaxb.Parameters params,Long commid) {
+        super(lg,dt,commid);
         if(params!=null){
             for(jaxb.Parameter p : params.getParameter()){
                 switch(p.getName()){
@@ -32,11 +32,11 @@ public class LogitLaneSelector extends AbstractLaneSelector {
     }
 
     @Override
-    public void update_lane_change_probabilities_with_options(State state, Set<Side> lcoptions) {
+    public void update_lane_change_probabilities_with_options(Long pathorlinkid, Set<Side> lcoptions) {
 
         assert(lcoptions.size()>0);
 
-        Map<Side,Double> myside2prob = side2prob.get(state);
+        Map<Side,Double> myside2prob = side2prob.get(pathorlinkid);
 
         if(lcoptions.size()==1){
             Side lcoption = lcoptions.iterator().next();

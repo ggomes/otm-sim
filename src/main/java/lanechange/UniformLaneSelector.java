@@ -9,14 +9,14 @@ import java.util.Set;
 
 public class UniformLaneSelector extends AbstractLaneSelector {
 
-    public UniformLaneSelector(AbstractLaneGroup lg) {
-        super(lg, 0f);
+    public UniformLaneSelector(AbstractLaneGroup lg,Long commid) {
+        super(lg, 0f,commid);
     }
 
     @Override
-    public void update_lane_change_probabilities_with_options(State state, Set<Side> lcoptions) {
+    public void update_lane_change_probabilities_with_options(Long pathorlinkid, Set<Side> lcoptions) {
 
-        Map<Side,Double> myside2prob = side2prob.get(state);
+        Map<Side,Double> myside2prob = side2prob.get(pathorlinkid);
 
         double s = 1d/lcoptions.size();
         boolean has_in = lcoptions.contains(Side.in) && lg.neighbor_in!=null;

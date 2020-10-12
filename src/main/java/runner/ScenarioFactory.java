@@ -7,17 +7,14 @@ import commodity.Commodity;
 import commodity.Subnetwork;
 import common.*;
 import control.*;
-import control.commodity.ControllerLaneChange;
 import control.commodity.ControllerRestrictLaneGroup;
 import control.commodity.ControllerOfframpFlow;
+import control.commodity.ControllerTollLaneGroup;
 import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.KeyCommodityDemandTypeId;
-import lanechange.KeepLaneSelector;
-import lanechange.LogitLaneSelector;
-import lanechange.UniformLaneSelector;
 import plugin.PluginLoader;
 import profiles.*;
 import sensor.AbstractSensor;
@@ -91,7 +88,7 @@ public class ScenarioFactory {
                     commodity.register_commodity(link, commodity, null);
 
         // lane change models .............................
-        assign_lane_change_models(scenario.network.links,js.getLanechanges());
+        assign_lane_change_models(scenario.commodities,scenario.network.links,js.getLanechanges());
 
         // splits ...........................................................
         ScenarioFactory.create_splits_from_jaxb(scenario.network, js.getSplits());
@@ -179,9 +176,6 @@ public class ScenarioFactory {
             case rm_fixed_rate:
                 controller = new ControllerFixedRate(scenario,jaxb_controller);
                 break;
-//            case "profile_rate":
-//                controller = new ControllerProfileRate(scenario,jaxb_controller);
-//                break;
             case rm_open:
                 controller = new ControllerRampMeterOpen(scenario,jaxb_controller);
                 break;
@@ -191,8 +185,8 @@ public class ScenarioFactory {
             case lg_restrict:
                 controller = new ControllerRestrictLaneGroup(scenario,jaxb_controller);
                 break;
-            case lg_lanechange:
-                controller = new ControllerLaneChange(scenario,jaxb_controller);
+            case lg_toll:
+                controller = new ControllerTollLaneGroup(scenario,jaxb_controller);
                 break;
             case frflow:
                 controller = new ControllerOfframpFlow(scenario,jaxb_controller);
@@ -420,7 +414,7 @@ public class ScenarioFactory {
         return commodities;
     }
 
-    private static void assign_lane_change_models(Map<Long,Link> links,jaxb.Lanechanges jlcs) throws OTMException {
+    private static void assign_lane_change_models(Map<Long,Commodity> comms,Map<Long,Link> links,jaxb.Lanechanges jlcs) throws OTMException {
 
         String default_type = "keep";
         float default_dt = 0f;
@@ -428,21 +422,22 @@ public class ScenarioFactory {
         if(jlcs==null) {
             for(Link link : links.values())
                 for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-                    lg.assign_lane_selector(default_type,default_dt,null);
+                    lg.assign_lane_selector(default_type,default_dt,null,comms.keySet());
             return;
         }
 
-        Set<Long> unassigned = links.keySet();
+        Set<Long> unassigned = new HashSet<>(links.keySet());
         for(jaxb.Lanechange lc : jlcs.getLanechange()){
             String type = lc.getType();
             if(lc.getLinks()==null)
                 continue;
-            List<Long> linkids = OTMUtils.csv2longlist(lc.getLinks());
+            Collection<Long> linkids = lc.getLinks()==null ? links.keySet() : OTMUtils.csv2longlist(lc.getLinks());
+            Collection<Long> commids = lc.getComms()==null ? comms.keySet() : OTMUtils.csv2longlist(lc.getComms());
             unassigned.removeAll(linkids);
             for(Long linkid : linkids)
                 if(links.containsKey(linkid))
                     for(AbstractLaneGroup lg : links.get(linkid).lanegroups_flwdn.values())
-                        lg.assign_lane_selector(type,lc.getDt(),lc.getParameters());
+                        lg.assign_lane_selector(type,lc.getDt(),lc.getParameters(),commids);
         }
 
         if(!unassigned.isEmpty()){
@@ -452,7 +447,7 @@ public class ScenarioFactory {
             jaxb.Parameters my_params = x.isPresent() ? x.get().getParameters() : null;
             for(Long linkid : unassigned)
                 for(AbstractLaneGroup lg : links.get(linkid).lanegroups_flwdn.values())
-                    lg.assign_lane_selector(my_default_type,my_dt,my_params);
+                    lg.assign_lane_selector(my_default_type,my_dt,my_params,comms.keySet());
         }
 
     }
