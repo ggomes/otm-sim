@@ -90,10 +90,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         }
         this.state2roadconnection = new HashMap<>();
 
-        // barriers
-//        in_barriers
-//                out_barriers
-
         this.outlink2roadconnection = new HashMap<>();
         if(out_rcs!=null) {
             for (RoadConnection rc : out_rcs) {
@@ -131,11 +127,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         }
 
     }
-
-//    @Override
-//    public long getIdAsTarget() {
-//        return id;
-//    }
 
     ///////////////////////////////////////////////////
     // Comparable
@@ -185,10 +176,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
                 ls.initialize(scenario);
 
     }
-
-//    public void set_road_params(jaxb.Roadparam r){
-//        this.max_vehicles =  r.getJamDensity() * (length/1000.0) * num_lanes;
-//    }
 
     public void assign_lane_selector(String type,float dt,jaxb.Parameters params,Collection<Long> commids) throws OTMException {
 

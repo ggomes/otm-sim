@@ -1,6 +1,5 @@
 package models.fluid;
 
-import actuator.ActuatorLaneChange;
 import common.*;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -26,12 +25,9 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     public double ffspeed_cell_per_dt;         // [-]
     public double capacity_veh_per_dt;
     public double jam_density_veh_per_cell;
-    public double critical_density_vehpercell;
+    public double critical_density_veh;
 
     public List<AbstractCell> cells;     // sequence of cells
-
-    // lane change actuators
-    public Map<State,ActuatorLaneChange> act_lcs;
 
     ////////////////////////////////////////////
     // construction
@@ -94,30 +90,28 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         // normalize
         float dt_hr = dt_sec /3600f;
         float capacity_vehperlane = r.getCapacity()*dt_hr;
-
         float jam_density_vehperkmperlane = r.getJamDensity();
-        float ffspeed_veh = r.getSpeed() * dt_hr;
+        float ffspeed_veh = r.getSpeed() * dt_hr;   // [km/dt]
 
         nom_capacity_veh_per_dt = capacity_vehperlane * num_lanes;
         if (link.is_source) {
             nom_ffspeed_cell_per_dt = Double.NaN;
             ffspeed_cell_per_dt = Double.NaN;
             jam_density_veh_per_cell = Double.NaN;
-            critical_density_vehpercell = Double.NaN;
+            critical_density_veh = Double.NaN;
             wspeed_cell_per_dt = Double.NaN;
             lc_w = Double.NaN;
             capacity_veh_per_dt = nom_capacity_veh_per_dt;
         } else {
-            nom_ffspeed_cell_per_dt = ffspeed_veh;
-            ffspeed_cell_per_dt = ffspeed_veh;
-            jam_density_veh_per_cell = jam_density_vehperkmperlane * num_lanes;    // this gets multiplied by cell length in model.build
+            nom_ffspeed_cell_per_dt = ffspeed_veh;                                  // /cell_length in build
+            ffspeed_cell_per_dt = ffspeed_veh;                                      // /cell_length in build
+            jam_density_veh_per_cell = jam_density_vehperkmperlane * num_lanes;     // *cell_length in build
             double critical_vehperlane = capacity_vehperlane / nom_ffspeed_cell_per_dt;
-            critical_density_vehpercell = critical_vehperlane * num_lanes;
-            wspeed_cell_per_dt = capacity_vehperlane / (jam_density_vehperkmperlane - critical_vehperlane);
+            critical_density_veh = critical_vehperlane * num_lanes;          // *lg_length in build
+            wspeed_cell_per_dt = capacity_vehperlane / (jam_density_vehperkmperlane - critical_vehperlane);// /cell_length in build
             compute_lcw();
             capacity_veh_per_dt = nom_capacity_veh_per_dt;
         }
-
     }
 
     @Override
@@ -139,7 +133,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
         // set w
         double critical_vehperlane = capacity_veh_per_dt / ffspeed_cell_per_dt;
-        critical_density_vehpercell = critical_vehperlane * num_lanes;
+        critical_density_veh = critical_vehperlane * num_lanes;
         wspeed_cell_per_dt = capacity_veh_per_dt / (jam_density_veh_per_cell -critical_vehperlane);
         compute_lcw();
     }
@@ -235,10 +229,6 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     // This is called when vehicles are added to the first cell in a lanegroup.
     // They decide which way to chenge lanes within the lanegroup.
     public Map<Side,Double> get_lc_probabilities(State state,Set<Side> lcoptions){
-
-        // get from lane change controller, if it exists
-        if(act_lcs!=null && act_lcs.containsKey(state))
-            return act_lcs.get(state).get_lanechange_probabilities();
 
         // otherwise use the lane selector, if it exists
         if(lane_selector!=null && lane_selector.containsKey(state.commodity_id))

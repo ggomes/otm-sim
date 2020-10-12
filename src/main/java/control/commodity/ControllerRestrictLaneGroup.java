@@ -1,5 +1,6 @@
 package control.commodity;
 
+import common.AbstractLaneGroup;
 import common.Scenario;
 import control.AbstractController;
 import control.command.CommandRestrictionMap;

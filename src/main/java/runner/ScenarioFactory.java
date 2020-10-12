@@ -266,9 +266,6 @@ public class ScenarioFactory {
                 case lg_restrict:
                     actuator = new ActuatorOpenCloseLaneGroup(scenario,jaxb_actuator);
                     break;
-                case lg_lanechange:
-                    actuator = new ActuatorLaneChange(scenario,jaxb_actuator);
-                    break;
                 case lg_speed:
                     throw new OTMException("NOT IMPLEMENTED YET");
                 case split:
@@ -429,8 +426,6 @@ public class ScenarioFactory {
         Set<Long> unassigned = new HashSet<>(links.keySet());
         for(jaxb.Lanechange lc : jlcs.getLanechange()){
             String type = lc.getType();
-            if(lc.getLinks()==null)
-                continue;
             Collection<Long> linkids = lc.getLinks()==null ? links.keySet() : OTMUtils.csv2longlist(lc.getLinks());
             Collection<Long> commids = lc.getComms()==null ? comms.keySet() : OTMUtils.csv2longlist(lc.getComms());
             unassigned.removeAll(linkids);
