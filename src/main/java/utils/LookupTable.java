@@ -25,5 +25,12 @@ public class LookupTable {
                 return y.get(i);
         return y.get(y.size()-1);
     }
-
+    public void scaleX(float alpha){
+        for(int i=0;i<x.size();i++)
+            x.set(i,x.get(i)*alpha);
+    }
+    public void scaleY(float alpha){
+        for(int i=0;i<y.size();i++)
+            y.set(i,y.get(i)*alpha);
+    }
 }

@@ -54,20 +54,23 @@ public class LogitLaneSelector extends AbstractLaneSelector {
         double ui=0d;
         double um=0d;
         double uo=0d;
+        double ei=0d;
+        double em=0d;
+        double eo=0d;
 
         boolean has_in = lcoptions.contains(Side.in) && lg.neighbor_in!=null;
-        double ei=0d;
         if(has_in) {
-            FluidLaneGroup tlg = (FluidLaneGroup)lg.neighbor_in;
-//            ei = Math.exp( -a_rho_vehperlane *lg.neighbor_in.get_total_vehicles()/lg.neighbor_in.num_lanes);
-//            ei = Math.exp( a_rho_vehperlane * targetlg.get_upstream_cell().supply /targetlg.num_lanes);
-            ui = Math.min(0d, rho_vehperlane * (tlg.critical_density_veh -tlg.get_total_vehicles() ));
-            ei = Math.exp(ui-add_in);
-            den += ei;
+            if(Double.isInfinite(add_in))
+                ei = 0;
+            else{
+                FluidLaneGroup tlg = (FluidLaneGroup)lg.neighbor_in;
+                ui = Math.min(0d, rho_vehperlane * (tlg.critical_density_veh -tlg.get_total_vehicles() ));
+                ei = Math.exp(ui-add_in);
+                den += ei;
+            }
         }
 
         boolean has_middle = lcoptions.contains(Side.middle);
-        double em=0d;
         if(has_middle) {
             FluidLaneGroup tlg = (FluidLaneGroup)lg;
 //            em = Math.exp(a_keep + a_rho_vehperlane * targetlg.get_dnstream_cell().supply /targetlg.num_lanes);
@@ -77,7 +80,6 @@ public class LogitLaneSelector extends AbstractLaneSelector {
         }
 
         boolean has_out = lcoptions.contains(Side.out) && lg.neighbor_out!=null;
-        double eo=0d;
         if(has_out) {
             FluidLaneGroup tlg = (FluidLaneGroup)lg.neighbor_out;
 //            eo = Math.exp( a_rho_vehperlane * targetlg.get_upstream_cell().supply /targetlg.num_lanes);

@@ -13,6 +13,8 @@ import error.OTMException;
 import jaxb.Controller;
 import lanechange.AbstractLaneSelector;
 import lanechange.LogitLaneSelector;
+import models.fluid.AbstractFluidModel;
+import models.fluid.FluidLaneGroup;
 import utils.OTMUtils;
 import utils.LookupTable;
 
@@ -30,8 +32,8 @@ public class ControllerTollLaneGroup extends AbstractController {
     public Set<Long> banned_comms = new HashSet<>();
     public Set<Long> tolled_comms = new HashSet<>();
     public float toll_coef;
-    public float qos_speed_threshold_kph;
-    public LookupTable vplph_to_cents_table;
+    public float speed_threshold_meterpdt;
+    public LookupTable vplpdt_to_cents_table;
 
     public Set<LGInfo> lginfos;
 
@@ -51,13 +53,15 @@ public class ControllerTollLaneGroup extends AbstractController {
                         tolled_comms.addAll(OTMUtils.csv2longlist(p.getValue()));
                         break;
                     case "vplph_to_cents_table":
-                        vplph_to_cents_table = new LookupTable(p.getValue());
+                        vplpdt_to_cents_table = new LookupTable(p.getValue());
+                        vplpdt_to_cents_table.scaleX(dt/3600f);
                         break;
                     case "toll_coef":
                         toll_coef = Float.parseFloat(p.getValue());
                         break;
                     case "qos_speed_threshold_kph":
-                        qos_speed_threshold_kph = Float.parseFloat(p.getValue());
+                        speed_threshold_meterpdt = Float.parseFloat(p.getValue()); // fix units in initialize
+                        speed_threshold_meterpdt *= 1000.0*dt/3600.0;
                         break;
                 }
             }
@@ -124,6 +128,7 @@ public class ControllerTollLaneGroup extends AbstractController {
         AbstractLaneGroup gplg;
         AbstractLaneGroup hotlg;
         FlowAccumulatorState fa;
+        double ffspeed_meterperdt;
         Map<Long,AbstractLaneSelector> nom_ls;
         Map<Long,LogitLaneSelector> toll_ls;
         double prev_count;
@@ -138,6 +143,12 @@ public class ControllerTollLaneGroup extends AbstractController {
         public void initialize(Dispatcher dispatcher){
             nom_ls = new HashMap<>();
             toll_ls = new HashMap<>();
+
+            int numcells =  ((FluidLaneGroup)hotlg).cells.size();
+            double celllength_meter = hotlg.length / numcells;
+            ffspeed_meterperdt = ((FluidLaneGroup)hotlg).ffspeed_cell_per_dt * celllength_meter;
+            ffspeed_meterperdt *= dt/((AbstractFluidModel)hotlg.link.model).dt_sec;
+
             for(Long commid : tolled_comms){
                 LogitLaneSelector newls;
                 if(gplg.lane_selector.containsKey(commid)) {
@@ -185,10 +196,22 @@ public class ControllerTollLaneGroup extends AbstractController {
 
         public void update(){
             double count = fa.get_total_count();
-            double flow = 3600.0*(count-prev_count)/dt;
+            double flow_vpdt = count-prev_count;
             prev_count = count;
-            double toll = vplph_to_cents_table.get_value_for((float)flow);
-            double add_term = toll_coef*toll;
+
+            double veh = hotlg.get_total_vehicles();
+
+            double speed_meterperdt = veh<1 ? ffspeed_meterperdt : hotlg.length*flow_vpdt/veh;
+            if(speed_meterperdt>ffspeed_meterperdt)
+                speed_meterperdt = ffspeed_meterperdt;
+
+            double add_term;
+            if(speed_meterperdt > speed_threshold_meterpdt)
+                add_term = Double.POSITIVE_INFINITY;
+            else {
+                double toll = vplpdt_to_cents_table.get_value_for((float)flow_vpdt/hotlg.num_lanes);
+                add_term = toll_coef*toll;
+            }
             for(Long commid : tolled_comms)
                 toll_ls.get(commid).setAdd_in(add_term);
         }
