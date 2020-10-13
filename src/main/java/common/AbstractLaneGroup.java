@@ -250,7 +250,12 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             state2roadconnection.put(state,null);
             Set<Side> sides = new HashSet<>();
             sides.add(Side.middle);
+            if(this.neighbor_out!=null)
+                sides.add(Side.out);
+            if(this.neighbor_in!=null)
+                sides.add(Side.in);
             state2lanechangedirections.put(state, sides);
+
         } else {
 
             // state2roadconnection
@@ -396,6 +401,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             disallowed_state2lanechangedirections.put(state,dsides);
         }
         dsides.add(side);
+
+        // remove side from lane selector
+        if(lane_selector.containsKey(state.commodity_id))
+            lane_selector.get(state.commodity_id).remove_side(state,side);
+
     }
 
     private void reallow_state_lanechangedirection(State state,Side side){
@@ -413,6 +423,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             state2lanechangedirections.put(state,sides);
         }
         sides.add(side);
+
+
+        // add side to lane selector
+        if(lane_selector.containsKey(state.commodity_id))
+            lane_selector.get(state.commodity_id).add_side(state,side);
     }
 
 }

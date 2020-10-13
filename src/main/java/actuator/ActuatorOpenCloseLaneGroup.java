@@ -37,7 +37,6 @@ public class ActuatorOpenCloseLaneGroup extends AbstractActuator {
         if(command==null)
             return;
 
-        Map<Long, ControllerRestrictLaneGroup.Restriction> X = ((CommandRestrictionMap)command).values;
         for(Map.Entry<Long, ControllerRestrictLaneGroup.Restriction> e : ((CommandRestrictionMap)command).values.entrySet()) {
             Long commid = e.getKey();
             boolean isopen = e.getValue()== ControllerRestrictLaneGroup.Restriction.Open;
