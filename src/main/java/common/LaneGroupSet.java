@@ -12,6 +12,11 @@ public class LaneGroupSet implements InterfaceActuatorTarget {
     public Set<AbstractLaneGroup> lgs = new HashSet<>();
 
     @Override
+    public long getIdAsTarget() {
+        return 0;
+    }
+
+    @Override
     public void register_actuator(Set<Long> commids,AbstractActuator act) throws OTMException {
         for(AbstractLaneGroup lg : lgs)
             lg.register_actuator(commids,act);

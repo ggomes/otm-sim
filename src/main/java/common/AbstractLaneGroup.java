@@ -108,6 +108,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     ///////////////////////////////////////////////////
 
     @Override
+    public long getIdAsTarget() {
+        return id;
+    }
+
+    @Override
     public void register_actuator(Set<Long> commids,AbstractActuator act) throws OTMException {
 
         if(act instanceof AbstractActuatorLanegroupCapacity){

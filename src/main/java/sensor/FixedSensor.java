@@ -121,6 +121,11 @@ public class FixedSensor extends AbstractSensor {
     // get
     /////////////////////////////////////////////////////////////////
 
+    // used by otm-ui
+    public float get_position(){
+        return position;
+    }
+
     public double get_flow_vph(){
         return measurements==null? 0d : measurements.values().stream().mapToDouble(m->m.flow_vph).sum();
     }

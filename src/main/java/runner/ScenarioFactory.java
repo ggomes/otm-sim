@@ -472,7 +472,7 @@ public class ScenarioFactory {
                 continue;
             Link link_in = network.links.get(link_in_id);
 
-            if(!link_in.split_profile.containsKey(commodity_id))
+            if(link_in.split_profile==null || !link_in.split_profile.containsKey(commodity_id))
                 continue;
 
             SplitMatrixProfile smp = link_in.split_profile.get(commodity_id);

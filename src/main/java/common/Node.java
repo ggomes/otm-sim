@@ -7,7 +7,7 @@ import actuator.InterfaceActuatorTarget;
 
 import java.util.*;
 
-public class Node implements InterfaceScenarioElement {
+public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
     public Network network;
     protected final long id;
@@ -24,6 +24,8 @@ public class Node implements InterfaceScenarioElement {
     // node flwpos
     public Float xcoord;
     public Float ycoord;
+
+    public AbstractActuator actuator;
 
     ///////////////////////////////////////////
     // construction
@@ -119,5 +121,21 @@ public class Node implements InterfaceScenarioElement {
         return out_links.size();
     }
 
+
+    ////////////////////////////////////////////
+    //  InterfaceActuatorTarget
+    ///////////////////////////////////////////
+
+    @Override
+    public long getIdAsTarget() {
+        return id;
+    }
+
+    @Override
+    public void register_actuator(Set<Long> commids, AbstractActuator act) throws OTMException {
+        if(act!=null)
+            throw new OTMException("Node already has an actuator");
+        this.actuator=act;
+    }
 
 }
