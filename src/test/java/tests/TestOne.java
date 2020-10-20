@@ -129,7 +129,7 @@ public class TestOne extends AbstractTest {
         }
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void run_one() {
         try {
@@ -142,10 +142,10 @@ public class TestOne extends AbstractTest {
 
 //            System.out.println("t\tlg\tc\tflwin\tflwdwn\tflwout");
 
-            String configfile = "/home/gomes/Downloads/183_0.xml";
+            String configfile = "/home/gomes/Downloads/AAA_0.xml";
 
-            float duration = 300f;
-            float outdt = 2f;
+            float duration = 60f;
+            float outdt = 3f;
             String prefix = "x";
             String output_folder = "/home/gomes/Downloads";
 
@@ -156,12 +156,12 @@ public class TestOne extends AbstractTest {
             Set<Long> link_ids =  new HashSet<>(); //otm.scenario.get_link_ids();
             link_ids.add(1l);
 //            link_ids.add(2l);
-            link_ids.add(3l);
+            link_ids.add(2l);
 
             // links
 
-            otm.output.request_links_flow(null, link_ids, outdt);
-            otm.output.request_links_veh(null, link_ids, outdt);
+//            otm.output.request_links_flow(null, link_ids, outdt);
+//            otm.output.request_links_veh(null, link_ids, outdt);
 //            otm.output.request_links_sum_veh(null,link_ids,outdt);
 
 //            otm.output.request_links_flow(prefix,output_folder,null, link_ids, outdt);

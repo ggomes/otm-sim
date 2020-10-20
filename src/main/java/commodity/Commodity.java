@@ -189,8 +189,6 @@ public class Commodity implements InterfaceScenarioElement {
 
                 // for pathless non-sink, add a state for each next link
                 for( Long next_link_id : link.outlink2lanegroups.keySet()  ){
-//                    if (!subnet.has_link_id(next_link_id))
-//                        continue;
                     for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
                         lg.add_state(comm.getId(), null,next_link_id, false);
                 }
