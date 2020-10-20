@@ -45,7 +45,7 @@ public abstract class AbstractLaneSelector implements Pokable {
 
         // dt==0 means update every time step
         // dt<0 means update only once upon initialization
-        if(this.dt==0)
+        if(this.dt==0 && (lg.link.model instanceof  AbstractFluidModel))
             this.dt = ((AbstractFluidModel)lg.link.model).dt_sec;
 
     }

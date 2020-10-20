@@ -26,7 +26,7 @@ public abstract class AbstractActuatorLanegroupCapacity extends AbstractActuator
     public AbstractActuatorLanegroupCapacity(Scenario scenario, Actuator jact) throws OTMException {
         super(scenario, jact);
         this.lanegroups = read_lanegroups(scenario,jact);
-        this.total_lanes = lanegroups.isEmpty() ? 0 : lanegroups.stream().mapToInt(x->x.num_lanes).sum();
+        this.total_lanes = lanegroups==null || lanegroups.isEmpty() ? 0 : lanegroups.stream().mapToInt(x->x.num_lanes).sum();
     }
 
     ///////////////////////////////////////////////////

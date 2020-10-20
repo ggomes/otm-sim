@@ -133,7 +133,7 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
     @Override
     public void register_actuator(Set<Long> commids, AbstractActuator act) throws OTMException {
-        if(act!=null)
+        if(actuator!=null)
             throw new OTMException("Node already has an actuator");
         this.actuator=act;
     }
