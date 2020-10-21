@@ -14,6 +14,7 @@ import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
+import models.AbstractModel;
 import plugin.PluginLoader;
 import profiles.*;
 import sensor.AbstractSensor;
@@ -85,6 +86,10 @@ public class ScenarioFactory {
             else
                 for(Link link : scenario.network.links.values())
                     commodity.register_commodity(link, commodity, null);
+
+        // build the models ..........................................
+        for(AbstractModel model : scenario.network.models.values())
+            model.build();
 
         // lane change models .............................
         assign_lane_change_models(scenario.commodities,scenario.network.links,js.getLanechanges());

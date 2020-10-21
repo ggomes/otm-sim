@@ -136,15 +136,13 @@ public class CTMCell extends AbstractCell {
                     total_demand = laneGroup.ffspeed_cell_per_dt * total_vehicles;
             }
 
-            // downstream cell: flow controller and lane change blocking
+            // downstream cell: lane change blocking
             if (am_dnstrm) {
 
                 if(total_vehs_out+total_vehs_in>OTMUtils.epsilon) {
-//                    double gamma = 0.9d;
-//                    double mulitplier = Math.max(0d,1d-gamma*total_vehs_out);
-//                    total_demand *= mulitplier;
                     total_demand = 0d;
                 }
+
             }
 
             // split among states

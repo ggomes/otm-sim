@@ -132,10 +132,6 @@ public class Network {
             }
         }
 
-        // models .................................................
-        for(AbstractModel model : models.values())
-            model.build();
-
     }
 
     // constructor for static scenario

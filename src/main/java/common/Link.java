@@ -319,8 +319,8 @@ public class Link implements InterfaceScenarioElement {
                 x.initialize(scenario.dispatcher);
 
         if(demandGenerators !=null)
-            for(AbstractDemandGenerator source : demandGenerators)
-                source.initialize(scenario);
+            for(AbstractDemandGenerator gen : demandGenerators)
+                gen.initialize(scenario);
     }
 
     @Override

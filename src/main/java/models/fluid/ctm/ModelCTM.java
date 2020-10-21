@@ -73,8 +73,7 @@ public class ModelCTM extends AbstractFluidModel {
         // TODO cache this?
         update_supply_for_all_cells(link,timestamp);
 
-        if(link.lanegroups_flwdn.size()>=2)
-            perform_lane_changes(link,timestamp);
+        perform_lane_changes(link,timestamp);
 
         update_demand(link,timestamp);
 
@@ -164,7 +163,10 @@ public class ModelCTM extends AbstractFluidModel {
 
     private void perform_lane_changes(Link link,float timestamp) {
 
-        // WARNING: THIS ASSUMES ONLY FULL LENGTH ADDLANES
+        if(link.lanegroups_flwdn.size()<2)
+            return;
+
+            // WARNING: THIS ASSUMES ONLY FULL LENGTH ADDLANES
 
 //        REWRITE THIS !!!!!
 

@@ -13,8 +13,10 @@ import profiles.Profile1D;
 import utils.OTMUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class FluidDemandGenerator extends AbstractDemandGenerator {
 
@@ -52,7 +54,7 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
         Long comm_id = commodity.getId();
 
         // for each lanegroup, a map from state to value.
-        Map<Long,Map<State,Double>> source_flows = new HashMap<>();
+//        Map<Long,Map<State,Double>> source_flows = new HashMap<>();
 
         if(commodity.pathfull){
             State state = new State(comm_id,path.getId(),true);
@@ -73,10 +75,17 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
                 Long nextlink_id = link.outlink2lanegroups.keySet().iterator().next();
                 State state = new State(comm_id,nextlink_id,false);
 
-                AbstractLaneGroup lg = link.lanegroups_flwdn.iterator().next();
-                Map<State,Double> x = new HashMap<>();
-                x.put(state,flow_veh_per_timestep);
-                ((FluidLaneGroup)lg).source_flow = x; }
+                List<Double> capacities = link.lanegroups_flwdn.stream()
+                        .map(lg->((FluidLaneGroup)lg).capacity_veh_per_dt)
+                        .collect(Collectors.toList());
+                double sum = capacities.stream().reduce(0d,Double::sum);
+
+                for(int i=0;i<link.lanegroups_flwdn.size();i++){
+                    FluidLaneGroup lg = (FluidLaneGroup)link.lanegroups_flwdn.get(i);
+                    lg.source_flow.put(state,flow_veh_per_timestep*capacities.get(i)/sum);
+                }
+
+            }
 
             // Otherwise...
             else {
@@ -100,19 +109,11 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
                     double all_lanes = candidate_lanegroups.stream().mapToDouble(x->x.num_lanes).sum();
                     double factor = flow_veh_per_timestep * split / all_lanes;
 
-                    for(AbstractLaneGroup lg : candidate_lanegroups){
-                        Map<State,Double> x;
-                        double demand_for_lg = factor * lg.num_lanes;
-                        if(source_flows.containsKey(lg.id)) {
-                            x = source_flows.get(lg.id);
-                            double val = x.containsKey(state) ? x.get(state) : 0d;
-                            x.put(state,val + demand_for_lg);
-                        }
-                        else {
-                            x = new HashMap<>();
-                            x.put(state,demand_for_lg);
-                        }
-                        ((FluidLaneGroup)lg).source_flow = x;
+                    for(AbstractLaneGroup alg : candidate_lanegroups){
+                        double demand_for_lg = factor * alg.num_lanes;
+                        FluidLaneGroup lg = (FluidLaneGroup) alg;
+                        double val = lg.source_flow.containsKey(state) ? lg.source_flow.get(state) : 0d;
+                        lg.source_flow.put(state,val + demand_for_lg);
                     }
 
                 }

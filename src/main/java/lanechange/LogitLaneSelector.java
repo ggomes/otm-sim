@@ -83,7 +83,7 @@ public class LogitLaneSelector extends AbstractLaneSelector {
         if(has_out) {
             FluidLaneGroup tlg = (FluidLaneGroup)lg.neighbor_out;
 //            eo = Math.exp( a_rho_vehperlane * targetlg.get_upstream_cell().supply /targetlg.num_lanes);
-            uo = Math.min(0d,rho_vehperlane * tlg.critical_density_veh -tlg.get_total_vehicles());
+            uo = Math.min(0d,rho_vehperlane * (tlg.critical_density_veh -tlg.get_total_vehicles()) );
             eo = Math.exp(uo);
             den += eo;
         }

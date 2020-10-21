@@ -38,6 +38,9 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     public FluidLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
         super(link, side, flwpos,length, num_lanes, start_lane, out_rcs,rp);
+
+        if(link.is_source)
+            this.source_flow = new HashMap<>();
     }
 
     ////////////////////////////////////////////
@@ -72,6 +75,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
             cells.forEach(c->c.flw_lcout_acc.reset());
         if(!cells.isEmpty() && cells.get(0).flw_lcin_acc!=null)
             cells.forEach(c->c.flw_lcin_acc.reset());
+
     }
 
     ////////////////////////////////////////////
@@ -267,6 +271,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         return X;
     }
 
+
     public final FlowAccumulatorState request_flow_accumulators_for_cell(Set<Long> comm_ids,int cell_index){
         AbstractCell cell = cells.get(cell_index);
         if(cell.flw_acc==null)
@@ -279,17 +284,16 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     public final List<FlowAccumulatorState> request_flow_lcout_accumulators_for_cells(Long comm_id){
         List<FlowAccumulatorState> X = new ArrayList<>();
-        for(AbstractCell cell : cells){
-            if(cell.flw_lcout_acc==null)
+        for(AbstractCell cell : cells) {
+            if (cell.flw_lcout_acc == null)
                 cell.flw_lcout_acc = new FlowAccumulatorState();
-            for(State state : states)
+            for (State state : states)
                 if(comm_id==null || state.commodity_id==comm_id)
                     cell.flw_lcout_acc.add_state(state);
             X.add(cell.flw_lcout_acc);
         }
         return X;
     }
-
     public final List<FlowAccumulatorState> request_flow_lcin_accumulators_for_cells(Long comm_id){
         List<FlowAccumulatorState> X = new ArrayList<>();
         for(AbstractCell cell : cells){
