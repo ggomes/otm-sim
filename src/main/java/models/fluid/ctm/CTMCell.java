@@ -139,9 +139,9 @@ public class CTMCell extends AbstractCell {
             // downstream cell: lane change blocking
             if (am_dnstrm) {
 
-                if(total_vehs_out+total_vehs_in>OTMUtils.epsilon) {
-                    total_demand = 0d;
-                }
+//                if(total_vehs_out+total_vehs_in>OTMUtils.epsilon) {
+//                    total_demand = 0d;
+//                }
 
             }
 
