@@ -418,7 +418,7 @@ public class ScenarioFactory {
 
         if(jlcs==null) {
             for(Link link : links.values())
-                for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                for(AbstractLaneGroup lg : link.lanegroups_flwdn)
                     lg.assign_lane_selector(default_type,default_dt,null,comms.keySet());
             return;
         }
@@ -431,7 +431,7 @@ public class ScenarioFactory {
             unassigned.removeAll(linkids);
             for(Long linkid : linkids)
                 if(links.containsKey(linkid))
-                    for(AbstractLaneGroup lg : links.get(linkid).lanegroups_flwdn.values())
+                    for(AbstractLaneGroup lg : links.get(linkid).lanegroups_flwdn)
                         lg.assign_lane_selector(type,lc.getDt(),lc.getParameters(),commids);
         }
 
@@ -441,7 +441,7 @@ public class ScenarioFactory {
             float my_dt = x.isPresent() ? x.get().getDt() : default_dt;
             jaxb.Parameters my_params = x.isPresent() ? x.get().getParameters() : null;
             for(Long linkid : unassigned)
-                for(AbstractLaneGroup lg : links.get(linkid).lanegroups_flwdn.values())
+                for(AbstractLaneGroup lg : links.get(linkid).lanegroups_flwdn)
                     lg.assign_lane_selector(my_default_type,my_dt,my_params,comms.keySet());
         }
 

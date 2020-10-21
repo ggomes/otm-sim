@@ -18,7 +18,7 @@ public abstract class AbstractLinkInfo implements InterfaceLinkInfo {
     public AbstractLinkInfo(Link link){
         this.link_id = link.getId();
         lanegroup_info = new HashMap<>();
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn)
             lanegroup_info.put(lg.id, newLaneGroupInfo(lg) );
     }
 

@@ -57,7 +57,7 @@ public class LinkInfo {
         if(x.shape!=null)
             x.shape.forEach(p->shape.add(new PointInfo(p)));
         if(x.lanegroups_flwdn !=null)
-            x.lanegroups_flwdn.values().forEach(lg->lanegroups.add(new LaneGroupInfo(lg)));
+            x.lanegroups_flwdn.forEach(lg->lanegroups.add(new LaneGroupInfo(lg)));
         this.ffspeed_kph = x.road_param_full.getSpeed();
         this.capacity_vphpl = x.road_param_full.getCapacity();
         this.jam_density_vpkpl = x.road_param_full.getJamDensity();

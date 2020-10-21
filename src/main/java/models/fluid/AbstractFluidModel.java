@@ -63,7 +63,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
             float cell_length_meters = link.length/num_cells;
 
             // create cells ....................
-            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+            for (AbstractLaneGroup lg : link.lanegroups_flwdn) {
 
                 FluidLaneGroup flg = (FluidLaneGroup) lg;
                 flg.create_cells(this, cell_length_meters);
@@ -121,7 +121,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
     @Override
     public void reset(Link link) {
-        for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
+        for(AbstractLaneGroup alg : link.lanegroups_flwdn){
             FluidLaneGroup lg = (FluidLaneGroup) alg;
             lg.cells.forEach(x->x.reset());
         }
@@ -195,15 +195,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
         // add to source links
         for(Link link : source_links){
-//            for(AbstractDemandGenerator agen : link.demandGenerators){
-//                FluidDemandGenerator gen = (FluidDemandGenerator) agen;
-//                for(Map.Entry<Long,Map<State,Double>> e : gen.source_flows.entrySet()){
-//                    FluidLaneGroup lg = (FluidLaneGroup) link.lanegroups_flwdn.get(e.getKey());
-//                    AbstractCell upcell = lg.cells.get(0);
-//                    upcell.add_vehicles(e.getValue(),null,null);
-//                }
-//            }
-            for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
+            for(AbstractLaneGroup alg : link.lanegroups_flwdn){
                 FluidLaneGroup lg = (FluidLaneGroup)alg;
                 lg.cells.get(0).add_vehicles(lg.source_flow,null,null);
             }
@@ -212,7 +204,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
         // release from sink links
         for(Link link : sink_links){
 
-            for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+            for(AbstractLaneGroup alg : link.lanegroups_flwdn) {
                 FluidLaneGroup lg = (FluidLaneGroup) alg;
                 Map<State,Double> flow_dwn = lg.get_demand();
 
@@ -271,12 +263,12 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
             return;
 
         // inner lane group
-        FluidLaneGroup inlg = (FluidLaneGroup) link.lanegroups_flwdn.values().stream()
+        FluidLaneGroup inlg = (FluidLaneGroup) link.lanegroups_flwdn.stream()
                 .filter(lg->lg.start_lane_dn+lg.num_lanes-1==in_lane)
                 .findFirst().get();
 
         // outer full lane
-        FluidLaneGroup outlg = (FluidLaneGroup) link.lanegroups_flwdn.values().stream()
+        FluidLaneGroup outlg = (FluidLaneGroup) link.lanegroups_flwdn.stream()
                 .filter(lg->lg.start_lane_dn==in_lane+1)
                 .findFirst().get();
 

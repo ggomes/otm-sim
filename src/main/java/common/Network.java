@@ -124,7 +124,7 @@ public class Network {
 
             link.outlink2lanegroups = new HashMap<>();
             for(Link outlink : link.end_node.out_links) {
-                Set<AbstractLaneGroup> lgs = link.lanegroups_flwdn.values().stream()
+                Set<AbstractLaneGroup> lgs = link.lanegroups_flwdn.stream()
                         .filter(lg -> lg.outlink2roadconnection.containsKey(outlink.getId()))
                         .collect(Collectors.toSet());
                 if(!lgs.isEmpty())
@@ -472,7 +472,7 @@ public class Network {
             }
         }
 
-        for (AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
+        for (AbstractLaneGroup lg : link.lanegroups_flwdn) {
             switch (lg.side) {
                 case in:
                     if(link.road_geom.in_is_full_length())
@@ -547,11 +547,11 @@ public class Network {
 
     }
 
-    // called once only
-    private static Set<AbstractLaneGroup> create_dnflw_lanegroups(Link link, Set<RoadConnection> out_rcs) throws OTMException {
+    // called once only. Creates list of lanegroups ordered from inner to outer
+    private static List<AbstractLaneGroup> create_dnflw_lanegroups(Link link, Set<RoadConnection> out_rcs) throws OTMException {
         // Find unique subsets of road connections, and create a lane group for each one.
 
-        Set<AbstractLaneGroup> lanegroups = new HashSet<>();
+        List<AbstractLaneGroup> lanegroups = new ArrayList<>();
 
         // empty out_rc <=> sink
         assert(out_rcs.isEmpty()==link.is_sink);

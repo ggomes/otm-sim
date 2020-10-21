@@ -323,7 +323,7 @@ public class Scenario {
     public Map<Long,Set<Long>> get_link2lgs(){
         Map<Long,Set<Long>> lk2lgs = new HashMap<>();
         for(Link link : myapi.scn.network.links.values())
-            lk2lgs.put(link.getId(),link.lanegroups_flwdn.values().stream()
+            lk2lgs.put(link.getId(),link.lanegroups_flwdn.stream()
                     .map(x->x.id).collect(toSet()));
         return lk2lgs;
     }
@@ -358,7 +358,7 @@ public class Scenario {
 
     public Queues get_link_queues(long link_id) throws Exception {
         Link link = myapi.scn.network.links.get(link_id);
-        MesoLaneGroup lg = (MesoLaneGroup) link.lanegroups_flwdn.values().iterator().next();
+        MesoLaneGroup lg = (MesoLaneGroup) link.lanegroups_flwdn.iterator().next();
         return new Queues(lg.waiting_queue.num_vehicles(),lg.transit_queue.num_vehicles());
     }
 
@@ -385,7 +385,7 @@ public class Scenario {
 //            throw new Exception("Cannot call set_link_vehicles on non-meso models");
 
         long comm_id = myapi.scn.commodities.keySet().iterator().next();
-        MesoLaneGroup lg = (MesoLaneGroup) link.lanegroups_flwdn.values().iterator().next();
+        MesoLaneGroup lg = (MesoLaneGroup) link.lanegroups_flwdn.iterator().next();
         SplitMatrixProfile smp = lg.link.split_profile.get(comm_id);
 
         // transit queue ................

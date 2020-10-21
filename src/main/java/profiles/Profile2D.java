@@ -1,6 +1,5 @@
 package profiles;
 
-import common.Link;
 import error.OTMErrorLog;
 import error.OTMException;
 import utils.OTMUtils;

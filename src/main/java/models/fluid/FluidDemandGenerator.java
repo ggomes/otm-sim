@@ -18,8 +18,6 @@ import java.util.Set;
 
 public class FluidDemandGenerator extends AbstractDemandGenerator {
 
-//    public Map<Long,Map<State,Double>> source_flows;   // lgid->(state->value)
-
     // for pathfull
     Set<AbstractLaneGroup> pathfull_lgs;
 
@@ -75,7 +73,7 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
                 Long nextlink_id = link.outlink2lanegroups.keySet().iterator().next();
                 State state = new State(comm_id,nextlink_id,false);
 
-                AbstractLaneGroup lg = link.lanegroups_flwdn.values().iterator().next();
+                AbstractLaneGroup lg = link.lanegroups_flwdn.iterator().next();
                 Map<State,Double> x = new HashMap<>();
                 x.put(state,flow_veh_per_timestep);
                 ((FluidLaneGroup)lg).source_flow = x; }
@@ -122,5 +120,5 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
         }
 
     }
-    
+
 }

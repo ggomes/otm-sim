@@ -43,7 +43,7 @@ public class OutputLaneGroups extends AbstractOutput {
         try {
 
             for(Link link : scenario.network.links.values()){
-                for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+                for(AbstractLaneGroup lg : link.lanegroups_flwdn)
                     writer.write(dnlgstring(lg));
 
                 if(link.lanegroup_up_in!=null)

@@ -30,7 +30,7 @@ public class OutputCellVehicles extends AbstractOutputTimed {
         ordered_lgs = new ArrayList<>();
         lgprofiles = new HashMap<>();
         for(Link link : model.links){
-            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values() ){
+            for(AbstractLaneGroup lg : link.lanegroups_flwdn ){
                 ordered_lgs.add((FluidLaneGroup)lg);
                 lgprofiles.put(lg.id, new LaneGroupProfile((FluidLaneGroup)lg));
             }

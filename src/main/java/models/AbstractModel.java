@@ -51,7 +51,7 @@ public abstract class AbstractModel implements InterfaceModel {
 
     public void initialize(Scenario scenario) throws OTMException {
         for(Link link : links){
-            for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+            for(AbstractLaneGroup lg : link.lanegroups_flwdn)
                 lg.allocate_state();
         }
     }
@@ -59,7 +59,7 @@ public abstract class AbstractModel implements InterfaceModel {
     // called by Network constructor
     public void set_road_param(Link link, jaxb.Roadparam r){
         link.road_param_full = r;
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+        for(AbstractLaneGroup lg : link.lanegroups_flwdn)
             lg.set_road_params(r);
     }
 

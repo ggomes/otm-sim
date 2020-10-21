@@ -112,7 +112,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
         // apply Newell's update formula to all vehicles
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+            for (AbstractLaneGroup alg : link.lanegroups_flwdn) {
                 NewellLaneGroup lg = (NewellLaneGroup) alg;
                 for( NewellVehicle vehicle : lg.vehicles ) {
                     double dx = Math.min(lg.dv, vehicle.headway - lg.dw);
@@ -125,7 +125,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
         // move vehicles to new link
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+            for (AbstractLaneGroup alg : link.lanegroups_flwdn) {
                 NewellLaneGroup lg = (NewellLaneGroup) alg;
                 Iterator<NewellVehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
@@ -144,7 +144,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
         // update position
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+            for (AbstractLaneGroup alg : link.lanegroups_flwdn) {
                 NewellLaneGroup lg = (NewellLaneGroup) alg;
                 Iterator<NewellVehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
@@ -156,7 +156,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
         // update headway
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn.values()) {
+            for (AbstractLaneGroup alg : link.lanegroups_flwdn) {
                 NewellLaneGroup lg = (NewellLaneGroup) alg;
                 Iterator<NewellVehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
@@ -167,7 +167,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
                             vehicle.headway = Double.POSITIVE_INFINITY;
                         else{
 
-                            Collection<AbstractLaneGroup> next_lgs = link.network.links.get(vehicle.get_next_link_id()).lanegroups_flwdn.values();
+                            Collection<AbstractLaneGroup> next_lgs = link.network.links.get(vehicle.get_next_link_id()).lanegroups_flwdn;
                             OptionalDouble next_vehicle_position = next_lgs.stream()
                                     .mapToDouble(x->x.get_upstream_vehicle_position())
                                     .min();

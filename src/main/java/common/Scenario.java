@@ -131,7 +131,7 @@ public class Scenario {
         for(Link link : network.links.values()) {
             Map<Long,Set<RoadConnection>> X = new HashMap<>();
             link_outlink2rcs.put(link.getId(),X);
-            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
+            for (AbstractLaneGroup lg : link.lanegroups_flwdn)
                 for (Map.Entry<Long, RoadConnection> e : lg.outlink2roadconnection.entrySet()) {
                     if (!X.containsKey(e.getKey()))
                         X.put(e.getKey(), new HashSet<>());
