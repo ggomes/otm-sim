@@ -13,7 +13,6 @@ import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
 import jaxb.Split;
-import keys.KeyCommodityDemandTypeId;
 import output.AbstractOutput;
 import output.OutputPathTravelTime;
 import profiles.*;
@@ -46,7 +45,7 @@ public class Scenario {
     // commodity/link -> demand profile
 
     // WHY DO I NEED THIS IN THE SCENARIO?
-    public Map<KeyCommodityDemandTypeId,AbstractDemandProfile> data_demands;
+//    public Map<KeyCommodityDemandTypeId,AbstractDemandProfile> data_demands;
 
     // travel time computation
     public LinkTravelTimeManager path_tt_manager;
@@ -78,8 +77,6 @@ public class Scenario {
             controllers.values().stream().forEach(x -> x.validate(errorLog));
         if( actuators!=null )
             actuators.values().stream().forEach(x -> x.validate(errorLog));
-        if( data_demands!=null )
-            data_demands.values().stream().forEach(x -> x.validate(errorLog));
 
         // check if there are CFL violations, and if so report the max step time
         if(errorLog.haserror()){
@@ -155,9 +152,6 @@ public class Scenario {
 
         network.initialize(this,runParams);
 
-        for(AbstractDemandProfile x : data_demands.values())
-            x.initialize(this);
-
         for(AbstractSensor x : sensors.values())
             x.initialize(this);
 
@@ -168,7 +162,6 @@ public class Scenario {
         if(path_tt_manager!=null)
             path_tt_manager.initialize(dispatcher);
 
-        data_demands.values().forEach(x -> x.register_with_dispatcher(dispatcher));
 //        network.nodes.values().stream()
 //                .filter(node->node.splits!=null)
 //                .flatMap(node->node.splits.values().stream())
@@ -216,23 +209,26 @@ public class Scenario {
         // demands
         jaxb.Demands jdems = new jaxb.Demands();
         jsc.setDemands(jdems);
-        for(Map.Entry<KeyCommodityDemandTypeId, AbstractDemandProfile> e : data_demands.entrySet()){
-            KeyCommodityDemandTypeId key = e.getKey();
-            DemandProfile demand = (DemandProfile) e.getValue();
-            commodity.Commodity comm = commodities.get(key.commodity_id);
+        for(Link link : network.links.values()){
+            if(link.demandGenerators ==null || link.demandGenerators.isEmpty())
+                continue;
+            for(AbstractDemandGenerator gen : link.demandGenerators){
 
-            jaxb.Demand jdem = new jaxb.Demand();
-            jdems.getDemand().add(jdem);
+                commodity.Commodity comm = gen.commodity;
 
-            if(comm.pathfull)
-                jdem.setSubnetwork(demand.path.getId());
-            else
-                jdem.setLinkId(demand.link.getId());
+                jaxb.Demand jdem = new jaxb.Demand();
+                jdems.getDemand().add(jdem);
 
-            jdem.setContent(OTMUtils.comma_format(OTMUtils.times(demand.profile.values,3600d)));
-            jdem.setDt(demand.profile.dt);
-            jdem.setCommodityId(comm.getId());
-            jdem.setStartTime(demand.profile.start_time);
+                if(comm.pathfull)
+                    jdem.setSubnetwork(gen.path.getId());
+                else
+                    jdem.setLinkId(gen.link.getId());
+
+                jdem.setContent(OTMUtils.comma_format(OTMUtils.times(gen.profile.values,3600d)));
+                jdem.setDt(gen.profile.dt);
+                jdem.setCommodityId(comm.getId());
+                jdem.setStartTime(gen.profile.start_time);
+            }
         }
 
         // splits
@@ -352,19 +348,20 @@ public class Scenario {
         return null;
     }
 
-    public Set<AbstractDemandProfile> get_demands_for_commodity(Long commodity_id){
-        Set<AbstractDemandProfile> x = new HashSet<>();
-        for(Map.Entry<KeyCommodityDemandTypeId,AbstractDemandProfile> e : data_demands.entrySet())
-            if(commodity_id.equals(e.getKey().commodity_id))
-                x.add(e.getValue());
-        return x;
+    public Set<Profile1D> get_demands_for_commodity(Long commodity_id){
+        return network.links.values().stream()
+                .filter(link->link.demandGenerators!=null)
+                .flatMap(link->link.demandGenerators.stream())
+                .filter(gen->commodity_id==gen.commodity.getId())
+                .map(s->s.profile)
+                .collect(toSet());
     }
 
-    public Set<DemandProfile> get_demands_for_link(Long link_id){
+    public Set<Profile1D> get_demands_for_link(Long link_id){
         Link link = this.network.links.get(link_id);
         if(link==null)
             return null;
-        return link.sources.stream().map(z->z.profile).collect(toSet());
+        return link.demandGenerators.stream().map(z->z.profile).collect(toSet());
     }
 
     ///////////////////////////////////////////////////

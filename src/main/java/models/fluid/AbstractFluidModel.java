@@ -15,6 +15,7 @@ import models.fluid.nodemodel.UpLaneGroup;
 import output.animation.AbstractLinkInfo;
 import packet.PacketLink;
 import profiles.DemandProfile;
+import profiles.Profile1D;
 import utils.OTMUtils;
 import utils.StochasticProcess;
 
@@ -139,8 +140,8 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     }
 
     @Override
-    public final AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
-        return new FluidSource(origin,demand_profile,commodity,path);
+    public final AbstractDemandGenerator create_source(Link origin, Profile1D profile, Commodity commodity, Path path) {
+        return new FluidDemandGenerator(origin,profile,commodity,path);
     }
 
     @Override
@@ -195,8 +196,8 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
         // add to source links
         for(Link link : source_links){
-            for(AbstractSource asource : link.sources){
-                FluidSource source = (FluidSource) asource;
+            for(AbstractDemandGenerator asource : link.demandGenerators){
+                FluidDemandGenerator source = (FluidDemandGenerator) asource;
                 for(Map.Entry<Long,Map<State,Double>> e : source.source_flows.entrySet()){
                     FluidLaneGroup lg = (FluidLaneGroup) link.lanegroups_flwdn.get(e.getKey());
                     AbstractCell upcell = lg.cells.get(0);

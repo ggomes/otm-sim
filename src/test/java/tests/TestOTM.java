@@ -155,27 +155,13 @@ public class TestOTM extends AbstractTest {
     // demands / splits
     ////////////////////////////////////////////////////////
 
-    @Test
-    public void test_get_demands(){
-        Set<DemandInfo> demands = otm.scenario.get_demands().get(0l);
-        DemandInfo demand = demands.iterator().next();
-        assertEquals((long)demand.getCommodity_id(),1l);
-        assertEquals(demand.getLink_id(),0l);
-    }
-
-    @Test
-    public void test_set_demand_on_path_in_vph() {
-        try {
-            long link_id = 0l;
-            long commodity_id = 1l;
-            float start_time = 0;
-            float dt = 10f;
-            List<Double> values = new ArrayList<>();
-            otm.scenario.add_pathless_demand(link_id,commodity_id,start_time,dt,values);
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
+//    @Test
+//    public void test_get_demands(){
+//        Set<DemandInfo> demands = otm.scenario.get_demands().get(0l);
+//        DemandInfo demand = demands.iterator().next();
+//        assertEquals((long)demand.getCommodity_id(),1l);
+//        assertEquals(demand.getLink_id(),0l);
+//    }
 
     @Ignore
     @Test

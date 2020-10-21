@@ -94,7 +94,7 @@ public class ScenarioFactory {
         ScenarioFactory.create_splits_from_jaxb(scenario.network, js.getSplits());
 
         // demands ..........................................................
-        scenario.data_demands = ScenarioFactory.create_demands_from_jaxb(scenario.network, js.getDemands());
+        ScenarioFactory.create_demands_from_jaxb(scenario.network, js.getDemands());
 
         // validate ................................................
         if(validate) {
@@ -143,19 +143,20 @@ public class ScenarioFactory {
             }
 
         // demands ..........................................................
-        scenario.data_demands = new HashMap<>();
-        if (js.getDemands()!=null)
-            for (jaxb.Demand jaxb_demand : js.getDemands().getDemand()) {
-
-                Commodity comm = scenario.commodities.get(jaxb_demand.getCommodityId());
-                Long subnetwork_id = jaxb_demand.getSubnetwork();
-                Long origin_node = origin_nodes.get(subnetwork_id);
-                Long destination_node = destination_nodes.get(subnetwork_id);
-
-                DemandProfileOD dp = new DemandProfileOD(jaxb_demand,comm,origin_node,destination_node);
-                KeyCommodityDemandTypeId key = new KeyCommodityDemandTypeId(comm.getId(),subnetwork_id,comm.get_demand_type());
-                scenario.data_demands.put(key,dp);
-            }
+        // TODO FIX THIS
+//        scenario.data_demands = new HashMap<>();
+//        if (js.getDemands()!=null)
+//            for (jaxb.Demand jaxb_demand : js.getDemands().getDemand()) {
+//
+//                Commodity comm = scenario.commodities.get(jaxb_demand.getCommodityId());
+//                Long subnetwork_id = jaxb_demand.getSubnetwork();
+//                Long origin_node = origin_nodes.get(subnetwork_id);
+//                Long destination_node = destination_nodes.get(subnetwork_id);
+//
+//                DemandProfileOD dp = new DemandProfileOD(jaxb_demand,comm,origin_node,destination_node);
+//                KeyCommodityDemandTypeId key = new KeyCommodityDemandTypeId(comm.getId(),subnetwork_id,comm.get_demand_type());
+//                scenario.data_demands.put(key,dp);
+//            }
 
         return scenario;
     }
@@ -448,16 +449,35 @@ public class ScenarioFactory {
     }
 
 
-    private static Map<KeyCommodityDemandTypeId,AbstractDemandProfile> create_demands_from_jaxb(Network network, jaxb.Demands jaxb_demands) throws OTMException  {
-        Map<KeyCommodityDemandTypeId,AbstractDemandProfile> demands = new HashMap<>();
+    private static void create_demands_from_jaxb(Network network, jaxb.Demands jaxb_demands) throws OTMException  {
         if (jaxb_demands == null || jaxb_demands.getDemand().isEmpty())
-            return demands;
-        for (jaxb.Demand jaxb_demand : jaxb_demands.getDemand()) {
-            DemandProfile dp = new DemandProfile(jaxb_demand,network);
-            KeyCommodityDemandTypeId key = dp.get_key();
-            demands.put(key,dp);
+            return;
+        for (jaxb.Demand jd : jaxb_demands.getDemand()) {
+
+            if(!network.scenario.commodities.containsKey(jd.getCommodityId()))
+                throw new OTMException("Bad commodity in demands");
+
+            Commodity comm = network.scenario.commodities.get(jd.getCommodityId());
+            Path path = null;
+            Link link = null;
+            if(comm.pathfull){
+                if(jd.getSubnetwork()==null || !network.scenario.subnetworks.containsKey(jd.getSubnetwork()))
+                    throw new OTMException("Bad subnetwork id (" + jd.getSubnetwork() + ") in demand for commodity " + comm.getId());
+                Subnetwork subnetwork = network.scenario.subnetworks.get(jd.getSubnetwork());
+                if(!(subnetwork instanceof Path))
+                    throw new OTMException("Subnetwork is not a path: id " + jd.getSubnetwork() + ", in demand for commodity " + comm.getId());
+                path = (Path)subnetwork;
+                link = path.get_origin();
+            } else {
+                if(jd.getLinkId()==null || !network.links.containsKey(jd.getLinkId()))
+                    throw new OTMException("Bad link id (" + jd.getLinkId() + ") in demand for commodity " + comm.getId());
+                link = network.links.get(jd.getLinkId());
+            }
+
+            Profile1D profile = new Profile1D(jd.getStartTime(), jd.getDt(),OTMUtils.csv2list(jd.getContent()));
+            profile.multiply(1.0/3600.0);
+            link.demandGenerators.add(link.model.create_source(link,profile,comm,path));
         }
-        return demands;
     }
 
     private static void  create_splits_from_jaxb(Network network, jaxb.Splits jaxb_splits) throws OTMException {
@@ -490,6 +510,9 @@ public class ScenarioFactory {
 
         }
     }
+    ////////////////////////////////////////////
+    // private
+    ///////////////////////////////////////////
 
     private static boolean have_global_commodity(jaxb.Commodities jc){
         if(jc==null)
@@ -525,4 +548,16 @@ public class ScenarioFactory {
         return total_flow;
     }
 
+//    private static Profile1D create_pathless_demand(Link link,Commodity commodity,float start_time,Float dt,List<Double> values) throws OTMException {
+//        // assume the content to be given in veh/hr
+//        Profile1D profile = new Profile1D(start_time,dt,values);
+//        profile.multiply(1.0/3600.0);
+//        return profile;
+//    }
+//
+//    private static Profile1D create_pathfull_demand(Path path,Commodity commodity,float start_time,Float dt,List<Double> values) throws OTMException {
+//        Profile1D profile = new Profile1D(start_time,dt,values);
+//        profile.multiply(1.0/3600.0);
+//        return profile;
+//    }
 }

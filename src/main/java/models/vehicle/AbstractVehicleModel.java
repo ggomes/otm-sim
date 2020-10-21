@@ -2,12 +2,13 @@ package models.vehicle;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.AbstractSource;
+import common.AbstractDemandGenerator;
 import common.Link;
 import error.OTMException;
 import common.AbstractLaneGroup;
 import models.AbstractModel;
 import profiles.DemandProfile;
+import profiles.Profile1D;
 import utils.OTMUtils;
 import utils.StochasticProcess;
 
@@ -32,8 +33,8 @@ public abstract class AbstractVehicleModel extends AbstractModel implements Inte
     //////////////////////////////////////////////////////////////
 
     @Override
-    public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path) {
-        return new VehicleSource(origin,demand_profile,commodity,path);
+    public AbstractDemandGenerator create_source(Link origin, Profile1D profile, Commodity commodity, Path path) {
+        return new VehicleDemandGenerator(origin,profile,commodity,path);
     }
 
     //////////////////////////////////////////////////////////////

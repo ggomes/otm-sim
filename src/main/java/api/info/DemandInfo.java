@@ -23,18 +23,18 @@ public class DemandInfo {
 
     public DemandInfo(AbstractDemandProfile x){
         this.type = x.get_type().toString();
-        this.commodity_id = x.commodity!=null? x.commodity.getId() : null;
-        if(x.profile!=null)
-            this.profile = new Profile1DInfo(x.profile);
-
-        if(!(x instanceof DemandProfile))
-            return;
-
-        DemandProfile dp = (DemandProfile) x;
-        if(x.get_type()==DemandType.pathless)
-            this.link_id = dp.link.getId();
-        if(x.get_type()==DemandType.pathfull)
-            this.path_id = dp.path.getId();
+//        this.commodity_id = x.commodity!=null? x.commodity.getId() : null;
+//        if(x.profile!=null)
+//            this.profile = new Profile1DInfo(x.profile);
+//
+//        if(!(x instanceof DemandProfile))
+//            return;
+//
+//        DemandProfile dp = (DemandProfile) x;
+//        if(x.get_type()==DemandType.pathless)
+//            this.link_id = dp.link.getId();
+//        if(x.get_type()==DemandType.pathfull)
+//            this.path_id = dp.path.getId();
     }
 
     public String getType() {

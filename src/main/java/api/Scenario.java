@@ -5,21 +5,15 @@ import actuator.ActuatorSignal;
 import api.info.*;
 import commodity.Commodity;
 import commodity.Subnetwork;
-import common.Link;
-import common.Node;
-import common.RoadConnection;
+import common.*;
 import control.AbstractController;
 import control.sigint.ControllerSignalPretimed;
 import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import dispatch.EventDemandChange;
-import jaxb.Split;
 import models.vehicle.spatialq.EventTransitToWaiting;
 import error.OTMErrorLog;
 import error.OTMException;
-import keys.DemandType;
-import keys.KeyCommodityDemandTypeId;
-import common.AbstractLaneGroup;
 import models.vehicle.spatialq.MesoLaneGroup;
 import models.vehicle.spatialq.MesoVehicle;
 import output.animation.AnimationInfo;
@@ -445,42 +439,48 @@ public class Scenario {
     // demands / splits
     ////////////////////////////////////////////////////////
 
-    /**
-     * Get information for all demands in the scenario.
-     * @return A map from link id to set of DemandInfo
-     * @see DemandInfo
-     */
-    public Map<Long,Set<DemandInfo>> get_demands(){
-        Map<Long,Set<DemandInfo>> x = new HashMap<>();
-        for(AbstractDemandProfile p : myapi.scn.data_demands.values()) {
-            long link_id = p.source.link.getId();
-            Set<DemandInfo> y;
-            if(x.containsKey(link_id))
-                y = x.get(link_id);
-            else {
-                y = new HashSet<>();
-                x.put(link_id,y);
-            }
-            y.add(new DemandInfo(p));
-        }
-        return x;
-    }
+//    /**
+//     * Get information for all demands in the scenario.
+//     * @return A map from link id to set of DemandInfo
+//     * @see DemandInfo
+//     */
+//    public Map<Long,Set<DemandInfo>> get_demands(){
+//        Map<Long,Set<DemandInfo>> x = new HashMap<>();
+//
+//        for(Link link : myapi.scn.network.links.values()) {
+//            if (link.demandGenerators == null || link.demandGenerators.isEmpty())
+//                continue;
+//            long link_id = link.getId();
+//            for (AbstractDemandGenerator source : link.demandGenerators) {
+//
+//                Set<DemandInfo> y;
+//                if(x.containsKey(link_id))
+//                    y = x.get(link_id);
+//                else {
+//                    y = new HashSet<>();
+//                    x.put(link_id,y);
+//                }
+//                y.add(new DemandInfo( source.profile));
+//            }
+//        }
+//        return x;
+//    }
 
-    /**
-     * Get information for a specific demand.
-     * @param typestr 'pathfull' or 'pathless' (NOTE: Why is this an input???)
-     * @param link_or_path_id Id of the source link or path
-     * @param commodity_id Id of the commodity
-     * @return A DemandInfo object
-     * @see DemandInfo
-     */
-    public DemandInfo get_demand_with_ids(String typestr,long link_or_path_id,long commodity_id){
-        DemandType type = DemandType.valueOf(typestr);
-        if(type==null)
-            return null;
-        AbstractDemandProfile dp = myapi.scn.data_demands.get(new KeyCommodityDemandTypeId(commodity_id,link_or_path_id,type));
-        return dp==null ? null : new DemandInfo(dp);
-    }
+//    /**
+//     * Get information for a specific demand.
+//     * @param typestr 'pathfull' or 'pathless' (NOTE: Why is this an input???)
+//     * @param link_or_path_id Id of the source link or path
+//     * @param commodity_id Id of the commodity
+//     * @return A DemandInfo object
+//     * @see DemandInfo
+//     */
+//    public DemandInfo get_demand_with_ids(String typestr,long link_or_path_id,long commodity_id){
+//        DemandType type = DemandType.valueOf(typestr);
+//        if(type==null)
+//            return null;
+//        AbstractDemandProfile dp = myapi.scn.data_demands.get(new KeyCommodityDemandTypeId(commodity_id,link_or_path_id,type));
+//        return dp==null ? null : new DemandInfo(dp);
+//    }
 
     /**
      *  Clear all demands in the scenario.
@@ -491,8 +491,11 @@ public class Scenario {
             return;
 
         // delete sources from links
-        for(Link link : myapi.scn.network.links.values())
-            link.sources = new HashSet<>();
+        for(Link link : myapi.scn.network.links.values()) {
+            if (link.demandGenerators == null || link.demandGenerators.isEmpty())
+                continue;
+            link.demandGenerators.clear();
+        }
 
         // delete all EventCreateVehicle and EventDemandChange from dispatcher
         if(myapi.scn.dispatcher!=null) {
@@ -500,111 +503,110 @@ public class Scenario {
             myapi.scn.dispatcher.remove_events_of_type(EventDemandChange.class);
         }
 
-        // delete all demand profiles
-        if(myapi.scn.data_demands!=null)
-            myapi.scn.data_demands.clear();
     }
 
-    /**
-     * Set or override a demand value for a path.
-     * Use this method to set a demand profile of a given commodity on a given path.
-     * The profile is a piecewise constant function starting a time "start_time" and with
-     * sample time "dt". The values are given by the "values" array. The value before
-     * before "start_time" is zero, and the last value in the array is held into positive
-     * infinity time.
-     * This method will override any existing demands for that commodity and path.
-     *
-     * @param path_id : [long] integer id of the subnetwork
-     * @param commodity_id : [long] integer id of the commodity
-     * @param start_time : [float] start time for the demand profile in seconds after midnight.
-     * @param dt : [float] step time for the profile in seconds.
-     * @param values : [array of doubles] list of values for the piecewise continuous profile.
-     * @throws OTMException Undocumented
-     */
-    public void add_pathfull_demand(long path_id, long commodity_id, float start_time, float dt, List<Double> values) throws OTMException {
+//    /**
+//     * Set or override a demand value for a path.
+//     * Use this method to set a demand profile of a given commodity on a given path.
+//     * The profile is a piecewise constant function starting a time "start_time" and with
+//     * sample time "dt". The values are given by the "values" array. The value before
+//     * before "start_time" is zero, and the last value in the array is held into positive
+//     * infinity time.
+//     * This method will override any existing demands for that commodity and path.
+//     *
+//     * @param path_id : [long] integer id of the subnetwork
+//     * @param commodity_id : [long] integer id of the commodity
+//     * @param start_time : [float] start time for the demand profile in seconds after midnight.
+//     * @param dt : [float] step time for the profile in seconds.
+//     * @param values : [array of doubles] list of values for the piecewise continuous profile.
+//     * @throws OTMException Undocumented
+//     */
+//    public void add_pathfull_demand(long path_id, long commodity_id, float start_time, float dt, List<Double> values) throws OTMException {
+//
+//        // create a demand profile
+//        Subnetwork path = myapi.scn.subnetworks.get(path_id);
+//        if(path==null)
+//            throw new OTMException("Bad path id");
+//
+//        Commodity commodity = myapi.scn.commodities.get(commodity_id);
+//        if(commodity==null)
+//            throw new OTMException("Bad commodity id");
+//
+//        add_demand( new DemandProfile(path,commodity,start_time, dt, values) );
+//
+//    }
 
-        // create a demand profile
-        Subnetwork path = myapi.scn.subnetworks.get(path_id);
-        if(path==null)
-            throw new OTMException("Bad path id");
+//    /**
+//     * Set or override a demand on a source.
+//     * Use this method to set a demand profile of a given commodity on a given source link..
+//     * The profile is a piecewise constant function starting a time "start_time" and with
+//     * sample time "dt". The values are given by the "values" array. The value before
+//     * before "start_time" is zero, and the last value in the array is held into positive
+//     * infinity time.
+//     * This method will override any existing demands for that commodity and source.
+//     *
+//     * @param link_id : [long] integer id of the source link
+//     * @param commodity_id : [long] integer id of the commodity
+//     * @param start_time : [float] start time for the demand profile in seconds after midnight.
+//     * @param dt : [float] step time for the profile in seconds.
+//     * @param values : [array of doubles] list of values for the piecewise continuous profile.
+//     * @throws OTMException Undocumented
+//     */
+//    public void add_pathless_demand(long link_id, long commodity_id, float start_time, float dt, List<Double> values) throws OTMException {
+//
+//        // create a demand profile
+//        Link link = myapi.scn.network.links.get(link_id);
+//        if(link==null)
+//            throw new OTMException("Bad link id");
+//
+//        Commodity commodity = myapi.scn.commodities.get(commodity_id);
+//        if(commodity==null)
+//            throw new OTMException("Bad commodity id");
+//
+//        add_demand(new DemandProfile(link,commodity,start_time, dt, values));
+//    }
 
-        Commodity commodity = myapi.scn.commodities.get(commodity_id);
-        if(commodity==null)
-            throw new OTMException("Bad commodity id");
-
-        add_demand( new DemandProfile(path,commodity,start_time, dt, values) );
-
-    }
-
-    /**
-     * Set or override a demand on a source.
-     * Use this method to set a demand profile of a given commodity on a given source link..
-     * The profile is a piecewise constant function starting a time "start_time" and with
-     * sample time "dt". The values are given by the "values" array. The value before
-     * before "start_time" is zero, and the last value in the array is held into positive
-     * infinity time.
-     * This method will override any existing demands for that commodity and source.
-     *
-     * @param link_id : [long] integer id of the source link
-     * @param commodity_id : [long] integer id of the commodity
-     * @param start_time : [float] start time for the demand profile in seconds after midnight.
-     * @param dt : [float] step time for the profile in seconds.
-     * @param values : [array of doubles] list of values for the piecewise continuous profile.
-     * @throws OTMException Undocumented
-     */
-    public void add_pathless_demand(long link_id, long commodity_id, float start_time, float dt, List<Double> values) throws OTMException {
-
-        // create a demand profile
-        Link link = myapi.scn.network.links.get(link_id);
-        if(link==null)
-            throw new OTMException("Bad link id");
-
-        Commodity commodity = myapi.scn.commodities.get(commodity_id);
-        if(commodity==null)
-            throw new OTMException("Bad commodity id");
-
-        add_demand(new DemandProfile(link,commodity,start_time, dt, values));
-    }
-
-    /**
-     * Get OD matrix information for this scenario
-     * @return List of ODInfo objects
-     * @throws OTMException Undocumented
-     */
-    public List<ODInfo> get_od_info() throws OTMException {
-
-        Map<ODPair,ODInfo> odmap = new HashMap<>();
-
-        for(AbstractDemandProfile demand_profile : myapi.scn.data_demands.values()){
-
-            if(demand_profile.get_type()==DemandType.pathless)
-                continue;
-
-            Long origin_node_id = demand_profile.get_origin_node_id();
-            Long destination_node_id = demand_profile.get_destination_node_id();
-            Long commodity_id = demand_profile.commodity.getId();
-
-            ODPair odpair = new ODPair(origin_node_id,destination_node_id,commodity_id);
-            ODInfo odinfo;
-            if(odmap.containsKey(odpair)){
-                odinfo = odmap.get(odpair);
-            } else {
-                odinfo = new ODInfo(odpair, myapi.scn);
-                odmap.put(odpair,odinfo);
-            }
-            odinfo.add_demand_profile(demand_profile);
-        }
-
-        return new ArrayList(odmap.values());
-    }
+//    /**
+//     * Get OD matrix information for this scenario
+//     * @return List of ODInfo objects
+//     * @throws OTMException Undocumented
+//     */
+//    public List<ODInfo> get_od_info() throws OTMException {
+//
+//        Map<ODPair,ODInfo> odmap = new HashMap<>();
+//
+//        for(AbstractDemandProfile demand_profile : myapi.scn.data_demands.values()){
+//
+//            if(demand_profile.get_type()==DemandType.pathless)
+//                continue;
+//
+//            Long origin_node_id = demand_profile.get_origin_node_id();
+//            Long destination_node_id = demand_profile.get_destination_node_id();
+//            Long commodity_id = demand_profile.commodity.getId();
+//
+//            ODPair odpair = new ODPair(origin_node_id,destination_node_id,commodity_id);
+//            ODInfo odinfo;
+//            if(odmap.containsKey(odpair)){
+//                odinfo = odmap.get(odpair);
+//            } else {
+//                odinfo = new ODInfo(odpair, myapi.scn);
+//                odmap.put(odpair,odinfo);
+//            }
+//            odinfo.add_demand_profile(demand_profile);
+//        }
+//
+//        return new ArrayList(odmap.values());
+//    }
 
     /**
      * Integrate the demands to obtain the total number of trips that will take place.
      * @return The number of trips.
      */
     public double get_total_trips() {
-        return myapi.scn.data_demands.values().stream()
-                .map(x->x.get_total_trips())
+        return myapi.scn.network.links.values().stream()
+                .filter(link->link.demandGenerators !=null && !link.demandGenerators.isEmpty())
+                .flatMap(link->link.demandGenerators.stream())
+                .map(gen->gen.get_total_trips())
                 .reduce(0.0,Double::sum);
     }
 
@@ -790,37 +792,36 @@ public class Scenario {
     // private
     ////////////////////////////////////////////////////////
 
-    private void add_demand(DemandProfile dp) throws OTMException {
-
-        // validate
-        OTMErrorLog errorLog = new OTMErrorLog();
-        dp.validate(errorLog);
-        if (errorLog.haserror())
-            throw new OTMException(errorLog.format_errors());
-
-        // if a similar demand already exists, then delete it
-        if(myapi.scn.data_demands.containsKey(dp.get_key())){
-            AbstractDemandProfile old_dp = myapi.scn.data_demands.get(dp.get_key());
-            if(myapi.dispatcher!=null)
-                myapi.dispatcher.remove_events_for_recipient(EventDemandChange.class,old_dp);
-            myapi.scn.data_demands.remove(dp.get_key());
-
-            // remove it and its source from the link
-            old_dp.source.link.sources.remove(old_dp.source);
-        }
-
-        // add to scenario
-        myapi.scn.data_demands.put(dp.get_key(),dp);
-
-        if(myapi.scn.is_initialized) {
-            // initialize
-            dp.initialize(myapi.scn);
-
-            // send to dispatcher
-            dp.register_with_dispatcher(myapi.scn.dispatcher);
-        }
-
-    }
+//    private void add_demand(DemandProfile dp) throws OTMException {
+//
+//        // validate
+//        OTMErrorLog errorLog = new OTMErrorLog();
+//        dp.validate(errorLog);
+//        if (errorLog.haserror())
+//            throw new OTMException(errorLog.format_errors());
+//
+//        Link link = dp.link;
+//        if(link.demandGenerators ==null)
+//            link.demandGenerators = new HashSet<>();
+//
+//        // if a similar demand already exists, then delete it
+//        link.demandGenerators.stream().anyMatch(source->source.commodity)
+//
+//
+//        if(myapi.scn.data_demands.containsKey(dp.get_key())){
+//            AbstractDemandProfile old_dp = myapi.scn.data_demands.get(dp.get_key());
+//            if(myapi.dispatcher!=null)
+//                myapi.dispatcher.remove_events_for_recipient(EventDemandChange.class,old_dp);
+//            myapi.scn.data_demands.remove(dp.get_key());
+//
+//            // remove it and its source from the link
+//            old_dp.source.link.demandGenerators.remove(old_dp.source);
+//        }
+//
+//        if(myapi.scn.is_initialized)
+//            dp.initialize(myapi.scn);
+//
+//    }
 
     private ActuatorInfo create_actuator_info(AbstractActuator actuator){
 

@@ -70,7 +70,7 @@ public class Link implements InterfaceScenarioElement {
     public Map<Long, SplitMatrixProfile> split_profile; // commodity -> split matrix profile
 
     // demands ............................................
-    public Set<AbstractSource> sources;
+    public Set<AbstractDemandGenerator> demandGenerators;
 
     // travel timer
     public LinkTravelTimer link_tt;
@@ -118,7 +118,7 @@ public class Link implements InterfaceScenarioElement {
         outlink2lanegroups = new HashMap<>();
 
         // demands ............................................
-        sources = new HashSet<>();
+        demandGenerators = new HashSet<>();
 
     }
 
@@ -302,6 +302,9 @@ public class Link implements InterfaceScenarioElement {
 
         if(split_profile!=null)
             split_profile.values().stream().forEach(x -> x.validate(network.scenario,errorLog));
+
+        if(this.demandGenerators !=null)
+            demandGenerators.stream().forEach(x->x.profile.validate(errorLog));
     }
 
     @Override
@@ -312,6 +315,10 @@ public class Link implements InterfaceScenarioElement {
         if(split_profile!=null)
             for(SplitMatrixProfile x : split_profile.values())
                 x.initialize(scenario.dispatcher);
+
+        if(demandGenerators !=null)
+            for(AbstractDemandGenerator source : demandGenerators)
+                source.initialize(scenario);
     }
 
     @Override
@@ -355,9 +362,9 @@ public class Link implements InterfaceScenarioElement {
         path2outlink = null;
         outlink2lanegroups = null;
         split_profile = null;
-        if(sources!=null)
-            sources.forEach(s->s.delete());
-        sources = null;
+        if(demandGenerators !=null)
+            demandGenerators.forEach(s->s.delete());
+        demandGenerators = null;
         road_type = null;
         road_geom = null;
         model = null;

@@ -2,6 +2,7 @@ package models.vehicle;
 
 import commodity.Commodity;
 import commodity.Path;
+import common.AbstractDemandGenerator;
 import common.AbstractVehicle;
 import common.Link;
 import dispatch.Dispatcher;
@@ -11,15 +12,16 @@ import keys.State;
 import common.AbstractLaneGroup;
 import packet.PacketLaneGroup;
 import profiles.DemandProfile;
+import profiles.Profile1D;
 import utils.OTMUtils;
 
 import java.util.Set;
 
-public class VehicleSource extends common.AbstractSource {
+public class VehicleDemandGenerator extends AbstractDemandGenerator {
 
     private boolean vehicle_scheduled;
 
-    public VehicleSource(Link link, DemandProfile profile, Commodity commodity, Path path) {
+    public VehicleDemandGenerator(Link link, Profile1D profile, Commodity commodity, Path path) {
         super(link,profile,commodity,path);
         vehicle_scheduled = false;
     }

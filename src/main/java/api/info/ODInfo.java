@@ -45,26 +45,26 @@ public class ODInfo {
 
     }
 
-    public void add_demand_profile(AbstractDemandProfile demand_profile) throws OTMException {
-
-        if(demand_profile.get_type()!=DemandType.pathfull)
-            throw new OTMException("demand profile must be pathfull");
-
-        if(!demand_profile.get_origin_node_id().equals(origin_node_id))
-            throw new OTMException("demand_profile.path.get_origin_node_id()!=origin_node_id");
-
-        if(demand_profile.get_destination_node_id()!= destination_node_id)
-            throw new OTMException("demand_profile.path.get_destination_node_id()!=destination_node_id");
-
-        if(demand_profile.commodity.getId()!=commodity_id)
-            throw new OTMException("demand_profile.commodity.getId()!=commodity_id");
-
-        if(total_demand ==null)
-            total_demand = new Profile1DInfo(demand_profile.profile);
-        else
-            total_demand.add_profile(demand_profile.profile);
-
-    }
+//    public void add_demand_profile(AbstractDemandProfile demand_profile) throws OTMException {
+//
+//        if(demand_profile.get_type()!=DemandType.pathfull)
+//            throw new OTMException("demand profile must be pathfull");
+//
+//        if(!demand_profile.get_origin_node_id().equals(origin_node_id))
+//            throw new OTMException("demand_profile.path.get_origin_node_id()!=origin_node_id");
+//
+//        if(demand_profile.get_destination_node_id()!= destination_node_id)
+//            throw new OTMException("demand_profile.path.get_destination_node_id()!=destination_node_id");
+//
+//        if(demand_profile.commodity.getId()!=commodity_id)
+//            throw new OTMException("demand_profile.commodity.getId()!=commodity_id");
+//
+//        if(total_demand ==null)
+//            total_demand = new Profile1DInfo(demand_profile.profile);
+//        else
+//            total_demand.add_profile(demand_profile.profile);
+//
+//    }
 
     public long get_origin_node_id() {
         return origin_node_id;

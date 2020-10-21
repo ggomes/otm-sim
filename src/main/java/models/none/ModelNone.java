@@ -2,7 +2,7 @@ package models.none;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.AbstractSource;
+import common.AbstractDemandGenerator;
 import common.Link;
 import common.RoadConnection;
 import dispatch.Dispatcher;
@@ -17,6 +17,7 @@ import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
 import profiles.DemandProfile;
 import common.Scenario;
+import profiles.Profile1D;
 import utils.StochasticProcess;
 
 import java.util.Collection;
@@ -44,8 +45,8 @@ public class ModelNone extends AbstractModel {
     }
 
     @Override
-    public AbstractSource create_source(Link origin, DemandProfile demand_profile, Commodity commodity, Path path){
-        return new NoneSource(origin,demand_profile,commodity,path);
+    public AbstractDemandGenerator create_source(Link origin, Profile1D profile, Commodity commodity, Path path){
+        return new NoneDemandGenerator(origin,profile,commodity,path);
     }
 
     //////////////////////////////////////////////////////////////

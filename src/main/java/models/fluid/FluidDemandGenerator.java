@@ -2,28 +2,28 @@ package models.fluid;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.AbstractSource;
+import common.AbstractDemandGenerator;
 import common.Link;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.State;
 import common.AbstractLaneGroup;
-import profiles.DemandProfile;
+import profiles.Profile1D;
 import utils.OTMUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class FluidSource extends AbstractSource {
+public class FluidDemandGenerator extends AbstractDemandGenerator {
 
     public Map<Long,Map<State,Double>> source_flows;   // lgid->(state->value)
 
     // for pathfull
     Set<AbstractLaneGroup> candidate_lanegroups;
 
-    public FluidSource(Link link, DemandProfile profile, Commodity commodity, Path path) {
+    public FluidDemandGenerator(Link link, Profile1D profile, Commodity commodity, Path path) {
         super(link, profile, commodity, path);
 
         if(commodity.pathfull) {
