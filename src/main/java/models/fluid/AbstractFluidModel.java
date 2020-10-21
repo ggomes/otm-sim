@@ -195,13 +195,17 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
         // add to source links
         for(Link link : source_links){
-            for(AbstractDemandGenerator asource : link.demandGenerators){
-                FluidDemandGenerator source = (FluidDemandGenerator) asource;
-                for(Map.Entry<Long,Map<State,Double>> e : source.source_flows.entrySet()){
-                    FluidLaneGroup lg = (FluidLaneGroup) link.lanegroups_flwdn.get(e.getKey());
-                    AbstractCell upcell = lg.cells.get(0);
-                    upcell.add_vehicles(e.getValue(),null,null);
-                }
+//            for(AbstractDemandGenerator agen : link.demandGenerators){
+//                FluidDemandGenerator gen = (FluidDemandGenerator) agen;
+//                for(Map.Entry<Long,Map<State,Double>> e : gen.source_flows.entrySet()){
+//                    FluidLaneGroup lg = (FluidLaneGroup) link.lanegroups_flwdn.get(e.getKey());
+//                    AbstractCell upcell = lg.cells.get(0);
+//                    upcell.add_vehicles(e.getValue(),null,null);
+//                }
+//            }
+            for(AbstractLaneGroup alg : link.lanegroups_flwdn.values()){
+                FluidLaneGroup lg = (FluidLaneGroup)alg;
+                lg.cells.get(0).add_vehicles(lg.source_flow,null,null);
             }
         }
 

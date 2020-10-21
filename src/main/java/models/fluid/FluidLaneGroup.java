@@ -14,6 +14,9 @@ import java.util.*;
 
 public class FluidLaneGroup extends AbstractLaneGroup {
 
+    // demand
+    public Map<State,Double> source_flow;
+
     // nominal fd
     public double nom_ffspeed_cell_per_dt;         // [-]
     public double nom_capacity_veh_per_dt;
