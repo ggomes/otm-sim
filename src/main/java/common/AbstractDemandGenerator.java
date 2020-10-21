@@ -7,7 +7,6 @@ import dispatch.EventDemandChange;
 import error.OTMErrorLog;
 import error.OTMException;
 import keys.DemandType;
-import keys.KeyCommodityDemandTypeId;
 import keys.State;
 import models.vehicle.VehicleDemandGenerator;
 import profiles.Profile1D;
@@ -156,9 +155,9 @@ public abstract class AbstractDemandGenerator {
         return commodity.getId();
     }
 
-    public KeyCommodityDemandTypeId get_key(){
-        return new KeyCommodityDemandTypeId(get_commodity_id(),get_link_or_path_id(),get_type());
-    }
+//    public KeyCommodityDemandTypeId get_key(){
+//        return new KeyCommodityDemandTypeId(get_commodity_id(),get_link_or_path_id(),get_type());
+//    }
 
     public Long get_link_or_path_id(){
         if(link!=null)

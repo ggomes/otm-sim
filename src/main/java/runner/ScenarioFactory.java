@@ -14,7 +14,6 @@ import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
-import keys.KeyCommodityDemandTypeId;
 import plugin.PluginLoader;
 import profiles.*;
 import sensor.AbstractSensor;
@@ -510,7 +509,7 @@ public class ScenarioFactory {
 
         }
     }
-    
+
     ////////////////////////////////////////////
     // private
     ///////////////////////////////////////////
