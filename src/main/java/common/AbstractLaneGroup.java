@@ -416,6 +416,10 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         Set<Side> sides = state2lanechangedirections.get(state);
         if(!sides.contains(side))
             return;
+
+        // you cannot remove all possible sides
+        if(sides.size()==1)
+            return;
         sides.remove(side);
         Set<Side> dsides;
         if(disallowed_state2lanechangedirections.containsKey(state)){
