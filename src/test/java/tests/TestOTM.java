@@ -2,7 +2,6 @@ package tests;
 
 import api.OTM;
 import api.info.CommodityInfo;
-import api.info.DemandInfo;
 import api.info.LinkInfo;
 import api.info.SubnetworkInfo;
 import error.OTMException;
@@ -10,8 +9,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

@@ -510,6 +510,7 @@ public class ScenarioFactory {
 
         }
     }
+    
     ////////////////////////////////////////////
     // private
     ///////////////////////////////////////////
@@ -523,41 +524,4 @@ public class ScenarioFactory {
         return false;
     }
 
-    private static double get_pathfull_commodity_flow_through_link(Set<DemandProfile> demands,Set<Subnetwork> my_paths,Link link,float time){
-
-        double total_flow = 0d;
-
-        // loop through all provided paths
-        for(Subnetwork subnetwork : my_paths){
-
-            // count how many times the link appears (n=#cycles)
-            long n = subnetwork.get_links().stream()
-                    .filter(x->x==link)
-                    .count();
-
-            if(n==0)
-                continue;
-
-            // add flow for demand that feeds this subnetwork, n times
-            total_flow += n*demands.stream()
-                    .filter(x->x.path.getId().equals(subnetwork.getId()))
-                    .mapToDouble(x->x.profile.get_value_for_time(time))
-                    .sum();
-        }
-
-        return total_flow;
-    }
-
-//    private static Profile1D create_pathless_demand(Link link,Commodity commodity,float start_time,Float dt,List<Double> values) throws OTMException {
-//        // assume the content to be given in veh/hr
-//        Profile1D profile = new Profile1D(start_time,dt,values);
-//        profile.multiply(1.0/3600.0);
-//        return profile;
-//    }
-//
-//    private static Profile1D create_pathfull_demand(Path path,Commodity commodity,float start_time,Float dt,List<Double> values) throws OTMException {
-//        Profile1D profile = new Profile1D(start_time,dt,values);
-//        profile.multiply(1.0/3600.0);
-//        return profile;
-//    }
 }

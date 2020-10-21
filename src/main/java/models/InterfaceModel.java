@@ -11,7 +11,6 @@ import geometry.Side;
 import jaxb.OutputRequest;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
-import profiles.DemandProfile;
 import profiles.Profile1D;
 
 import java.util.Collection;

@@ -14,7 +14,6 @@ import models.fluid.nodemodel.RoadConnection;
 import models.fluid.nodemodel.UpLaneGroup;
 import output.animation.AbstractLinkInfo;
 import packet.PacketLink;
-import profiles.DemandProfile;
 import profiles.Profile1D;
 import utils.OTMUtils;
 import utils.StochasticProcess;

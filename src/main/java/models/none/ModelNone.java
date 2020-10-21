@@ -15,7 +15,6 @@ import common.AbstractLaneGroup;
 import models.AbstractModel;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
-import profiles.DemandProfile;
 import common.Scenario;
 import profiles.Profile1D;
 import utils.StochasticProcess;

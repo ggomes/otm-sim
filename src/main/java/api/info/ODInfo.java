@@ -2,9 +2,6 @@ package api.info;
 
 import commodity.Path;
 import commodity.Subnetwork;
-import error.OTMException;
-import keys.DemandType;
-import profiles.AbstractDemandProfile;
 import common.Scenario;
 
 import java.util.ArrayList;

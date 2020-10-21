@@ -10,7 +10,6 @@ import keys.DemandType;
 import keys.KeyCommodityDemandTypeId;
 import keys.State;
 import models.vehicle.VehicleDemandGenerator;
-import profiles.DemandProfile;
 import profiles.Profile1D;
 import profiles.TimeValue;
 

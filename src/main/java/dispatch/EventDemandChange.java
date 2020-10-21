@@ -2,7 +2,6 @@ package dispatch;
 
 import common.AbstractDemandGenerator;
 import error.OTMException;
-import profiles.DemandProfile;
 
 public class EventDemandChange extends AbstractEvent {
 

@@ -4,7 +4,6 @@ import commodity.Commodity;
 import commodity.Path;
 import common.AbstractDemandGenerator;
 import common.Link;
-import profiles.DemandProfile;
 import profiles.Profile1D;
 
 public class NoneDemandGenerator extends AbstractDemandGenerator {

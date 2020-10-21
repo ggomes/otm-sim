@@ -7,7 +7,6 @@ import common.Link;
 import error.OTMException;
 import common.AbstractLaneGroup;
 import models.AbstractModel;
-import profiles.DemandProfile;
 import profiles.Profile1D;
 import utils.OTMUtils;
 import utils.StochasticProcess;
