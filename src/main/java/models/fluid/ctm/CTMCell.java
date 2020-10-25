@@ -252,8 +252,8 @@ public class CTMCell extends AbstractCell {
                 if(value>0d) {
                     veh_in.put(state, veh_in.get(state) - value);
                     total_vehs_in -= value;
-                    if(flw_acc!=null)
-                        flw_acc.increment(state,value);
+//                    if(flw_acc!=null)
+//                        flw_acc.increment(state,value);
                 }
             }
         }
@@ -265,8 +265,8 @@ public class CTMCell extends AbstractCell {
                 if(value>0d) {
                     veh_out.put(state, veh_out.get(state) - value);
                     total_vehs_out -= value;
-                    if(flw_acc!=null)
-                        flw_acc.increment(state,value);
+//                    if(flw_acc!=null)
+//                        flw_acc.increment(state,value);
                 }
             }
         }

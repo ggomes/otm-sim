@@ -433,7 +433,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         if(!sides.contains(side))
             return;
         if(sides.size()==1)
-            throw new OTMException(String.format("In link %d, commid=%d in lanegroup (%d#%d) has no way of getting to path/link %d.",link.getId(),state.commodity_id,start_lane_dn,start_lane_dn+num_lanes-1,state.pathOrlink_id));
+            return;
 
         sides.remove(side);
         Set<Side> dsides;

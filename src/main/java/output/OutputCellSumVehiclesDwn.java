@@ -6,15 +6,18 @@ import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import models.fluid.AbstractFluidModel;
-import models.fluid.EventUpdateTotalCellVehicles;
+import models.fluid.EventUpdateTotalCellVehiclesDwn;
 import models.fluid.FluidLaneGroup;
 import runner.RunParameters;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public class OutputCellSumVehicles extends AbstractOutputTimedCell {
+public class OutputCellSumVehiclesDwn extends AbstractOutputTimedCell {
 
     public Float simDt;
     public Map<Long, double[] > lg2totals;  // lgid -> cell array of totals
@@ -23,10 +26,10 @@ public class OutputCellSumVehicles extends AbstractOutputTimedCell {
     // construction
     //////////////////////////////////////////////////////
 
-    public OutputCellSumVehicles(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
+    public OutputCellSumVehiclesDwn(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, commodity_id, link_ids, outDt);
 
-        this.type = Type.cell_sumveh;
+        this.type = Type.cell_sumvehdwn;
 
         // get the dt
         Set<Link> links = ordered_lgs.stream().map(lg->lg.link).collect(toSet());
@@ -45,7 +48,7 @@ public class OutputCellSumVehicles extends AbstractOutputTimedCell {
         super.register(props, dispatcher); // registers write to files
 
         // regsister read vehicles event
-        dispatcher.register_event(new EventUpdateTotalCellVehicles(dispatcher,props.start_time,this));
+        dispatcher.register_event(new EventUpdateTotalCellVehiclesDwn(dispatcher,props.start_time,this));
     }
 
     @Override
@@ -61,7 +64,7 @@ public class OutputCellSumVehicles extends AbstractOutputTimedCell {
         }
 
         if(simDt==null)
-            errorLog.addError("All links in a OutputCellSumVehicles must have the same simulation dt.");
+            errorLog.addError("All links in a OutputCellSumVehiclesDwn must have the same simulation dt.");
     }
 
     public void update_total_vehicles(float timestamp){
@@ -69,7 +72,7 @@ public class OutputCellSumVehicles extends AbstractOutputTimedCell {
         for(FluidLaneGroup lg : ordered_lgs){
             double[] current_values = lg2totals.get(lg.id);
             for(int i=0;i<lg.cells.size();i++)
-                current_values[i] += lg.cells.get(i).get_veh_for_commodity(commid);
+                current_values[i] += lg.cells.get(i).get_veh_dwn_for_commodity(commid);
         }
     }
 
@@ -82,9 +85,9 @@ public class OutputCellSumVehicles extends AbstractOutputTimedCell {
         if(!write_to_file)
             return null;
         if(commodity==null)
-            return String.format("%s_cell_sumveh.txt",super.get_output_file());
+            return String.format("%s_cell_sumveh_dwn.txt",super.get_output_file());
         else
-            return String.format("%s_cell_comm%d_sumveh.txt",super.get_output_file(),commodity.getId());
+            return String.format("%s_cell_comm%d_sumveh_dwn.txt",super.get_output_file(),commodity.getId());
     }
 
     //////////////////////////////////////////////////////
@@ -111,5 +114,6 @@ public class OutputCellSumVehicles extends AbstractOutputTimedCell {
         lg2totals.put(lg.id,new double[lg.get_num_cells()]);
         return values;
     }
+
 
 }
