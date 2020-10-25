@@ -4,6 +4,7 @@ import actuator.AbstractActuator;
 import actuator.AbstractActuatorLanegroupCapacity;
 import actuator.ActuatorOpenCloseLaneGroup;
 import actuator.InterfaceActuatorTarget;
+import error.OTMErrorLog;
 import error.OTMException;
 import geometry.FlowPosition;
 import geometry.Side;
@@ -358,19 +359,21 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     ///////////////////////////////////////////////////
 
     @Override
-    public void set_actuator_isopen(boolean isopen,Long commid) {
+    public void set_actuator_isopen(boolean isopen,Long commid) throws OTMException {
         if(isopen)
             states.stream()
                     .filter(s->s.commodity_id==commid)
                     .forEach(s->reallow_state(s));
 
-        else
-            states.stream()
-                    .filter(s->s.commodity_id==commid)
-                    .forEach(s->disallow_state(s));
+        else{
+            for(State s : states)
+                if(s.commodity_id==commid)
+                    disallow_state(s);
+        }
+
     }
 
-    private void disallow_state(State state){
+    private void disallow_state(State state) throws OTMException {
         // disallow movement into this lanegroup from adjacent lanegroups
         this.disallow_state_lanechangedirection(state,Side.middle);
         if(neighbor_in!=null)
@@ -410,12 +413,15 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // private
     ///////////////////////////////////////////////////
 
-    private void disallow_state_lanechangedirection(State state,Side side){
+    private void disallow_state_lanechangedirection(State state,Side side) throws OTMException {
         if(!state2lanechangedirections.containsKey(state))
             return;
         Set<Side> sides = state2lanechangedirections.get(state);
         if(!sides.contains(side))
             return;
+        if(sides.size()==1)
+            throw new OTMException(String.format("In link %d, commid=%d in lanegroup (%d#%d) has no way of getting to path/link %d.",link.getId(),state.commodity_id,start_lane_dn,start_lane_dn+num_lanes-1,state.pathOrlink_id));
+
         sides.remove(side);
         Set<Side> dsides;
         if(disallowed_state2lanechangedirections.containsKey(state)){
