@@ -250,51 +250,64 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
         // state2roadconnection
         // state2lanechangedirection
-        if(link.is_sink){
-            state2roadconnection.put(state,null);
-            Set<Side> sides = new HashSet<>();
-            sides.add(Side.middle);
+//        if(link.is_sink){
+//
+//            Set<Side> sides = new HashSet<>();
+//            sides.add(Side.middle);
 //            if(this.neighbor_out!=null)
 //                sides.add(Side.out);
 //            if(this.neighbor_in!=null)
 //                sides.add(Side.in);
-            state2lanechangedirections.put(state, sides);
+//            state2lanechangedirections.put(state, sides);
+//
+//            states.add(state);
+//
+//        } else {
 
-            states.add(state);
+        // state2lanechangedirection
+        Set<Side> sides;
 
+        if(link.is_sink){
+            sides = new HashSet<>();
+            sides.add(Side.middle);
+            if(this.neighbor_out!=null)
+                sides.add(Side.out);
+            if(this.neighbor_in!=null)
+                sides.add(Side.in);
         } else {
-
-            // state2lanechangedirection
-            Set<Side> sides = link.outlink2lanegroups.get(next_link_id).stream()
+            sides = link.outlink2lanegroups.get(next_link_id).stream()
                     .map(x -> x.get_side_with_respect_to_lg(this))
                     .collect(Collectors.toSet());
+        }
 
-            if(link.in_barriers!=null){
-                if(this.side==Side.in)
-                    sides.remove(Side.out);
-                if(this.side==Side.middle)
-                    sides.remove(Side.in);
-            }
+        if(link.in_barriers!=null){
+            if(this.side==Side.in)
+                sides.remove(Side.out);
+            if(this.side==Side.middle)
+                sides.remove(Side.in);
+        }
 
-            if(link.out_barriers!=null){
-                if(this.side==Side.middle)
-                    sides.remove(Side.out);
-                if(this.side==Side.out)
-                    sides.remove(Side.in);
-            }
+        if(link.out_barriers!=null){
+            if(this.side==Side.middle)
+                sides.remove(Side.out);
+            if(this.side==Side.out)
+                sides.remove(Side.in);
+        }
 
-            if(!sides.isEmpty()){
-                state2lanechangedirections.put(state, sides);
+        if(!sides.isEmpty()){
+            state2lanechangedirections.put(state, sides);
 
-                // state2roadconnection
+            // state2roadconnection
+            if(!link.is_sink){
                 RoadConnection my_rc = outlink2roadconnection.get(next_link_id);
                 if(my_rc!=null)
                     state2roadconnection.put(state, my_rc.getId());
-
-                states.add(state);
             }
 
+            states.add(state);
         }
+
+//        }
 
     }
 
