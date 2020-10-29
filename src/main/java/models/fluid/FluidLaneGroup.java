@@ -161,7 +161,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) {
+    public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) throws OTMException {
 
         AbstractCell cell = cells.get(0);
 
@@ -235,7 +235,10 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     // This is called when vehicles are added to the first cell in a lanegroup.
     // They decide which way to chenge lanes within the lanegroup.
-    public Map<Side,Double> get_lc_probabilities(State state,Set<Side> lcoptions){
+    public Map<Side,Double> get_lc_probabilities(State state,Set<Side> lcoptions) throws OTMException {
+
+        if(lcoptions==null)
+            throw new OTMException(String.format("In link %d, commid=%d in lanegroup (%d#%d) has no way of getting to path/link %d.",link.getId(),state.commodity_id,start_lane_dn,start_lane_dn+num_lanes-1,state.pathOrlink_id));
 
         // otherwise use the lane selector, if it exists
         if(lane_selector!=null && lane_selector.containsKey(state.commodity_id))
@@ -345,7 +348,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
             update_supply();
     }
 
-    public void process_buffer(float timestamp){
+    public void process_buffer(float timestamp) throws OTMException {
         assert(link.is_model_source_link);
 
         double buffer_size = buffer.get_total_veh();

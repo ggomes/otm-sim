@@ -30,6 +30,7 @@ public abstract class AbstractOutput implements InterfaceOutput {
         cell_flw,
         cell_veh,
         cell_sumveh,
+        cell_sumvehdwn,
         cell_lanechange,
         path_travel_time,
         vehicle_events,

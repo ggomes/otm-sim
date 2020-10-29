@@ -407,6 +407,22 @@ public class Output {
         }
     }
 
+    public void request_cell_sum_veh_dwn(String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt){
+        try {
+            this.myapi.scn.outputs.add(new OutputCellSumVehiclesDwn(myapi.scn,prefix,output_folder,commodity_id,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void request_cell_sum_veh_dwn(Long commodity_id, Collection<Long> link_ids, Float outDt){
+        try {
+            this.myapi.scn.outputs.add(new OutputCellSumVehiclesDwn(myapi.scn,null,null,commodity_id,link_ids,outDt));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void request_cell_lanechange_out(Long commodity_id, Collection<Long> link_ids, Float outDt){
         try {
             this.myapi.scn.outputs.add(new OutputCellLanechangeOut(myapi.scn,null,null,commodity_id,link_ids,outDt));
