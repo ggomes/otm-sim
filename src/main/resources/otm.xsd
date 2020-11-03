@@ -650,6 +650,9 @@
 			<xs:attribute name="position" type="xs:float"  default="0"/>
 			<!-- sample time in seconds -->
 			<xs:attribute name="dt" type="xs:float" use="required"/>
+			<!-- commodities -->
+			<xs:attribute name="commids" type="xs:string"/>
+
 		</xs:complexType>
 	</xs:element>
 

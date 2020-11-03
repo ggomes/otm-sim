@@ -237,8 +237,12 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     // They decide which way to chenge lanes within the lanegroup.
     public Map<Side,Double> get_lc_probabilities(State state,Set<Side> lcoptions) throws OTMException {
 
-        if(lcoptions==null)
-            throw new OTMException(String.format("In link %d, commid=%d in lanegroup (%d#%d) has no way of getting to path/link %d.",link.getId(),state.commodity_id,start_lane_dn,start_lane_dn+num_lanes-1,state.pathOrlink_id));
+        if(lcoptions==null) {
+            Map<Side,Double> x = new HashMap<>();
+            x.put(Side.middle,1d);
+            return x;
+//            throw new OTMException(String.format("In link %d, commid=%d in lanegroup (%d#%d) has no way of getting to path/link %d.", link.getId(), state.commodity_id, start_lane_dn, start_lane_dn + num_lanes - 1, state.pathOrlink_id));
+        }
 
         // otherwise use the lane selector, if it exists
         if(lane_selector!=null && lane_selector.containsKey(state.commodity_id))

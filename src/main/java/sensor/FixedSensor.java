@@ -51,7 +51,9 @@ public class FixedSensor extends AbstractSensor {
 
         // create subsensors
         this.position = jaxb_sensor.getPosition();
-        this.commids = null; // TODO remove null
+        this.commids = jaxb_sensor.getCommids()==null || jaxb_sensor.getCommids().isEmpty() ?
+                        scenario.commodities.keySet() :
+                        new HashSet<>(OTMUtils.csv2longlist(jaxb_sensor.getCommids()));
     }
 
     private void create_subsensors(float position,Set<Long> commids) throws OTMException {
