@@ -83,10 +83,6 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
         return jnode;
     }
 
-    ///////////////////////////////////////////
-    // InterfaceActuatorTarget
-    ///////////////////////////////////////////
-
     public void delete(){
         network = null;
         in_links = null;
@@ -125,6 +121,11 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
     ////////////////////////////////////////////
     //  InterfaceActuatorTarget
     ///////////////////////////////////////////
+
+    @Override
+    public String getTypeAsTarget() {
+        return "node";
+    }
 
     @Override
     public long getIdAsTarget() {

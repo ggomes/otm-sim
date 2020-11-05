@@ -68,23 +68,20 @@ public class OTM {
 
     public void load(String configfile, boolean validate, boolean jaxb_only) throws OTMException {
         jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,validate);
-        if(jaxb_only)
-            this.scn =  ScenarioFactory.create_unrunnable_scenario(jaxb_scenario);
-        else
-            this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,validate);
+        this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,validate,jaxb_only);
         scenario = new api.Scenario(this);
         output = new api.Output(this);
     }
 
     public void load_from_jaxb(jaxb.Scenario jscn,boolean validate) throws OTMException {
-        this.scn =  ScenarioFactory.create_scenario(jscn,validate);
+        this.scn =  ScenarioFactory.create_scenario(jscn,validate,false);
         scenario = new Scenario(this);
         output = new Output(this);
     }
 
     public void load_test(String configname) throws OTMException  {
         jaxb.Scenario jaxb_scenario =  JaxbLoader.load_test_scenario(configname+".xml",true);
-        this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,true);
+        this.scn =  ScenarioFactory.create_scenario(jaxb_scenario,true,false);
         scenario = new api.Scenario(this);
         output = new api.Output(this);
     }

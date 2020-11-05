@@ -47,7 +47,7 @@ public class Network {
         links = new HashMap<>();
     }
 
-    public Network(Scenario scenario, List<jaxb.Commodity> jaxb_comms, List<jaxb.Model> jaxb_models, jaxb.Nodes jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadgeoms jaxb_geoms, jaxb.Roadconnections jaxb_conns, jaxb.Roadparams jaxb_params) throws OTMException {
+    public Network(Scenario scenario, List<jaxb.Commodity> jaxb_comms, List<jaxb.Model> jaxb_models, jaxb.Nodes jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadgeoms jaxb_geoms, jaxb.Roadconnections jaxb_conns, jaxb.Roadparams jaxb_params,boolean jaxb_only) throws OTMException {
 
         this(scenario);
 
@@ -57,17 +57,18 @@ public class Network {
         road_geoms = read_geoms(jaxb_geoms,road_params);
         links = create_links(jaxb_links,this,nodes);
 
-        nodes.values().stream().forEach(node -> node.is_many2one = node.out_links.size()==1);
+        if(!jaxb_only)
+            nodes.values().stream().forEach(node -> node.is_many2one = node.out_links.size()==1);
 
         // is_source and is_sink
-        for(Link link : links.values()){
-            link.is_source = link.start_node.in_links.isEmpty();
-            link.is_sink = link.end_node.out_links.isEmpty();
-        }
+        if(!jaxb_only)
+            for(Link link : links.values()){
+                link.is_source = link.start_node.in_links.isEmpty();
+                link.is_sink = link.end_node.out_links.isEmpty();
+            }
 
         // allocate split matrix
         if(jaxb_comms!=null){
-
             Set<Long> pathless_comms = jaxb_comms.stream()
                     .filter(c->!c.isPathfull())
                     .map(c->c.getId())
@@ -76,11 +77,14 @@ public class Network {
             links.values().stream()
                     .filter(link -> !link.is_sink && link.end_node.out_links.size()>1)
                     .forEach(link -> link.allocate_splits(pathless_comms));
-
         }
 
         // read road connections (requires links)
         road_connections = read_road_connections(jaxb_conns,links);
+
+        // ignore the rest if we are not interested in lane groups
+        if(jaxb_only)
+            return;
 
         // store list of road connections in nodes
         for(RoadConnection rc : road_connections.values()) {
@@ -134,24 +138,6 @@ public class Network {
 
     }
 
-    // constructor for static scenario
-    public Network(Scenario scenario,List<Commodity> jaxb_comms, List<jaxb.Node> jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadparams jaxb_params) throws OTMException {
-
-        this(scenario);
-
-        nodes = read_nodes(jaxb_nodes,this);
-        road_params = read_params(jaxb_params);
-        links = create_links(jaxb_links,this,nodes);
-
-        nodes.values().stream().forEach(node -> node.is_many2one = node.out_links.size()==1);
-
-        // is_source and is_sink
-        for(Link link : links.values()){
-            link.is_source = link.start_node.in_links.isEmpty();
-            link.is_sink = link.end_node.out_links.isEmpty();
-        }
-
-    }
 
     /////////////////////////////////////////////////
     // InterfaceScenarioElement-like

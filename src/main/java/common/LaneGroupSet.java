@@ -11,6 +11,12 @@ public class LaneGroupSet implements InterfaceActuatorTarget {
 
     public Set<AbstractLaneGroup> lgs = new HashSet<>();
 
+
+    @Override
+    public String getTypeAsTarget() {
+        return "lanegroups";
+    }
+
     @Override
     public long getIdAsTarget() {
         return 0;

@@ -52,12 +52,25 @@ public class TestOne extends AbstractTest {
     @Test
     public void load_one() {
         try {
-            String configfile = "/home/gomes/Downloads/a_0.xml";
-            api.OTM otm = new api.OTM(configfile,true,false);
+            String configfile = "/home/gomes/Desktop/nrel_presentation/lakewood_savesd.xml";
+            api.OTM otm = new api.OTM(configfile,false,false);
             assertNotNull(otm);
         } catch (OTMException e) {
             fail(e.getMessage());
         }
+    }
+
+    @Test
+    public void load_save(){
+        try {
+            String configfile = "/home/gomes/Desktop/nrel_presentation/lakewood.xml";
+            api.OTM otm = new api.OTM(configfile,false,false);
+            otm.save("/home/gomes/Desktop/nrel_presentation/lakewood_savesd.xml");
+            assertNotNull(otm);
+        } catch (OTMException e) {
+            fail(e.getMessage());
+        }
+
     }
 
 //    @Test
@@ -142,10 +155,10 @@ public class TestOne extends AbstractTest {
 
 //            System.out.println("t\tlg\tc\tflwin\tflwdwn\tflwout");
 
-            String configfile = "/home/gomes/Downloads/aaa_0.xml";
+            String configfile = "/home/gomes/Downloads/229_0.xml";
 
-            float duration = 60f;
-            float outdt = 2f;
+            float duration = 3600f;
+            float outdt = 5f;
             String prefix = "x";
             String output_folder = "/home/gomes/Downloads";
 
@@ -154,13 +167,13 @@ public class TestOne extends AbstractTest {
 
             // Output requests .....................
             Set<Long> link_ids =  new HashSet<>(); //otm.scenario.get_link_ids();
-            link_ids.add(1l);
-//            link_ids.add(2l);
+            link_ids.add(6l);
+            link_ids.add(7l);
 //            link_ids.add(3l);
 
             // links
 
-//            otm.output.request_links_flow(null, link_ids, outdt);
+            otm.output.request_links_flow(null, link_ids, outdt);
 //            otm.output.request_links_veh(null, link_ids, outdt);
 //            otm.output.request_links_sum_veh(null,link_ids,outdt);
 

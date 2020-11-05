@@ -240,6 +240,9 @@ public class Scenario {
                     Long commodity_id = e.getKey();
                     SplitMatrixProfile profile = e.getValue();
 
+                    if(profile==null || profile.splits==null)
+                        continue;
+
                     jaxb.SplitNode jspltnode = new jaxb.SplitNode();
                     jsplits.getSplitNode().add(jspltnode);
 
@@ -277,7 +280,6 @@ public class Scenario {
 //            jctrl.setTargetActuators(OTMUtils.comma_format(acts));
         }
 
-
         // actuators
         jaxb.Actuators jacts = new jaxb.Actuators();
         jsc.setActuators(jacts);
@@ -286,10 +288,12 @@ public class Scenario {
             jacts.getActuator().add(jact);
 
             jact.setId(absact.id);
-//            jact.setActuatorTarget(absact.get_target());
-//            jact.setSignal();
-            // TODO PUT THIS BACK IN
-//            jact.setType(absact.getActuatorType().toString());
+
+            jaxb.ActuatorTarget target = new jaxb.ActuatorTarget();
+            jact.setActuatorTarget(target);
+            target.setType(absact.target.getTypeAsTarget());
+            target.setId(String.format("%d",absact.target.getIdAsTarget()));
+            jact.setType(absact.getType().toString());
         }
 
 

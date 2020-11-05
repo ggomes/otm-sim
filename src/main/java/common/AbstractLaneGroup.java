@@ -109,6 +109,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     ///////////////////////////////////////////////////
 
     @Override
+    public String getTypeAsTarget() {
+        return "lanegroup";
+    }
+
+    @Override
     public long getIdAsTarget() {
         return id;
     }

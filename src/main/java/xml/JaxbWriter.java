@@ -20,7 +20,9 @@ public class JaxbWriter {
 
     private static Marshaller create_marshaller() throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(Scenario.class);
-        return jaxbContext.createMarshaller();
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        return marshaller;
     }
 
 }
