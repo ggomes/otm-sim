@@ -180,15 +180,24 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         else {
             for(Map.Entry<State,Double> e : vp.container.amount.entrySet()) {
                 State state = e.getKey();
+                final long mycomm = state.commodity_id;
 
                 // update state
                 if(!state.isPath)
-                    state = new State(state.commodity_id,nextlink_id,false);
+                    state = new State(mycomm,nextlink_id,false);
+
+                // if there are no lc options available, then the vehicles must choose
+                // another path for their commodity
+                if(!state2lanechangedirections.containsKey(state)){
+                    Optional<State> optstate = state2lanechangedirections.keySet().stream()
+                            .filter(s->s.commodity_id==mycomm).findFirst();
+                    if(!optstate.isPresent())
+                        throw new OTMException("-03890qj");
+                    state = optstate.get();
+                }
 
                 Set<Side> lcoptions = state2lanechangedirections.get(state);
-
                 Map<Side,Double> side2prob = get_lc_probabilities(state,lcoptions);
-
                 cell.add_vehicles(state,e.getValue(),side2prob);
             }
         }

@@ -222,6 +222,34 @@ public class ModelCTM extends AbstractFluidModel {
             }
         }
 
+        // If there are vehicles left in downstream cell that did not complete
+        // their lane change, then convert them to dwn flow
+//        for (AbstractLaneGroup alg : link.lanegroups_flwdn) {
+//            FluidLaneGroup lg = (FluidLaneGroup) alg;
+//            CTMCell cell = (CTMCell) lg.get_dnstream_cell();
+//
+//            if(cell.total_vehs_out>0){
+//                for(Map.Entry<State,Double> e : cell.veh_out.entrySet()){
+//                    State state = e.getKey();
+//                    double veh_dwn  = cell.veh_dwn.containsKey(state) ? cell.veh_dwn.get(state) : 0d;
+//                    cell.veh_dwn.put(state,e.getValue()+veh_dwn);
+//                    cell.veh_out.put(state,0d);
+//                }
+//                cell.total_vehs_dwn += cell.total_vehs_out;
+//                cell.total_vehs_out = 0d;
+//            }
+//
+//            if(cell.total_vehs_in>0){
+//                for(Map.Entry<State,Double> e : cell.veh_in.entrySet()){
+//                    State state = e.getKey();
+//                    double veh_dwn  = cell.veh_dwn.containsKey(state) ? cell.veh_dwn.get(state) : 0d;
+//                    cell.veh_dwn.put(state,e.getValue()+veh_dwn);
+//                    cell.veh_in.put(state,0d);
+//                }
+//                cell.total_vehs_dwn += cell.total_vehs_in;
+//                cell.total_vehs_in = 0d;
+//            }
+//        }
     }
 
     // call update_supply_demand on each cell

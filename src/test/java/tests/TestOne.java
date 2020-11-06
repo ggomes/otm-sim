@@ -155,9 +155,9 @@ public class TestOne extends AbstractTest {
 
 //            System.out.println("t\tlg\tc\tflwin\tflwdwn\tflwout");
 
-            String configfile = "/home/gomes/Downloads/229_0.xml";
+            String configfile = "/home/gomes/Downloads/231_0.xml";
 
-            float duration = 3600f;
+            float duration = 10000f;
             float outdt = 5f;
             String prefix = "x";
             String output_folder = "/home/gomes/Downloads";
@@ -167,13 +167,16 @@ public class TestOne extends AbstractTest {
 
             // Output requests .....................
             Set<Long> link_ids =  new HashSet<>(); //otm.scenario.get_link_ids();
-            link_ids.add(6l);
-            link_ids.add(7l);
+//            link_ids.add(1l);
+            link_ids.add(2l);
+//            link_ids.add(7l);
 //            link_ids.add(3l);
+
+            Long comm_id=1l;
 
             // links
 
-            otm.output.request_links_flow(null, link_ids, outdt);
+//            otm.output.request_links_flow(null, link_ids, outdt);
 //            otm.output.request_links_veh(null, link_ids, outdt);
 //            otm.output.request_links_sum_veh(null,link_ids,outdt);
 
@@ -182,9 +185,9 @@ public class TestOne extends AbstractTest {
 
             // lanegroups
 
-            otm.output.request_lanegroup_flw(null,link_ids,outdt);
-            otm.output.request_lanegroup_veh(null,link_ids,outdt);
-//            otm.output.request_lanegroup_sum_veh(null,link_ids,outdt);
+//            otm.output.request_lanegroup_flw(comm_id,link_ids,outdt);
+//            otm.output.request_lanegroup_veh(comm_id,link_ids,outdt);
+//            otm.output.request_lanegroup_sum_veh(comm_id,link_ids,outdt);
 
 //            otm.output.request_lanegroups(prefix,output_folder);
 //            otm.output.request_lanegroup_flw(prefix,output_folder,null,link_ids,outdt);
@@ -193,15 +196,16 @@ public class TestOne extends AbstractTest {
 
             // cells
 
-            otm.output.request_cell_flw(null, link_ids, outdt);
-            otm.output.request_cell_veh(null,link_ids, outdt);
+            otm.output.request_cell_flw(comm_id, link_ids, outdt);
+            otm.output.request_cell_veh(comm_id,link_ids, outdt);
+            otm.output.request_cell_lanechange_out(comm_id, link_ids, outdt);
+            otm.output.request_cell_lanechange_in(comm_id, link_ids, outdt);
 //            otm.output.request_cell_sum_veh(null, link_ids, outdt);
 
-            otm.output.request_cell_lanechange_out(null, link_ids, outdt);
-            otm.output.request_cell_lanechange_in(null, link_ids, outdt);
-
-//            otm.output.request_cell_flw(prefix,output_folder,null, link_ids, outdt);
-//            otm.output.request_cell_veh(prefix,output_folder,null,link_ids, outdt);
+            otm.output.request_cell_flw(prefix,output_folder,null, link_ids, outdt);
+            otm.output.request_cell_veh(prefix,output_folder,null,link_ids, outdt);
+            otm.output.request_cell_lanechange_out(prefix,output_folder,null, link_ids, outdt);
+            otm.output.request_cell_lanechange_in(prefix,output_folder,null, link_ids, outdt);
 //            otm.output.request_cell_sum_veh(prefix,output_folder,null, link_ids, outdt);
 
             /////////////////////////
