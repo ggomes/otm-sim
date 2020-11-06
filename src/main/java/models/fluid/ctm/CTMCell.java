@@ -129,7 +129,6 @@ public class CTMCell extends AbstractCell {
                 // sources discharge at capacity
                 total_demand = Math.min(total_vehicles, laneGroup.capacity_veh_per_dt);
             else {
-                // assume speed control acts equally on all cells in the link
                 if(am_dnstrm)
                     total_demand = Math.min(laneGroup.ffspeed_cell_per_dt * total_vehicles, laneGroup.capacity_veh_per_dt);
                 else
@@ -250,8 +249,8 @@ public class CTMCell extends AbstractCell {
                 if(value>0d) {
                     veh_in.put(state, veh_in.get(state) - value);
                     total_vehs_in -= value;
-//                    if(flw_acc!=null)
-//                        flw_acc.increment(state,value);
+                    if(flw_acc!=null)
+                        flw_acc.increment(state,value);
                 }
             }
         }
@@ -263,8 +262,8 @@ public class CTMCell extends AbstractCell {
                 if(value>0d) {
                     veh_out.put(state, veh_out.get(state) - value);
                     total_vehs_out -= value;
-//                    if(flw_acc!=null)
-//                        flw_acc.increment(state,value);
+                    if(flw_acc!=null)
+                        flw_acc.increment(state,value);
                 }
             }
         }

@@ -12,6 +12,7 @@ public class LogitLaneSelector extends AbstractLaneSelector {
     private double keep = 0.7;                  // [-] positive utility of keeping your lane
     private double rho_vehperlane = 0.018504;   // [1/vehperlane] positive utility of changing lanes into a lane with lower density
     private double add_in;  // additional terms used for setting toll on hot lane
+    private final double threshold = 1.05d;
 
     public LogitLaneSelector(AbstractLaneGroup lg, float dt,jaxb.Parameters params,Long commid) {
         super(lg,dt,commid);
@@ -64,29 +65,37 @@ public class LogitLaneSelector extends AbstractLaneSelector {
                 ei = 0;
             else{
                 FluidLaneGroup tlg = (FluidLaneGroup)lg.neighbor_in;
-                ui = Math.min(0d, rho_vehperlane * (tlg.critical_density_veh -tlg.get_total_vehicles() ));
-                ei = Math.exp(ui-add_in);
-                den += ei;
+                ui = Math.min(0d, rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles() ) / tlg.num_lanes );
+//                ui = rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles() ) / tlg.num_lanes;
+                ui -= add_in;
+                ei = Math.exp(ui);
             }
         }
 
         boolean has_middle = lcoptions.contains(Side.middle);
         if(has_middle) {
             FluidLaneGroup tlg = (FluidLaneGroup)lg;
-//            em = Math.exp(a_keep + a_rho_vehperlane * targetlg.get_dnstream_cell().supply /targetlg.num_lanes);
-            um = Math.min(0d,rho_vehperlane * (tlg.critical_density_veh -tlg.get_total_vehicles()));
-            em = Math.exp( keep + um );
-            den += em;
+            um = Math.min(0d,rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.num_lanes );
+//            um = rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.num_lanes;
+            um += keep;
+            em = Math.exp( um );
         }
 
         boolean has_out = lcoptions.contains(Side.out) && lg.neighbor_out!=null;
         if(has_out) {
             FluidLaneGroup tlg = (FluidLaneGroup)lg.neighbor_out;
-//            eo = Math.exp( a_rho_vehperlane * targetlg.get_upstream_cell().supply /targetlg.num_lanes);
-            uo = Math.min(0d,rho_vehperlane * (tlg.critical_density_veh -tlg.get_total_vehicles()) );
+            uo = Math.min(0d,rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.num_lanes );
+//            uo = rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.num_lanes;
             eo = Math.exp(uo);
-            den += eo;
         }
+
+        // thresholding
+        if(has_in && ui<threshold*um)
+            ei = 0d;
+        if(has_out && uo<threshold*um)
+            eo = 0d;
+
+        den = ei+em+eo;
 
         // clean side2prob
         if(myside2prob.containsKey(Side.in) && !has_in)
