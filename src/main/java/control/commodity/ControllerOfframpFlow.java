@@ -41,7 +41,7 @@ public class ControllerOfframpFlow extends AbstractController {
         act = (ActuatorSplit) actuators.values().iterator().next();
         Set<Long> commids = new HashSet<>();
         commids.add(act.comm.getId());
-        this.ml_sensor = new FixedSensor(dt, act.linkMLup,1,act.linkMLup.full_lanes,act.linkMLup.length,commids);
+        this.ml_sensor = new FixedSensor(dt, act.linkMLup,1,act.linkMLup.get_num_dn_lanes(),act.linkMLup.length,commids);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class ControllerOfframpFlow extends AbstractController {
         // if the sensor registers no flow, then dont do anything.
         if(flow_in_vph<0.0001)
             return;
-
+        
         for(Map.Entry<Long,Profile1D> e : fr_ref.entrySet()){
             Long frid = e.getKey();
             Profile1D prof = e.getValue();
