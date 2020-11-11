@@ -36,6 +36,11 @@ public abstract class AbstractActuatorLanegroupCapacity extends AbstractActuator
     @Override
     public void validate(OTMErrorLog errorLog) {
 
+        if(lanegroups==null || lanegroups.isEmpty()){
+            errorLog.addWarning(String.format("Actuator %d has no lanegroups.",id));
+            return;
+        }
+
         // check that the lanes provided cover all lane, ie that total lanes
         // equals the sum of lanes in the lanegroups
         int lg_lanes = lanegroups.stream().mapToInt(x->x.num_lanes).sum();
