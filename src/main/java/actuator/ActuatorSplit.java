@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toSet;
+
 public class ActuatorSplit extends AbstractActuator {
 
     public Link linkMLup;
@@ -40,7 +42,7 @@ public class ActuatorSplit extends AbstractActuator {
                         this.linkMLup = scenario.network.links.get(Long.parseLong(p.getValue()));
                         break;
                     case "linksout":
-                        this.linkFRs.addAll(OTMUtils.csv2longlist(p.getValue()).stream().map(l->scenario.network.links.get(l)).collect(Collectors.toSet()));
+                        this.linkFRs.addAll(OTMUtils.csv2longlist(p.getValue()).stream().map(l->scenario.network.links.get(l)).collect(toSet()));
                         break;
                     case "comm":
                         this.comm = scenario.commodities.get(Long.parseLong(p.getValue()));
@@ -54,8 +56,9 @@ public class ActuatorSplit extends AbstractActuator {
 
         Node node = linkMLup.end_node;
         linkMLdwn = node.out_links.stream()
-                .filter(link->!linkFRs.contains(link))
+                .filter(link->link.road_type== Link.RoadType.freeway)
                 .findFirst().get();
+        System.out.println(linkMLdwn);
     }
 
     @Override
@@ -77,11 +80,16 @@ public class ActuatorSplit extends AbstractActuator {
         if(comm==null)
             errorLog.addError("ActuatorSplit: comm==null");
 
-        Set<Link> allout = new HashSet<>();
-        allout.add(linkMLdwn);
-        allout.addAll(linkFRs);
-        if(allout.size()!=linkMLup.end_node.out_links.size())
-            errorLog.addError("Actuator split: not all outlinks are represented.");
+//        Set<Link> allout = new HashSet<>();
+//        allout.add(linkMLdwn);
+//        allout.addAll(linkFRs);
+//        if(allout.size()!=linkMLup.end_node.out_links.size()) {
+//            Set<Link> missing = new HashSet<Link>();
+//            missing.addAll(linkMLup.end_node.out_links);
+//            missing.removeAll(allout);
+//            errorLog.addError(String.format("In actuator id=%d, output link(s) %s is(are) not represented.",id,
+//                    OTMUtils.comma_format(missing.stream().map(x->x.getId()).collect(toSet()))));
+//        }
 
         // confirm they are connected
         if(linkFRs.stream().anyMatch(linkFR->linkMLup.end_node!=linkFR.start_node))

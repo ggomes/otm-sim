@@ -80,18 +80,22 @@ public class Scenario {
 
         // check if there are CFL violations, and if so report the max step time
         if(errorLog.haserror()){
-            Map<String,Double> maxdt = new HashMap<>();
-            for(AbstractModel model : network.models.values())
-                maxdt.put(model.name,Double.POSITIVE_INFINITY);
-            for(String str : errorLog.getErrors().stream().filter(e->e.description.contains("CFL")).map(e->e.description).collect(toSet())) {
-                String[] tokens = str.split(" ");
-                long linkid = Long.parseLong(tokens[3]);
-                AbstractFluidModel model = (AbstractFluidModel) network.links.get(linkid).model;
-                double cfl = Double.parseDouble(tokens[6]);
-                maxdt.put(model.name,Math.min(maxdt.get(model.name),model.dt_sec /cfl));
+
+            if( errorLog.getErrors().stream().anyMatch(e->e.description.contains("CFL")) ){
+                Map<String,Double> maxdt = new HashMap<>();
+                for(AbstractModel model : network.models.values())
+                    maxdt.put(model.name,Double.POSITIVE_INFINITY);
+                for(String str : errorLog.getErrors().stream().filter(e->e.description.contains("CFL")).map(e->e.description).collect(toSet())) {
+                    String[] tokens = str.split(" ");
+                    long linkid = Long.parseLong(tokens[3]);
+                    AbstractFluidModel model = (AbstractFluidModel) network.links.get(linkid).model;
+                    double cfl = Double.parseDouble(tokens[6]);
+                    maxdt.put(model.name,Math.min(maxdt.get(model.name),model.dt_sec /cfl));
+                }
+                for(Map.Entry<String,Double> e : maxdt.entrySet())
+                    errorLog.addError(String.format("The maximum step size for model `%s' is %f",e.getKey(),e.getValue()));
             }
-            for(Map.Entry<String,Double> e : maxdt.entrySet())
-                errorLog.addError(String.format("The maximum step size for model `%s' is %f",e.getKey(),e.getValue()));
+
         }
 
         return errorLog;
