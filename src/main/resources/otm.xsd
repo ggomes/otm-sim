@@ -646,7 +646,7 @@
 			</xs:attribute>
 
 			<xs:attribute name="link_id" type="xs:long" use="required"/>
-			<!-- distance in meters from the upstream edge of the link -->
+			<!-- distance in meters from the downstream edge of the link -->
 			<xs:attribute name="position" type="xs:float"  default="0"/>
 			<!-- sample time in seconds -->
 			<xs:attribute name="dt" type="xs:float" use="required"/>
