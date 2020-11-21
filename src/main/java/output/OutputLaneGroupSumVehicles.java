@@ -82,12 +82,7 @@ public class OutputLaneGroupSumVehicles extends AbstractOutputTimedLanegroup {
 
     @Override
     public String get_output_file() {
-        if(!write_to_file)
-            return null;
-        if(commodity==null)
-            return String.format("%s_lanegroup_sumveh.txt",super.get_output_file());
-        else
-            return String.format("%s_lanegroup_comm%d_sumveh.txt",super.get_output_file(),commodity.getId());
+        return write_to_file ? super.get_output_file() + "_sumveh.txt" : null;
     }
 
     //////////////////////////////////////////////////////

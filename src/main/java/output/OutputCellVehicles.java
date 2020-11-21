@@ -23,12 +23,7 @@ public class OutputCellVehicles extends AbstractOutputTimedCell {
 
     @Override
     public String get_output_file() {
-        if(!write_to_file)
-            return null;
-        if(commodity==null)
-            return String.format("%s_cell_veh.txt",super.get_output_file());
-        else
-            return String.format("%s_cell_veh_comm%d.txt",super.get_output_file(),commodity.getId());
+        return write_to_file ? super.get_output_file() + "_veh.txt" : null;
     }
 
     //////////////////////////////////////////////////////

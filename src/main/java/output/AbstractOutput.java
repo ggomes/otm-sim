@@ -115,7 +115,7 @@ public abstract class AbstractOutput implements InterfaceOutput {
     }
 
     public String get_output_file() {
-        return write_to_file ? output_folder + File.separator + prefix : null;
+        return output_folder + File.separator + prefix;
     }
 
     //////////////////////////////////////////////////////

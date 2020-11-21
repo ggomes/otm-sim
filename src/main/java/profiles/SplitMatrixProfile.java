@@ -18,10 +18,10 @@ public class SplitMatrixProfile {
 
     public long commodity_id;
     public Link link_in;
-    public Profile2D splits;   // link out id -> split profile
+    public Profile2D splits;                       // link out id -> split profile
 
     // current splits
-    public Map<Long,Double> outlink2split;        // output link id -> split
+    public Map<Long,Double> outlink2split;         // output link id -> split
     private List<LinkCumSplit> link_cumsplit;      // output link id -> cummulative split
 
     ////////////////////////////////////////////
@@ -165,7 +165,6 @@ public class SplitMatrixProfile {
             s += e.getValue();
         }
     }
-
 
     public void register_next_change(Dispatcher dispatcher,TimeMap time_map){
         if(time_map!=null)

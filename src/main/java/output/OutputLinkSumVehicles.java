@@ -80,10 +80,7 @@ public class OutputLinkSumVehicles  extends AbstractOutputTimedLink {
     public String get_output_file() {
         if(!write_to_file)
             return null;
-        if(commodity==null)
-            return String.format("%s_link_sumveh.txt",super.get_output_file());
-        else
-            return String.format("%s_link_comm%d_sumveh.txt",super.get_output_file(),commodity.getId());
+        return super.get_output_file() + "_sumveh.txt";
     }
 
     //////////////////////////////////////////////////////

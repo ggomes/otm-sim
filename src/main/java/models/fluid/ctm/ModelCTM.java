@@ -12,6 +12,7 @@ import common.AbstractLaneGroup;
 import models.fluid.*;
 import output.AbstractOutput;
 import common.Scenario;
+import output.OutputCellVehicles;
 import traveltime.FluidLaneGroupTimer;
 import utils.OTMUtils;
 import utils.StochasticProcess;
@@ -39,15 +40,15 @@ public class ModelCTM extends AbstractFluidModel {
     @Override
     public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
         AbstractOutput output = null;
-        switch (jaxb_or.getQuantity()) {
-            case "cell_veh":
-                Long commodity_id = jaxb_or.getCommodity();
-                Float outDt = jaxb_or.getDt();
-                output = new OutputCellVehicles(scenario, this,prefix, output_folder, commodity_id, outDt);
-                break;
-            default:
-                throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
-        }
+//        switch (jaxb_or.getQuantity()) {
+//            case "cell_veh":
+//                Long commodity_id = jaxb_or.getCommodity();
+//                Float outDt = jaxb_or.getDt();
+//                output = new OutputCellVehicles(scenario,prefix, output_folder, commodity_id, link_ids, outDt);
+//                break;
+//            default:
+//                throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
+//        }
         return output;
     }
 

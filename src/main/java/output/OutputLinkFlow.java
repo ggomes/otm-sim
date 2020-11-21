@@ -29,7 +29,7 @@ public class OutputLinkFlow extends AbstractOutputTimedLink {
 
     @Override
     public String get_output_file() {
-        return write_to_file ? super.get_output_file() + "_link_flw_global.txt" : null;
+        return write_to_file ? super.get_output_file() + "_flw.txt" : null;
     }
 
     //////////////////////////////////////////////////////

@@ -72,6 +72,11 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
     //////////////////////////////////////////////////////
 
     @Override
+    public String get_output_file() {
+        return super.get_output_file() + "_link";
+    }
+
+    @Override
     public final void write(float timestamp) throws OTMException {
         super.write(timestamp);
         if(write_to_file){
@@ -125,9 +130,9 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
                 String filename = get_output_file();
                 if (filename != null) {
                     String subfilename = filename.substring(0, filename.length() - 4);
-                    Writer links_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_links.txt"));
-                    for (Long link_id : ordered_ids)
-                        links_writer.write(link_id + "\t");
+                    Writer links_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_cols.txt"));
+                    for(int i=0;i<ordered_ids.length;i++)
+                        links_writer.write(String.format("%d%s",ordered_ids[i],i<ordered_ids.length-1?",":""));
                     links_writer.close();
                 }
             } catch (FileNotFoundException exc) {

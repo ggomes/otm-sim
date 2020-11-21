@@ -24,7 +24,7 @@ public class OutputLinkVHT extends AbstractOutputTimedLink {
 
     @Override
     public String get_output_file() {
-        return write_to_file ? super.get_output_file() + "_link_vht.txt" : null;
+        return write_to_file ? super.get_output_file() + "_sumveh.txt" : null;
     }
 
     //////////////////////////////////////////////////////

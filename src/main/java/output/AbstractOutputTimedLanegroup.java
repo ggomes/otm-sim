@@ -50,6 +50,11 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
     //////////////////////////////////////////////////////
 
     @Override
+    public String get_output_file() {
+        return super.get_output_file() + "_lg";
+    }
+
+    @Override
     public final void write(float timestamp) throws OTMException {
         super.write(timestamp);
         if(write_to_file){
@@ -94,10 +99,10 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
                 String filename = get_output_file();
                 if(filename!=null) {
                     String subfilename = filename.substring(0,filename.length()-4);
-                    Writer lanegroups_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_lanegroups.txt"));
+                    Writer lanegroups_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_cols.txt"));
                     for(LaneGroupProfile lgprof: lgprofiles.values()){
                         AbstractLaneGroup lg = lgprof.lg;
-                        lanegroups_writer.write(lg.id+" "+lg.link.getId() + " " + lg.start_lane_dn+ " " + (lg.start_lane_dn+lg.num_lanes-1) +"\n"); // start/end dn lanes
+                        lanegroups_writer.write(lg.id+","+lg.link.getId() + "," + lg.start_lane_dn+ "," + (lg.start_lane_dn+lg.num_lanes-1) +"\n"); // start/end dn lanes
                     }
                     lanegroups_writer.close();
                 }

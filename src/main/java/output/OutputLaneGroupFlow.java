@@ -31,12 +31,7 @@ public class OutputLaneGroupFlow extends AbstractOutputTimedLanegroup {
 
     @Override
     public String get_output_file() {
-        if(!write_to_file)
-            return null;
-        if(commodity==null)
-            return String.format("%s_lanegroup_flw.txt",super.get_output_file());
-        else
-            return String.format("%s_lanegroup_flw_comm%d.txt",super.get_output_file(),commodity.getId());
+        return write_to_file ? super.get_output_file() + "_flw.txt" : null;
     }
 
     //////////////////////////////////////////////////////

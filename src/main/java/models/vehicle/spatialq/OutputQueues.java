@@ -44,10 +44,7 @@ public class OutputQueues extends AbstractOutputTimed {
     public String get_output_file() {
         if(!write_to_file)
             return null;
-        return  output_folder + File.separator + prefix + "_" +
-                String.format("%.0f", outDt) + "_" +
-                (commodity==null ? "g" : commodity.getId()) + "_" +
-                "_queues.txt";
+        return super.get_output_file() + "_queues.txt";
     }
 
     //////////////////////////////////////////////////////

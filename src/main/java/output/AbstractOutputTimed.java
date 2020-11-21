@@ -32,9 +32,9 @@ public abstract class AbstractOutputTimed extends AbstractOutput implements Inte
         if(commodity_id==null)
             commodity = null; // all commodities
         else{
-            commodity = scenario.commodities.get(commodity_id);
-            if(commodity==null)
+            if(!scenario.commodities.containsKey(commodity_id))
                 throw new OTMException("Bad commodity id (" + commodity_id + ") in output request.");
+            commodity = scenario.commodities.get(commodity_id);
         }
 
     }
@@ -88,11 +88,8 @@ public abstract class AbstractOutputTimed extends AbstractOutput implements Inte
 
     @Override
     public String get_output_file() {
-        if(!write_to_file)
-            return null;
-        return  output_folder + File.separator + prefix + "_" +
-                String.format("%.0f", outDt) + "_" +
-                (commodity==null ? "g" : commodity.getId());
+        return  super.get_output_file() + "_" +
+                (commodity==null ? "allcomms" : commodity.getId());
     }
 
     public void write(float timestamp) throws OTMException {
