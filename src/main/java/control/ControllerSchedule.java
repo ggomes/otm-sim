@@ -141,7 +141,7 @@ public class ControllerSchedule extends AbstractController {
 
             // initialize
             curr_entry.cntrl.initialize(scenario);
-            curr_entry.cntrl.poke(scenario.dispatcher,scenario.dispatcher.current_time);
+            curr_entry.cntrl.poke(scenario.dispatcher,now);
         }
     }
 

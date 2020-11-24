@@ -168,7 +168,7 @@ public class ControllerTollLaneGroup extends AbstractController {
                 else
                     newls = new LogitLaneSelector(gplg,0,def_keep,def_rho_vpkmplane, commid);
                 try {
-                    newls.initialize(scenario);
+                    newls.initialize(scenario,start_time);
                 } catch (OTMException e) {
                     e.printStackTrace();
                 }
@@ -182,7 +182,7 @@ public class ControllerTollLaneGroup extends AbstractController {
                 for(Long commid : tolled_comms) {
                     if (nom_ls.containsKey(commid)) {
                         AbstractLaneSelector old_ls = nom_ls.get(commid);
-                        old_ls.initialize(scenario);
+                        old_ls.initialize(scenario,scenario.dispatcher.current_time);
                         gplg.lane_selector.put(commid, old_ls);
                     }
 

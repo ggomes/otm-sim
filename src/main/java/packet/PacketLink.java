@@ -35,6 +35,9 @@ public class PacketLink {
         this.vehicles.add(vehicle);
     }
 
+    public double total_macro_vehicles(){
+        return state2vehicles.values().stream().mapToDouble(x->x).sum();
+    }
 
     public boolean isEmpty(){
         return no_macro() && no_micro();

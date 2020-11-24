@@ -32,6 +32,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         lg_toll,
         lg_lanechange,
         frflow,
+        linkflow,
         plugin
     }
 //    public static final Map<Algorithm, AbstractActuator.Type> map_algorithm_actuator = new HashMap<>();
@@ -148,11 +149,10 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     }
 
-    @Override
     public void initialize(Scenario scenario) throws OTMException {
         for(AbstractActuator x : actuators.values()) {
             x.myController = this;
-            x.initialize(scenario);
+            x.initialize(scenario, start_time );
         }
     }
 

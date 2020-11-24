@@ -552,7 +552,7 @@
 			<xs:attribute name="type" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="lg_restrict|lg_speed|signal|meter|stop|split"/>
+						<xs:pattern value="lg_restrict|lg_speed|signal|meter|stop|split|flowtolink"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>

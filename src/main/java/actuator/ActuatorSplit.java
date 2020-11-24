@@ -4,8 +4,7 @@ import commodity.Commodity;
 import common.Link;
 import common.Node;
 import common.Scenario;
-import control.command.CommandDoubleMap;
-import control.command.CommandNumber;
+import control.command.CommandDoubleArray;
 import control.command.InterfaceCommand;
 import dispatch.EventSplitChange;
 import error.OTMErrorLog;
@@ -15,11 +14,8 @@ import jaxb.Parameter;
 import profiles.SplitMatrixProfile;
 import utils.OTMUtils;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -98,12 +94,12 @@ public class ActuatorSplit extends AbstractActuator {
     }
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
+    public void initialize(Scenario scenario, float start_time) throws OTMException {
 
         if(initialized)
             return;
 
-        super.initialize(scenario);
+        super.initialize(scenario,start_time);
 
         long commid = comm.getId();
 
@@ -123,9 +119,9 @@ public class ActuatorSplit extends AbstractActuator {
 
     @Override
     public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException {
-        if(command==null)
-            return;
-        smp.set_and_rectify_splits(((CommandDoubleMap)command).values,linkMLdwn.getId());
+//        if(command==null)
+//            return;
+//        smp.set_and_rectify_splits(((CommandDoubleArray)command).values,linkMLdwn.getId());
     }
 
 }

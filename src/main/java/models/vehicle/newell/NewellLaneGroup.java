@@ -51,9 +51,8 @@ public class NewellLaneGroup extends VehicleLaneGroup {
 
     }
 
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
+    public void initialize(Scenario scenario, float start_time) throws OTMException {
+        super.initialize(scenario, start_time);
 
         update_supply();
     }

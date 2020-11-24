@@ -149,11 +149,6 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     }
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
-
-    }
-
-    @Override
     public jaxb.Roadconnection to_jaxb(){
         jaxb.Roadconnection jrcn = new jaxb.Roadconnection();
         jrcn.setId(this.getId());

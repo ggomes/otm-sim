@@ -42,8 +42,6 @@ public abstract class AbstractSensor implements Pokable, InterfaceScenarioElemen
     // InterfaceScenarioElement
     ///////////////////////////////////////////
 
-
-    @Override
     public void initialize(Scenario scenario) throws OTMException {
         Dispatcher dispatcher = scenario.dispatcher;
         dispatcher.register_event(new EventPoke(dispatcher,10,dispatcher.current_time,this));

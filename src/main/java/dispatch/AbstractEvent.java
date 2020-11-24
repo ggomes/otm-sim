@@ -23,7 +23,7 @@ import error.OTMException;
 //    70	dispatch.EventTimedWrite
 //    100	dispatch.EventStopSimulation
 
-public abstract class AbstractEvent implements InterfaceEvent {
+public abstract class AbstractEvent implements InterfaceEvent, Comparable<AbstractEvent> {
 
     public Dispatcher dispatcher;
     public float timestamp;
@@ -37,19 +37,25 @@ public abstract class AbstractEvent implements InterfaceEvent {
         this.recipient = recipient;
     }
 
-    @Override
-    public void action(boolean verbose) throws OTMException {
-        if(verbose)
-            System.out.println(String.format("%.2f\t%d\t%s\t%s",timestamp,dispatch_order,getClass().getName(),recipient.getClass().getName()));
-    }
-
     ///////////////////////////////////////
     // toString
     ///////////////////////////////////////
 
     @Override
     public String toString() {
-        return timestamp + "\t" + dispatch_order + "\t" + this.getClass();
+        return timestamp + " , " + dispatch_order + " , "+ this.getClass().getName() + " , " + this.recipient.getClass().getName();
     }
 
+    @Override
+    public int compareTo(AbstractEvent that) {
+        if(this.timestamp<that.timestamp)
+            return -1;
+        if(that.timestamp<this.timestamp)
+            return 1;
+        if(this.dispatch_order<that.dispatch_order)
+            return -1;
+        if(that.dispatch_order<this.dispatch_order)
+            return 1;
+        return 0;
+    }
 }

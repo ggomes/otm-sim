@@ -151,13 +151,10 @@ public class Network {
         models.values().forEach(x->x.validate(errorLog));
     }
 
-    public void initialize(Scenario scenario,RunParameters runParams) throws OTMException {
+    public void initialize(Scenario scenario,float start_time) throws OTMException {
 
         for(Link link : links.values())
-            link.initialize(scenario);
-
-        for(Node node: nodes.values())
-            node.initialize(scenario);
+            link.initialize(scenario,start_time);
 
         for(AbstractModel model : models.values())
             model.initialize(scenario);
