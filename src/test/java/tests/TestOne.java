@@ -16,7 +16,7 @@ import static org.junit.Assert.fail;
 public class TestOne extends AbstractTest {
 
     @Test
-    public void runXXX(){
+    public void run_step_by_step(){
 
         try {
 
@@ -74,41 +74,6 @@ public class TestOne extends AbstractTest {
             fail();
         }
 
-    }
-
-    @Ignore
-    @Test
-    public void run_step_by_step() {
-        try {
-
-            float start_time = 0f;
-            float duration = 3600f;
-            float advance_time = 1f;
-
-            String configfile = "/home/gomes/Downloads/z_0.xml";
-            String prefix = "test";
-            String output_folder = "/home/gomes/Desktop/miami/2/";
-
-            System.out.println("Loading.");
-            api.OTM otm = new api.OTM();
-            otm.load(configfile,true,false);
-
-            System.out.println("Initializing.");
-            otm.initialize(start_time);
-
-            float time = start_time;
-            float end_time = start_time+duration;
-            while(time<end_time){
-                otm.advance(advance_time);
-                System.out.println(otm.get_current_time());
-                time += advance_time;
-            }
-            otm.terminate();
-
-        } catch (OTMException e) {
-            System.out.print(e);
-            fail();
-        }
     }
 
     @Test
@@ -219,8 +184,8 @@ public class TestOne extends AbstractTest {
 
             String configfile = "/home/gomes/Downloads/aaa_0.xml";
 
-            float start_time = 21600f;
-            float duration = 25200f;
+            float start_time = 0f;
+            float duration = 86400f;
             float outdt = 300f;
             String prefix = "x";
             String output_folder = "/home/gomes/Downloads";
@@ -229,11 +194,11 @@ public class TestOne extends AbstractTest {
             api.OTM otm = new api.OTM(configfile,true,false);
 
             // Output requests .....................
-            Set<Long> link_ids = otm.scenario.get_link_ids(); // new HashSet<>();
+            Set<Long> link_ids =  new HashSet<>();
 //            link_ids.add(2l);
 //            link_ids.add(4l);
 //            link_ids.add(5l);
-//            link_ids.add(3l);
+            link_ids.add(3l);
 
 //            Long comm_id=null;
 
@@ -248,8 +213,8 @@ public class TestOne extends AbstractTest {
 
             // lanegroups
 
-            otm.output.request_lanegroup_flw(0l,link_ids,outdt);
-            otm.output.request_lanegroup_veh(0l,link_ids,outdt);
+            otm.output.request_lanegroup_flw(null,link_ids,outdt);
+//            otm.output.request_lanegroup_veh(0l,link_ids,outdt);
 //            otm.output.request_lanegroup_sum_veh(comm_id,link_ids,outdt);
 
 //            otm.output.request_lanegroups(prefix,output_folder);
