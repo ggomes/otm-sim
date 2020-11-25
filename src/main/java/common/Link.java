@@ -462,7 +462,7 @@ public class Link implements InterfaceScenarioElement {
         if(has_macro) {
 
             // do scaling calcultions that depend on the packet
-            if(act_flowToLinks!=null)
+            if(act_flowToLinks!=null && vp.road_connection==act_flowToLinks.rc)
                 act_flowToLinks.update_for_packet(vp);
 
             for (Map.Entry<State, Double> e : vp.state2vehicles.entrySet()) {
@@ -500,14 +500,14 @@ public class Link implements InterfaceScenarioElement {
                         Map<Long, Double> current_splits = split_profile.get(state.commodity_id).outlink2split;
 
                         // calculate sumbetac
-                        double sumbetac = act_flowToLinks==null ? 0d : act_flowToLinks.calculate_sumbetac(current_splits);
+                        double sumbetac = act_flowToLinks!=null && vp.road_connection==act_flowToLinks.rc ? act_flowToLinks.calculate_sumbetac(current_splits) :  0d;
 
                         for ( Map.Entry<Long, Double> e2 : current_splits.entrySet() ) {
                             Long next_link_id = e2.getKey();
                             double split = e2.getValue();
 
                             // get split for offramp
-                            if(act_flowToLinks!=null){
+                            if(act_flowToLinks!=null && vp.road_connection==act_flowToLinks.rc ){
 
                                 if( act_flowToLinks.outlink_ids.contains(next_link_id) )
                                     split =  act_flowToLinks.outlink2portion.get(next_link_id);

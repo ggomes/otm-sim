@@ -2,6 +2,7 @@ package actuator;
 
 import commodity.Commodity;
 import common.Link;
+import common.RoadConnection;
 import common.Scenario;
 import control.command.CommandDoubleArray;
 import control.command.InterfaceCommand;
@@ -20,6 +21,7 @@ public class ActuatorFlowToLinks extends AbstractActuator {
     public final Link linkMLup;
     public final List<Long> outlink_ids;
     public final Commodity comm;
+    public RoadConnection rc;
 
     public double [] outlink2flows;
     public double total_outlink2flows;
@@ -52,6 +54,16 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         this.linkMLup = temp_linkMLup;
         this.comm = temp_comm;
         this.outlink_ids = temp_outlinkids;
+
+        Optional<RoadConnection> orc = linkMLup.start_node.in_links.values().stream()
+                .filter(inlink->inlink.road_type==Link.RoadType.freeway)
+                .flatMap(inlink->inlink.lanegroups_flwdn.stream())
+                .filter(lg->lg.outlink2roadconnection.containsKey(linkMLup.getId()))
+                .map(lg->lg.outlink2roadconnection.get(linkMLup.getId()))
+                .findFirst();
+
+        this.rc = orc.isPresent() ? orc.get() : null;
+
     }
 
     @Override
@@ -63,13 +75,15 @@ public class ActuatorFlowToLinks extends AbstractActuator {
     public void validate(OTMErrorLog errorLog) {
         super.validate(errorLog);
         if (linkMLup == null)
-            errorLog.addError("ActuatorSplit: linkin==null");
+            errorLog.addError("ActuatorFlowToLinks: linkin==null");
         if (outlink_ids.isEmpty())
-            errorLog.addError("ActuatorSplit: linkFRs.isEmpty()");
+            errorLog.addError("ActuatorFlowToLinks: linkFRs.isEmpty()");
         if (outlink_ids.contains(null))
-            errorLog.addError("ActuatorSplit: linkFRs.contains(null)");
+            errorLog.addError("ActuatorFlowToLinks: linkFRs.contains(null)");
         if (comm == null)
-            errorLog.addError("ActuatorSplit: comm==null");
+            errorLog.addError("ActuatorFlowToLinks: comm==null");
+        if (rc == null)
+            errorLog.addError("ActuatorFlowToLinks: rc==null");
 
 //        // confirm they are connected
 //        if(linkFRs.stream().anyMatch(linkFR->linkMLup.end_node!=linkFR.start_node))
