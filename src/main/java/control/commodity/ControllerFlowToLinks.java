@@ -5,10 +5,14 @@ import common.Scenario;
 import control.AbstractController;
 import control.command.CommandDoubleArray;
 import dispatch.Dispatcher;
+import dispatch.EventPoke;
+import dispatch.EventSplitChange;
+import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Controller;
 import profiles.Profile1D;
+import profiles.TimeValue;
 import utils.OTMUtils;
 
 public class ControllerFlowToLinks extends AbstractController  {
@@ -22,15 +26,14 @@ public class ControllerFlowToLinks extends AbstractController  {
         super(scenario, jcon);
 
         if(jcon.getProfiles()!=null){
-            int i = 0;
             int n = jcon.getProfiles().getProfile().size();
             fr_ids = new long[n];
             fr_prof = new Profile1D[n];
-            for(jaxb.Profile prof : jcon.getProfiles().getProfile()){
+            for(int i=0;i<jcon.getProfiles().getProfile().size();i++){
+                jaxb.Profile prof = jcon.getProfiles().getProfile().get(i);
                 float prof_start_time = prof.getStartTime();
                 fr_ids[i] = prof.getId();
-                fr_prof[i] = prof_start_time>86400 ?
-                        null :
+                fr_prof[i] = prof_start_time>86400 ? null :
                         new Profile1D(prof_start_time,prof.getDt(), OTMUtils.csv2list(prof.getContent()));
             }
         }
@@ -63,12 +66,18 @@ public class ControllerFlowToLinks extends AbstractController  {
 
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
+        
+        float next_time = Float.POSITIVE_INFINITY;
         for(int i=0;i<fr_ids.length;i++){
-            Profile1D prof = fr_prof[i];
-            if(prof==null)
+            if(fr_prof[i]==null)
                 continue;
-            fr_command.values[i] = prof.get_value_for_time(dispatcher.current_time) ;
+            fr_command.values[i] = fr_prof[i].get_value_for_time(dispatcher.current_time) ;
+            next_time = Math.min( next_time , fr_prof[i].get_next_update_time(dispatcher.current_time) );
         }
+
+        if(Float.isFinite(next_time))
+            dispatcher.register_event(new EventPoke(dispatcher,20,next_time,this));
+
     }
 
 }

@@ -174,6 +174,10 @@ public class Profile1D {
         return values.get(step);
     }
 
+    public float get_next_update_time(float now){
+        return  start_time + dt + dt*((float)Math.floor((now-start_time)/dt));
+    }
+
     ///////////////////////////////////////
     // plot
     ///////////////////////////////////////
