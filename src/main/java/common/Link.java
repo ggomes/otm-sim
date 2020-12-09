@@ -7,7 +7,6 @@ import geometry.RoadGeometry;
 import geometry.Side;
 import jaxb.Points;
 import jaxb.Roadparam;
-import keys.State;
 import models.AbstractModel;
 import profiles.SplitMatrixProfile;
 import traveltime.LinkTravelTimer;

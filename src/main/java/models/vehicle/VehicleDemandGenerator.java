@@ -8,7 +8,7 @@ import common.Link;
 import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import error.OTMException;
-import keys.State;
+import common.State;
 import common.AbstractLaneGroup;
 import packet.PacketLaneGroup;
 import profiles.Profile1D;

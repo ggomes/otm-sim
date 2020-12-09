@@ -1,8 +1,6 @@
 package common;
 
 import error.OTMErrorLog;
-import error.OTMException;
-import keys.State;
 import utils.OTMUtils;
 
 import java.util.*;

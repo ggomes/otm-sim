@@ -1,7 +1,6 @@
 package commodity;
 
 import common.*;
-import keys.DemandType;
 import error.OTMErrorLog;
 import error.OTMException;
 import output.InterfaceVehicleListener;

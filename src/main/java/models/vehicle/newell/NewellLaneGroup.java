@@ -7,7 +7,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import geometry.Side;
 import jaxb.Roadparam;
-import keys.State;
+import common.State;
 import common.AbstractLaneGroup;
 import models.vehicle.VehicleLaneGroup;
 import packet.PacketLaneGroup;

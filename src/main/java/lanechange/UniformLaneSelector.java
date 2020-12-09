@@ -2,7 +2,6 @@ package lanechange;
 
 import common.AbstractLaneGroup;
 import geometry.Side;
-import keys.State;
 
 import java.util.Map;
 import java.util.Set;

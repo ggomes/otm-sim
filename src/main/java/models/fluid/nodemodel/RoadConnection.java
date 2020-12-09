@@ -1,6 +1,6 @@
 package models.fluid.nodemodel;
 
-import keys.State;
+import common.State;
 
 import java.util.HashMap;
 import java.util.HashSet;

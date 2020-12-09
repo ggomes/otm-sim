@@ -2,7 +2,7 @@ package packet;
 
 import common.RoadConnection;
 import common.AbstractVehicle;
-import keys.State;
+import common.State;
 
 import java.util.*;
 

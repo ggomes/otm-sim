@@ -6,7 +6,6 @@ import actuator.ActuatorOpenCloseLaneGroup;
 import actuator.InterfaceActuatorTarget;
 import error.OTMException;
 import geometry.Side;
-import keys.State;
 import lanechange.AbstractLaneSelector;
 import lanechange.KeepLaneSelector;
 import lanechange.LogitLaneSelector;

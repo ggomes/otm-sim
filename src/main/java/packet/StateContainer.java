@@ -3,7 +3,7 @@ package packet;
 import commodity.Commodity;
 import commodity.Path;
 import common.AbstractVehicle;
-import keys.State;
+import common.State;
 import common.AbstractLaneGroup;
 import models.vehicle.AbstractVehicleModel;
 import common.Scenario;

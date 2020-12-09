@@ -6,7 +6,7 @@ import common.*;
 import dispatch.Dispatcher;
 import error.OTMException;
 import geometry.Side;
-import keys.State;
+import common.State;
 import models.AbstractModel;
 import models.fluid.nodemodel.NodeModel;
 import models.fluid.nodemodel.RoadConnection;

@@ -1,8 +1,7 @@
-package keys;
+package common;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.Link;
 
 import java.util.Objects;
 

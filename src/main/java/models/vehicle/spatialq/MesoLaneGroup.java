@@ -5,7 +5,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
 import geometry.Side;
-import keys.State;
+import common.State;
 import common.AbstractLaneGroup;
 import models.vehicle.VehicleLaneGroup;
 import output.InterfaceVehicleListener;

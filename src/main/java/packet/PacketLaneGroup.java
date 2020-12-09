@@ -1,7 +1,7 @@
 package packet;
 
 import common.AbstractVehicle;
-import keys.State;
+import common.State;
 
 import java.util.HashMap;
 import java.util.HashSet;

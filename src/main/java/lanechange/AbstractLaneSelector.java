@@ -7,7 +7,7 @@ import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMException;
 import geometry.Side;
-import keys.State;
+import common.State;
 import models.fluid.AbstractFluidModel;
 
 import java.util.HashMap;
