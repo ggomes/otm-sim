@@ -28,7 +28,7 @@ public class TestAnimationInfo {
             api.OTM otm = new api.OTM();
             otm.load_test("line_ctm");
 
-            Set<Float> sim_dts = (new api.OTMdev(otm)).scenario.network.models.values().stream()
+            Set<Float> sim_dts = otm.scenario.network.models.values().stream()
                     .filter(m->m.type== AbstractModel.Type.Fluid)
                     .map(m->((AbstractFluidModel)m).dt_sec)
                     .collect(toSet());
@@ -43,7 +43,7 @@ public class TestAnimationInfo {
             float end_time = start_time+duration;
             while(time<end_time){
                 otm.advance(sim_dt);
-                AnimationInfo info = otm.scenario.get_animation_info();
+                AnimationInfo info = otm.get_animation_info();
                 AbstractLinkInfo link_info = info.link_info.get(3L);
                 LaneGroupInfo lg_info2 = (output.animation.macro.LaneGroupInfo) link_info.lanegroup_info.get(2L);
                 assertNotNull(lg_info2);

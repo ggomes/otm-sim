@@ -47,9 +47,9 @@ public class TestAllConfig extends AbstractTest {
 
             // request outputs
             String prefix = testname;
-            Set<Long> link_ids = otm.scenario.get_link_ids();
+            Set<Long> link_ids = otm.scenario.network.links.keySet();
             Float outDt = 10f;
-            for(Long comm : otm.scenario.get_commodity_ids()) {
+            for(Long comm : otm.scenario.commodities.keySet()) {
                 otm.output.request_links_flow(prefix,output_folder, comm, link_ids, outDt);
                 otm.output.request_links_veh(prefix, output_folder, comm, link_ids, outDt);
             }

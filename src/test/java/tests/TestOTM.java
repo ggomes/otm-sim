@@ -28,47 +28,10 @@ public class TestOTM extends AbstractTest {
         assertTrue(!api.OTM.get_version().isEmpty());
     }
 
-    @Test
-    @Ignore
-    public void test_get_scenario_info(){
-    }
-
-    @Test
-    @Ignore
-    public void test_set_stochastic_process(){
-    }
-
-    ////////////////////////////////////////////////////////
-    // commodities
-    ////////////////////////////////////////////////////////
-
-    @Test
-    public void test_get_num_commodities(){
-        assertEquals(otm.scenario.get_num_commodities(),1);
-    }
-
-    @Test
-    public void test_get_commodity_ids(){
-        assertEquals((long) otm.scenario.get_commodity_ids().iterator().next(),1l);
-    }
-
-    ////////////////////////////////////////////////////////
-    // subnetworks and paths
-    ////////////////////////////////////////////////////////
-
-    @Test
-    public void test_get_num_subnetworks(){
-        assertEquals(otm.scenario.get_num_subnetworks(),1);
-    }
-
-    @Test
-    public void test_get_subnetwork_ids(){
-        assertEquals((long)otm.scenario.get_subnetwork_ids().iterator().next(),0l);
-    }
 
     @Test
     public void test_get_path_ids(){
-        assertEquals((long)otm.scenario.get_path_ids().iterator().next(),0l);
+        assertEquals((long)otm.get_path_ids().iterator().next(),0l);
     }
 
     ////////////////////////////////////////////////////////
@@ -76,103 +39,20 @@ public class TestOTM extends AbstractTest {
     ////////////////////////////////////////////////////////
 
     @Test
-    public void test_get_num_links(){
-        assertEquals(otm.scenario.get_num_links(),6);
-    }
-
-    @Test
-    public void test_get_num_nodes(){
-        assertEquals(otm.scenario.get_num_nodes(),7);
-    }
-
-    @Test
-    public void test_get_link_ids(){
-        Set<Long> link_ids = otm.scenario.get_link_ids();
-        for(long id=0;id<6;id++)
-            assertTrue(link_ids.contains(id));
-        assertEquals(link_ids.size(),6);
-    }
-
-    @Test
-    public void test_get_node_ids(){
-        Set<Long> node_ids = otm.scenario.get_node_ids();
-        for(long id=0;id<7;id++)
-            assertTrue(node_ids.contains(id));
-        assertEquals(node_ids.size(),7);
-    }
-
-    @Test
     public void test_get_source_link_ids(){
-        Set<Long> source_ids = otm.scenario.get_source_link_ids();
+        Set<Long> source_ids = otm.get_source_link_ids();
         assertEquals((long)source_ids.iterator().next(),0l);
     }
-
-    ////////////////////////////////////////////////////////
-    // demands / splits
-    ////////////////////////////////////////////////////////
-
-//    @Test
-//    public void test_get_demands(){
-//        Set<DemandInfo> demands = otm.scenario.get_demands().get(0l);
-//        DemandInfo demand = demands.iterator().next();
-//        assertEquals((long)demand.getCommodity_id(),1l);
-//        assertEquals(demand.getLink_id(),0l);
-//    }
 
     @Ignore
     @Test
     public void test_get_total_trips() {
-        assertEquals(otm.scenario.get_total_trips(),583.3333333333334,0.0001);
-    }
-
-    ////////////////////////////////////////////////////////
-    // sensors
-    ////////////////////////////////////////////////////////
-
-    @Test
-    public void test_get_num_sensors(){
-        assertEquals(otm.scenario.get_num_sensors(),0);
-    }
-
-    ////////////////////////////////////////////////////////
-    // controllers
-    ////////////////////////////////////////////////////////
-
-    @Test
-    public void test_get_num_controllers(){
-        assertEquals(otm.scenario.get_num_controllers(),0);
-    }
-
-    ////////////////////////////////////////////////////////
-    // actuators
-    ////////////////////////////////////////////////////////
-
-    @Test
-    public void test_get_num_actuators(){
-        assertEquals(otm.scenario.get_num_actuators(),0);
+        assertEquals(otm.get_total_trips(),583.3333333333334,0.0001);
     }
 
     ////////////////////////////////////////////////////////
     // outputs
     ////////////////////////////////////////////////////////
-
-    @Test
-    @Ignore
-    public void test_get_output_data(){
-        System.out.println(otm.output.get_data());
-    }
-
-    @Test
-    @Ignore
-    public void test_clear_output_requests(){
-        otm.output.clear();
-    }
-
-    @Test
-    @Ignore
-    public void test_get_outputs(){
-        System.out.println(otm.output.get_data());
-    }
 
     // network ................
 
