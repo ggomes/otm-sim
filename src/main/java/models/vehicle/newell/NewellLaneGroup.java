@@ -1,18 +1,18 @@
 package models.vehicle.newell;
 
-import common.AbstractVehicle;
-import common.Link;
-import common.RoadConnection;
+import core.AbstractVehicle;
+import core.Link;
+import core.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.Side;
 import jaxb.Roadparam;
-import common.State;
-import common.AbstractLaneGroup;
+import core.State;
+import core.AbstractLaneGroup;
 import models.vehicle.VehicleLaneGroup;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
-import common.Scenario;
+import core.Scenario;
 import traveltime.VehicleLaneGroupTimer;
 import utils.OTMUtils;
 

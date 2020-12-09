@@ -1,11 +1,11 @@
 package models.none;
 
-import common.Link;
-import common.RoadConnection;
+import core.Link;
+import core.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.Side;
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 import jaxb.Roadparam;
 import packet.PacketLaneGroup;
 

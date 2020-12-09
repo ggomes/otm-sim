@@ -7,7 +7,7 @@ import error.OTMException;
 import models.vehicle.spatialq.MesoVehicle;
 import models.vehicle.spatialq.Queue;
 import runner.RunParameters;
-import common.Scenario;
+import core.Scenario;
 
 public class OutputVehicle extends AbstractOutputEvent implements InterfaceVehicleListener {
 

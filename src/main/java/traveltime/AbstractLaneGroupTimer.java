@@ -1,6 +1,6 @@
 package traveltime;
 
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 import profiles.Profile1D;
 
 public abstract class AbstractLaneGroupTimer {

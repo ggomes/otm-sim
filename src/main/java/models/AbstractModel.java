@@ -1,11 +1,11 @@
 package models;
 
-import common.AbstractLaneGroup;
-import common.Link;
+import core.AbstractLaneGroup;
+import core.Link;
 import error.OTMException;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
-import common.Scenario;
+import core.Scenario;
 import utils.StochasticProcess;
 
 import java.util.Map;

@@ -2,7 +2,7 @@ package output;
 
 import output.events.AbstractEventWrapper;
 import error.OTMException;
-import common.Scenario;
+import core.Scenario;
 
 import java.io.IOException;
 import java.util.ArrayList;

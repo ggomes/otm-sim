@@ -1,12 +1,11 @@
 package models.vehicle.newell;
 
-import common.Link;
+import core.Link;
 import error.OTMException;
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 import output.AbstractOutputTimed;
-import common.Scenario;
+import core.Scenario;
 
-import java.io.File;
 import java.io.IOException;
 
 public class OutputMicroTrajectory extends AbstractOutputTimed {

@@ -1,13 +1,12 @@
 package models.vehicle.spatialq;
 
-import common.Link;
+import core.Link;
 import error.OTMException;
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 import output.AbstractOutputTimed;
 import profiles.Profile1D;
-import common.Scenario;
+import core.Scenario;
 
-import java.io.*;
 import java.util.*;
 
 public class OutputQueues extends AbstractOutputTimed {

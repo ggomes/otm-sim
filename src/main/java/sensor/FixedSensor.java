@@ -1,13 +1,13 @@
 package sensor;
 
-import common.FlowAccumulatorState;
+import core.FlowAccumulatorState;
 import error.OTMErrorLog;
-import common.AbstractLaneGroup;
-import common.Link;
+import core.AbstractLaneGroup;
+import core.Link;
 import dispatch.Dispatcher;
 import error.OTMException;
 import jaxb.Sensor;
-import common.Scenario;
+import core.Scenario;
 import models.AbstractModel;
 import models.fluid.FluidLaneGroup;
 import utils.OTMUtils;

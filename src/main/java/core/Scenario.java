@@ -1,4 +1,4 @@
-package common;
+package core;
 
 import actuator.AbstractActuator;
 import commodity.Commodity;
@@ -233,7 +233,7 @@ public class Scenario {
         // splits
         jaxb.Splits jsplits = new jaxb.Splits();
         jsc.setSplits(jsplits);
-        for(common.Link link : network.links.values()){
+        for(core.Link link : network.links.values()){
             if(link.split_profile!=null){
                 for(Map.Entry<Long, SplitMatrixProfile> e : link.split_profile.entrySet()){
                     Long commodity_id = e.getKey();

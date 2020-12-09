@@ -3,7 +3,7 @@ package output;
 import commodity.Path;
 import error.OTMException;
 import profiles.Profile1D;
-import common.Scenario;
+import core.Scenario;
 
 import java.io.IOException;
 import java.util.List;

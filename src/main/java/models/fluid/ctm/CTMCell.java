@@ -1,7 +1,7 @@
 package models.fluid.ctm;
 
 import geometry.Side;
-import common.State;
+import core.State;
 import models.fluid.AbstractCell;
 import models.fluid.FluidLaneGroup;
 import utils.OTMUtils;

@@ -4,7 +4,7 @@ import control.command.CommandNumber;
 import control.command.InterfaceCommand;
 import error.OTMException;
 import jaxb.Actuator;
-import common.Scenario;
+import core.Scenario;
 
 /** This actuator controls the maximum flow rate on a contiguous set of lanes
  *  in a link. The control signal is constrained between user-defined maximum

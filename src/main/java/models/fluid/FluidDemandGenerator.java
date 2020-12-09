@@ -2,13 +2,13 @@ package models.fluid;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.AbstractDemandGenerator;
-import common.Link;
+import core.AbstractDemandGenerator;
+import core.Link;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import common.State;
-import common.AbstractLaneGroup;
+import core.State;
+import core.AbstractLaneGroup;
 import profiles.Profile1D;
 import utils.OTMUtils;
 

@@ -1,11 +1,10 @@
-package runner;
+package core;
 
 import actuator.*;
 import actuator.ActuatorSignal;
 import commodity.*;
 import commodity.Commodity;
 import commodity.Subnetwork;
-import common.*;
 import control.*;
 import control.commodity.ControllerFlowToLinks;
 import control.commodity.ControllerRestrictLaneGroup;
@@ -116,62 +115,6 @@ public class ScenarioFactory {
         return scenario;
     }
 
-//    public static Scenario create_unrunnable_scenario(jaxb.Scenario js) throws OTMException {
-//
-//        OTMUtils.reset_counters();
-//
-//        Scenario scenario = new Scenario();
-//
-//        // common ...........................................................
-//        scenario.network = new common.Network(
-//                scenario ,
-//                js.getCommodities().getCommodity(),
-//                js.getNetwork().getNodes().getNode(),
-//                js.getNetwork().getLinks().getLink(),
-//                js.getNetwork().getRoadparams() );
-//
-//        scenario.subnetworks = ScenarioFactory.create_subnetworks_from_jaxb(
-//                scenario.network,
-//                js.getSubnetworks() ,
-//                have_global_commodity(js.getCommodities()) );
-//
-//        // commodities
-//        scenario.commodities = new HashMap<>();
-//        if(js.getCommodities()!=null)
-//            for (jaxb.Commodity jaxb_comm : js.getCommodities().getCommodity())
-//                scenario.commodities.put( jaxb_comm.getId(),  new Commodity( jaxb_comm,null,scenario) );
-//
-//        // OD node map
-//        Map<Long,Long> origin_nodes = new HashMap<>();
-//        Map<Long,Long> destination_nodes = new HashMap<>();
-//        if(js.getSubnetworks()!=null)
-//            for(jaxb.Subnetwork subnetwork : js.getSubnetworks().getSubnetwork() ){
-//                List<Long> link_ids = OTMUtils.csv2longlist(subnetwork.getContent());
-//                Link origin_link = scenario.network.links.get(link_ids.get(0));
-//                origin_nodes.put(subnetwork.getId(), origin_link.start_node.getId());
-//                Link destination_link = scenario.network.links.get(link_ids.get(link_ids.size()-1));
-//                destination_nodes.put(subnetwork.getId(),destination_link.end_node.getId());
-//            }
-//
-//        // demands ..........................................................
-//        // TODO FIX THIS
-////        scenario.data_demands = new HashMap<>();
-////        if (js.getDemands()!=null)
-////            for (jaxb.Demand jaxb_demand : js.getDemands().getDemand()) {
-////
-////                Commodity comm = scenario.commodities.get(jaxb_demand.getCommodityId());
-////                Long subnetwork_id = jaxb_demand.getSubnetwork();
-////                Long origin_node = origin_nodes.get(subnetwork_id);
-////                Long destination_node = destination_nodes.get(subnetwork_id);
-////
-////                DemandProfileOD dp = new DemandProfileOD(jaxb_demand,comm,origin_node,destination_node);
-////                KeyCommodityDemandTypeId key = new KeyCommodityDemandTypeId(comm.getId(),subnetwork_id,comm.get_demand_type());
-////                scenario.data_demands.put(key,dp);
-////            }
-//
-//        return scenario;
-//    }
-
     public static AbstractController create_controller_from_jaxb(Scenario scenario, jaxb.Controller jaxb_controller) throws OTMException {
         AbstractController controller;
         AbstractController.Algorithm type = AbstractController.Algorithm.valueOf(jaxb_controller.getType());
@@ -220,11 +163,11 @@ public class ScenarioFactory {
     }
 
     ///////////////////////////////////////////
-    // private static
+    // private
     ///////////////////////////////////////////
 
-    private static common.Network create_network_from_jaxb(Scenario scenario, jaxb.Commodities jaxb_comms,jaxb.Models jaxb_models,jaxb.Network jaxb_network,boolean jaxb_only) throws OTMException {
-        common.Network network = new common.Network(
+    private static core.Network create_network_from_jaxb(Scenario scenario, jaxb.Commodities jaxb_comms, jaxb.Models jaxb_models, jaxb.Network jaxb_network, boolean jaxb_only) throws OTMException {
+        core.Network network = new core.Network(
                 scenario ,
                 jaxb_comms==null ? null : jaxb_comms.getCommodity(),
                 jaxb_models==null ? null : jaxb_models.getModel(),
@@ -466,7 +409,6 @@ public class ScenarioFactory {
 
     }
 
-
     private static void create_demands_from_jaxb(Network network, jaxb.Demands jaxb_demands) throws OTMException  {
         if (jaxb_demands == null || jaxb_demands.getDemand().isEmpty())
             return;
@@ -528,10 +470,6 @@ public class ScenarioFactory {
 
         }
     }
-
-    ////////////////////////////////////////////
-    // private
-    ///////////////////////////////////////////
 
     private static boolean have_global_commodity(jaxb.Commodities jc){
         if(jc==null)

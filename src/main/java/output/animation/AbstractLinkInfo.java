@@ -1,7 +1,7 @@
 package output.animation;
 
-import common.AbstractLaneGroup;
-import common.Link;
+import core.AbstractLaneGroup;
+import core.Link;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,7 +1,7 @@
 package output;
 
-import common.Link;
-import common.Scenario;
+import core.Link;
+import core.Scenario;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;

@@ -1,4 +1,4 @@
-package common;
+package core;
 
 import commodity.Path;
 import output.InterfaceVehicleListener;

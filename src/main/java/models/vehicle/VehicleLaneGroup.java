@@ -1,10 +1,10 @@
 package models.vehicle;
 
-import common.AbstractVehicle;
-import common.Link;
-import common.RoadConnection;
+import core.AbstractVehicle;
+import core.Link;
+import core.RoadConnection;
 import geometry.Side;
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 import jaxb.Roadparam;
 import packet.*;
 

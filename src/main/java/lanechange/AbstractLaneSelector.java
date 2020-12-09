@@ -1,13 +1,13 @@
 package lanechange;
 
-import common.AbstractLaneGroup;
-import common.Scenario;
+import core.AbstractLaneGroup;
+import core.Scenario;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMException;
 import geometry.Side;
-import common.State;
+import core.State;
 import models.fluid.AbstractFluidModel;
 
 import java.util.HashMap;

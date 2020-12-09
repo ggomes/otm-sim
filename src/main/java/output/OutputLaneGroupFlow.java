@@ -1,9 +1,9 @@
 package output;
 
 import error.OTMException;
-import common.AbstractLaneGroup;
-import common.Scenario;
-import common.FlowAccumulatorState;
+import core.AbstractLaneGroup;
+import core.Scenario;
+import core.FlowAccumulatorState;
 import org.jfree.data.xy.XYSeries;
 import profiles.Profile1D;
 import utils.OTMUtils;

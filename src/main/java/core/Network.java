@@ -1,16 +1,14 @@
-package common;
+package core;
 
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.*;
-import jaxb.Commodity;
 import models.AbstractModel;
 import models.fluid.ctm.ModelCTM;
 import models.none.ModelNone;
 import models.vehicle.newell.ModelNewell;
 import models.vehicle.spatialq.ModelSpatialQ;
 import plugin.PluginLoader;
-import runner.RunParameters;
 import utils.OTMUtils;
 import utils.StochasticProcess;
 
@@ -185,7 +183,7 @@ public class Network {
         // network: roadconnections
         jaxb.Roadconnections jconns = new jaxb.Roadconnections();
         jnet.setRoadconnections(jconns);
-        for(common.RoadConnection rcn : road_connections.values())
+        for(core.RoadConnection rcn : road_connections.values())
             jconns.getRoadconnection().add(rcn.to_jaxb());
 
         // network: roadparams

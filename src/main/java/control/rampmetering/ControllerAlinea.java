@@ -2,13 +2,13 @@ package control.rampmetering;
 
 import actuator.AbstractActuator;
 import actuator.ActuatorMeter;
-import common.LaneGroupSet;
+import core.LaneGroupSet;
 import control.command.CommandNumber;
 import error.OTMException;
 import jaxb.Controller;
-import common.Link;
+import core.Link;
 import jaxb.Roadparam;
-import common.Scenario;
+import core.Scenario;
 import sensor.FixedSensor;
 
 import java.util.HashMap;

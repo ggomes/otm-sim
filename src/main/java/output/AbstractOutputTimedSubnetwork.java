@@ -1,13 +1,13 @@
 package output;
 
 import commodity.Subnetwork;
-import common.Link;
+import core.Link;
 import error.OTMErrorLog;
 import error.OTMException;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import profiles.Profile1D;
-import common.Scenario;
+import core.Scenario;
 
 import java.io.*;
 

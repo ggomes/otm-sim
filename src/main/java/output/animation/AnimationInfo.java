@@ -1,8 +1,8 @@
 package output.animation;
 
-import common.Link;
+import core.Link;
 import error.OTMException;
-import common.Scenario;
+import core.Scenario;
 
 import java.util.*;
 import java.util.stream.Collectors;

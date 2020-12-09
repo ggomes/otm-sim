@@ -1,4 +1,4 @@
-package common;
+package core;
 
 /** anything with an id, and lanegroups **/
 public enum ScenarioElementType {

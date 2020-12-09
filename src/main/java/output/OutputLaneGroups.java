@@ -1,17 +1,13 @@
 package output;
 
-import common.AbstractLaneGroup;
-import common.Link;
+import core.AbstractLaneGroup;
+import core.Link;
 import dispatch.Dispatcher;
 import error.OTMException;
 import runner.RunParameters;
-import common.Scenario;
-import utils.OTMUtils;
+import core.Scenario;
 
 import java.io.IOException;
-import java.util.Set;
-
-import static java.util.stream.Collectors.toSet;
 
 public class OutputLaneGroups extends AbstractOutput {
 

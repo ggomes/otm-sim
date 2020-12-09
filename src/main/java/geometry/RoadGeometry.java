@@ -3,8 +3,8 @@ package geometry;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Roadparam;
-import common.InterfaceScenarioElement;
-import common.ScenarioElementType;
+import core.InterfaceScenarioElement;
+import core.ScenarioElementType;
 
 import java.util.List;
 import java.util.Map;

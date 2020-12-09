@@ -1,7 +1,7 @@
 package packet;
 
-import common.AbstractVehicle;
-import common.State;
+import core.AbstractVehicle;
+import core.State;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,7 +15,6 @@ public class PacketLaneGroup {
     // this buffer holds remainders of arriving fluid packets.
     // these remainders are added into the lane group packet
     public StateContainer container = new StateContainer();
-
 
     // used by newInstance (dont delete)
     public PacketLaneGroup(){

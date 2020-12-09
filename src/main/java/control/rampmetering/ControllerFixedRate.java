@@ -5,7 +5,7 @@ import actuator.AbstractActuatorLanegroupCapacity;
 import actuator.ActuatorMeter;
 import error.OTMException;
 import jaxb.Controller;
-import common.Scenario;
+import core.Scenario;
 
 import java.util.HashMap;
 import java.util.Map;

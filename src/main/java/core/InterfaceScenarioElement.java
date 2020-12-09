@@ -1,7 +1,6 @@
-package common;
+package core;
 
 import error.OTMErrorLog;
-import error.OTMException;
 
 public interface InterfaceScenarioElement {
 

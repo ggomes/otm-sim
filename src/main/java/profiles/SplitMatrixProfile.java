@@ -2,13 +2,13 @@ package profiles;
 
 import commodity.Commodity;
 import commodity.Subnetwork;
-import common.Link;
+import core.Link;
 import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
 import dispatch.EventSplitChange;
-import common.Node;
-import common.Scenario;
+import core.Node;
+import core.Scenario;
 import utils.OTMUtils;
 
 import java.util.*;

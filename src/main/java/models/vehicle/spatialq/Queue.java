@@ -1,15 +1,11 @@
 package models.vehicle.spatialq;
 
-import common.Link;
 import error.OTMErrorLog;
 import error.OTMException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Set;
-
-import static java.util.stream.Collectors.toSet;
 
 public class Queue {
 

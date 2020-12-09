@@ -1,7 +1,7 @@
 package output;
 
-import common.FlowAccumulatorState;
-import common.Scenario;
+import core.FlowAccumulatorState;
+import core.Scenario;
 import error.OTMException;
 import models.fluid.FluidLaneGroup;
 import org.jfree.data.xy.XYSeries;

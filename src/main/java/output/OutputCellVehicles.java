@@ -1,6 +1,6 @@
 package output;
 
-import common.Scenario;
+import core.Scenario;
 import error.OTMException;
 import models.fluid.FluidLaneGroup;
 

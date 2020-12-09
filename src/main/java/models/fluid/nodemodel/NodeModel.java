@@ -1,14 +1,14 @@
 package models.fluid.nodemodel;
 
-import common.Link;
-import common.Node;
+import core.Link;
+import core.Node;
 import error.OTMErrorLog;
 import error.OTMException;
-import common.State;
-import common.AbstractLaneGroup;
+import core.State;
+import core.AbstractLaneGroup;
 import models.fluid.*;
 import models.fluid.FluidLaneGroup;
-import common.Scenario;
+import core.Scenario;
 import utils.OTMUtils;
 
 import java.util.HashMap;
@@ -91,7 +91,7 @@ public class NodeModel {
         Map<Long,DnLaneGroup> dn_lgs_map = new HashMap<>();
 
         // iterate through the road connections
-        for (common.RoadConnection xrc : node.road_connections) {
+        for (core.RoadConnection xrc : node.road_connections) {
 
             // skip road connections starting in discrete event links
             if( xrc.get_start_link()==null )

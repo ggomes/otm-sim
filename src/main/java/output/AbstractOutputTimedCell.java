@@ -1,8 +1,8 @@
 package output;
 
-import common.AbstractLaneGroup;
-import common.Link;
-import common.Scenario;
+import core.AbstractLaneGroup;
+import core.Link;
+import core.Scenario;
 import error.OTMErrorLog;
 import error.OTMException;
 import models.fluid.AbstractFluidModel;

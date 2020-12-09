@@ -10,7 +10,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeriesCollection;
-import common.Scenario;
+import core.Scenario;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;

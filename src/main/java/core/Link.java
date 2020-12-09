@@ -1,4 +1,4 @@
-package common;
+package core;
 
 import actuator.ActuatorFlowToLinks;
 import error.OTMErrorLog;
@@ -26,8 +26,8 @@ public class Link implements InterfaceScenarioElement {
     public Network network;
     public final float length;          // meters
     public final int full_lanes;
-    public common.Node start_node;
-    public common.Node end_node;
+    public core.Node start_node;
+    public core.Node end_node;
     public boolean is_source;
     public boolean is_sink;
 
@@ -343,7 +343,7 @@ public class Link implements InterfaceScenarioElement {
             jlink.setRoadType(this.road_type.toString());
         jaxb.Points jpoints = new jaxb.Points();
         jlink.setPoints(jpoints);
-        for(common.Point point : this.shape){
+        for(core.Point point : this.shape){
             jaxb.Point jpoint = new jaxb.Point();
             jpoints.getPoint().add(jpoint);
             jpoint.setX(point.x);

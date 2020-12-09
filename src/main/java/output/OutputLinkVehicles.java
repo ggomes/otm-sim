@@ -1,9 +1,9 @@
 package output;
 
-import common.Link;
+import core.Link;
 import error.OTMException;
 import profiles.Profile1D;
-import common.Scenario;
+import core.Scenario;
 
 import java.util.Collection;
 import java.util.List;

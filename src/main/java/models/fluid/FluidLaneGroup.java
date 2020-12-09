@@ -1,11 +1,11 @@
 package models.fluid;
 
-import common.*;
+import core.*;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.Side;
 import jaxb.Roadparam;
-import common.State;
+import core.State;
 import packet.PacketLaneGroup;
 import utils.OTMUtils;
 

@@ -1,10 +1,7 @@
 package control.rampmetering;
 
 import actuator.ActuatorMeter;
-import common.Scenario;
-import control.AbstractController;
-import control.command.CommandNumber;
-import dispatch.Dispatcher;
+import core.Scenario;
 import error.OTMException;
 import jaxb.Controller;
 

@@ -1,9 +1,9 @@
 package actuator;
 
 import commodity.Commodity;
-import common.Link;
-import common.RoadConnection;
-import common.Scenario;
+import core.Link;
+import core.RoadConnection;
+import core.Scenario;
 import control.command.CommandDoubleArray;
 import control.command.InterfaceCommand;
 import error.OTMErrorLog;

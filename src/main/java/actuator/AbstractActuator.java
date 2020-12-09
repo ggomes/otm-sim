@@ -1,6 +1,6 @@
 package actuator;
 
-import common.*;
+import core.*;
 import control.AbstractController;
 import control.command.InterfaceCommand;
 import dispatch.Dispatcher;

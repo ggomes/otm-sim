@@ -1,10 +1,8 @@
-package common;
+package core;
 
 import error.OTMErrorLog;
 import error.OTMException;
 import packet.PacketLaneGroup;
-
-import java.util.Set;
 
 public interface InterfaceLaneGroup {
 

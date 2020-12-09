@@ -1,6 +1,6 @@
 package models.vehicle.spatialq;
 
-import common.InterfaceLaneGroup;
+import core.InterfaceLaneGroup;
 import dispatch.AbstractEvent;
 import dispatch.Dispatcher;
 import error.OTMException;

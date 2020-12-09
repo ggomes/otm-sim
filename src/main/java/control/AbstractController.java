@@ -1,7 +1,7 @@
 package control;
 
 import actuator.AbstractActuator;
-import common.InterfaceEventWriter;
+import core.InterfaceEventWriter;
 import control.command.InterfaceCommand;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
@@ -10,9 +10,9 @@ import error.OTMErrorLog;
 import error.OTMException;
 import output.AbstractOutputEvent;
 import output.OutputController;
-import common.InterfaceScenarioElement;
-import common.Scenario;
-import common.ScenarioElementType;
+import core.InterfaceScenarioElement;
+import core.Scenario;
+import core.ScenarioElementType;
 import output.events.EventWrapperController;
 import sensor.AbstractSensor;
 import utils.OTMUtils;

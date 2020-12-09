@@ -4,7 +4,7 @@ import control.command.CommandSignal;
 import control.command.InterfaceCommand;
 import error.OTMErrorLog;
 import error.OTMException;
-import common.Scenario;
+import core.Scenario;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +21,7 @@ public class ActuatorSignal extends AbstractActuatorLanegroupCapacity {
         super(scenario,jaxb_actuator);
 
         // must be on a node
-        if(target==null || !(target instanceof common.Node))
+        if(target==null || !(target instanceof core.Node))
             return;
 
         if(jaxb_actuator.getSignal()==null)

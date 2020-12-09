@@ -1,4 +1,4 @@
-package common;
+package core;
 
 public class Point {
     public float x;
@@ -7,7 +7,7 @@ public class Point {
         this.x = x;
         this.y = y;
     }
-    public Point(common.Node node){
+    public Point(core.Node node){
         this.x = node.xcoord;
         this.y = node.ycoord;
     }

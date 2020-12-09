@@ -1,10 +1,10 @@
 package control.commodity;
 
 import actuator.ActuatorOpenCloseLaneGroup;
-import common.AbstractLaneGroup;
-import common.FlowAccumulatorState;
-import common.LaneGroupSet;
-import common.Scenario;
+import core.AbstractLaneGroup;
+import core.FlowAccumulatorState;
+import core.LaneGroupSet;
+import core.Scenario;
 import control.AbstractController;
 import control.command.CommandRestrictionMap;
 import dispatch.Dispatcher;

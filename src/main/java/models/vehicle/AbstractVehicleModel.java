@@ -2,10 +2,10 @@ package models.vehicle;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.AbstractDemandGenerator;
-import common.Link;
+import core.AbstractDemandGenerator;
+import core.Link;
 import error.OTMException;
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 import models.AbstractModel;
 import profiles.Profile1D;
 import utils.OTMUtils;

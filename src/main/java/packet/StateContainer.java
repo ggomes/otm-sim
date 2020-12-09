@@ -2,11 +2,11 @@ package packet;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.AbstractVehicle;
-import common.State;
-import common.AbstractLaneGroup;
+import core.AbstractVehicle;
+import core.State;
+import core.AbstractLaneGroup;
 import models.vehicle.AbstractVehicleModel;
-import common.Scenario;
+import core.Scenario;
 
 import java.util.HashMap;
 import java.util.HashSet;

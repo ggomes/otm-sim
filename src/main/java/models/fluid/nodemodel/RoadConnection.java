@@ -1,6 +1,6 @@
 package models.fluid.nodemodel;
 
-import common.State;
+import core.State;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,7 +23,7 @@ public class RoadConnection {
     }
 
     public long id;
-    public common.RoadConnection rc;
+    public core.RoadConnection rc;
 
     public boolean is_blocked;
     public Double d_r;
@@ -39,7 +39,7 @@ public class RoadConnection {
     // construction
     ////////////////////////////////////////////
 
-    public RoadConnection(Long id, common.RoadConnection rc){
+    public RoadConnection(Long id, core.RoadConnection rc){
         this.id = id;
         this.rc = rc;
         this.d_r = Double.NaN;

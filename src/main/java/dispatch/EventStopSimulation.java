@@ -1,7 +1,7 @@
 package dispatch;
 
 import error.OTMException;
-import common.Scenario;
+import core.Scenario;
 
 public class EventStopSimulation extends AbstractEvent {
 

@@ -1,6 +1,6 @@
 package models.fluid.nodemodel;
 
-import common.State;
+import core.State;
 import models.fluid.FluidLaneGroup;
 
 import java.util.HashMap;

@@ -1,12 +1,12 @@
 package actuator;
 
-import common.Scenario;
+import core.Scenario;
 import control.command.CommandNumber;
 import control.command.InterfaceCommand;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 
 import java.util.Set;
 

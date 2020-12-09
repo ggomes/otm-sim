@@ -3,7 +3,7 @@ package plugin;
 import control.AbstractController;
 import error.OTMException;
 import jaxb.Controller;
-import common.Scenario;
+import core.Scenario;
 
 public abstract class PluginController extends AbstractController {
 

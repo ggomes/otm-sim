@@ -1,9 +1,9 @@
 package api;
 
 import commodity.Subnetwork;
-import common.AbstractLaneGroup;
-import common.Link;
-import common.RoadConnection;
+import core.AbstractLaneGroup;
+import core.Link;
+import core.RoadConnection;
 import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import dispatch.EventDemandChange;
@@ -18,7 +18,7 @@ import output.*;
 import output.animation.AnimationInfo;
 import profiles.SplitMatrixProfile;
 import runner.RunParameters;
-import runner.ScenarioFactory;
+import core.ScenarioFactory;
 import utils.OTMUtils;
 import xml.JaxbLoader;
 import xml.JaxbWriter;
@@ -44,7 +44,7 @@ import static java.util.stream.Collectors.toSet;
  */
 public class OTM {
 
-    public common.Scenario scenario;
+    public core.Scenario scenario;
     public api.Output output;
 
     ////////////////////////////////////////////////////////
@@ -547,7 +547,7 @@ public class OTM {
         }
     }
 
-    private static Set<AbstractOutput> create_outputs_from_jaxb(common.Scenario scenario, String prefix, String output_folder, jaxb.OutputRequests jaxb_ors) throws OTMException{
+    private static Set<AbstractOutput> create_outputs_from_jaxb(core.Scenario scenario, String prefix, String output_folder, jaxb.OutputRequests jaxb_ors) throws OTMException{
         Set<AbstractOutput> outputs = new HashSet<>();
         if(jaxb_ors==null)
             return outputs;

@@ -9,7 +9,7 @@ import dispatch.EventPoke;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Controller;
-import common.Scenario;
+import core.Scenario;
 import utils.OTMUtils;
 
 import java.util.ArrayList;

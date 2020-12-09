@@ -2,7 +2,7 @@ package models;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.*;
+import core.*;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;

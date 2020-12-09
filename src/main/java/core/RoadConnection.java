@@ -1,4 +1,4 @@
-package common;
+package core;
 
 import error.OTMErrorLog;
 import utils.OTMUtils;

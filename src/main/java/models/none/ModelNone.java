@@ -2,19 +2,19 @@ package models.none;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.AbstractDemandGenerator;
-import common.Link;
-import common.RoadConnection;
+import core.AbstractDemandGenerator;
+import core.Link;
+import core.RoadConnection;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.Side;
 import jaxb.OutputRequest;
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 import models.AbstractModel;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
-import common.Scenario;
+import core.Scenario;
 import profiles.Profile1D;
 import utils.StochasticProcess;
 

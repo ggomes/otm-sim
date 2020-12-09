@@ -1,17 +1,17 @@
 package models.fluid.ctm;
 
-import common.FlowAccumulatorState;
-import common.Link;
+import core.FlowAccumulatorState;
+import core.Link;
 
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.Side;
 import jaxb.OutputRequest;
-import common.State;
-import common.AbstractLaneGroup;
+import core.State;
+import core.AbstractLaneGroup;
 import models.fluid.*;
 import output.AbstractOutput;
-import common.Scenario;
+import core.Scenario;
 import traveltime.FluidLaneGroupTimer;
 import utils.OTMUtils;
 import utils.StochasticProcess;

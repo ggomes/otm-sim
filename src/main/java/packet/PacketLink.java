@@ -1,8 +1,8 @@
 package packet;
 
-import common.RoadConnection;
-import common.AbstractVehicle;
-import common.State;
+import core.RoadConnection;
+import core.AbstractVehicle;
+import core.State;
 
 import java.util.*;
 

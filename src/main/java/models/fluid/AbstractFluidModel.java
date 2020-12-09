@@ -2,11 +2,11 @@ package models.fluid;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.*;
+import core.*;
 import dispatch.Dispatcher;
 import error.OTMException;
 import geometry.Side;
-import common.State;
+import core.State;
 import models.AbstractModel;
 import models.fluid.nodemodel.NodeModel;
 import models.fluid.nodemodel.RoadConnection;
@@ -133,7 +133,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     }
 
     @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, Float length, int num_lanes, int start_lane, Set<common.RoadConnection> out_rcs,jaxb.Roadparam rp) {
+    public AbstractLaneGroup create_lane_group(Link link, Side side, Float length, int num_lanes, int start_lane, Set<core.RoadConnection> out_rcs, jaxb.Roadparam rp) {
         return new FluidLaneGroup(link,side,length,num_lanes,start_lane,out_rcs,rp);
     }
 

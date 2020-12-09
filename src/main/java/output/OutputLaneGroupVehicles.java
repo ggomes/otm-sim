@@ -1,8 +1,8 @@
 package output;
 
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 import error.OTMException;
-import common.Scenario;
+import core.Scenario;
 
 import java.util.Collection;
 

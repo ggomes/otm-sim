@@ -1,7 +1,7 @@
 package output.animation.macro;
 
-import common.AbstractLaneGroup;
-import common.State;
+import core.AbstractLaneGroup;
+import core.State;
 import models.fluid.FluidLaneGroup;
 import output.animation.AbstractLaneGroupInfo;
 

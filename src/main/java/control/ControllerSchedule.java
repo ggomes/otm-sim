@@ -1,13 +1,13 @@
 package control;
 
 import actuator.AbstractActuator;
-import common.Scenario;
+import core.Scenario;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Controller;
-import runner.ScenarioFactory;
+import core.ScenarioFactory;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,17 +1,17 @@
 package models.vehicle.spatialq;
 
-import common.*;
+import core.*;
 import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
 import geometry.Side;
-import common.State;
-import common.AbstractLaneGroup;
+import core.State;
+import core.AbstractLaneGroup;
 import models.vehicle.VehicleLaneGroup;
 import output.InterfaceVehicleListener;
 import packet.PacketLaneGroup;
 import packet.PacketLink;
-import common.Scenario;
+import core.Scenario;
 import traveltime.VehicleLaneGroupTimer;
 import utils.OTMUtils;
 

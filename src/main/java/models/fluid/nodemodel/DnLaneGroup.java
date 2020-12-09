@@ -1,7 +1,7 @@
 package models.fluid.nodemodel;
 
-import common.State;
-import common.AbstractLaneGroup;
+import core.State;
+import core.AbstractLaneGroup;
 
 import java.util.HashMap;
 import java.util.Map;

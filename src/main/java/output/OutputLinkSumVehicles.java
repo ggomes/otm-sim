@@ -1,6 +1,6 @@
 package output;
 
-import common.Scenario;
+import core.Scenario;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;

@@ -1,8 +1,8 @@
 package output;
 
 import error.OTMException;
-import common.Link;
-import common.Scenario;
+import core.Link;
+import core.Scenario;
 
 public class OutputLinkVHT extends AbstractOutputTimedLink {
 

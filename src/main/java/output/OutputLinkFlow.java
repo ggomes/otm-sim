@@ -1,11 +1,11 @@
 package output;
 
-import common.FlowAccumulatorState;
-import common.AbstractLaneGroup;
+import core.FlowAccumulatorState;
+import core.AbstractLaneGroup;
 import error.OTMException;
 import org.jfree.data.xy.XYSeries;
 import profiles.Profile1D;
-import common.Scenario;
+import core.Scenario;
 import utils.OTMUtils;
 
 import java.util.*;

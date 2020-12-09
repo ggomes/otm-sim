@@ -1,12 +1,11 @@
 package actuator;
 
-import output.events.EventSignalPhaseInfo;
-import common.AbstractLaneGroup;
-import common.RoadConnection;
+import core.AbstractLaneGroup;
+import core.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
-import common.Scenario;
-import common.ScenarioElementType;
+import core.Scenario;
+import core.ScenarioElementType;
 import utils.OTMUtils;
 
 import java.util.HashSet;

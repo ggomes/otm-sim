@@ -1,6 +1,6 @@
 package models.vehicle.spatialq;
 
-import common.*;
+import core.*;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import geometry.Side;

@@ -1,7 +1,7 @@
 package control.commodity;
 
 import actuator.ActuatorSplit;
-import common.Scenario;
+import core.Scenario;
 import control.AbstractController;
 import control.command.CommandDoubleArray;
 import dispatch.Dispatcher;

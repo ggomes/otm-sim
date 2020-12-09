@@ -1,6 +1,6 @@
 package traveltime;
 
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 
 public class FluidLaneGroupTimer extends AbstractLaneGroupTimer {
 

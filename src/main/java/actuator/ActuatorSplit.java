@@ -1,10 +1,9 @@
 package actuator;
 
 import commodity.Commodity;
-import common.Link;
-import common.Node;
-import common.Scenario;
-import control.command.CommandDoubleArray;
+import core.Link;
+import core.Node;
+import core.Scenario;
 import control.command.InterfaceCommand;
 import dispatch.EventSplitChange;
 import error.OTMErrorLog;

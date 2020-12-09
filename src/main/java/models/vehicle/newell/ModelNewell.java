@@ -1,8 +1,8 @@
 package models.vehicle.newell;
 
-import common.AbstractVehicle;
-import common.Link;
-import common.RoadConnection;
+import core.AbstractVehicle;
+import core.Link;
+import core.RoadConnection;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;
@@ -10,12 +10,12 @@ import error.OTMErrorLog;
 import error.OTMException;
 import geometry.Side;
 import jaxb.OutputRequest;
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 import models.vehicle.AbstractVehicleModel;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
 import output.animation.AbstractLinkInfo;
-import common.Scenario;
+import core.Scenario;
 import utils.StochasticProcess;
 
 import java.util.*;

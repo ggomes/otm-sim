@@ -1,7 +1,7 @@
 package models.vehicle.spatialq;
 
 import error.OTMException;
-import common.AbstractVehicle;
+import core.AbstractVehicle;
 import output.InterfaceVehicleListener;
 
 import java.util.Set;
