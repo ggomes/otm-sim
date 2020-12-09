@@ -51,8 +51,8 @@ public class Link implements InterfaceScenarioElement {
     public List<AbstractLaneGroup> lanegroups_flwdn;
 
     // Lateral lanegroups: all flow exits laterally. These are the upstream addlanes.
-    public AbstractLaneGroup lanegroup_up_in;
-    public AbstractLaneGroup lanegroup_up_out;
+//    public AbstractLaneGroup lanegroup_up_in;
+//    public AbstractLaneGroup lanegroup_up_out;
 
     // barriers
     public Set<Barrier> in_barriers;
@@ -362,10 +362,6 @@ public class Link implements InterfaceScenarioElement {
         if(lanegroups_flwdn !=null)
             lanegroups_flwdn.forEach(lg->lg.delete());
         lanegroups_flwdn = null;
-        lanegroup_up_out.delete();
-        lanegroup_up_in.delete();
-        lanegroup_up_out = null;
-        lanegroup_up_in = null;
         dnlane2lanegroup = null;
         path2outlink = null;
         outlink2lanegroups = null;
@@ -615,8 +611,6 @@ public class Link implements InterfaceScenarioElement {
             return 0;
         if(road_geom.dn_in!=null)
             return road_geom.dn_in.lanes;
-        if(road_geom.up_in!=null && road_geom.up_in.isfull)
-            return road_geom.up_in.lanes;
         return 0;
     }
 
@@ -625,16 +619,12 @@ public class Link implements InterfaceScenarioElement {
             return 0;
         if(road_geom.dn_out!=null)
             return road_geom.dn_out.lanes;
-        if(road_geom.up_out!=null && road_geom.up_out.isfull)
-            return road_geom.up_out.lanes;
         return 0;
     }
 
     public int get_num_up_in_lanes(){
         if(road_geom==null)
             return 0;
-        if(road_geom.up_in!=null)
-            return road_geom.up_in.lanes;
         if(road_geom.dn_in!=null && road_geom.dn_in.isfull)
             return road_geom.dn_in.lanes;
         return 0;
@@ -643,8 +633,6 @@ public class Link implements InterfaceScenarioElement {
     public int get_num_up_out_lanes(){
         if(road_geom==null)
             return 0;
-        if(road_geom.up_out!=null)
-            return road_geom.up_out.lanes;
         if(road_geom.dn_out!=null && road_geom.dn_out.isfull)
             return road_geom.dn_out.lanes;
         return 0;
@@ -708,11 +696,11 @@ public class Link implements InterfaceScenarioElement {
     }
 
     public AbstractLaneGroup get_lanegroup_for_up_lane(int lane){
-        AbstractLaneGroup lg = lanegroup_up_in !=null ? lanegroup_up_in : get_inner_full_lanegroup();
+        AbstractLaneGroup lg = get_inner_full_lanegroup();
         while(true){
             if(lane<=lg.start_lane_up+lg.num_lanes-1)
                 return lg;
-            lg = lg.neighbor_up_out !=null ? lg.neighbor_up_out : lg.neighbor_out;
+            lg = lg.neighbor_out;
             if(lg==null)
                 break;
         }

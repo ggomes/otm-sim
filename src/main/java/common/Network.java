@@ -437,7 +437,6 @@ public class Network {
 
         // create lanegroups
         link.set_flwdn_lanegroups(create_dnflw_lanegroups(link, out_rcs));
-        create_up_side_lanegroups(link);
 
         // set start_lane_up ...................
         int offset = 0;
@@ -446,8 +445,7 @@ public class Network {
                 offset = 0;
             else {
                 int dn_in_lanes = link.road_geom.dn_in != null ? link.road_geom.dn_in.lanes : 0;
-                int up_in_lanes = link.road_geom.up_in != null ? link.road_geom.up_in.lanes : 0;
-                offset = dn_in_lanes-up_in_lanes;
+                offset = dn_in_lanes;
             }
         }
 
@@ -468,19 +466,6 @@ public class Network {
         }
 
         // set neighbors ...................
-
-        // .................. lat lanegroups = {up addlane}
-        if(link.lanegroup_up_in !=null){
-            AbstractLaneGroup inner_full = link.get_inner_full_lanegroup();
-            link.lanegroup_up_in.neighbor_out = inner_full;
-            inner_full.neighbor_up_in = link.lanegroup_up_in;
-        }
-
-        if (link.lanegroup_up_out != null) {
-            AbstractLaneGroup outer_full = link.get_outer_full_lanegroup();
-            link.lanegroup_up_out.neighbor_in = outer_full;
-            outer_full.neighbor_up_out = link.lanegroup_up_out;
-        }
 
         // ................... long lanegroups = {dn addlane, stay lgs}
         int num_dn_lanes = link.get_num_dn_lanes();
@@ -649,27 +634,7 @@ public class Network {
         }
 
         // This precludes multiple lane groups of the same side: multiple 'stay' lane
-        return link.model.create_lane_group(link,side, FlowPosition.dn,length,num_lanes,dn_start_lane,out_rcs,rp);
-    }
-
-    private static void create_up_side_lanegroups(Link link) throws OTMException {
-        if(link.road_geom==null)
-            return;
-        if(link.road_geom.up_in!=null)
-            link.lanegroup_up_in = create_up_side_lanegroup(link, link.road_geom.up_in);
-        if(link.road_geom.up_out!=null)
-            link.lanegroup_up_out = create_up_side_lanegroup(link,link.road_geom.up_out);
-    }
-
-    private static AbstractLaneGroup create_up_side_lanegroup(Link link, AddLanes addlanes) {
-        float length = addlanes.get_length(link.length);
-        int num_lanes = addlanes.lanes;
-        Side side = addlanes.side;
-        int start_lane_up = side==Side.in ? 1 : link.get_num_up_lanes() - addlanes.lanes + 1;
-
-        jaxb.Roadparam rp = null;
-
-        return link.model.create_lane_group(link,side, FlowPosition.up,length,num_lanes,start_lane_up,null,rp);
+        return link.model.create_lane_group(link,side,length,num_lanes,dn_start_lane,out_rcs,rp);
     }
 
     private static HashSet<Barrier> generate_barriers(Link link,AddLanes addlanes){

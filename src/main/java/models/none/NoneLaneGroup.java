@@ -4,7 +4,6 @@ import common.Link;
 import common.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.FlowPosition;
 import geometry.Side;
 import common.AbstractLaneGroup;
 import jaxb.Roadparam;
@@ -85,7 +84,7 @@ public class NoneLaneGroup extends AbstractLaneGroup {
 
     }
 
-    public NoneLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
-        super(link, side, flwpos, length, num_lanes, start_lane, out_rcs, rp);
+    public NoneLaneGroup(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+        super(link, side, length, num_lanes, start_lane, out_rcs, rp);
     }
 }

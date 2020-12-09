@@ -23,12 +23,6 @@ public class RoadGeomInfo {
 
         this.id = x.id;
 
-        if(x.up_in !=null)
-            up_in = new AddLanesInfo(x.up_in);
-
-        if(x.up_out !=null)
-            up_out = new AddLanesInfo(x.up_out);
-
         if(x.dn_in !=null)
             dn_in = new AddLanesInfo(x.dn_in);
 

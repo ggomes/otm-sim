@@ -3,7 +3,6 @@ package models.vehicle.spatialq;
 import common.*;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
-import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.OutputRequest;
 import error.OTMException;
@@ -46,8 +45,8 @@ public class ModelSpatialQ extends AbstractVehicleModel {
     }
 
     @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs,jaxb.Roadparam rp) {
-        return new MesoLaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs,rp);
+    public AbstractLaneGroup create_lane_group(Link link, Side side, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs,jaxb.Roadparam rp) {
+        return new MesoLaneGroup(link,side,length,num_lanes,start_lane,out_rcs,rp);
     }
 
     @Override

@@ -3,11 +3,9 @@ package models.vehicle;
 import common.AbstractVehicle;
 import common.Link;
 import common.RoadConnection;
-import geometry.FlowPosition;
 import geometry.Side;
 import common.AbstractLaneGroup;
 import jaxb.Roadparam;
-import models.vehicle.newell.ModelNewell;
 import packet.*;
 
 import java.util.HashSet;
@@ -21,8 +19,8 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
     // construction
     ////////////////////////////////////////
 
-    public VehicleLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
-        super(link, side, flwpos, length, num_lanes, start_lane, out_rcs, rp);
+    public VehicleLaneGroup(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+        super(link, side, length, num_lanes, start_lane, out_rcs, rp);
     }
 
     ////////////////////////////////////////

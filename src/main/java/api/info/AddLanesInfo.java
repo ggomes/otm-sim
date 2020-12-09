@@ -16,10 +16,6 @@ public class AddLanesInfo {
     /** ???? */
     public boolean isopen;
 
-    /** FlowDirection within the link of the additional lanes: "ulgs" or "dlgs",
-     * corresponding roughly to lane drops and turn pockets, respectively. */
-    public String position;
-
     /** Length in meters of the additional lanes */
     public float length;
 
@@ -30,7 +26,6 @@ public class AddLanesInfo {
         this.lanes = x.lanes;
         this.side = x.side.toString();
         this.isopen = x.isopen;
-        this.position = x.position.toString();
         this.length = x.isfull ? Float.NaN : x.length;
         this.gates = new ArrayList<>();
         for(Gate gate : x.gates)
@@ -49,10 +44,6 @@ public class AddLanesInfo {
         return isopen;
     }
 
-    public String getPosition() {
-        return position;
-    }
-
     public float getLength() {
         return length;
     }
@@ -67,7 +58,6 @@ public class AddLanesInfo {
                 "lanes=" + lanes +
                 ", side='" + side + '\'' +
                 ", isopen=" + isopen +
-                ", position ='" + position + '\'' +
                 ", length=" + length +
                 ", gates=" + gates +
                 '}';

@@ -4,9 +4,7 @@ import actuator.AbstractActuator;
 import actuator.AbstractActuatorLanegroupCapacity;
 import actuator.ActuatorOpenCloseLaneGroup;
 import actuator.InterfaceActuatorTarget;
-import error.OTMErrorLog;
 import error.OTMException;
-import geometry.FlowPosition;
 import geometry.Side;
 import keys.State;
 import lanechange.AbstractLaneSelector;
@@ -28,14 +26,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public final long id;
     public Link link;
     public final Side side;               // inner, middle, or outer (add lane in, full, add lane out)
-    public final FlowPosition flwpos;
     public int start_lane_up = -1;       // counted with respect to upstream boundary
     public int start_lane_dn = -1;       // counted with respect to downstream boundary
     public final int num_lanes;
     public float length;        // [m]
 
-    public AbstractLaneGroup neighbor_up_in;
-    public AbstractLaneGroup neighbor_up_out;
     public AbstractLaneGroup neighbor_in;       // lanegroup down and in
     public AbstractLaneGroup neighbor_out;      // lanegroup down and out
 
@@ -73,22 +68,14 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // construction
     ///////////////////////////////////////////////////
 
-    public AbstractLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp){
+    public AbstractLaneGroup(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp){
         this.link = link;
         this.side = side;
-        this.flwpos = flwpos;
         this.length = length;
         this.num_lanes = num_lanes;
         this.id = OTMUtils.get_lanegroup_id();
         this.states = new HashSet<>();
-        switch(flwpos){
-            case up:
-                this.start_lane_up = start_lane;
-                break;
-            case dn:
-                this.start_lane_dn = start_lane;
-                break;
-        }
+        this.start_lane_dn = start_lane;
         this.state2roadconnection = new HashMap<>();
 
         this.outlink2roadconnection = new HashMap<>();
@@ -322,10 +309,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public final Side get_side_with_respect_to_lg(AbstractLaneGroup lg){
 
-        // This is more complicated with up addlanes
-        assert(lg.flwpos == FlowPosition.dn);
-        assert(this.flwpos == FlowPosition.dn);
-
         if(!this.link.getId().equals(link.getId()))
             return null;
 
@@ -378,11 +361,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             neighbor_in.disallow_state_lanechangedirection(state,Side.out);
         if(neighbor_out!=null)
             neighbor_out.disallow_state_lanechangedirection(state,Side.in);
-        if(neighbor_up_in!=null)
-            neighbor_up_in.disallow_state_lanechangedirection(state,Side.out);
-        if(neighbor_up_out!=null)
-            neighbor_up_out.disallow_state_lanechangedirection(state,Side.in);
-
     }
 
     private void reallow_state(State state){
@@ -392,10 +370,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             neighbor_in.reallow_state_lanechangedirection(state,Side.out);
         if(neighbor_out!=null)
             neighbor_out.reallow_state_lanechangedirection(state,Side.in);
-        if(neighbor_up_in!=null)
-            neighbor_up_in.reallow_state_lanechangedirection(state,Side.out);
-        if(neighbor_up_out!=null)
-            neighbor_up_out.reallow_state_lanechangedirection(state,Side.in);
     }
 
     ///////////////////////////////////////////////////

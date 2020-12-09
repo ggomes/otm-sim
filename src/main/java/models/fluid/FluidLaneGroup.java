@@ -3,7 +3,6 @@ package models.fluid;
 import common.*;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.Roadparam;
 import keys.State;
@@ -36,8 +35,8 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     // construction
     ///////////////////////////////////////////
 
-    public FluidLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
-        super(link, side, flwpos,length, num_lanes, start_lane, out_rcs,rp);
+    public FluidLaneGroup(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+        super(link, side,length, num_lanes, start_lane, out_rcs,rp);
 
         if(link.is_source)
             this.source_flow = new HashMap<>();

@@ -1,6 +1,5 @@
 package geometry;
 
-import common.Scenario;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Roadparam;
@@ -13,8 +12,6 @@ import java.util.Map;
 public class RoadGeometry implements InterfaceScenarioElement {
 
     final public long id;
-    public AddLanes up_in;
-    public AddLanes up_out;
     public AddLanes dn_in;
     public AddLanes dn_out;
 
@@ -40,16 +37,10 @@ public class RoadGeometry implements InterfaceScenarioElement {
                 rp = road_params.get(jaxb_al.getRoadparam());
 
             AddLanes addlane = new AddLanes(jaxb_al,rp);
-            if(addlane.isUp())
-                if(addlane.isIn())
-                    up_in = addlane;
-                else
-                    up_out = addlane;
+            if(addlane.isIn())
+                dn_in = addlane;
             else
-                if(addlane.isIn())
-                    dn_in = addlane;
-                else
-                    dn_out = addlane;
+                dn_out = addlane;
         }
     }
 
@@ -73,10 +64,6 @@ public class RoadGeometry implements InterfaceScenarioElement {
             dn_in.validate(errorLog);
         if( dn_out !=null )
             dn_out.validate(errorLog);
-        if( up_in !=null )
-            up_in.validate(errorLog);
-        if( up_out !=null )
-            up_out.validate(errorLog);
     }
 
     @Override
@@ -84,12 +71,8 @@ public class RoadGeometry implements InterfaceScenarioElement {
         jaxb.Roadgeom jgeom = new jaxb.Roadgeom();
         jgeom.setId(this.id);
         List<jaxb.AddLanes> jaddlanes = jgeom.getAddLanes();
-        if(this.up_in.lanes>0)
-            jaddlanes.add(this.up_in.to_jaxb());
         if(this.dn_in.lanes>0)
             jaddlanes.add(this.dn_in.to_jaxb());
-        if(this.up_out.lanes>0)
-            jaddlanes.add(this.up_out.to_jaxb());
         if(this.dn_out.lanes>0)
             jaddlanes.add(this.dn_out.to_jaxb());
         return jgeom;

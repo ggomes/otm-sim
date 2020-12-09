@@ -11,16 +11,14 @@ public class AddLanes {
     public boolean isopen;
 
     public Side side;
-    public FlowPosition position;
     public boolean isfull;
     public float length;        // meters
     public int lanes;
     public jaxb.Roadparam roadparam;
 
-    public AddLanes(FlowPosition pos, Side side, Roadparam rp){
+    public AddLanes(Side side, Roadparam rp){
         this.lanes = 0;
         this.side = side;
-        this.position = pos;
         this.length = 0f;
         this.isfull = false;
         this.roadparam = rp;
@@ -37,7 +35,6 @@ public class AddLanes {
         this.roadparam = rp;
         this.isopen = jaxb_al.isIsopen();
         this.side = Side.valueOf(jaxb_al.getSide().toLowerCase());
-        this.position = jaxb_al.getPos()==null ? FlowPosition.dn : FlowPosition.valueOf(jaxb_al.getPos().toLowerCase());
         this.isfull = jaxb_al.getLength()==null;
         this.length = isfull ? Float.NaN : jaxb_al.getLength();
         this.lanes = jaxb_al.getLanes();
@@ -49,10 +46,6 @@ public class AddLanes {
 
     public float get_length(float linklength){
         return isfull ? linklength : length;
-    }
-
-    public boolean isUp(){
-        return this.position.equals(FlowPosition.up);
     }
 
     public boolean isIn(){

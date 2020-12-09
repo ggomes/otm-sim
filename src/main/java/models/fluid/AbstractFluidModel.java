@@ -5,7 +5,6 @@ import commodity.Path;
 import common.*;
 import dispatch.Dispatcher;
 import error.OTMException;
-import geometry.FlowPosition;
 import geometry.Side;
 import keys.State;
 import models.AbstractModel;
@@ -134,8 +133,8 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     }
 
     @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<common.RoadConnection> out_rcs,jaxb.Roadparam rp) {
-        return new FluidLaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs,rp);
+    public AbstractLaneGroup create_lane_group(Link link, Side side, Float length, int num_lanes, int start_lane, Set<common.RoadConnection> out_rcs,jaxb.Roadparam rp) {
+        return new FluidLaneGroup(link,side,length,num_lanes,start_lane,out_rcs,rp);
     }
 
     @Override

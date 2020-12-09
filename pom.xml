@@ -79,8 +79,8 @@
                     </excludePackageNames>
                     <reportOutputDirectory>docs</reportOutputDirectory>
                     <destDir>apidocs</destDir>
+                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
                 </configuration>
-
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>

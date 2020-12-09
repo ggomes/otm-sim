@@ -271,13 +271,13 @@
 			</xs:attribute>
 
 			<!-- upstream or downstream lanes -->
-			<xs:attribute name="pos" use="optional" default="dn">
-				<xs:simpleType>
-					<xs:restriction base="xs:string">
-						<xs:pattern value="up|dn"/>
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
+<!--			<xs:attribute name="pos" use="optional" default="dn">-->
+<!--				<xs:simpleType>-->
+<!--					<xs:restriction base="xs:string">-->
+<!--						<xs:pattern value="up|dn"/>-->
+<!--					</xs:restriction>-->
+<!--				</xs:simpleType>-->
+<!--			</xs:attribute>-->
 
 			<!-- Unspecified length means the addlane extends the length of the link -->
 			<xs:attribute name="length" type="xs:float"/>

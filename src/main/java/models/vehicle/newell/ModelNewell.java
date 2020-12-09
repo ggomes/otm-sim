@@ -8,7 +8,6 @@ import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.FlowPosition;
 import geometry.Side;
 import jaxb.OutputRequest;
 import common.AbstractLaneGroup;
@@ -53,8 +52,8 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
     }
 
     @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs,jaxb.Roadparam rp) {
-        return new NewellLaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs,rp);
+    public AbstractLaneGroup create_lane_group(Link link, Side side, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs,jaxb.Roadparam rp) {
+        return new NewellLaneGroup(link,side,length,num_lanes,start_lane,out_rcs,rp);
     }
 
     @Override
