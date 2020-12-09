@@ -42,7 +42,7 @@ public abstract class AbstractVehicleModel extends AbstractModel implements Inte
 
     protected Map<AbstractLaneGroup,Double> std_lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
 
-        // put the whole packet i the lanegroup with the most space.
+        // put the whole core.packet i the lanegroup with the most space.
         Optional<? extends AbstractLaneGroup> best_lanegroup = candidate_lanegroups.stream()
                 .max(Comparator.comparing(AbstractLaneGroup::get_supply_per_lane));
 

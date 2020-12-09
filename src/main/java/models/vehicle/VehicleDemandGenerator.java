@@ -10,7 +10,7 @@ import dispatch.EventCreateVehicle;
 import error.OTMException;
 import core.State;
 import core.AbstractLaneGroup;
-import packet.PacketLaneGroup;
+import core.packet.PacketLaneGroup;
 import profiles.Profile1D;
 import utils.OTMUtils;
 

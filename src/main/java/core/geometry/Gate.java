@@ -1,4 +1,4 @@
-package geometry;
+package core.geometry;
 
 import error.OTMErrorLog;
 

@@ -5,7 +5,7 @@ import core.Link;
 
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.Side;
+import core.geometry.Side;
 import jaxb.OutputRequest;
 import core.State;
 import core.AbstractLaneGroup;

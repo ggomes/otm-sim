@@ -5,12 +5,12 @@ import actuator.AbstractActuatorLanegroupCapacity;
 import actuator.ActuatorOpenCloseLaneGroup;
 import actuator.InterfaceActuatorTarget;
 import error.OTMException;
-import geometry.Side;
+import core.geometry.Side;
 import lanechange.AbstractLaneSelector;
 import lanechange.KeepLaneSelector;
 import lanechange.LogitLaneSelector;
 import lanechange.UniformLaneSelector;
-import packet.StateContainer;
+import core.packet.StateContainer;
 import traveltime.AbstractLaneGroupTimer;
 import utils.OTMUtils;
 

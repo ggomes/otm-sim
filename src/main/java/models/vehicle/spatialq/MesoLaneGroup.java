@@ -4,13 +4,13 @@ import core.*;
 import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
-import geometry.Side;
+import core.geometry.Side;
 import core.State;
 import core.AbstractLaneGroup;
 import models.vehicle.VehicleLaneGroup;
 import output.InterfaceVehicleListener;
-import packet.PacketLaneGroup;
-import packet.PacketLink;
+import core.packet.PacketLaneGroup;
+import core.packet.PacketLink;
 import core.Scenario;
 import traveltime.VehicleLaneGroupTimer;
 import utils.OTMUtils;
@@ -115,11 +115,11 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     }
 
     /**
-     * A packet arrives at this lanegroup.
-     * Vehicles do not know their next_link. It is assumed that the packet fits in this lanegroup.
-     * 1. convert the packet to models.fluid.ctm.micro, models.fluid.ctm.pq, or models.fluid.ctm. This involves memory kept in the lanegroup.
+     * A core.packet arrives at this lanegroup.
+     * Vehicles do not know their next_link. It is assumed that the core.packet fits in this lanegroup.
+     * 1. convert the core.packet to models.fluid.ctm.micro, models.fluid.ctm.pq, or models.fluid.ctm. This involves memory kept in the lanegroup.
      * 2. tag it with next_link and target lanegroups.
-     * 3. add the packet to this lanegroup.
+     * 3. add the core.packet to this lanegroup.
      */
     @Override
     public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long next_link_id) throws OTMException {
@@ -181,7 +181,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
      *    road connections.
      * 2. check what portion of each of these packets will be accepted. Reduce the packets
      *    if necessary.
-     * 3. call add_vehicle_packet for each reduces packet.
+     * 3. call add_vehicle_packet for each reduces core.packet.
      * 4. remove the vehicle packets from this lanegroup.
      */
     @Override
@@ -253,7 +253,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
                 if (travel_timer != null)
                     ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),next_link);
 
-                // send vehicle packet to next link
+                // send vehicle core.packet to next link
                 next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
 
                 // TODO Need a better solution than this.

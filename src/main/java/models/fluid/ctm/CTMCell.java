@@ -1,6 +1,6 @@
 package models.fluid.ctm;
 
-import geometry.Side;
+import core.geometry.Side;
 import core.State;
 import models.fluid.AbstractCell;
 import models.fluid.FluidLaneGroup;

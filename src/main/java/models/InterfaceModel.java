@@ -6,7 +6,7 @@ import core.*;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.Side;
+import core.geometry.Side;
 import jaxb.OutputRequest;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;

@@ -1,7 +1,7 @@
 package lanechange;
 
 import core.AbstractLaneGroup;
-import geometry.Side;
+import core.geometry.Side;
 import models.fluid.FluidLaneGroup;
 
 import java.util.Map;

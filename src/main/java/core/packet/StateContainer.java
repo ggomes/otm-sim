@@ -1,4 +1,4 @@
-package packet;
+package core.packet;
 
 import commodity.Commodity;
 import commodity.Path;
@@ -41,7 +41,7 @@ public class StateContainer {
 
         Set<AbstractVehicle> vehicles = new HashSet<>();
 
-        // iterate through all keys ion the packet
+        // iterate through all keys ion the core.packet
         for(Map.Entry<State,Double> e : container.amount.entrySet()){
             State key = e.getKey();
             double value = amount.containsKey(key) ? amount.get(key) + e.getValue() : e.getValue();

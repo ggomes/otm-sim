@@ -1,7 +1,7 @@
 package lanechange;
 
 import core.AbstractLaneGroup;
-import geometry.Side;
+import core.geometry.Side;
 
 import java.util.Map;
 import java.util.Set;

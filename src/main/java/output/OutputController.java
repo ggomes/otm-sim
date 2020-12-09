@@ -4,7 +4,7 @@ import control.AbstractController;
 import dispatch.Dispatcher;
 import error.OTMException;
 import org.jfree.data.xy.XYSeriesCollection;
-import runner.RunParameters;
+import cmd.RunParameters;
 import core.Scenario;
 
 public class OutputController extends AbstractOutputEvent {

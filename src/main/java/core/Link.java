@@ -3,15 +3,15 @@ package core;
 import actuator.ActuatorFlowToLinks;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.RoadGeometry;
-import geometry.Side;
+import core.geometry.RoadGeometry;
+import core.geometry.Side;
 import jaxb.Points;
 import jaxb.Roadparam;
 import models.AbstractModel;
 import profiles.SplitMatrixProfile;
 import traveltime.LinkTravelTimer;
-import packet.PacketLaneGroup;
-import packet.PacketLink;
+import core.packet.PacketLaneGroup;
+import core.packet.PacketLink;
 
 import java.util.*;
 
@@ -187,7 +187,7 @@ public class Link implements InterfaceScenarioElement {
         if( lanegroups_flwdn ==null )
             errorLog.addError("link " + id + ": lanegroups==null");
 
-        // check that the road geometry fits the link
+        // check that the road core.geometry fits the link
 //        if(this.road_geom!=null){
 //
 //            // each addlane has length less than the link
@@ -438,16 +438,16 @@ public class Link implements InterfaceScenarioElement {
     // inter-link dynamics
     ///////////////////////////////////////////
 
-    // split a packet according to next links.
+    // split a core.packet according to next links.
     // for pathfull commodities, the next link is the next in the path.
     // For pathless, it is sampled from the split ratios
-    // this assigns the state for the split packet but does not yet assign
+    // this assigns the state for the split core.packet but does not yet assign
     // the target road connection. This is done after joining the lane group.
     // This DOES NOT update the keys within the PacketLaneGroup's
     // and hence they are out of sync with the next link ids (keys in the map)
     public Map<Long, PacketLaneGroup> split_packet(PacketLink vp){
 
-        // initialize lanegroup_packets (next link id -> packet)
+        // initialize lanegroup_packets (next link id -> core.packet)
         Map<Long, PacketLaneGroup> split_packets = new HashMap<>();
 
         boolean has_macro = !vp.no_macro();
@@ -456,7 +456,7 @@ public class Link implements InterfaceScenarioElement {
         // process the macro state
         if(has_macro) {
 
-            // do scaling calcultions that depend on the packet
+            // do scaling calcultions that depend on the core.packet
             if(act_flowToLinks!=null && vp.road_connection==act_flowToLinks.rc)
                 act_flowToLinks.update_for_packet(vp);
 

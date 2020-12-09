@@ -1,4 +1,4 @@
-package packet;
+package core.packet;
 
 import core.RoadConnection;
 import core.AbstractVehicle;
@@ -10,7 +10,7 @@ import java.util.*;
 
 public class PacketLink {
 
-    // The packet arrives to a set of lanegroups
+    // The core.packet arrives to a set of lanegroups
     public RoadConnection road_connection;
     public Set<AbstractVehicle> vehicles;
     public Map<State,Double> state2vehicles;

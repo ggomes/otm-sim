@@ -1,8 +1,6 @@
-package runner;
+package cmd;
 
 import error.OTMException;
-
-import utils.OTMUtils;
 
 public class OTM {
 

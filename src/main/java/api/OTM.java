@@ -17,7 +17,7 @@ import models.vehicle.spatialq.MesoVehicle;
 import output.*;
 import output.animation.AnimationInfo;
 import profiles.SplitMatrixProfile;
-import runner.RunParameters;
+import cmd.RunParameters;
 import core.ScenarioFactory;
 import utils.OTMUtils;
 import xml.JaxbLoader;
@@ -494,7 +494,7 @@ public class OTM {
      * @return Git hash for the current build.
      */
     public static String get_version(){
-        InputStream inputStream = runner.OTM.class.getResourceAsStream("/otm-sim.properties");
+        InputStream inputStream = cmd.OTM.class.getResourceAsStream("/otm-sim.properties");
         Properties properties = new Properties();
         try {
             properties.load(inputStream);

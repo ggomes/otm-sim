@@ -6,7 +6,7 @@ import commodity.Subnetwork;
 import dispatch.EventInitializeController;
 import models.AbstractModel;
 import models.fluid.AbstractFluidModel;
-import runner.RunParameters;
+import cmd.RunParameters;
 import traveltime.LinkTravelTimeManager;
 import control.AbstractController;
 import error.OTMErrorLog;

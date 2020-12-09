@@ -1,8 +1,6 @@
 package tests;
 
 import org.junit.Test;
-import runner.OTM;
-import utils.OTMUtils;
 
 public class TestVersion {
 

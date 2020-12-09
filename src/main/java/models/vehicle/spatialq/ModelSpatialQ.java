@@ -3,7 +3,7 @@ package models.vehicle.spatialq;
 import core.*;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
-import geometry.Side;
+import core.geometry.Side;
 import jaxb.OutputRequest;
 import error.OTMException;
 import models.vehicle.AbstractVehicleModel;

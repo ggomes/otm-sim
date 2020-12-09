@@ -11,7 +11,7 @@ import error.OTMException;
 import jaxb.Actuator;
 import jaxb.Parameter;
 import models.fluid.AbstractFluidModel;
-import packet.PacketLink;
+import core.packet.PacketLink;
 import utils.OTMUtils;
 
 import java.util.*;

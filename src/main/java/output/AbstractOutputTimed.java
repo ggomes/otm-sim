@@ -5,7 +5,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
 import dispatch.EventTimedWrite;
-import runner.RunParameters;
+import cmd.RunParameters;
 import core.Scenario;
 
 import java.io.*;

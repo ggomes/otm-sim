@@ -1,7 +1,7 @@
 package models.fluid;
 
 import core.FlowAccumulatorState;
-import geometry.Side;
+import core.geometry.Side;
 import core.State;
 
 import java.util.Map;

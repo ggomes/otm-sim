@@ -4,7 +4,7 @@ import core.AbstractLaneGroup;
 import core.Link;
 import dispatch.Dispatcher;
 import error.OTMException;
-import runner.RunParameters;
+import cmd.RunParameters;
 import core.Scenario;
 
 import java.io.IOException;

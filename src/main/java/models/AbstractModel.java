@@ -3,8 +3,8 @@ package models;
 import core.AbstractLaneGroup;
 import core.Link;
 import error.OTMException;
-import packet.PacketLaneGroup;
-import packet.PacketLink;
+import core.packet.PacketLaneGroup;
+import core.packet.PacketLink;
 import core.Scenario;
 import utils.StochasticProcess;
 
@@ -67,13 +67,13 @@ public abstract class AbstractModel implements InterfaceModel {
     // fully implemented methods
     //////////////////////////////////////////////////
 
-    // add a vehicle packet that is already known to fit.
+    // add a vehicle core.packet that is already known to fit.
     final public void add_vehicle_packet(Link link,float timestamp, PacketLink vp) throws OTMException {
 
         if(vp.isEmpty())
             return;
 
-        // 1. split arriving packet into subpackets per downstream link.
+        // 1. split arriving core.packet into subpackets per downstream link.
         // This assigns states to the packets, but
         // This does not set AbstractPacketLaneGroup.target_road_connection
         Map<Long, PacketLaneGroup> split_packets = link.split_packet(vp);

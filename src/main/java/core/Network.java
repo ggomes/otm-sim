@@ -2,7 +2,7 @@ package core;
 
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.*;
+import core.geometry.*;
 import models.AbstractModel;
 import models.fluid.ctm.ModelCTM;
 import models.none.ModelNone;
@@ -177,7 +177,7 @@ public class Network {
         // network: roadgeoms
         jaxb.Roadgeoms jgeoms = new jaxb.Roadgeoms();
         jnet.setRoadgeoms(jgeoms);
-        for(geometry.RoadGeometry geom : road_geoms.values())
+        for(core.geometry.RoadGeometry geom : road_geoms.values())
             jgeoms.getRoadgeom().add(geom.to_jaxb());
 
         // network: roadconnections

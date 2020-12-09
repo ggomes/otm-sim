@@ -1,4 +1,4 @@
-package geometry;
+package core.geometry;
 
 /**
  * Defines an inner/middle/outter handedness.

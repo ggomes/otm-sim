@@ -9,7 +9,7 @@ import error.OTMException;
 import models.fluid.AbstractFluidModel;
 import models.fluid.EventUpdateTotalLanegroupVehicles;
 import profiles.Profile1D;
-import runner.RunParameters;
+import cmd.RunParameters;
 
 import java.util.Collection;
 import java.util.HashMap;

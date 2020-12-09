@@ -6,7 +6,7 @@ import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMException;
-import geometry.Side;
+import core.geometry.Side;
 import core.State;
 import models.fluid.AbstractFluidModel;
 

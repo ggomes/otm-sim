@@ -75,7 +75,7 @@
                 <version>3.1.1</version>
                 <configuration>
                     <show>public</show>
-                    <excludePackageNames>actuator:actuator.sigint:commodity:core:control:control.sigint:dispatch:geometry:jaxb:keys:models:models.*:output.animation:output.animation.*:packet:plugin:profiles:runner:sensor:tools.splitter:traveltime:
+                    <excludePackageNames>actuator:actuator.sigint:commodity:core:control:control.sigint:dispatch:core.geometry:jaxb:keys:models:models.*:output.animation:output.animation.*:core.packet:plugin:profiles:cmd:sensor:tools.splitter:traveltime:
                     </excludePackageNames>
                     <reportOutputDirectory>docs</reportOutputDirectory>
                     <destDir>apidocs</destDir>
@@ -107,7 +107,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>runner.OTM</mainClass>
+                            <mainClass>cmd.OTM</mainClass>
                         </manifest>
                         <manifestEntries>
                             <git-SHA-1>${buildNumber}</git-SHA-1>

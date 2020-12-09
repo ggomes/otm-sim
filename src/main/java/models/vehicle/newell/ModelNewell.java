@@ -8,7 +8,7 @@ import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.Side;
+import core.geometry.Side;
 import jaxb.OutputRequest;
 import core.AbstractLaneGroup;
 import models.vehicle.AbstractVehicleModel;

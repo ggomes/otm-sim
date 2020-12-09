@@ -4,7 +4,7 @@ import error.OTMException;
 import org.junit.Ignore;
 import org.junit.Test;
 import output.*;
-import runner.OTM;
+import cmd.OTM;
 
 import java.io.File;
 import java.util.HashSet;

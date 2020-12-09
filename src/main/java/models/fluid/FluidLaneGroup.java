@@ -3,10 +3,10 @@ package models.fluid;
 import core.*;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.Side;
+import core.geometry.Side;
 import jaxb.Roadparam;
 import core.State;
-import packet.PacketLaneGroup;
+import core.packet.PacketLaneGroup;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -164,17 +164,17 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
         AbstractCell cell = cells.get(0);
 
-        // When the link is a model source, then the packet first goes into a buffer.
+        // When the link is a model source, then the core.packet first goes into a buffer.
         // From there it is "processed", meaning that some part goes into the upstream cell.
         if(link.is_model_source_link) {
-            // add packet to buffer
+            // add core.packet to buffer
             assert(false); // DOES THIS EVER HAPPEN? PERHAPS SOURCE FLOWS ARE PROC ESSED IN UPDATE_FLOW_II AND
                             // VEHICLES ARE PLACED DIRECTLY INTO THE UPSTREAM CELL
             buffer.add_packet(vp);
             process_buffer(timestamp);
         }
 
-        // otherwise, this is an internal link, and the packet is guaranteed to be
+        // otherwise, this is an internal link, and the core.packet is guaranteed to be
         // purely fluid.
         else {
             for(Map.Entry<State,Double> e : vp.container.amount.entrySet()) {

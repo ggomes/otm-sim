@@ -4,10 +4,10 @@ import core.Link;
 import core.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.Side;
+import core.geometry.Side;
 import core.AbstractLaneGroup;
 import jaxb.Roadparam;
-import packet.PacketLaneGroup;
+import core.packet.PacketLaneGroup;
 
 import java.util.Set;
 

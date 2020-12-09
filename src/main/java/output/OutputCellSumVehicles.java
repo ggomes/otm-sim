@@ -8,7 +8,7 @@ import error.OTMException;
 import models.fluid.AbstractFluidModel;
 import models.fluid.EventUpdateTotalCellVehicles;
 import models.fluid.FluidLaneGroup;
-import runner.RunParameters;
+import cmd.RunParameters;
 
 import java.util.*;
 

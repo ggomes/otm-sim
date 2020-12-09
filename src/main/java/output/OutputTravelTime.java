@@ -6,7 +6,7 @@ import dispatch.Dispatcher;
 import error.OTMException;
 import models.vehicle.spatialq.MesoVehicle;
 import models.vehicle.spatialq.Queue;
-import runner.RunParameters;
+import cmd.RunParameters;
 import core.Scenario;
 
 public class OutputTravelTime extends AbstractOutputEvent implements InterfaceVehicleListener  {

@@ -6,7 +6,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import models.fluid.AbstractFluidModel;
 import models.fluid.EventUpdateTotalLinkVehicles;
-import runner.RunParameters;
+import cmd.RunParameters;
 
 import java.util.Collection;
 import java.util.HashMap;

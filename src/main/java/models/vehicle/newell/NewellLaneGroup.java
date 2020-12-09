@@ -5,13 +5,13 @@ import core.Link;
 import core.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.Side;
+import core.geometry.Side;
 import jaxb.Roadparam;
 import core.State;
 import core.AbstractLaneGroup;
 import models.vehicle.VehicleLaneGroup;
-import packet.PacketLaneGroup;
-import packet.PacketLink;
+import core.packet.PacketLaneGroup;
+import core.packet.PacketLink;
 import core.Scenario;
 import traveltime.VehicleLaneGroupTimer;
 import utils.OTMUtils;
@@ -236,7 +236,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
                 if(travel_timer!=null)
                     ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),next_link);
 
-                // send vehicle packet to next link
+                // send vehicle core.packet to next link
                 next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
 
                 // possibly disconnect from follower

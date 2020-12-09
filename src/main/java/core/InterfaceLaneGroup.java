@@ -2,7 +2,7 @@ package core;
 
 import error.OTMErrorLog;
 import error.OTMException;
-import packet.PacketLaneGroup;
+import core.packet.PacketLaneGroup;
 
 public interface InterfaceLaneGroup {
 
@@ -26,10 +26,10 @@ public interface InterfaceLaneGroup {
     float vehs_in_for_comm(Long comm_id);
     float vehs_out_for_comm(Long comm_id);
 
-    // An event signals an opportunity to release a vehicle packet. The lanegroup must,
+    // An event signals an opportunity to release a vehicle core.packet. The lanegroup must,
     // 1. construct packets to be released to each of the lanegroups reached by each of it's road connections.
     // 2. check what portion of each of these packets will be accepted. Reduce the packets if necessary.
-    // 3. call next_link.add_vehicle_packet for each reduces packet.
+    // 3. call next_link.add_vehicle_packet for each reduces core.packet.
     // 4. remove the vehicle packets from this lanegroup.
     void release_vehicle_packets(float timestamp) throws OTMException;
 

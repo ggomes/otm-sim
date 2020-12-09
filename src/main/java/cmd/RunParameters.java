@@ -1,13 +1,11 @@
-package runner;
+package cmd;
 
 import error.OTMErrorLog;
 import error.OTMException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Properties;
-import java.util.Set;
 
 public class RunParameters {
 
