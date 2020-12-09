@@ -1,20 +1,14 @@
 package tests;
 
 import api.OTM;
-import api.info.CommodityInfo;
 import error.OTMException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import output.AbstractOutput;
-import output.OutputLinkFlow;
-import output.OutputLinkVehicles;
 import utils.OTMUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -55,9 +49,9 @@ public class TestAllConfig extends AbstractTest {
             String prefix = testname;
             Set<Long> link_ids = otm.scenario.get_link_ids();
             Float outDt = 10f;
-            for(CommodityInfo comm : otm.scenario.get_commodities()) {
-                otm.output.request_links_flow(prefix,output_folder, comm.getId(), link_ids, outDt);
-                otm.output.request_links_veh(prefix, output_folder, comm.getId(), link_ids, outDt);
+            for(Long comm : otm.scenario.get_commodity_ids()) {
+                otm.output.request_links_flow(prefix,output_folder, comm, link_ids, outDt);
+                otm.output.request_links_veh(prefix, output_folder, comm, link_ids, outDt);
             }
 
             // Uncomment this to produce png images

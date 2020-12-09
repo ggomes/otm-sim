@@ -1,15 +1,11 @@
 package tests;
 
 import api.OTM;
-import api.info.CommodityInfo;
-import api.info.LinkInfo;
-import api.info.SubnetworkInfo;
 import error.OTMException;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -52,19 +48,6 @@ public class TestOTM extends AbstractTest {
     }
 
     @Test
-    public void test_get_commodities(){
-        Set<CommodityInfo> commodities = otm.scenario.get_commodities();
-        CommodityInfo comm = commodities.iterator().next();
-        assertEquals(comm.getId(),1);
-    }
-
-    @Test
-    public void test_get_commodity_with_id(){
-        CommodityInfo comm = otm.scenario.get_commodity_with_id(1l);
-        assertEquals(comm.getId(),1);
-    }
-
-    @Test
     public void test_get_commodity_ids(){
         assertEquals((long) otm.scenario.get_commodity_ids().iterator().next(),1l);
     }
@@ -88,18 +71,6 @@ public class TestOTM extends AbstractTest {
         assertEquals((long)otm.scenario.get_path_ids().iterator().next(),0l);
     }
 
-    @Test
-    public void test_get_subnetworks(){
-        Set<SubnetworkInfo> subnet = otm.scenario.get_subnetworks();
-        assertEquals(subnet.iterator().next().getId(),0l);
-    }
-
-    @Test
-    public void test_get_subnetwork_with_id(){
-        SubnetworkInfo subnet = otm.scenario.get_subnetwork_with_id(0l);
-        assertEquals(subnet.getId(),0l);
-    }
-
     ////////////////////////////////////////////////////////
     // network
     ////////////////////////////////////////////////////////
@@ -112,18 +83,6 @@ public class TestOTM extends AbstractTest {
     @Test
     public void test_get_num_nodes(){
         assertEquals(otm.scenario.get_num_nodes(),7);
-    }
-
-    @Test
-    public void test_get_links(){
-        Map<Long,LinkInfo> links = otm.scenario.get_links();
-        assertEquals(links.get(1l).getId(),1l);
-    }
-
-    @Test
-    public void test_get_link_with_id(){
-        LinkInfo info = otm.scenario.get_link_with_id(2l);
-        assertEquals(info.getId(),2l);
     }
 
     @Test
@@ -175,12 +134,6 @@ public class TestOTM extends AbstractTest {
         assertEquals(otm.scenario.get_num_sensors(),0);
     }
 
-    @Test
-    @Ignore
-    public void test_get_sensor_with_id(){
-        System.out.println(otm.scenario.get_sensor_with_id(1l));
-    }
-
     ////////////////////////////////////////////////////////
     // controllers
     ////////////////////////////////////////////////////////
@@ -190,12 +143,6 @@ public class TestOTM extends AbstractTest {
         assertEquals(otm.scenario.get_num_controllers(),0);
     }
 
-    @Test
-    @Ignore
-    public void test_get_controller_with_id(){
-        System.out.println(otm.scenario.get_controller_info(1l));
-    }
-
     ////////////////////////////////////////////////////////
     // actuators
     ////////////////////////////////////////////////////////
@@ -203,18 +150,6 @@ public class TestOTM extends AbstractTest {
     @Test
     public void test_get_num_actuators(){
         assertEquals(otm.scenario.get_num_actuators(),0);
-    }
-
-    @Test
-    @Ignore
-    public void test_get_actuators(){
-        System.out.println(otm.scenario.get_actuators());
-    }
-
-    @Test
-    @Ignore
-    public void test_get_actuator_with_id(){
-        System.out.println(otm.scenario.get_actuator_with_id(1l));
     }
 
     ////////////////////////////////////////////////////////
