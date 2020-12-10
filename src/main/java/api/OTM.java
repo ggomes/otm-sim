@@ -473,10 +473,6 @@ public class OTM {
     // getters
     ////////////////////////////////////////////////////////
 
-    public Output output(){
-        return output;
-    }
-
     /**
      * Current simulation time in seconds.
      * @return Current simulation time in seconds.

@@ -20,9 +20,9 @@ public class Output {
         this.myapi = myapi;
     }
 
-    // ----------------------------------------------
-    // get
-    // ----------------------------------------------
+    ////////////////////////////////////////////////////////
+    // outputs
+    ////////////////////////////////////////////////////////
 
     /**
      * Get the set of all output objects.
@@ -54,8 +54,12 @@ public class Output {
         myapi.scenario.outputs.clear();
     }
 
+    ////////////////////////////////////////////////////////
+    // output requests
+    ////////////////////////////////////////////////////////
+
     // ----------------------------------------------
-    // Network
+    // lane groups
     // ----------------------------------------------
 
     /**
@@ -76,10 +80,10 @@ public class Output {
     // ----------------------------------------------
 
     /**
-     * Request link flows.
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
-     * @param commodity_id Id for the requested vehicle type.
+     * Request link flows
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means aggregate over commodities.
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
@@ -92,37 +96,10 @@ public class Output {
     }
 
     /**
-     * Request link flows.
-     * @param commodity_id Id for the requested vehicle type.
-     * @param link_ids Collection of requested link ids
-     * @param outDt Output sampling time in seconds.
-     */
-    public void request_links_flow(Long commodity_id,Collection<Long> link_ids,Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputLinkFlow(myapi.scenario,null,null,commodity_id,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Request link flows.
-     * @param link_ids Collection of requested link ids
-     * @param outDt Output sampling time in seconds.
-     */
-    public void request_links_flow(Collection<Long> link_ids,Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputLinkFlow(myapi.scenario,null,null,null,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Request link vehicles.
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
-     * @param commodity_id Id for the requested vehicle type.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means aggregate over commodities.
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
@@ -135,37 +112,10 @@ public class Output {
     }
 
     /**
-     * Request link vehicles.
-     * @param commodity_id Id for the requested vehicle type.
-     * @param link_ids Collection of requested link ids
-     * @param outDt Output sampling time in seconds.
-     */
-    public void request_links_veh(Long commodity_id,Collection<Long> link_ids,Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputLinkVehicles(myapi.scenario,null,null,commodity_id,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Request link vehicles.
-     * @param link_ids Collection of requested link ids
-     * @param outDt Output sampling time in seconds.
-     */
-    public void request_links_veh(Collection<Long> link_ids,Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputLinkVehicles(myapi.scenario,null,null,null,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Request link vehicles.
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
-     * @param commodity_id Id for the requested vehicle type.
+     * Request link wsum of vehicles.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means aggregate over commodities.
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
@@ -178,41 +128,16 @@ public class Output {
     }
 
     /**
-     * Request link vehicles.
-     * @param commodity_id Id for the requested vehicle type.
-     * @param link_ids Collection of requested link ids
-     * @param outDt Output sampling time in seconds.
-     */
-    public void request_links_sum_veh(Long commodity_id,Collection<Long> link_ids,Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputLinkSumVehicles(myapi.scenario,null,null,commodity_id,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Request vehicles in a mesoscopic queue.
-     * @param commodity_id Id for the requested vehicle type.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means aggregate over commodities.
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_link_queues(Long commodity_id, Collection<Long> link_ids, Float outDt){
+    public void request_link_queues(String prefix,String output_folder,Long commodity_id, Collection<Long> link_ids, Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputQueues(myapi.scenario,null,null,commodity_id,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Request vehicles in a mesoscopic queue.
-     * @param link_ids Collection of requested link ids
-     * @param outDt Output sampling time in seconds.
-     */
-    public void request_link_queues(Collection<Long> link_ids, Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputQueues(myapi.scenario,null,null,null,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputQueues(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -224,9 +149,9 @@ public class Output {
 
     /**
      * Request lane group flows.
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
-     * @param commodity_id Id for the requested vehicle type.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means aggregate over commodities.
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
@@ -239,24 +164,10 @@ public class Output {
     }
 
     /**
-     * Request lane group flows.
-     * @param commodity_id Id for the requested vehicle type.
-     * @param link_ids Collection of requested link ids
-     * @param outDt Output sampling time in seconds.
-     */
-    public void request_lanegroup_flw(Long commodity_id,Collection<Long> link_ids,Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputLaneGroupFlow(myapi.scenario,null,null,commodity_id,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Request lane group vehicles.
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
-     * @param commodity_id Id for the requested vehicle type.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means aggregate over commodities.
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
@@ -269,25 +180,10 @@ public class Output {
     }
 
     /**
-     * Request lane group vehicles.
-     * @param commodity_id Id for the requested vehicle type.
-     * @param link_ids Collection of requested link ids
-     * @param outDt Output sampling time in seconds.
-     */
-    public void request_lanegroup_veh(Long commodity_id,Collection<Long> link_ids,Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputLaneGroupVehicles(myapi.scenario,null,null,commodity_id,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    /**
      * Request lane group sum vehicles over simulation time steps. Works only for timestep-based models.
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
-     * @param commodity_id Id for the requested vehicle type.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means aggregate over commodities.
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
@@ -299,29 +195,15 @@ public class Output {
         }
     }
 
-    /**
-     * Request lane group sum vehicles over simulation time steps. Works only for timestep-based models.
-     * @param commodity_id Id for the requested vehicle type.
-     * @param link_ids Collection of requested link ids
-     * @param outDt Output sampling time in seconds.
-     */
-    public void request_lanegroup_sum_veh(Long commodity_id, Collection<Long> link_ids, Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputLaneGroupSumVehicles(myapi.scenario,null,null,commodity_id,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
     // ----------------------------------------------
     // Cell state (fluid only)
     // ----------------------------------------------
 
     /**
      * Request cell flows.
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
-     * @param commodity_id Id for the requested vehicle type.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means aggregate over commodities.
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
@@ -334,24 +216,10 @@ public class Output {
     }
 
     /**
-     * Request cell flows.
-     * @param commodity_id Id for the requested vehicle type.
-     * @param link_ids Collection of requested link ids
-     * @param outDt Output sampling time in seconds.
-     */
-    public void request_cell_flw(Long commodity_id,Collection<Long> link_ids,Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputCellFlow(myapi.scenario,null,null,commodity_id,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Request cell vehicles.
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
-     * @param commodity_id Id for the requested vehicle type.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means aggregate over commodities.
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
@@ -364,24 +232,10 @@ public class Output {
     }
 
     /**
-     * Request cell vehicles.
-     * @param commodity_id Id for the requested vehicle type.
-     * @param link_ids Collection of requested link ids
-     * @param outDt Output sampling time in seconds.
-     */
-    public void request_cell_veh(Long commodity_id,Collection<Long> link_ids,Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputCellVehicles(myapi.scenario,null,null,commodity_id,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Request cell sum of vehicles. Works only for timestep-based models.
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
-     * @param commodity_id Id for the requested vehicle type.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means aggregate over commodities.
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
@@ -394,19 +248,13 @@ public class Output {
     }
 
     /**
-     * Request cell sum vehicles over simulation time steps. Works only for timestep-based models.
-     * @param commodity_id Id for the requested vehicle type.
+     * Request cell vehicles moving downstream. Works only for timestep-based models.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means aggregate over commodities.
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_cell_sum_veh(Long commodity_id, Collection<Long> link_ids, Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputCellSumVehicles(myapi.scenario,null,null,commodity_id,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void request_cell_sum_veh_dwn(String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt){
         try {
             this.myapi.scenario.outputs.add(new OutputCellSumVehiclesDwn(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
@@ -415,30 +263,14 @@ public class Output {
         }
     }
 
-    public void request_cell_sum_veh_dwn(Long commodity_id, Collection<Long> link_ids, Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputCellSumVehiclesDwn(myapi.scenario,null,null,commodity_id,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void request_cell_lanechange_out(Long commodity_id, Collection<Long> link_ids, Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputCellLanechangeOut(myapi.scenario,null,null,commodity_id,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void request_cell_lanechange_in(Long commodity_id, Collection<Long> link_ids, Float outDt){
-        try {
-            this.myapi.scenario.outputs.add(new OutputCellLanechangeIn(myapi.scenario,null,null,commodity_id,link_ids,outDt));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
+    /**
+     * Request cell vehicles moving to outside lane group. Works only for timestep-based models.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means aggregate over commodities.
+     * @param link_ids Collection of requested link ids
+     * @param outDt Output sampling time in seconds.
+     */
     public void request_cell_lanechange_out(String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt){
         try {
             this.myapi.scenario.outputs.add(new OutputCellLanechangeOut(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
@@ -447,6 +279,14 @@ public class Output {
         }
     }
 
+    /**
+     * Request cell vehicles moving to incside lane group. Works only for timestep-based models.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means aggregate over commodities.
+     * @param link_ids Collection of requested link ids
+     * @param outDt Output sampling time in seconds.
+     */
     public void request_cell_lanechange_in(String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt){
         try {
             this.myapi.scenario.outputs.add(new OutputCellLanechangeIn(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
