@@ -5,7 +5,6 @@ import core.Link;
 import core.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
-import core.geometry.Side;
 import jaxb.Roadparam;
 import core.State;
 import core.AbstractLaneGroup;
@@ -36,7 +35,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     // construction
     ///////////////////////////////////////////
 
-    public NewellLaneGroup(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+    public NewellLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
         super(link, side, length, num_lanes, start_lane, out_rcs, rp);
         vehicles = new ArrayList<>();
     }

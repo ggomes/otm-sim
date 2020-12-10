@@ -4,7 +4,6 @@ import core.*;
 import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
-import core.geometry.Side;
 import core.State;
 import core.AbstractLaneGroup;
 import models.vehicle.VehicleLaneGroup;
@@ -34,7 +33,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     // construction
     ///////////////////////////////////////////
 
-    public MesoLaneGroup(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp){
+    public MesoLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp){
         super(link, side,length, num_lanes, start_lane, out_rcs,rp);
         this.transit_queue = new Queue(this, Queue.Type.transit);
         this.waiting_queue = new Queue(this, Queue.Type.waiting);

@@ -4,13 +4,14 @@ import actuator.AbstractActuator;
 import actuator.AbstractActuatorLanegroupCapacity;
 import actuator.ActuatorOpenCloseLaneGroup;
 import actuator.InterfaceActuatorTarget;
-import error.OTMException;
 import core.geometry.Side;
+import error.OTMException;
 import lanechange.AbstractLaneSelector;
 import lanechange.KeepLaneSelector;
 import lanechange.LogitLaneSelector;
 import lanechange.UniformLaneSelector;
 import core.packet.StateContainer;
+import models.Maneuver;
 import traveltime.AbstractLaneGroupTimer;
 import utils.OTMUtils;
 
@@ -22,9 +23,18 @@ import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>, InterfaceLaneGroup, InterfaceActuatorTarget {
 
+    public static Map<Side,Maneuver> side2maneuver;
+
+    static {
+        side2maneuver = new HashMap<>();
+        side2maneuver.put(Side.in,Maneuver.lcin);
+        side2maneuver.put(Side.middle,Maneuver.stay);
+        side2maneuver.put(Side.out,Maneuver.lcout);
+    }
+
     public final long id;
     public Link link;
-    public final Side side;               // inner, middle, or outer (add lane in, full, add lane out)
+    public final core.geometry.Side side;               // inner, middle, or outer (add lane in, full, add lane out)
     public int start_lane_up = -1;       // counted with respect to upstream boundary
     public int start_lane_dn = -1;       // counted with respect to downstream boundary
     public final int num_lanes;
@@ -55,8 +65,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public Map<State,Long> state2roadconnection;
 
     // target lane group to direction
-    public Map<State,Set<Side>> state2lanechangedirections = new HashMap<>();
-    private Map<State,Set<Side>> disallowed_state2lanechangedirections = new HashMap<>();
+    public Map<State,Set<Maneuver>> state2lanechangedirections = new HashMap<>();
+    private Map<State,Set<Maneuver>> disallowed_state2lanechangedirections = new HashMap<>();
 
     // lane selection model
     public Map<Long,AbstractLaneSelector> lane_selector;  // comm->lane selector
@@ -67,7 +77,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // construction
     ///////////////////////////////////////////////////
 
-    public AbstractLaneGroup(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp){
+    public AbstractLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp){
         this.link = link;
         this.side = side;
         this.length = length;
@@ -207,7 +217,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return link;
     }
 
-    public final Side get_side(){
+    public final core.geometry.Side get_side(){
         return side;
     }
 
@@ -238,37 +248,38 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
                 new State(comm_id, path_id, true) :
                 new State(comm_id, next_link_id, false);
 
-        Set<Side> sides;
+        Set<Maneuver> maneuvers;
 
         if(link.is_sink){
-            sides = new HashSet<>();
-            sides.add(Side.middle);
+            maneuvers = new HashSet<>();
+            maneuvers.add(Maneuver.stay);
             if(this.neighbor_out!=null)
-                sides.add(Side.out);
+                maneuvers.add(Maneuver.lcout);
             if(this.neighbor_in!=null)
-                sides.add(Side.in);
+                maneuvers.add(Maneuver.lcin);
         } else {
-            sides = link.outlink2lanegroups.get(next_link_id).stream()
+            maneuvers = link.outlink2lanegroups.get(next_link_id).stream()
                     .map(x -> x.get_side_with_respect_to_lg(this))
+                    .map(x -> side2maneuver.get(x))
                     .collect(Collectors.toSet());
         }
 
         if(link.in_barriers!=null){
             if(this.side==Side.in)
-                sides.remove(Side.out);
+                maneuvers.remove(Side.out);
             if(this.side==Side.middle)
-                sides.remove(Side.in);
+                maneuvers.remove(Side.in);
         }
 
         if(link.out_barriers!=null){
             if(this.side==Side.middle)
-                sides.remove(Side.out);
+                maneuvers.remove(Side.out);
             if(this.side==Side.out)
-                sides.remove(Side.in);
+                maneuvers.remove(Side.in);
         }
 
-        if(!sides.isEmpty()){
-            state2lanechangedirections.put(state, sides);
+        if(!maneuvers.isEmpty()){
+            state2lanechangedirections.put(state, maneuvers);
 
             // state2roadconnection
             if(!link.is_sink){
@@ -355,20 +366,20 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     private void disallow_state(State state) throws OTMException {
         // disallow movement into this lanegroup from adjacent lanegroups
-        this.disallow_state_lanechangedirection(state,Side.middle);
+        this.disallow_state_lanechangedirection(state,Maneuver.stay);
         if(neighbor_in!=null)
-            neighbor_in.disallow_state_lanechangedirection(state,Side.out);
+            neighbor_in.disallow_state_lanechangedirection(state,Maneuver.lcout);
         if(neighbor_out!=null)
-            neighbor_out.disallow_state_lanechangedirection(state,Side.in);
+            neighbor_out.disallow_state_lanechangedirection(state,Maneuver.lcin);
     }
 
     private void reallow_state(State state){
         // reallow movement into this lanegroup from adjacent lanegroups
-        this.reallow_state_lanechangedirection(state,Side.middle);
+        this.reallow_state_lanechangedirection(state,Maneuver.stay);
         if(neighbor_in!=null)
-            neighbor_in.reallow_state_lanechangedirection(state,Side.out);
+            neighbor_in.reallow_state_lanechangedirection(state,Maneuver.lcout);
         if(neighbor_out!=null)
-            neighbor_out.reallow_state_lanechangedirection(state,Side.in);
+            neighbor_out.reallow_state_lanechangedirection(state,Maneuver.lcin);
     }
 
     ///////////////////////////////////////////////////
@@ -384,50 +395,49 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // private
     ///////////////////////////////////////////////////
 
-    private void disallow_state_lanechangedirection(State state,Side side) throws OTMException {
+    private void disallow_state_lanechangedirection(State state,Maneuver maneuver) throws OTMException {
         if(!state2lanechangedirections.containsKey(state))
             return;
-        Set<Side> sides = state2lanechangedirections.get(state);
-        if(!sides.contains(side))
+        Set<Maneuver> maneuvers = state2lanechangedirections.get(state);
+        if(!maneuvers.contains(maneuver))
             return;
-        if(sides.size()==1)
+        if(maneuvers.size()==1)
             return;
-        sides.remove(side);
-        Set<Side> dsides;
+        maneuvers.remove(maneuver);
+        Set<Maneuver> dmaneuvers;
         if(disallowed_state2lanechangedirections.containsKey(state)){
-            dsides = disallowed_state2lanechangedirections.get(state);
+            dmaneuvers = disallowed_state2lanechangedirections.get(state);
         }  else {
-            dsides = new HashSet<>();
-            disallowed_state2lanechangedirections.put(state,dsides);
+            dmaneuvers = new HashSet<>();
+            disallowed_state2lanechangedirections.put(state,dmaneuvers);
         }
-        dsides.add(side);
+        dmaneuvers.add(maneuver);
 
         // remove side from lane selector
         if(lane_selector.containsKey(state.commodity_id))
-            lane_selector.get(state.commodity_id).remove_side(state,side);
+            lane_selector.get(state.commodity_id).remove_maneuver(state,maneuver);
 
     }
 
-    private void reallow_state_lanechangedirection(State state,Side side){
+    private void reallow_state_lanechangedirection(State state,Maneuver maneuver){
         if(!disallowed_state2lanechangedirections.containsKey(state))
             return;
-        Set<Side> dsides = disallowed_state2lanechangedirections.get(state);
-        if(!dsides.contains(side))
+        Set<Maneuver> dmaneuvers = disallowed_state2lanechangedirections.get(state);
+        if(!dmaneuvers.contains(maneuver))
             return;
-        dsides.remove(side);
-        Set<Side> sides;
+        dmaneuvers.remove(maneuver);
+        Set<Maneuver> maneuvers;
         if(state2lanechangedirections.containsKey(state)){
-            sides = state2lanechangedirections.get(state);
+            maneuvers = state2lanechangedirections.get(state);
         }  else {
-            sides = new HashSet<>();
-            state2lanechangedirections.put(state,sides);
+            maneuvers = new HashSet<>();
+            state2lanechangedirections.put(state,maneuvers);
         }
-        sides.add(side);
-
+        maneuvers.add(maneuver);
 
         // add side to lane selector
         if(lane_selector.containsKey(state.commodity_id))
-            lane_selector.get(state.commodity_id).add_side(state,side);
+            lane_selector.get(state.commodity_id).add_maneuver(state,maneuver);
     }
 
 }

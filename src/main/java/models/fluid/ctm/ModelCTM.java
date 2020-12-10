@@ -5,10 +5,10 @@ import core.Link;
 
 import error.OTMErrorLog;
 import error.OTMException;
-import core.geometry.Side;
 import jaxb.OutputRequest;
 import core.State;
 import core.AbstractLaneGroup;
+import models.Maneuver;
 import models.fluid.*;
 import output.AbstractOutput;
 import core.Scenario;
@@ -289,18 +289,18 @@ public class ModelCTM extends AbstractFluidModel {
 
                 // choose lane change direction in destination cell
                 // prefer middle
-                Set<Side> new_lcs = to_lg.state2lanechangedirections.get(state);
-                Side newside = new_lcs.contains(Side.middle) ?  Side.middle : new_lcs.iterator().next();
-                switch (newside) {
-                    case in:
+                Set<Maneuver> new_lcs = to_lg.state2lanechangedirections.get(state);
+                Maneuver newmaneuver = new_lcs.contains(Maneuver.stay) ?  Maneuver.stay : new_lcs.iterator().next();
+                switch (newmaneuver) {
+                    case lcin:
                         to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);
                         to_cell.total_vehs_in += flw;
                         break;
-                    case middle:
+                    case stay:
                         to_cell.veh_dwn.put(state, to_cell.veh_dwn.get(state) + flw);
                         to_cell.total_vehs_dwn += flw;
                         break;
-                    case out:
+                    case lcout:
                         to_cell.veh_out.put(state, to_cell.veh_out.get(state) + flw);
                         to_cell.total_vehs_out += flw;
                         break;

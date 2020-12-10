@@ -3,10 +3,10 @@ package models.fluid;
 import core.*;
 import error.OTMErrorLog;
 import error.OTMException;
-import core.geometry.Side;
 import jaxb.Roadparam;
 import core.State;
 import core.packet.PacketLaneGroup;
+import models.Maneuver;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -35,7 +35,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     // construction
     ///////////////////////////////////////////
 
-    public FluidLaneGroup(Link link, Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+    public FluidLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
         super(link, side,length, num_lanes, start_lane, out_rcs,rp);
 
         if(link.is_source)
@@ -195,8 +195,8 @@ public class FluidLaneGroup extends AbstractLaneGroup {
                     state = optstate.get();
                 }
 
-                Set<Side> lcoptions = state2lanechangedirections.get(state);
-                Map<Side,Double> side2prob = get_lc_probabilities(state,lcoptions);
+                Set<Maneuver> lcoptions = state2lanechangedirections.get(state);
+                Map<Maneuver,Double> side2prob = get_lc_probabilities(state,lcoptions);
                 cell.add_vehicles(state,e.getValue(),side2prob);
             }
         }
@@ -243,13 +243,12 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     // This is called when vehicles are added to the first cell in a lanegroup.
     // They decide which way to chenge lanes within the lanegroup.
-    public Map<Side,Double> get_lc_probabilities(State state,Set<Side> lcoptions) throws OTMException {
+    public Map<Maneuver,Double> get_lc_probabilities(State state,Set<Maneuver> lcoptions) throws OTMException {
 
         if(lcoptions==null) {
-            Map<Side,Double> x = new HashMap<>();
-            x.put(Side.middle,1d);
+            Map<Maneuver,Double> x = new HashMap<>();
+            x.put(Maneuver.stay,1d);
             return x;
-//            throw new OTMException(String.format("In link %d, commid=%d in lanegroup (%d#%d) has no way of getting to path/link %d.", link.getId(), state.commodity_id, start_lane_dn, start_lane_dn + num_lanes - 1, state.pathOrlink_id));
         }
 
         // otherwise use the lane selector, if it exists
@@ -258,9 +257,9 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
         // otherwise distribute equally
         double v = 1d/lcoptions.size();
-        Map<Side,Double> X = new HashMap<>();
-        for(Side s:lcoptions)
-            X.put(s,v);
+        Map<Maneuver,Double> X = new HashMap<>();
+        for(Maneuver m:lcoptions)
+            X.put(m,v);
         return X;
 
     }
@@ -376,9 +375,9 @@ public class FluidLaneGroup extends AbstractLaneGroup {
             State state = e.getKey();
             Double buffer_vehs = e.getValue() ;
 
-            Set<Side> lcoptions = state2lanechangedirections.get(state);
+            Set<Maneuver> lcoptions = state2lanechangedirections.get(state);
 
-            Map<Side,Double> side2prob = get_lc_probabilities(state,lcoptions);
+            Map<Maneuver,Double> side2prob = get_lc_probabilities(state,lcoptions);
 
             // add to cell
             cell.add_vehicles(state,buffer_vehs* factor,side2prob);

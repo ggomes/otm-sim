@@ -1,7 +1,7 @@
 package lanechange;
 
 import core.AbstractLaneGroup;
-import core.geometry.Side;
+import models.Maneuver;
 import models.fluid.FluidLaneGroup;
 
 import java.util.Map;
@@ -38,14 +38,14 @@ public class LogitLaneSelector extends AbstractLaneSelector {
     }
 
     @Override
-    public void update_lane_change_probabilities_with_options(Long pathorlinkid, Set<Side> lcoptions) {
+    public void update_lane_change_probabilities_with_options(Long pathorlinkid, Set<Maneuver> lcoptions) {
 
         assert(lcoptions.size()>0);
 
-        Map<Side,Double> myside2prob = side2prob.get(pathorlinkid);
+        Map<Maneuver,Double> myside2prob = side2prob.get(pathorlinkid);
 
         if(lcoptions.size()==1){
-            Side lcoption = lcoptions.iterator().next();
+            Maneuver lcoption = lcoptions.iterator().next();
             myside2prob.clear();
             myside2prob.put(lcoption,1d);
             return;
@@ -59,7 +59,7 @@ public class LogitLaneSelector extends AbstractLaneSelector {
         double em=0d;
         double eo=0d;
 
-        boolean has_in = lcoptions.contains(Side.in) && lg.neighbor_in!=null;
+        boolean has_in = lcoptions.contains(Maneuver.lcin) && lg.neighbor_in!=null;
         if(has_in) {
             if(Double.isInfinite(add_in))
                 ei = 0;
@@ -72,7 +72,7 @@ public class LogitLaneSelector extends AbstractLaneSelector {
             }
         }
 
-        boolean has_middle = lcoptions.contains(Side.middle);
+        boolean has_middle = lcoptions.contains(Maneuver.stay);
         if(has_middle) {
             FluidLaneGroup tlg = (FluidLaneGroup)lg;
             um = Math.min(0d,rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.num_lanes );
@@ -81,7 +81,7 @@ public class LogitLaneSelector extends AbstractLaneSelector {
             em = Math.exp( um );
         }
 
-        boolean has_out = lcoptions.contains(Side.out) && lg.neighbor_out!=null;
+        boolean has_out = lcoptions.contains(Maneuver.lcout) && lg.neighbor_out!=null;
         if(has_out) {
             FluidLaneGroup tlg = (FluidLaneGroup)lg.neighbor_out;
             uo = Math.min(0d,rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.num_lanes );
@@ -98,21 +98,21 @@ public class LogitLaneSelector extends AbstractLaneSelector {
         den = ei+em+eo;
 
         // clean side2prob
-        if(myside2prob.containsKey(Side.in) && !has_in)
-            myside2prob.remove(Side.in);
-        if(myside2prob.containsKey(Side.middle) && !has_middle)
-            myside2prob.remove(Side.middle);
-        if(myside2prob.containsKey(Side.out) && !has_out)
-            myside2prob.remove(Side.out);
+        if(myside2prob.containsKey(Maneuver.lcin) && !has_in)
+            myside2prob.remove(Maneuver.lcin);
+        if(myside2prob.containsKey(Maneuver.stay) && !has_middle)
+            myside2prob.remove(Maneuver.stay);
+        if(myside2prob.containsKey(Maneuver.lcout) && !has_out)
+            myside2prob.remove(Maneuver.lcout);
 
         if(has_in)
-            myside2prob.put(Side.in,ei/den);
+            myside2prob.put(Maneuver.lcin,ei/den);
 
         if(has_middle)
-            myside2prob.put(Side.middle,em/den);
+            myside2prob.put(Maneuver.stay,em/den);
 
         if(has_out)
-            myside2prob.put(Side.out,eo/den);
+            myside2prob.put(Maneuver.lcout,eo/den);
     }
 
     public double getKeep() {

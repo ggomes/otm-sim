@@ -6,8 +6,8 @@ import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMException;
-import core.geometry.Side;
 import core.State;
+import models.Maneuver;
 import models.fluid.AbstractFluidModel;
 
 import java.util.HashMap;
@@ -18,11 +18,11 @@ public abstract class AbstractLaneSelector implements Pokable {
 
     protected float dt;
     protected AbstractLaneGroup lg;
-    protected Map<Long,Map<Side,Double>> side2prob; // pathorlinkid->side -> probability
+    protected Map<Long,Map<Maneuver,Double>> side2prob; // pathorlinkid-> maneuver -> probability
     protected long commid;
 
     // this will be called by a lgrestric controller whenever it changes the lc options.
-    public abstract void update_lane_change_probabilities_with_options(Long pathorlinkid,Set<Side> lcoptions);
+    public abstract void update_lane_change_probabilities_with_options(Long pathorlinkid,Set<Maneuver> lcoptions);
 
     public AbstractLaneSelector(AbstractLaneGroup lg,float dt,long commid){
         this.dt = dt;
@@ -30,16 +30,16 @@ public abstract class AbstractLaneSelector implements Pokable {
         this.commid = commid;
         side2prob = new HashMap<>();
 
-        for(Map.Entry<State,Set<Side>> e: lg.state2lanechangedirections.entrySet()){
+        for(Map.Entry<State,Set<Maneuver>> e: lg.state2lanechangedirections.entrySet()){
             State s = e.getKey();
             if(s.commodity_id!=commid)
                 continue;
-            Map<Side,Double> x = new HashMap<>();
+            Map<Maneuver,Double> x = new HashMap<>();
             side2prob.put(s.pathOrlink_id,x);
-            Set<Side> sides = e.getValue();
-            double v = 1d/sides.size();
-            for(Side side : sides)
-                x.put(side,v);
+            Set<Maneuver> maneuvers = e.getValue();
+            double v = 1d/maneuvers.size();
+            for(Maneuver m : maneuvers)
+                x.put(m,v);
         }
 
 
@@ -61,31 +61,31 @@ public abstract class AbstractLaneSelector implements Pokable {
             dispatcher.register_event(new EventPoke(dispatcher,5,timestamp+dt,this));
     }
 
-    public final void remove_side(State state,Side side){
+    public final void remove_maneuver(State state, Maneuver maneuver){
         if(side2prob.containsKey(state.pathOrlink_id) ) {
-            Map<Side,Double> e = side2prob.get(state.pathOrlink_id);
-            if(e.containsKey(side)){
-                double prob = e.size()>1 ? e.get(side)/(e.size()-1) : 0d;
-                e.remove(side);
-                for(Side s : e.keySet())
-                    e.put(s,e.get(s)+prob);
+            Map<Maneuver,Double> e = side2prob.get(state.pathOrlink_id);
+            if(e.containsKey(maneuver)){
+                double prob = e.size()>1 ? e.get(maneuver)/(e.size()-1) : 0d;
+                e.remove(maneuver);
+                for(Maneuver m : e.keySet())
+                    e.put( m,e.get(m)+prob);
             }
         }
     }
 
-    public final void add_side(State state,Side side){
+    public final void add_maneuver(State state, Maneuver maneuver){
         if(side2prob.containsKey(state.pathOrlink_id)){
-            Map<Side,Double> e = side2prob.get(state.pathOrlink_id);
-            if(!e.containsKey(side))
-                e.put(side,0d);
+            Map<Maneuver,Double> e = side2prob.get(state.pathOrlink_id);
+            if(!e.containsKey(maneuver))
+                e.put(maneuver,0d);
         } else {
-            Map<Side,Double> e = new HashMap<>();
+            Map<Maneuver,Double> e = new HashMap<>();
             side2prob.put(state.pathOrlink_id,e);
-            e.put(side,0d);
+            e.put(maneuver,0d);
         }
     }
 
-    public final Map<Side,Double> get_lanechange_probabilities(Long pathorlinkid){
+    public final Map<Maneuver,Double> get_lanechange_probabilities(Long pathorlinkid){
         return side2prob.get(pathorlinkid);
     }
 

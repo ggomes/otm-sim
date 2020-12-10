@@ -1,7 +1,7 @@
 package models.fluid.ctm;
 
-import core.geometry.Side;
 import core.State;
+import models.Maneuver;
 import models.fluid.AbstractCell;
 import models.fluid.FluidLaneGroup;
 import utils.OTMUtils;
@@ -12,19 +12,19 @@ import java.util.Map;
 public class CTMCell extends AbstractCell {
 
     // vehicles and demand already in their target lanegroup
-    public Map<State, Double> veh_dwn;      // state -> number of vehicles
-    public Map<State, Double> demand_dwn;   // state -> number of vehicles
-    public double total_vehs_dwn;
+    protected Map<State, Double> veh_dwn;      // state -> number of vehicles
+    protected Map<State, Double> demand_dwn;   // state -> number of vehicles
+    protected double total_vehs_dwn;
 
     // vehicles wishing to change lanes outward (regardless if there is a barrier in this cell)
-    public Map<State, Double> veh_out;      // state -> number of vehicles
-    public Map<State, Double> demand_out;   // state -> number of vehicles
-    public double total_vehs_out;
+    protected Map<State, Double> veh_out;      // state -> number of vehicles
+    protected Map<State, Double> demand_out;   // state -> number of vehicles
+    protected double total_vehs_out;
 
     // vehicles wishing to change lanes inward (regardless if there is a barrier in this cell)
-    public Map<State, Double> veh_in;      // state -> number of vehicles
-    public Map<State, Double> demand_in;   // state -> number of vehicles
-    public double total_vehs_in;
+    protected Map<State, Double> veh_in;      // state -> number of vehicles
+    protected Map<State, Double> demand_in;   // state -> number of vehicles
+    protected double total_vehs_in;
 
     public CTMCell(FluidLaneGroup laneGroup) {
         super(laneGroup);
@@ -160,25 +160,25 @@ public class CTMCell extends AbstractCell {
     }
 
     @Override
-    public void add_vehicles(State state, Double vehs,Map<Side,Double> side2prob ){
+    public void add_vehicles(State state, Double vehs,Map<Maneuver,Double> maneuver2prob ){
         double cur_val;
 
-        for(Map.Entry<Side,Double> e : side2prob.entrySet()){
-            Side side = e.getKey();
+        for(Map.Entry<Maneuver,Double> e : maneuver2prob.entrySet()){
+            Maneuver side = e.getKey();
             double val = e.getValue()*vehs;
 
             switch(side){
-                case middle:
+                case stay:
                     cur_val = veh_dwn.containsKey(state) ? veh_dwn.get(state) : 0d;
                     veh_dwn.put(state,cur_val + val);
                     total_vehs_dwn += val;
                     break;
-                case in:
+                case lcin:in:
                     cur_val = veh_in.containsKey(state) ? veh_in.get(state) : 0d;
                     veh_in.put(state,cur_val + val);
                     total_vehs_in += val;
                     break;
-                case out:
+                case lcout:
                     cur_val = veh_out.containsKey(state) ? veh_out.get(state) : 0d;
                     veh_out.put(state,cur_val + val);
                     total_vehs_out += val;

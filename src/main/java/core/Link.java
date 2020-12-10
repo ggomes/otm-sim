@@ -4,7 +4,6 @@ import actuator.ActuatorFlowToLinks;
 import error.OTMErrorLog;
 import error.OTMException;
 import core.geometry.RoadGeometry;
-import core.geometry.Side;
 import jaxb.Points;
 import jaxb.Roadparam;
 import models.AbstractModel;
@@ -667,18 +666,18 @@ public class Link implements InterfaceScenarioElement {
 //    }
 
     // whether this lane belongs to the inside addlane, the full lanes or the outside addlane.
-    public Side get_side_for_dn_lane(int lane){
+    public core.geometry.Side get_side_for_dn_lane(int lane){
         int in_lanes = road_geom!=null && road_geom.dn_in!=null ? road_geom.dn_in.lanes : 0;
         int out_lanes = road_geom!=null && road_geom.dn_out!=null ? road_geom.dn_out.lanes : 0;
 
         if(lane<=in_lanes)
-            return Side.in;
+            return core.geometry.Side.in;
 
         if(lane<=in_lanes+full_lanes)
-            return Side.middle;
+            return core.geometry.Side.middle;
 
         if(lane<=in_lanes+full_lanes+out_lanes)
-            return Side.out;
+            return core.geometry.Side.out;
 
         return null;
     }

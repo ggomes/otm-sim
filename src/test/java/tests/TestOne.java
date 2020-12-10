@@ -37,7 +37,7 @@ public class TestOne extends AbstractTest {
             link_ids.add(3l);
 
 //            otm.output.request_lanegroup_flw(0l,link_ids,outdt);
-            otm.output.request_lanegroup_veh(0l,link_ids,outdt);
+            otm.output.request_lanegroup_veh(null,null,0l,link_ids,outdt);
 
             // Run .................................
             otm.initialize(start_time);
@@ -213,7 +213,7 @@ public class TestOne extends AbstractTest {
 
             // lanegroups
 
-            otm.output.request_lanegroup_flw(null,link_ids,outdt);
+            otm.output.request_lanegroup_flw(null,null,null,link_ids,outdt);
 //            otm.output.request_lanegroup_veh(0l,link_ids,outdt);
 //            otm.output.request_lanegroup_sum_veh(comm_id,link_ids,outdt);
 

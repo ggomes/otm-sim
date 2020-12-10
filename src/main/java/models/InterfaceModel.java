@@ -3,10 +3,10 @@ package models;
 import commodity.Commodity;
 import commodity.Path;
 import core.*;
+import core.geometry.Side;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import core.geometry.Side;
 import jaxb.OutputRequest;
 import output.AbstractOutput;
 import output.animation.AbstractLinkInfo;
@@ -25,7 +25,7 @@ public interface InterfaceModel {
 
     // building
     AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException;
-    AbstractLaneGroup create_lane_group(Link link, Side side, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs,jaxb.Roadparam rp);
+    AbstractLaneGroup create_lane_group(Link link, Side side, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp);
     AbstractDemandGenerator create_source(Link origin, Profile1D profile, Commodity commodity, Path path);
 
     // execution
