@@ -110,5 +110,4 @@ public class TestAllConfig extends AbstractTest {
         }
     }
 
-
 }

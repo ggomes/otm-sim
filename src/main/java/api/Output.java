@@ -11,7 +11,7 @@ import java.util.Set;
 import static java.util.stream.Collectors.toSet;
 
 /**
- * Methods for requesting outputs and calculating different metrics.
+ * Methods for requesting outputs.
  */
 public class Output {
 
@@ -20,9 +20,9 @@ public class Output {
         this.myapi = myapi;
     }
 
-    ////////////////////////////////////////////////////////
-    // outputs
-    ////////////////////////////////////////////////////////
+    // ----------------------------------------------
+    // general
+    // ----------------------------------------------
 
     /**
      * Get the set of all output objects.
@@ -54,29 +54,8 @@ public class Output {
         myapi.scenario.outputs.clear();
     }
 
-    ////////////////////////////////////////////////////////
-    // output requests
-    ////////////////////////////////////////////////////////
-
     // ----------------------------------------------
-    // lane groups
-    // ----------------------------------------------
-
-    /**
-     * Request lane group outputs
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
-     */
-    public void request_lanegroups(String prefix,String output_folder){
-        try {
-            this.myapi.scenario.outputs.add(new OutputLaneGroups(myapi.scenario,prefix,output_folder));
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // ----------------------------------------------
-    // Links state
+    // links
     // ----------------------------------------------
 
     /**
@@ -144,8 +123,21 @@ public class Output {
     }
 
     // ----------------------------------------------
-    // Lane group state
+    // lane groups
     // ----------------------------------------------
+
+    /**
+     * Request lane group outputs
+     * @param prefix Prefix for the output files.
+     * @param output_folder Output folder.
+     */
+    public void request_lanegroups(String prefix,String output_folder){
+        try {
+            this.myapi.scenario.outputs.add(new OutputLaneGroups(myapi.scenario,prefix,output_folder));
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Request lane group flows.
@@ -196,7 +188,7 @@ public class Output {
     }
 
     // ----------------------------------------------
-    // Cell state (fluid only)
+    // cells
     // ----------------------------------------------
 
     /**
@@ -296,14 +288,14 @@ public class Output {
     }
 
     // ----------------------------------------------
-    // Subnetwork state
+    // subnetworks state
     // ----------------------------------------------
 
     /**
      * Request the travel times on a given path.
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
-     * @param subnetwork_id Id of the requested subnetwork.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param subnetwork_id Id of the requested subnetwork. null means the entire network.
      * @param outDt Output sampling time in seconds.
      */
     public void request_path_travel_time(String prefix,String output_folder,Long subnetwork_id,Float outDt){
@@ -317,20 +309,11 @@ public class Output {
     }
 
     /**
-     * Request the travel times on a given path.
-     * @param subnetwork_id Id of the requested subnetwork.
-     * @param outDt Output sampling time.
-     */
-    public void request_path_travel_time(Long subnetwork_id,Float outDt){
-        request_path_travel_time(null,null,subnetwork_id,outDt);
-    }
-
-    /**
      * Request VHT for a subnetwork
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
-     * @param commodity_id Id for the requested vehicle type.
-     * @param subnetwork_id Id of the requested subnetwork.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means aggregate over commodities.
+     * @param subnetwork_id Id of the requested subnetwork. null means the entire network.
      * @param outDt Output sampling time.
      */
     public void request_subnetwork_vht(String prefix,String output_folder,Long commodity_id,Long subnetwork_id,Float outDt){
@@ -341,33 +324,15 @@ public class Output {
         }
     }
 
-    /**
-     * Request VHT for a subnetwork
-     * @param commodity_id Id for the requested vehicle type.
-     * @param subnetwork_id Id of the requested subnetwork.
-     * @param outDt Output sampling time.
-     */
-    public void request_subnetwork_vht(Long commodity_id,Long subnetwork_id,Float outDt){
-        request_subnetwork_vht(null,null,commodity_id,subnetwork_id,outDt);
-    }
-
     // ----------------------------------------------
-    // Vehicle events
+    // vehicle events
     // ----------------------------------------------
 
     /**
      * Request vehicle events.
-     * @param commodity_id Id for the requested vehicle type.
-     */
-    public void request_vehicle_events(Long commodity_id){
-        request_vehicle_events(null,null,commodity_id);
-    }
-
-    /**
-     * Request vehicle events.
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
-     * @param commodity_id Id for the requested vehicle type.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param commodity_id Id for the requested vehicle type. null means all commodities.
      */
     public void request_vehicle_events(String prefix,String output_folder,Long commodity_id){
         try {
@@ -379,45 +344,31 @@ public class Output {
 
     /**
      * Request vehicle class.
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
      */
     public void request_vehicle_class(String prefix,String output_folder){
         this.myapi.scenario.outputs.add(new OutputVehicleClass(myapi.scenario,prefix,output_folder));
     }
 
     /**
-     * Request vehicle class.
-     */
-    public void request_vehicle_class(){
-        this.myapi.scenario.outputs.add(new OutputVehicleClass(myapi.scenario,null,null));
-    }
-
-    /**
      * Request vehicle travel times.
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
      */
     public void request_vehicle_travel_time(String prefix,String output_folder){
         this.myapi.scenario.outputs.add(new OutputTravelTime(myapi.scenario,prefix,output_folder));
     }
 
-    /**
-     * Request vehicle travel times.
-     */
-    public void request_vehicle_travel_time(){
-        this.myapi.scenario.outputs.add(new OutputTravelTime(myapi.scenario,null,null));
-    }
-
     // ----------------------------------------------
-    // Controllers
+    // controllers
     // ----------------------------------------------
 
     /**
      * Request controller events
-     * @param prefix Prefix for the output files.
-     * @param output_folder Output folder.
-     * @param controller_id Controller id
+     * @param prefix Prefix for the output files. null means do not write to file.
+     * @param output_folder Output folder. null means do not write to file.
+     * @param controller_id Controller id. null is all controllers.
      */
     public void request_controller(String prefix,String output_folder,Long controller_id){
         try {
@@ -425,14 +376,6 @@ public class Output {
         } catch (OTMException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Request controller events
-     * @param controller_id Controller id
-     */
-    public void request_controller(Long controller_id){
-        request_controller(null,null, controller_id);
     }
 
 }
