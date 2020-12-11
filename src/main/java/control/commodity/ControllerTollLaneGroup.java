@@ -119,8 +119,8 @@ public class ControllerTollLaneGroup extends AbstractController {
         }
 
         // register next poke
-        if (timestamp<end_time)
-            dispatcher.register_event(new EventPoke(dispatcher,19,this.end_time,this));
+//        if (timestamp<end_time)
+//            dispatcher.register_event(new EventPoke(dispatcher,19,this.end_time,this));
 
     }
 
