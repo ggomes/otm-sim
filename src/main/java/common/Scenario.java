@@ -65,8 +65,6 @@ public class Scenario {
 
         OTMErrorLog errorLog =  new OTMErrorLog();
 
-//        if( commodities!=null )
-//            commodities.values().forEach(x -> x.validate(errorLog));
         if( subnetworks!=null )
             subnetworks.values().forEach(x -> x.validate(errorLog));
         if( network!=null )
@@ -109,8 +107,6 @@ public class Scenario {
     // Use to initialize a scenario that has already been run
     public void initialize(Dispatcher dispatcher,RunParameters runParams) throws OTMException {
 
-        float now = runParams.start_time;
-
         // attach dispatcher ...............
         this.dispatcher = dispatcher;
         if(dispatcher!=null)
@@ -128,20 +124,20 @@ public class Scenario {
 
         // initialize components ..................................
         if(dispatcher!=null)
-            dispatcher.initialize(now);
+            dispatcher.initialize();
 
-        // To initialize the commodities I will need a map, for each link, from outlink to viable road connections
-        Map<Long,Map<Long,Set<RoadConnection>>> link_outlink2rcs = new HashMap<>();
-        for(Link link : network.links.values()) {
-            Map<Long,Set<RoadConnection>> X = new HashMap<>();
-            link_outlink2rcs.put(link.getId(),X);
-            for (AbstractLaneGroup lg : link.lanegroups_flwdn)
-                for (Map.Entry<Long, RoadConnection> e : lg.outlink2roadconnection.entrySet()) {
-                    if (!X.containsKey(e.getKey()))
-                        X.put(e.getKey(), new HashSet<>());
-                    X.get(e.getKey()).add(e.getValue());
-                }
-        }
+//        // To initialize the commodities I will need a map, for each link, from outlink to viable road connections
+//        Map<Long,Map<Long,Set<RoadConnection>>> link_outlink2rcs = new HashMap<>();
+//        for(Link link : network.links.values()) {
+//            Map<Long,Set<RoadConnection>> X = new HashMap<>();
+//            link_outlink2rcs.put(link.getId(),X);
+//            for (AbstractLaneGroup lg : link.lanegroups_flwdn)
+//                for (Map.Entry<Long, RoadConnection> e : lg.outlink2roadconnection.entrySet()) {
+//                    if (!X.containsKey(e.getKey()))
+//                        X.put(e.getKey(), new HashSet<>());
+//                    X.get(e.getKey()).add(e.getValue());
+//                }
+//        }
 
 //        for(Commodity commodity : commodities.values())
 //            commodity.initialize(this);
@@ -154,22 +150,21 @@ public class Scenario {
         for(AbstractOutput output : outputs)
             output.register(runParams,dispatcher);
 
-        network.initialize(this,runParams);
+        network.initialize(this,runParams.start_time);
 
         for(AbstractSensor x : sensors.values())
             x.initialize(this);
 
-        for(AbstractController x : controllers.values())
-            dispatcher.register_event(new EventInitializeController(dispatcher,x.start_time,x));
+        for(AbstractController x : controllers.values()) {
+            float start_time = Math.max( x.start_time , runParams.start_time );
+            dispatcher.register_event(new EventInitializeController(dispatcher, start_time, x));
+        }
 
-        // register initial events ......................................
         if(path_tt_manager!=null)
             path_tt_manager.initialize(dispatcher);
 
-//        network.nodes.values().stream()
-//                .filter(node->node.splits!=null)
-//                .flatMap(node->node.splits.values().stream())
-//                .forEach(x->x.register_with_dispatcher(dispatcher));
+        // register initial events for each model
+        network.models.values().forEach(m->m.register_with_dispatcher(this, dispatcher, runParams.start_time));
 
         is_initialized = true;
     }
@@ -376,7 +371,7 @@ public class Scenario {
     // run
     ///////////////////////////////////////////////////
 
-    public void end_run() {
+    public void terminate() {
         try {
             for(AbstractOutput or : outputs)
                 or.close();
@@ -395,35 +390,5 @@ public class Scenario {
 
         path_tt_manager.add_path_travel_time_writer(path_tt_writer);
     }
-
-
-    ///////////////////////////////////////////////////
-    // private
-    ///////////////////////////////////////////////////
-
-//    private Map<Long,Map<Long,Set<RoadConnection>>> build_link_to_outrc_map(){
-//
-////        // I will need a map from links to outgoing road connections to initialize commodities.
-////        // First build set of used links
-////        Set<Link> used_links = commodities.values().stream()
-////                .flatMap(c->c.subnetworks.stream())
-////                .flatMap(s->s.get_links().stream())
-////                .collect(Collectors.toSet());
-//
-//        // make temporary map from links to outgoing road connections
-//        Map<Long,Map<Long,Set<RoadConnection>>> link_outlink2rcs = new HashMap<>();
-//        for(Link link : used_links) {
-//            Map<Long,Set<RoadConnection>> X = new HashMap<>();
-//            link_outlink2rcs.put(link.getId(),X);
-//            for (AbstractLaneGroup lg : link.lanegroups_flwdn.values())
-//                for (Map.Entry<Long, RoadConnection> e : lg.outlink2roadconnection.entrySet()) {
-//                    if (!X.containsKey(e.getKey()))
-//                        X.put(e.getKey(), new HashSet<>());
-//                    X.get(e.getKey()).add(e.getValue());
-//                }
-//        }
-//
-//        return link_outlink2rcs;
-//    }
 
 }

@@ -28,8 +28,7 @@ public class EventReleaseVehicleFromLaneGroup extends AbstractEvent {
     }
 
     @Override
-    public void action(boolean verbose) throws OTMException {
-        super.action(verbose);
+    public void action() throws OTMException {
         ((InterfaceLaneGroup) recipient).release_vehicle_packets(timestamp);
     }
 

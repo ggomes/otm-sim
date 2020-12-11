@@ -12,8 +12,7 @@ public class EventUpdateTotalCellVehicles extends AbstractEvent {
     }
 
     @Override
-    public void action(boolean verbose) throws OTMException {
-        super.action(verbose);
+    public void action() throws OTMException {
         OutputCellSumVehicles obj = (OutputCellSumVehicles)recipient;
         obj.update_total_vehicles(timestamp);
         dispatcher.register_event(new EventUpdateTotalCellVehicles(dispatcher,timestamp + obj.simDt,recipient));

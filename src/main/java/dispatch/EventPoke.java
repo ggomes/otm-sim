@@ -9,8 +9,7 @@ public class EventPoke extends AbstractEvent {
     }
 
     @Override
-    public void action(boolean verbose) throws OTMException {
-        super.action(verbose);
+    public void action() throws OTMException {
         ((Pokable)recipient).poke(dispatcher,timestamp);
     }
 

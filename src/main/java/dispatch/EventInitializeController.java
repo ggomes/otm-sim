@@ -1,6 +1,6 @@
 package dispatch;
 
-import common.InterfaceScenarioElement;
+import control.AbstractController;
 import error.OTMException;
 
 public class EventInitializeController extends AbstractEvent {
@@ -9,9 +9,8 @@ public class EventInitializeController extends AbstractEvent {
     }
 
     @Override
-    public void action(boolean verbose) throws OTMException {
-        super.action(verbose);
-        ((InterfaceScenarioElement) this.recipient).initialize(dispatcher.scenario);
+    public void action() throws OTMException {
+        ((AbstractController) this.recipient).initialize(dispatcher.scenario);
         ((Pokable) this.recipient).poke(dispatcher,dispatcher.current_time);
     }
 }

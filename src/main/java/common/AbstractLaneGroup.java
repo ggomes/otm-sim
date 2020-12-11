@@ -174,7 +174,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         flw_acc = null;
     }
 
-    public void initialize(Scenario scenario) throws OTMException {
+    public void initialize(Scenario scenario, float start_time) throws OTMException {
 
         if(link.is_model_source_link)
             this.buffer = new StateContainer();
@@ -184,8 +184,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
         if(lane_selector!=null)
             for(AbstractLaneSelector ls : lane_selector.values())
-                ls.initialize(scenario);
-
+                ls.initialize(scenario,start_time);
     }
 
     public void assign_lane_selector(String type,float dt,jaxb.Parameters params,Collection<Long> commids) throws OTMException {

@@ -14,12 +14,10 @@ public class EventTransitToWaiting extends AbstractEvent {
     }
 
     @Override
-    public void action(boolean verbose) throws OTMException {
-        super.action(verbose);
+    public void action() throws OTMException {
+
         MesoVehicle vehicle = (MesoVehicle)recipient;
         MesoLaneGroup lanegroup = (MesoLaneGroup) vehicle.get_lanegroup();
-        if(verbose)
-            System.out.println(String.format("\tvehicle %d, link %d, lanegroup %d",vehicle.getId(),lanegroup.link.getId(),lanegroup.id));
 
         // inform listeners
         if(vehicle.get_event_listeners()!=null)

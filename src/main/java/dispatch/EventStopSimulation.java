@@ -10,9 +10,7 @@ public class EventStopSimulation extends AbstractEvent {
     }
 
     @Override
-    public void action(boolean verbose) throws OTMException {
-        super.action(verbose);
-        ((Scenario)recipient).end_run();
+    public void action() throws OTMException {
         dispatcher.stop();
     }
 

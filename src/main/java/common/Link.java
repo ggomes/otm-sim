@@ -1,5 +1,6 @@
 package common;
 
+import actuator.ActuatorFlowToLinks;
 import error.OTMErrorLog;
 import error.OTMException;
 import geometry.RoadGeometry;
@@ -70,6 +71,11 @@ public class Link implements InterfaceScenarioElement {
 
     // splits
     public Map<Long, SplitMatrixProfile> split_profile; // commodity -> split matrix profile
+
+    // control flows to downstream links
+    public ActuatorFlowToLinks act_flowToLinks;
+//    public Map<Long, Double> outlink2flows;      // frid -> flow in veh per timestep
+//    public double total_outlink2flows;
 
     // demands ............................................
     public Set<AbstractDemandGenerator> demandGenerators;
@@ -149,6 +155,7 @@ public class Link implements InterfaceScenarioElement {
             split_profile.put(c, new SplitMatrixProfile(c,this));
         }
     }
+
     ///////////////////////////////////////////
     // InterfaceScenarioElement
     ///////////////////////////////////////////
@@ -309,10 +316,9 @@ public class Link implements InterfaceScenarioElement {
             demandGenerators.stream().forEach(x->x.profile.validate(errorLog));
     }
 
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
+    public void initialize(Scenario scenario, float start_time) throws OTMException {
         for(AbstractLaneGroup lg : lanegroups_flwdn)
-            lg.initialize(scenario);
+            lg.initialize(scenario,start_time);
 
         if(split_profile!=null)
             for(SplitMatrixProfile x : split_profile.values())
@@ -429,6 +435,10 @@ public class Link implements InterfaceScenarioElement {
         return lanegroups_flwdn.stream().mapToDouble(x->x.get_max_vehicles()).sum();
     }
 
+    public void set_actuator_flowToLinks(ActuatorFlowToLinks act){
+        this.act_flowToLinks = act;
+    }
+
     ////////////////////////////////////////////
     // inter-link dynamics
     ///////////////////////////////////////////
@@ -442,7 +452,7 @@ public class Link implements InterfaceScenarioElement {
     // and hence they are out of sync with the next link ids (keys in the map)
     public Map<Long, PacketLaneGroup> split_packet(PacketLink vp){
 
-        // initialize lanegroup_packets
+        // initialize lanegroup_packets (next link id -> packet)
         Map<Long, PacketLaneGroup> split_packets = new HashMap<>();
 
         boolean has_macro = !vp.no_macro();
@@ -450,6 +460,10 @@ public class Link implements InterfaceScenarioElement {
 
         // process the macro state
         if(has_macro) {
+
+            // do scaling calcultions that depend on the packet
+            if(act_flowToLinks!=null && vp.road_connection==act_flowToLinks.rc)
+                act_flowToLinks.update_for_packet(vp);
 
             for (Map.Entry<State, Double> e : vp.state2vehicles.entrySet()) {
 
@@ -468,12 +482,10 @@ public class Link implements InterfaceScenarioElement {
                 // pathless
                 else {
 
-
                     if( is_sink ){
                         add_to_lanegroup_packets(split_packets, id,
                                 new State(state.commodity_id, id, false),
                                 vehicles );
-
                     }
 
                     else if( this.outlink2lanegroups.size()==1){
@@ -484,14 +496,34 @@ public class Link implements InterfaceScenarioElement {
                     }
 
                     else {
-                        SplitMatrixProfile smp = split_profile.get(state.commodity_id);
-                        for (Map.Entry<Long, Double> e2 : smp.outlink2split.entrySet()) {
+
+                        Map<Long, Double> current_splits = split_profile.get(state.commodity_id).outlink2split;
+
+                        // calculate sumbetac
+                        double sumbetac = act_flowToLinks!=null && vp.road_connection==act_flowToLinks.rc ? act_flowToLinks.calculate_sumbetac(current_splits) :  0d;
+
+                        for ( Map.Entry<Long, Double> e2 : current_splits.entrySet() ) {
                             Long next_link_id = e2.getKey();
-                            Double split = e2.getValue();
-                            if(split>0d)
+                            double split = e2.getValue();
+
+                            // get split for offramp
+                            if(act_flowToLinks!=null && vp.road_connection==act_flowToLinks.rc ){
+
+                                if( act_flowToLinks.outlink_ids.contains(next_link_id) )
+                                    split =  act_flowToLinks.outlink2portion.get(next_link_id);
+                                else {
+                                    if (sumbetac > 0)
+                                        split *= act_flowToLinks.gamma / sumbetac;
+                                    else
+                                        split = 1d / (end_node.out_links.size() - act_flowToLinks.outlink_ids.size());
+                                }
+                            }
+
+                            if(split>0d){
                                 add_to_lanegroup_packets(split_packets, next_link_id,
                                         new State(state.commodity_id, next_link_id, false),
                                         vehicles * split);
+                            }
                         }
                     }
                 }

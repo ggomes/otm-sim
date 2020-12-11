@@ -120,7 +120,7 @@ public class OTM {
     public void initialize(float start_time,String output_requests_file,String prefix,String output_folder) throws OTMException {
 
         // build and attach dispatcher
-        dispatcher = new Dispatcher(start_time);
+        dispatcher = new Dispatcher();
 
         // append outputs from output request file ..................
         if(output_requests_file!=null && !output_requests_file.isEmpty()) {
@@ -145,7 +145,8 @@ public class OTM {
      */
     public void run(float start_time,float duration) throws OTMException {
         initialize(start_time);
-        advance(duration);
+        advance(start_time + duration);
+        terminate();
         scn.is_initialized = false;
     }
 
@@ -161,6 +162,7 @@ public class OTM {
     public void run(String prefix,String output_requests_file,String output_folder,float start_time,float duration) throws OTMException {
         initialize(start_time,output_requests_file,prefix,output_folder);
         advance(duration);
+        terminate();
         scn.is_initialized = false;
     }
 
@@ -173,19 +175,17 @@ public class OTM {
 
         dispatcher.set_continue_simulation(true);
 
-        float now = dispatcher.current_time;
-
         // register stop the simulation
+        float now = dispatcher.current_time;
         dispatcher.set_stop_time(now+duration);
         dispatcher.register_event(new EventStopSimulation(scn,dispatcher,now+duration));
 
-        // register initial events for each model
-        // this is in initialize
-        scn.network.models.values().forEach(m->m.register_with_dispatcher(scn, dispatcher,now));
-
         // process all events
         dispatcher.dispatch_events_to_stop();
+    }
 
+    public void terminate() {
+        scn.terminate();
     }
 
     ////////////////////////////////////////////////////////

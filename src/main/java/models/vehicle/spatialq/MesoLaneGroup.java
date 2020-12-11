@@ -51,15 +51,13 @@ public class MesoLaneGroup extends VehicleLaneGroup {
         waiting_queue.validate(errorLog);
     }
 
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
+    public void initialize(Scenario scenario, float start_time) throws OTMException {
+        super.initialize(scenario, start_time);
         transit_queue.initialize();
         waiting_queue.initialize();
 //        current_max_flow_rate_vps = saturation_flow_rate_vps;
 
         // register first vehicle exit
-        float start_time = scenario.get_current_time();
         schedule_release_vehicle(start_time);
 
         update_supply();

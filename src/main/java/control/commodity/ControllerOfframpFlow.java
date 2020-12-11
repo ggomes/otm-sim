@@ -1,10 +1,9 @@
 package control.commodity;
 
 import actuator.ActuatorSplit;
-import common.Link;
 import common.Scenario;
 import control.AbstractController;
-import control.command.CommandDoubleMap;
+import control.command.CommandDoubleArray;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -20,7 +19,7 @@ public class ControllerOfframpFlow extends AbstractController {
 
     private FixedSensor ml_sensor;
     private Map<Long,Profile1D> fr_ref;
-    private CommandDoubleMap splitmap;
+    private CommandDoubleArray splitmap;
     private ActuatorSplit act;
 
     public ControllerOfframpFlow(Scenario scenario, Controller jcon) throws OTMException {
@@ -62,16 +61,16 @@ public class ControllerOfframpFlow extends AbstractController {
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
-        ml_sensor.initialize(scenario);
-
-        Map<Long,Double> temp = new HashMap<>();
-        for(Long id : fr_ref.keySet())
-            if(fr_ref.get(id)!=null)
-                temp.put(id,0d);
-        this.splitmap = new CommandDoubleMap(temp);
-
-        this.command = new HashMap<>();
-        command.put(act.id,splitmap);
+//        ml_sensor.initialize(scenario);
+//
+//        Map<Long,Double> temp = new HashMap<>();
+//        for(Long id : fr_ref.keySet())
+//            if(fr_ref.get(id)!=null)
+//                temp.put(id,0d);
+//        this.splitmap = new CommandDoubleArray(temp);
+//
+//        this.command = new HashMap<>();
+//        command.put(act.id,splitmap);
 
     }
 
@@ -105,7 +104,7 @@ public class ControllerOfframpFlow extends AbstractController {
             if(split>1)
                 split=1d;
 
-            splitmap.values.put(frid,split);
+//            splitmap.values.put(frid,split);
         }
 
     }

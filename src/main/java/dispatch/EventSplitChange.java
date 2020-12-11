@@ -16,12 +16,7 @@ public class EventSplitChange extends AbstractEvent {
     }
 
     @Override
-    public void action(boolean verbose) throws OTMException {
-        super.action(verbose);
-        if(verbose) {
-            for(Map.Entry e : outlink2value.entrySet())
-                System.out.println("\t\toutlinkid = " + e.getKey() + " , value=" + e.getValue());
-        }
+    public void action() throws OTMException {
         SplitMatrixProfile smp = (SplitMatrixProfile)recipient;
         smp.set_current_splits(outlink2value);
         TimeMap time_map = smp.splits.get_change_following(timestamp);

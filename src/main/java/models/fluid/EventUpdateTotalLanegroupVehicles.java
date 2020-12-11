@@ -12,8 +12,7 @@ public class EventUpdateTotalLanegroupVehicles extends AbstractEvent {
     }
 
     @Override
-    public void action(boolean verbose) throws OTMException {
-        super.action(verbose);
+    public void action() throws OTMException {
         OutputLaneGroupSumVehicles obj = (OutputLaneGroupSumVehicles)recipient;
         obj.update_total_vehicles(timestamp);
         dispatcher.register_event(new EventUpdateTotalLanegroupVehicles(dispatcher,timestamp + obj.simDt,recipient));

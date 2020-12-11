@@ -66,8 +66,8 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
+    public void initialize(Scenario scenario, float start_time) throws OTMException {
+        super.initialize(scenario,start_time);
 
         if(!cells.isEmpty() && cells.get(0).flw_acc!=null)
             cells.forEach(c->c.flw_acc.reset());

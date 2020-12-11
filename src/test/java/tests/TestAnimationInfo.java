@@ -49,6 +49,7 @@ public class TestAnimationInfo {
                 assertNotNull(lg_info2);
                 time += sim_dt;
             }
+            otm.terminate();
         } catch (OTMException e) {
             System.out.print(e);
             fail();

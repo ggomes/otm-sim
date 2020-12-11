@@ -83,10 +83,6 @@ public class Subnetwork implements InterfaceScenarioElement {
     }
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
-    }
-
-    @Override
     public jaxb.Subnetwork to_jaxb(){
         jaxb.Subnetwork jsub = new jaxb.Subnetwork();
         jsub.setId(this.getId());

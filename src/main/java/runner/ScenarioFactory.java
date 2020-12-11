@@ -7,6 +7,7 @@ import commodity.Commodity;
 import commodity.Subnetwork;
 import common.*;
 import control.*;
+import control.commodity.ControllerFlowToLinks;
 import control.commodity.ControllerRestrictLaneGroup;
 import control.commodity.ControllerOfframpFlow;
 import control.commodity.ControllerTollLaneGroup;
@@ -202,6 +203,9 @@ public class ScenarioFactory {
             case frflow:
                 controller = new ControllerOfframpFlow(scenario,jaxb_controller);
                 break;
+            case linkflow:
+                controller = new ControllerFlowToLinks(scenario,jaxb_controller);
+                break;
             default:
 
                 // it might be a plugin
@@ -282,6 +286,9 @@ public class ScenarioFactory {
                     throw new OTMException("NOT IMPLEMENTED YET");
                 case split:
                     actuator = new ActuatorSplit(scenario,jaxb_actuator);
+                    break;
+                case flowtolink:
+                    actuator = new ActuatorFlowToLinks(scenario,jaxb_actuator);
                     break;
                 default:
                     actuator = null;

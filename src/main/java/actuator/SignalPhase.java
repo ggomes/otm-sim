@@ -84,17 +84,17 @@ public class SignalPhase {
             errorLog.addError("lanegroups.isEmpty()");
     }
 
-    public void initialize(float now) throws OTMException {
+    public void initialize() throws OTMException {
         for(AbstractLaneGroup lg : lanegroups)
             lg.register_actuator(null,my_signal);
-        set_bulb_color(now,BulbColor.DARK);
+        set_bulb_color(BulbColor.DARK);
     }
 
     ///////////////////////////////////////////////////
     // ActuatorSignal.process_controller_command
     ///////////////////////////////////////////////////
 
-    protected void set_bulb_color(float timestamp,BulbColor to_color) throws OTMException {
+    protected void set_bulb_color(BulbColor to_color) throws OTMException {
 
         // set the state
         bulbcolor = to_color;

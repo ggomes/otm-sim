@@ -70,11 +70,6 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
     }
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
-
-    }
-
-    @Override
     public jaxb.Node to_jaxb(){
         jaxb.Node jnode = new jaxb.Node();
         jnode.setId(getId());

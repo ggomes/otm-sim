@@ -50,8 +50,8 @@ public abstract class AbstractLaneSelector implements Pokable {
 
     }
 
-    public void initialize(Scenario scenario) throws OTMException {
-        poke(scenario.dispatcher,scenario.dispatcher.current_time);
+    public void initialize(Scenario scenario, float start_time) throws OTMException {
+        poke(scenario.dispatcher,start_time);
     }
 
     @Override

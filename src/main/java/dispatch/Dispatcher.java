@@ -11,25 +11,17 @@ public  class Dispatcher {
 
     public Scenario scenario;
     public float current_time;
-    public float start_time;
     public float stop_time;
     public PriorityQueue<AbstractEvent> events;
     private boolean continue_simulation;
-
-    // references to vehicle release events,
-    // used by disable_future_vehicle_release_events
-//    public Map<Long,Set<EventReleaseVehicleFromLaneGroup>> vehicle_release_events;
-
     public boolean verbose = false;
 
     ///////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////
 
-    public Dispatcher(float start_time){
-        this.start_time = start_time;
-        this.events = new PriorityQueue<>((AbstractEvent e1, AbstractEvent e2) ->
-                    e1.timestamp>e2.timestamp ? 1 : -1 ) ;
+    public Dispatcher(){
+        this.events = new PriorityQueue<>() ;
         this.continue_simulation = false;
     }
 
@@ -41,8 +33,8 @@ public  class Dispatcher {
         this.scenario = scenario;
     }
 
-    public void initialize(float current_time) throws OTMException {
-        this.current_time = current_time;
+    public void initialize() throws OTMException {
+        this.current_time = 0f;
         this.events.clear();
         this.continue_simulation = true;
     }
@@ -80,21 +72,10 @@ public  class Dispatcher {
     }
 
     public void dispatch_events_to_stop() throws OTMException {
-
         while( !events.isEmpty() && continue_simulation ) {
-            float timestamp = events.peek().timestamp;
-            current_time = timestamp;
-
-            // get all events with this timestamp
-            // put into priority queue ordered by dispatch order
-            PriorityQueue<AbstractEvent> es = new PriorityQueue<>(
-                    (AbstractEvent e1, AbstractEvent e2) -> e1.dispatch_order>e2.dispatch_order ? 1 : -1 ) ;
-            while(!events.isEmpty() && events.peek().timestamp==timestamp)
-                es.offer(events.poll());
-
-            // dispatch the priority queue
-            while(!es.isEmpty())
-                es.poll().action(verbose);
+            AbstractEvent event = events.poll();
+            current_time = event.timestamp;
+            event.action();
         }
     }
 

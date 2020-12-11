@@ -49,18 +49,16 @@ public class ActuatorSignal extends AbstractActuatorLanegroupCapacity {
     }
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
+    public void initialize(Scenario scenario, float start_time) throws OTMException {
 
         if(initialized)
             return;
 
-        super.initialize(scenario);
-
-        float now = scenario.get_current_time();
+        super.initialize(scenario,start_time);
 
         // set all bulb colors to dark
         for(SignalPhase p : signal_phases.values() )
-            p.initialize(now);
+            p.initialize();
     }
 
     ///////////////////////////////////////////////////
@@ -81,7 +79,7 @@ public class ActuatorSignal extends AbstractActuatorLanegroupCapacity {
             long phase_id = e.getKey();
             SignalPhase phase = e.getValue();
             SignalPhase.BulbColor bulbcolor = command.containsKey(phase_id) ? command.get(phase_id) : SignalPhase.BulbColor.RED;
-            phase.set_bulb_color(timestamp, bulbcolor);
+            phase.set_bulb_color(bulbcolor);
         }
     }
 

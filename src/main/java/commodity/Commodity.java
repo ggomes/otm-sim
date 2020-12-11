@@ -83,11 +83,6 @@ public class Commodity implements InterfaceScenarioElement {
 
     }
 
-    @Override
-    public void initialize(Scenario scenario){
-        System.err.println("NOT USED");
-    }
-
 //    @Override
     public jaxb.Commodity to_jaxb(){
         jaxb.Commodity jcomm = new jaxb.Commodity();

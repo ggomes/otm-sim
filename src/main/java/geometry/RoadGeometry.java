@@ -80,11 +80,6 @@ public class RoadGeometry implements InterfaceScenarioElement {
     }
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
-
-    }
-
-    @Override
     public jaxb.Roadgeom to_jaxb(){
         jaxb.Roadgeom jgeom = new jaxb.Roadgeom();
         jgeom.setId(this.id);
