@@ -12,7 +12,7 @@ public class LogitLaneSelector extends AbstractLaneSelector {
     private double keep = 0.7;                  // [-] positive utility of keeping your lane
     private double rho_vehperlane = 0.018504;   // [1/vehperlane] positive utility of changing lanes into a lane with lower density
     private double add_in;  // additional terms used for setting toll on hot lane
-    private final double threshold = 1.05d;
+    private final double threshold = 0.95d;
 
     public LogitLaneSelector(AbstractLaneGroup lg, float dt,jaxb.Parameters params,Long commid) {
         super(lg,dt,commid);
@@ -89,11 +89,11 @@ public class LogitLaneSelector extends AbstractLaneSelector {
             eo = Math.exp(uo);
         }
 
-        // thresholding
-        if(has_in && ui<threshold*um)
-            ei = 0d;
-        if(has_out && uo<threshold*um)
-            eo = 0d;
+//        // thresholding
+//        if(has_in && ui<threshold*um)
+//            ei = 0d;
+//        if(has_out && uo<threshold*um)
+//            eo = 0d;
 
         den = ei+em+eo;
 
@@ -113,6 +113,12 @@ public class LogitLaneSelector extends AbstractLaneSelector {
 
         if(has_out)
             myside2prob.put(Side.out,eo/den);
+
+//        if(this.lg.link.getId()==4l && this.lg.num_lanes==2 && this.commid==0){
+//            float timestamp = this.lg.link.network.scenario.dispatcher.current_time;
+//            if(timestamp % 300 ==0 )
+//                System.out.println(String.format("%.0f\t%.2f\t%.2f\t%.2f\t%.2f",timestamp,ui,um,uo,add_in));
+//        }
     }
 
     public double getKeep() {
