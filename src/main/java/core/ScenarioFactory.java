@@ -85,8 +85,10 @@ public class ScenarioFactory {
             for(Commodity commodity : scenario.commodities.values())
                 if(commodity.pathfull)
                     for(Subnetwork subnetwork : commodity.subnetworks)
-                        for(Link link : subnetwork.get_links())
-                            commodity.register_commodity(link,commodity,subnetwork);
+                        for(Link link : subnetwork.get_links()) {
+                            System.out.println(String.format("%d\t%d\t%d",commodity.getId(),subnetwork.getId(),link.getId()));
+                            commodity.register_commodity(link, commodity, subnetwork);
+                        }
                 else
                     for(Link link : scenario.network.links.values())
                         commodity.register_commodity(link, commodity, null);

@@ -84,7 +84,7 @@ public class TestApiOutput extends AbstractTest {
 
     @Test
     public void test_request_controller(){
-        otm.output.request_controller(0l);
+        otm.output.request_controller("cntrl", output_folder, 0l);
     }
 
 }

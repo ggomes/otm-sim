@@ -54,16 +54,19 @@
 
  	<actuators>
  		<actuator id="0" type="meter">
- 			<actuator_target type="link" id="6" />
+ 			<actuator_target type="lanegroups" lanegroups="6(1#1)" />
  		</actuator>
  	</actuators>
 
  	<controllers>
- 		<controller id="0" type="maxrate" start_time="0" dt="100">
- 			<target_actuators>
- 				<target_actuator id="0">100,200,300</target_actuator>
- 			</target_actuators>
- 		</controller>
+ 		 <controller id="1" dt="100" type="rm_fixed_rate">
+            <target_actuators ids="0"/>
+            <parameters>
+                <parameter name="rate_vphpl" value="100"/>
+                <parameter name="max_rate_vphpl" value="1200"/>
+                <parameter name="min_rate_vphpl" value="160"/>
+            </parameters>
+        </controller>
  	</controllers>
 
 </scenario>
