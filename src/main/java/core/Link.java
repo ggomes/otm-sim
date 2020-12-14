@@ -4,6 +4,7 @@ import actuator.ActuatorFlowToLinks;
 import error.OTMErrorLog;
 import error.OTMException;
 import core.geometry.RoadGeometry;
+import jaxb.Commodity;
 import jaxb.Points;
 import jaxb.Roadparam;
 import models.AbstractModel;
@@ -11,6 +12,7 @@ import profiles.SplitMatrixProfile;
 import traveltime.LinkTravelTimer;
 import core.packet.PacketLaneGroup;
 import core.packet.PacketLink;
+import utils.OTMUtils;
 
 import java.util.*;
 
@@ -44,13 +46,8 @@ public class Link implements InterfaceScenarioElement {
 
     // Longitudinal lanegroups: flow exits from the bottom edge.
     // There are stay lanegroups and downstream addlanes
-//    public Map<Long, AbstractLaneGroup> lanegroups_flwdn;
     // ordered from inner to outer
     public List<AbstractLaneGroup> lanegroups_flwdn;
-
-    // Lateral lanegroups: all flow exits laterally. These are the upstream addlanes.
-//    public AbstractLaneGroup lanegroup_up_in;
-//    public AbstractLaneGroup lanegroup_up_out;
 
     // barriers
     public Set<Barrier> in_barriers;
@@ -68,12 +65,10 @@ public class Link implements InterfaceScenarioElement {
     public Map<Long,Set<AbstractLaneGroup>> outlink2lanegroups;
 
     // splits
-    public Map<Long, SplitMatrixProfile> split_profile; // commodity -> split matrix profile
+    protected Map<Long, SplitMatrixProfile> split_profile; // commodity -> split matrix profile
 
     // control flows to downstream links
     public ActuatorFlowToLinks act_flowToLinks;
-//    public Map<Long, Double> outlink2flows;      // frid -> flow in veh per timestep
-//    public double total_outlink2flows;
 
     // demands ............................................
     public Set<AbstractDemandGenerator> demandGenerators;
@@ -179,40 +174,10 @@ public class Link implements InterfaceScenarioElement {
             errorLog.addError("link " + id + ": end_node==null");
         if( model ==null )
             errorLog.addError("link " + id + ": model==null");
-//        if( road_geom ==null )
-//            errorLog.addError("link " + id + ": road_geom==null");
         if( dnlane2lanegroup ==null )
             errorLog.addError("link " + id + ": dnlane2lanegroup==null");
         if( lanegroups_flwdn ==null )
             errorLog.addError("link " + id + ": lanegroups==null");
-
-        // check that the road core.geometry fits the link
-//        if(this.road_geom!=null){
-//
-//            // each addlane has length less than the link
-//            if(road_geom.up_in!=null && road_geom.up_in.length>this.length )
-//                errorLog.addError("link " + id + ", road_geom.up_in.length > this.length");
-//            if(road_geom.up_out!=null && road_geom.up_out.length>this.length )
-//                errorLog.addError("link " + id + ", road_geom.up_out.length > this.length");
-//            if(road_geom.dn_in!=null && road_geom.dn_in.length>this.length )
-//                errorLog.addError("link " + id + ", road_geom.dn_in.length > this.length");
-//            if(road_geom.dn_out!=null && road_geom.dn_out.length>this.length )
-//                errorLog.addError("link " + id + ", road_geom.dn_out.length > this.length");
-//
-//            // sum of inside (outside) addlane lengths is less than link length
-//            if(road_geom.up_in!=null && road_geom.dn_in!=null && road_geom.up_in.length+road_geom.dn_in.length>this.length)
-//                errorLog.addError("link " + id + ", road_geom.up_in.length+road_geom.dn_in.length>this.length");
-//            if(road_geom.up_out!=null && road_geom.dn_out!=null && road_geom.up_out.length+road_geom.dn_out.length>this.length)
-//                errorLog.addError("link " + id + ", road_geom.up_out.length+road_geom.dn_out.length>this.length");
-//        }
-
-        // all lanes are covered in dnlane2lanegroup
-//        if( dnlane2lanegroup !=null) {
-//            Set<Integer> range = IntStream.rangeClosed(1,total_lanes).boxed().collect(toSet());
-//            Set<Integer> lanes = dnlane2lanegroup.keySet();
-//            if (!range.equals(lanes))
-//                errorLog.addError("link " + id + ": !range.equals(lanes)");
-//        }
 
         // all lanegroups are represented in dnlane2lanegroup
         if(lanegroups_flwdn !=null && dnlane2lanegroup !=null) {
@@ -226,79 +191,6 @@ public class Link implements InterfaceScenarioElement {
         if(lanegroups_flwdn !=null)
             lanegroups_flwdn.forEach(x->x.validate(errorLog));
 
-        // check that all lanes have a lanegroup
-        // WARNING: Assumes no upstream addlanes
-//        if(road_geom!=null && dnlane2lanegroup !=null)
-//            for(int lane : this.get_exit_lanes() )
-//                if(!dnlane2lanegroup.containsKey(lane))
-//                    errorLog.addError("link " + id + ": !dnlane2lanegroup.containsKey(lane)");
-
-//        // packet_splitter
-//        if(packet_splitter !=null)
-//            packet_splitter.validate(errorLog);
-
-        /////////////////////////////////////////////////////////////////
-        // BROUGHT OVER FROM PACKETSPLITTER VALIDATION
-        /////////////////////////////////////////////////////////////////
-
-//        // split info has information for downstream links for each commodity
-//        Collection<Link> next_links = link.get_next_links();
-//        for(Commodity commodity : link.commodities){
-//            Collection<Link> comm_next_links = OTMUtils.intersect(commodity.all_links(),next_links);
-
-        // there should be information available if there is a split for this commodity
-        // NOTE: CANT DO THIS BEFORE INITIALIZATION!!
-//            if(comm_next_links.size()>1){
-//                if(!commodity2split.containsKey(commodity.getId())) {
-//                    scenario.error_log.addError("link " + link.id + ": !target_lanegroup_splits.containsKey(commodity_id)");
-//                } else {
-//                    SplitInfo splitInfo = commodity2split.get(commodity.getId());
-//                    if (splitInfo == null || splitInfo.link_cumsplit == null)
-//                        scenario.error_log.addError("missing splits on link " + link.getId() + " for commodity " + commodity.getId());
-//                    else {
-//                        Set<Long> info_links = splitInfo.link_cumsplit.stream().map(x -> x.link_id).collect(toSet());
-//                        Set<Long> next_link_ids = comm_next_links.stream().map(x -> x.getId()).collect(toSet());
-//                        if (!info_links.equals(next_link_ids))
-//                            scenario.error_log.addError("!info_links.equals(next_link_ids)");
-//                    }
-//                }
-//            }
-
-//        }
-
-        // check that all commodities have splitinfo
-//        if(link.lanegroups.size()>1)
-//            for(Commodity commodity : link.commodities)
-//                if(!commodity2split.containsKey(commodity.getId()))
-//                    scenario.error_log.addError("link " + link.id + ": !target_lanegroup_splits.containsKey(commodity_id)");
-
-        // check that all output links in subnetwork are represented
-//        for(Map.Entry e : commodity2split.entrySet()){
-//            long commodity_id = (Long) e.getKey();
-//            SplitInfo splitinfo = (SplitInfo) e.getValue();
-//            Commodity commodity = scenario.commodities.get(commodity_id);
-//            if(commodity==null)
-//                scenario.error_log.addError("commodity==null");
-
-//            // all links immediately downstream of this link
-//            Set<Long> dwn_links_ids = this.link.end_node.outputs.values()
-//                    .stream()
-//                    .map(x->x.id)
-//                    .collect(Collectors.toSet());
-
-//            // subnetwork links
-//            Set<Long> subnet_ids = commodity.all_links().stream().map(x->x.getId()).collect(Collectors.toSet());
-//
-//            // keep only those downstream links that are also in the subnetwork
-//            dwn_links_ids.retainAll(subnet_ids);
-//
-//            // all split outlinks must be down links
-//            Set<Long> split_outlinks = outputlink_targetlanegroups.keySet();
-//            if(!dwn_links_ids.containsAll(split_outlinks))
-//                scenario.error_log.addError("!dwn_links_ids.containsAll(split_outlinks)");
-//        }
-
-
         // out_road_connections all lead to links that are immediately downstream
         Set<Link> dwn_links = this.get_roadconnections_leaving().stream()
                 .map(rc->rc.end_link)
@@ -306,6 +198,20 @@ public class Link implements InterfaceScenarioElement {
         if(!end_node.out_links.containsAll(dwn_links))
             errorLog.addError("some outlinks are not immediately downstream");
 
+        // I have a split_profile if there is a downstream bifurction
+//        if(end_node.out_links.size()>1){
+//
+//            Set<Long> pathlesscomms = network.scenario.commodities.values().stream()
+//                    .filter(c->!c.pathfull)
+//                    .map(x->x.getId())
+//                    .collect(toSet());
+//            if(!split_profile.keySet().containsAll(pathlesscomms)){
+//                pathlesscomms.removeAll(split_profile.keySet());
+//                errorLog.addError(String.format("Node %d lacks splits for incoming link %d, commodities ",
+//                        end_node.getId(),id, OTMUtils.comma_format(pathlesscomms)));
+//            }
+//
+//        }
 
         if(split_profile!=null)
             split_profile.values().stream().forEach(x -> x.validate(network.scenario,errorLog));
@@ -374,10 +280,6 @@ public class Link implements InterfaceScenarioElement {
         shape = null;
     }
 
-//    public void add_travel_timer(PathTravelTimeWriter x){
-//        travel_timers.add(x);
-//    }
-
     public void set_flwdn_lanegroups(List<AbstractLaneGroup> lgs) {
 
         lanegroups_flwdn = new ArrayList<>();
@@ -395,14 +297,6 @@ public class Link implements InterfaceScenarioElement {
             for (int lane=lg.start_lane_dn;lane<lg.start_lane_dn+lg.num_lanes;lane++)                       // iterate through dn lanes
                 dnlane2lanegroup.put(lane, lg);
     }
-
-//    public void set_lat_lanegroups(Collection<AbstractLaneGroupLateral> lgs) {
-//        lat_lanegroups = new HashMap<>();
-//        if(lgs==null || lgs.isEmpty())
-//            return;
-//        for(AbstractLaneGroupLateral lg : lgs)
-//            lat_lanegroups.put(lg.id,lg);
-//    }
 
     public void set_model(AbstractModel newmodel, boolean is_model_source_link) throws OTMException {
 
@@ -551,7 +445,7 @@ public class Link implements InterfaceScenarioElement {
                                 vehicle);
 
                     } else {
-                        Long next_link_id = split_profile.get(key.commodity_id).sample_output_link();
+                        Long next_link_id = sample_next_link(key.commodity_id);
                         vehicle.set_next_link_id(next_link_id);
                         add_to_lanegroup_packets(split_packets,next_link_id ,
                                 new State(key.commodity_id, next_link_id, false),
@@ -569,6 +463,13 @@ public class Link implements InterfaceScenarioElement {
     ////////////////////////////////////////////
     // routing getters
     ///////////////////////////////////////////
+
+    public Long sample_next_link(Long comm_id){
+        if(split_profile!=null)
+            return split_profile.get(comm_id).sample_output_link();
+        else
+            return end_node.out_links.iterator().next().getId();
+    }
 
     // return outlink to split
     public Map<Long,Double> get_splits_for_commodity(Long comm_id){
@@ -594,6 +495,22 @@ public class Link implements InterfaceScenarioElement {
                 .filter(rc->rc.end_link.getId()==this.getId())
                 .collect(toSet());
         return rcs;
+    }
+
+    public SplitMatrixProfile get_split_profile(long commid){
+        return split_profile.get(commid);
+    }
+
+    public void remove_split_profile(long commid){
+        split_profile.remove(commid);
+    }
+
+    public boolean have_split_for_commodity(long commid){
+        return split_profile.containsKey(commid);
+    }
+
+    public void set_split_profile(long commid, SplitMatrixProfile smp){
+        split_profile.put(commid, smp);
     }
 
     ////////////////////////////////////////////
@@ -643,27 +560,6 @@ public class Link implements InterfaceScenarioElement {
     public int get_num_up_lanes(){
         return full_lanes + get_num_up_in_lanes() + get_num_up_out_lanes();
     }
-
-//    // returns length in meters
-//    public float get_length_for_lane(int lane){
-//
-//        // TODO REPAIR THIS
-//
-//        if(lane<1)
-//            return 0f;
-//
-//        if(road_geom==null)
-//            return this.length;
-//
-//        if(lane<=road_geom.dn_in.lanes)
-//            return road_geom.dn_in.length;
-//        else if(lane<=road_geom.dn_in.lanes+full_lanes)
-//            return this.length;
-//        else if (lane<=road_geom.dn_in.lanes+full_lanes+road_geom.dn_out.lanes)
-//            return road_geom.dn_out.length;
-//        else
-//            return 0f;
-//    }
 
     // whether this lane belongs to the inside addlane, the full lanes or the outside addlane.
     public core.geometry.Side get_side_for_dn_lane(int lane){
@@ -722,7 +618,6 @@ public class Link implements InterfaceScenarioElement {
 
     }
 
-
     ////////////////////////////////////////////
     // state and performance getters
     ///////////////////////////////////////////
@@ -773,6 +668,5 @@ public class Link implements InterfaceScenarioElement {
     public String toString() {
         return String.format("link %d",id);
     }
-
 
 }

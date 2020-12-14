@@ -47,23 +47,17 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
     }
 
     @Override
-    public void set_demand_vps(Dispatcher dispatcher, float time, double value) throws OTMException {
-        super.set_demand_vps(dispatcher, time, value);
+    public void set_demand_vps(Dispatcher dispatcher, float time, double new_demand_vps) throws OTMException {
+        super.set_demand_vps(dispatcher, time, new_demand_vps);
 
         double flow_veh_per_timestep = source_demand_vps*((AbstractFluidModel)link.model).dt_sec;
         Long comm_id = commodity.getId();
 
-        // for each lanegroup, a map from state to value.
-//        Map<Long,Map<State,Double>> source_flows = new HashMap<>();
-
         if(commodity.pathfull){
-            State state = new State(comm_id,path.getId(),true);
+            final State state = new State(comm_id,path.getId(),true);
             double demand_for_each_lg = flow_veh_per_timestep / pathfull_lgs.size();
-            for(AbstractLaneGroup lg : pathfull_lgs) {
-                Map<State,Double> x = new HashMap<>();
-                x.put(state,demand_for_each_lg);
-                ((FluidLaneGroup)lg).source_flow = x;
-            }
+            for(AbstractLaneGroup lg : pathfull_lgs)
+                ((FluidLaneGroup)lg).source_flow.put(state,demand_for_each_lg);
         }
 
         // source of pathless commodity
@@ -109,12 +103,8 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
                     double all_lanes = candidate_lanegroups.stream().mapToDouble(x->x.num_lanes).sum();
                     double factor = flow_veh_per_timestep * split / all_lanes;
 
-                    for(AbstractLaneGroup alg : candidate_lanegroups){
-                        double demand_for_lg = factor * alg.num_lanes;
-                        FluidLaneGroup lg = (FluidLaneGroup) alg;
-                        double val = lg.source_flow.containsKey(state) ? lg.source_flow.get(state) : 0d;
-                        lg.source_flow.put(state,val + demand_for_lg);
-                    }
+                    for(AbstractLaneGroup alg : candidate_lanegroups)
+                        ((FluidLaneGroup) alg).source_flow.put(state,factor * alg.num_lanes);
 
                 }
             }

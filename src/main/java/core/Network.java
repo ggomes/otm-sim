@@ -562,7 +562,7 @@ public class Network {
                 lanegroups.add(create_dnflw_lanegroup(link,
                         lg_start_lane,
                         lane-lg_start_lane,
-                        myrcs));
+                        prevrcs));
                 prevrcs = myrcs;
                 lg_start_lane = lane;
             }

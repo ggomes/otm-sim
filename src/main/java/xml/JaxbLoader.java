@@ -24,26 +24,6 @@ import java.util.HashMap;
 
 public class JaxbLoader {
 
-    private static HashMap<String,String> test_configs;
-    static {
-        test_configs = new HashMap<>();
-
-        test_configs.put("line_ctm","line_ctm.xml");
-        test_configs.put("line_spaceq","line_spaceq.xml");
-        test_configs.put("line_newell","line_newell.xml");
-        test_configs.put("intersection","intersection.xml");
-        test_configs.put("onramp_nohov","onramp_nohov.xml");
-        test_configs.put("onramp_hov","onramp_hov.xml");
-        test_configs.put("mixing","mixing.xml");
-        test_configs.put("onramp_hov_2link","onramp_hov_2link.xml");
-        test_configs.put("onramp_offramp","onramp_offramp.xml");
-
-    }
-
-    public static Collection<String> get_test_config_names() {
-        return test_configs.keySet();
-    }
-
     public static jaxb.Scenario load_scenario(String filename, boolean validate) throws OTMException {
         try {
             return (Scenario) create_unmarshaller(validate).unmarshal(new File(filename));

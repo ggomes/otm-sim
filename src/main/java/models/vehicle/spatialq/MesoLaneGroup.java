@@ -201,31 +201,18 @@ public class MesoLaneGroup extends VehicleLaneGroup {
         if(vehicle.waiting_for_lane_change)
             return;
 
-        if(link.is_sink) {
+        double next_supply = Double.POSITIVE_INFINITY;;
+        Link next_link = null;
+        RoadConnection rc = null;
 
-            waiting_queue.remove_given_vehicle(timestamp, vehicle);  // or zero?
-
-            // inform vehicle listener
-            if(vehicle.get_event_listeners()!=null)
-                for(InterfaceVehicleListener ev : vehicle.get_event_listeners())
-                    ev.move_from_to_queue(timestamp,vehicle,waiting_queue,null);
-
-            // inform the travel timers
-            if (travel_timer != null)
-                ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),null);
-
-        }
-        else{
+        if(!link.is_sink) {
 
             // get next link
             State state = vehicle.get_state();
             Long next_link_id = state.isPath ? link.path2outlink.get(state.pathOrlink_id).getId() : state.pathOrlink_id;
 
-            // vehicle should be in a target lane group
-            assert(outlink2roadconnection.containsKey(next_link_id));
-
-            RoadConnection rc = outlink2roadconnection.get(next_link_id);
-            Link next_link = rc.end_link;
+            rc = outlink2roadconnection.get(next_link_id);
+            next_link = rc.end_link;
 
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
@@ -236,52 +223,38 @@ public class MesoLaneGroup extends VehicleLaneGroup {
             if(!next_supply_o.isPresent())
                 return;
 
-            double next_supply = next_supply_o.getAsDouble();
-
-            // release the vehicle if
-            // a) connected to a vehicle model and space >= 1
-            // b) connected to a fluid model and space >= 0
-            if(next_supply > OTMUtils.epsilon){
-//            if(    ((next_link.model instanceof AbstractVehicleModel) && next_supply >= 1d)
-//                || ((next_link.model instanceof AbstractFluidModel)   && next_supply > OTMUtils.epsilon ) ) {
-
-                // remove vehicle from this lanegroup
-                waiting_queue.remove_given_vehicle(timestamp,vehicle);
-
-                // inform the travel timers
-                if (travel_timer != null)
-                    ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),next_link);
-
-                // send vehicle core.packet to next link
-                next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
-
-                // TODO Need a better solution than this.
-                // TODO This is adhoc for when the next links is a fluid model.
-                // Todo Then the event counter is not getting triggered.
-                // inform the queue counters
-                if( !(next_link.model instanceof ModelSpatialQ) && vehicle.get_event_listeners()!=null) {
-                    for (InterfaceVehicleListener ev : vehicle.get_event_listeners())
-                        ev.move_from_to_queue(timestamp, vehicle, waiting_queue, null);
-                }
-
-            } else { // all targets are blocked
-                return;
-            }
+            next_supply = next_supply_o.getAsDouble();
 
         }
 
-        // tell the flow accumulators
-        update_flow_accummulators(vehicle.get_state(),1f);
-        update_supply();
+        if(next_supply > OTMUtils.epsilon){
 
-        /** NOTE RESOLVE THIS. NEED TO CHECK
-         * a) WHETHER THE NEXT LANE GROUP IS MACRO OR MESO.
-         * b) IF MACRO, INCREMENT SOME DEMAND BUFFER
-         * c) IF MESO, CHECK IF THE NEXT LANE GROUP HAS SPACE. IF IT DOES NOT THEN
-         * WHAT TO DO?
-         * PERHAPS HAVE ANOTHER QUEUE WHERE VEHICLES WAIT FOR SPACE TO OPEN.
-         * HOW DOES THIS WORK WITH CAPACITY?
-         */
+            // remove vehicle from this lanegroup
+            waiting_queue.remove_given_vehicle(timestamp,vehicle);
+
+            // inform flow accumulators
+            update_flow_accummulators(vehicle.get_state(),1f);
+
+            // inform the travel timers
+            if (travel_timer != null)
+                ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),next_link);
+
+            // send vehicle core.packet to next link
+            if(next_link!=null && rc!=null)
+                next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
+
+            // TODO Need a better solution than this.
+            // TODO This is adhoc for when the next links is a fluid model.
+            // Todo Then the event counter is not getting triggered.
+            // inform the queue counters
+            if( next_link!=null && !(next_link.model instanceof ModelSpatialQ) && vehicle.get_event_listeners()!=null) {
+                for (InterfaceVehicleListener ev : vehicle.get_event_listeners())
+                    ev.move_from_to_queue(timestamp, vehicle, waiting_queue, null);
+            }
+
+            update_supply();
+
+        }
 
     }
 

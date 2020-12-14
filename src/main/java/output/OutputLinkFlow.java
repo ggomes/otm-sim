@@ -67,7 +67,7 @@ public class OutputLinkFlow extends AbstractOutputTimedLink {
         if(commodity==null)
             return fas.stream().mapToDouble(x->x.get_total_count()).sum();
         else
-            return fas.stream().mapToDouble(x->x.get_count_for_commodity(commodity.getId())).sum();
+            return fas.stream().mapToDouble(x -> x.get_count_for_commodity(commodity.getId())).sum();
     }
 
     @Override

@@ -35,10 +35,10 @@ public class SplitMatrixProfile {
 
     public void validate(Scenario scenario,OTMErrorLog errorLog) {
 
+        Node node = link_in.end_node;
+
         if(splits==null)
             return;
-
-        Node node = link_in.end_node;
 
         if( node==null )
             errorLog.addError("node==null");
@@ -57,19 +57,15 @@ public class SplitMatrixProfile {
         if(link_in==null)
             errorLog.addError("link_in==null");
 
-        // link_in_id is in a subnetwork
-        for(Subnetwork subnetwork : commodity.subnetworks){
-            if(!subnetwork.get_links().contains(link_in))
-                errorLog.addError("!commodity.subnetwork.links.contains(link_in)");
-        }
-
         Set<Long> reachable_outlinks = node.road_connections.stream()
                 .filter(rc->rc.start_link!=null && rc.end_link!=null && rc.start_link.getId().equals(link_in.getId()))
                 .map(z->z.end_link.getId())
                 .collect(Collectors.toSet());
 
+        Set<Long> nonzero_outlinks = splits.get_nonzero_outlinks();
+
         // check that there is a road connection for every split ratio
-        if(!reachable_outlinks.containsAll(splits.values.keySet())) {
+        if(!reachable_outlinks.containsAll(nonzero_outlinks)) {
             Set<Long> unreachable = new HashSet<>();
             unreachable.addAll(splits.values.keySet());
             unreachable.removeAll(reachable_outlinks);
@@ -176,7 +172,7 @@ public class SplitMatrixProfile {
     ///////////////////////////////////////////
 
     public float get_dt(){
-        return splits.dt;
+        return splits.dt==null ? Float.NaN : splits.dt;
     }
 
     public float get_start_time(){

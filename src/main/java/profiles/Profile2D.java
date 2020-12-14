@@ -147,6 +147,14 @@ public class Profile2D {
         return r;
     }
 
+    public Set<Long> get_nonzero_outlinks(){
+        Set<Long> x = new HashSet<>();
+        for(Map.Entry<Long,List<Double>> e : values.entrySet())
+            if(!e.getValue().stream().allMatch(v->v==0d))
+                x.add(e.getKey());
+        return x;
+    }
+
     ////////////////////////////////
     // other
     ////////////////////////////////

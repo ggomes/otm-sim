@@ -43,12 +43,11 @@ public abstract class AbstractDemandGenerator {
         source_demand_vps = vps;
     }
 
-    public final State sample_key(){
+    public final State sample_state(){
         if(commodity.pathfull){
             return new State(commodity.getId(),path.getId(),true);
         } else {
-            Long next_link_id = link.split_profile.get(commodity.getId()).sample_output_link();
-            return new State(commodity.getId(),next_link_id,false);
+            return new State(commodity.getId(),link.sample_next_link(commodity.getId()),false);
         }
     }
 
@@ -111,9 +110,9 @@ public abstract class AbstractDemandGenerator {
     }
 
     public void initialize(Scenario scenario) throws OTMException {
-        float now = scenario.get_current_time();
-        double value = profile.get_value_for_time(now);
-        set_demand_vps(scenario.dispatcher,now,value);
+//        float now = scenario.get_current_time();
+//        double value = profile.get_value_for_time(now);
+//        set_demand_vps(scenario.dispatcher,now,value);
         register_with_dispatcher(scenario.dispatcher);
     }
 
@@ -129,7 +128,6 @@ public abstract class AbstractDemandGenerator {
     public Long get_destination_node_id() {
         return path==null ? null : path.get_destination_node_id();
     }
-
 
     public void register_next_change(Dispatcher dispatcher,float timestamp) {
         TimeValue time_value = profile.get_change_following(timestamp);

@@ -103,17 +103,17 @@ public class ActuatorSplit extends AbstractActuator {
         long commid = comm.getId();
 
         // delete the existng splits.
-        if(linkMLup.split_profile.containsKey(commid)){
-            scenario.dispatcher.remove_events_for_recipient(EventSplitChange.class, linkMLup.split_profile.get(commid));
-            this.smp = linkMLup.split_profile.get(commid);
-            linkMLup.split_profile.remove(commid);
+        if(linkMLup.have_split_for_commodity(commid)){
+            scenario.dispatcher.remove_events_for_recipient(EventSplitChange.class, linkMLup.get_split_profile(commid));
+            this.smp = linkMLup.get_split_profile(commid);
+            linkMLup.remove_split_profile(commid);
         }
         else{
             this.smp = new SplitMatrixProfile(commid, linkMLup);
         }
 
         // create the new split ratio matrix
-        linkMLup.split_profile.put(commid, smp);
+        linkMLup.set_split_profile(commid, smp);
     }
 
     @Override

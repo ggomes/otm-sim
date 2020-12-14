@@ -121,7 +121,6 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     @Override
     public void poke(Dispatcher dispatcher, float timestamp) throws OTMException {
-        System.out.println(String.format("%.1f\tAbstractActuator poke",timestamp));
 
         // process the command
         if(myController!=null)

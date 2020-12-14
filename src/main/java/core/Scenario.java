@@ -246,7 +246,8 @@ public class Scenario {
                     jsplits.getSplitNode().add(jspltnode);
 
                     jspltnode.setCommodityId(commodity_id);
-                    jspltnode.setDt(profile.get_dt());
+                    if(!Float.isNaN(profile.get_dt()))
+                        jspltnode.setDt(profile.get_dt());
                     jspltnode.setStartTime(profile.get_start_time());
                     jspltnode.setLinkIn(profile.link_in.getId());
                     jspltnode.setNodeId(link.end_node.getId());

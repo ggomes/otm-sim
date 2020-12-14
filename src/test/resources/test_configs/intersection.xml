@@ -70,10 +70,10 @@
   </network>
 
   <demands>
-    <demand link_id="22" commodity_id="1">100</demand>
-    <demand link_id="44" commodity_id="1">100</demand>
-    <demand link_id="66" commodity_id="1">100</demand>
-    <demand link_id="88" commodity_id="1">100</demand>
+    <demand link_id="22" commodity_id="1">1000</demand>
+    <demand link_id="44" commodity_id="1">1000</demand>
+    <demand link_id="66" commodity_id="1">1000</demand>
+    <demand link_id="88" commodity_id="1">1000</demand>
   </demands>
 
   <splits>

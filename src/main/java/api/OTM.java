@@ -364,7 +364,7 @@ public class OTM {
 
         long comm_id = scenario.commodities.keySet().iterator().next();
         MesoLaneGroup lg = (MesoLaneGroup) link.lanegroups_flwdn.iterator().next();
-        SplitMatrixProfile smp = lg.link.split_profile.get(comm_id);
+        SplitMatrixProfile smp = lg.link.get_split_profile(comm_id);
 
         // transit queue ................
         models.vehicle.spatialq.Queue tq = lg.transit_queue;
