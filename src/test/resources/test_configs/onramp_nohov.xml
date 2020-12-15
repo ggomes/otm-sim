@@ -26,19 +26,18 @@
 		</nodes>
 		
 		<links>
-			<link id="0" length="10"  start_node_id="0" end_node_id="1" roadparam="1" full_lanes="2"/>
+			<link id="0" length="100" start_node_id="0" end_node_id="1" roadparam="1" full_lanes="2"/>
 			<link id="1" length="200" start_node_id="1" end_node_id="2" roadparam="1" full_lanes="2"/>
 			<link id="2" length="200" start_node_id="2" end_node_id="3" roadparam="1" full_lanes="3"/>
 			<link id="3" length="200" start_node_id="3" end_node_id="4" roadparam="1" full_lanes="2"/>
 			<link id="4" length="200" start_node_id="4" end_node_id="5" roadparam="1" full_lanes="2"/>
-			<link id="5" length="10"  start_node_id="6" end_node_id="7" roadparam="1" full_lanes="1"/>
+			<link id="5" length="100" start_node_id="6" end_node_id="7" roadparam="1" full_lanes="1"/>
 			<link id="6" length="200" start_node_id="7" end_node_id="2" roadparam="1" full_lanes="1"/>
 		</links>
 		
 		<roadparams>
 			<roadparam id="1" capacity="1000" speed="100" jam_density="50"/>
 		</roadparams>
-
 
 		<roadconnections>
 			<roadconnection id="0" in_link="1" out_link="2" out_link_lanes="1#2" />
@@ -49,7 +48,7 @@
 
 	<demands>
 		<demand commodity_id="1" link_id="0">1000</demand>
-		<demand commodity_id="1" link_id="5">200</demand>
+		<demand commodity_id="1" link_id="5">500</demand>
  	</demands>
 
  	<actuators>
@@ -62,7 +61,7 @@
  		 <controller id="1" dt="100" type="rm_fixed_rate">
             <target_actuators ids="0"/>
             <parameters>
-                <parameter name="rate_vphpl" value="100"/>
+                <parameter name="rate_vphpl" value="400"/>
                 <parameter name="max_rate_vphpl" value="1200"/>
                 <parameter name="min_rate_vphpl" value="160"/>
             </parameters>

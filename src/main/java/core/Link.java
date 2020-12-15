@@ -4,7 +4,6 @@ import actuator.ActuatorFlowToLinks;
 import error.OTMErrorLog;
 import error.OTMException;
 import core.geometry.RoadGeometry;
-import jaxb.Commodity;
 import jaxb.Points;
 import jaxb.Roadparam;
 import models.AbstractModel;
@@ -12,7 +11,6 @@ import profiles.SplitMatrixProfile;
 import traveltime.LinkTravelTimer;
 import core.packet.PacketLaneGroup;
 import core.packet.PacketLink;
-import utils.OTMUtils;
 
 import java.util.*;
 
@@ -524,32 +522,32 @@ public class Link implements InterfaceScenarioElement {
     public int get_num_dn_in_lanes(){
         if(road_geom==null)
             return 0;
-        if(road_geom.dn_in!=null)
-            return road_geom.dn_in.lanes;
+        if(road_geom.in !=null)
+            return road_geom.in.lanes;
         return 0;
     }
 
     public int get_num_dn_out_lanes(){
         if(road_geom==null)
             return 0;
-        if(road_geom.dn_out!=null)
-            return road_geom.dn_out.lanes;
+        if(road_geom.out !=null)
+            return road_geom.out.lanes;
         return 0;
     }
 
     public int get_num_up_in_lanes(){
         if(road_geom==null)
             return 0;
-        if(road_geom.dn_in!=null && road_geom.dn_in.isfull)
-            return road_geom.dn_in.lanes;
+        if(road_geom.in !=null && road_geom.in.isfull)
+            return road_geom.in.lanes;
         return 0;
     }
 
     public int get_num_up_out_lanes(){
         if(road_geom==null)
             return 0;
-        if(road_geom.dn_out!=null && road_geom.dn_out.isfull)
-            return road_geom.dn_out.lanes;
+        if(road_geom.out !=null && road_geom.out.isfull)
+            return road_geom.out.lanes;
         return 0;
     }
 
@@ -563,8 +561,8 @@ public class Link implements InterfaceScenarioElement {
 
     // whether this lane belongs to the inside addlane, the full lanes or the outside addlane.
     public core.geometry.Side get_side_for_dn_lane(int lane){
-        int in_lanes = road_geom!=null && road_geom.dn_in!=null ? road_geom.dn_in.lanes : 0;
-        int out_lanes = road_geom!=null && road_geom.dn_out!=null ? road_geom.dn_out.lanes : 0;
+        int in_lanes = road_geom!=null && road_geom.in !=null ? road_geom.in.lanes : 0;
+        int out_lanes = road_geom!=null && road_geom.out !=null ? road_geom.out.lanes : 0;
 
         if(lane<=in_lanes)
             return core.geometry.Side.in;
@@ -602,19 +600,19 @@ public class Link implements InterfaceScenarioElement {
     }
 
     public AbstractLaneGroup get_inner_full_lanegroup(){
-        if(road_geom==null || road_geom.dn_in==null || road_geom.dn_in.isfull ){
+        if(road_geom==null || road_geom.in ==null || road_geom.in.isfull ){
             return dnlane2lanegroup.get(1);
         }
         else {
-            return dnlane2lanegroup.get(road_geom.dn_in.lanes + 1);
+            return dnlane2lanegroup.get(road_geom.in.lanes + 1);
         }
     }
 
     public AbstractLaneGroup get_outer_full_lanegroup(){
         return dnlane2lanegroup.get(
-                road_geom==null || road_geom.dn_in==null ?
+                road_geom==null || road_geom.in ==null ?
                 full_lanes :
-                road_geom.dn_in.lanes+full_lanes );
+                road_geom.in.lanes+full_lanes );
 
     }
 

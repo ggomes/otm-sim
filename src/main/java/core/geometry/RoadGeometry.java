@@ -12,8 +12,8 @@ import java.util.Map;
 public class RoadGeometry implements InterfaceScenarioElement {
 
     final public long id;
-    public AddLanes dn_in;
-    public AddLanes dn_out;
+    public AddLanes in;
+    public AddLanes out;
 
     ///////////////////////////////////////////
     // construction
@@ -38,9 +38,9 @@ public class RoadGeometry implements InterfaceScenarioElement {
 
             AddLanes addlane = new AddLanes(jaxb_al,rp);
             if(addlane.isIn())
-                dn_in = addlane;
+                in = addlane;
             else
-                dn_out = addlane;
+                out = addlane;
         }
     }
 
@@ -60,10 +60,10 @@ public class RoadGeometry implements InterfaceScenarioElement {
 
     @Override
     public void validate(OTMErrorLog errorLog) {
-        if( dn_in !=null )
-            dn_in.validate(errorLog);
-        if( dn_out !=null )
-            dn_out.validate(errorLog);
+        if( in !=null )
+            in.validate(errorLog);
+        if( out !=null )
+            out.validate(errorLog);
     }
 
     @Override
@@ -71,10 +71,10 @@ public class RoadGeometry implements InterfaceScenarioElement {
         jaxb.Roadgeom jgeom = new jaxb.Roadgeom();
         jgeom.setId(this.id);
         List<jaxb.AddLanes> jaddlanes = jgeom.getAddLanes();
-        if(this.dn_in.lanes>0)
-            jaddlanes.add(this.dn_in.to_jaxb());
-        if(this.dn_out.lanes>0)
-            jaddlanes.add(this.dn_out.to_jaxb());
+        if(in !=null && in.lanes>0)
+            jaddlanes.add(this.in.to_jaxb());
+        if(out !=null && out.lanes>0)
+            jaddlanes.add(this.out.to_jaxb());
         return jgeom;
     }
 
@@ -83,11 +83,11 @@ public class RoadGeometry implements InterfaceScenarioElement {
     ///////////////////////////////////////////
 
     public boolean in_is_full_length(){
-        return dn_in==null ? false : Float.isNaN(dn_in.length);
+        return in ==null ? false : Float.isNaN(in.length);
     }
 
     public boolean out_is_full_length(){
-        return dn_out==null ? false : Float.isNaN(dn_out.length);
+        return out ==null ? false : Float.isNaN(out.length);
     }
 
 }

@@ -5,6 +5,7 @@ import error.OTMException;
 import models.AbstractModel;
 import models.fluid.AbstractFluidModel;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import output.animation.AbstractLinkInfo;
 import output.animation.AnimationInfo;
@@ -69,11 +70,7 @@ public class TestApiOTM extends AbstractTest {
 
     @Test
     public void test_advance() {
-        try {
-            otm.advance(100f);
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
+
     }
 
     @Test
@@ -166,6 +163,7 @@ public class TestApiOTM extends AbstractTest {
     // animation info
     ////////////////////////////////////////////////////////
 
+    @Ignore
     @Test
     public void test_get_animation_info() {
 
@@ -211,7 +209,7 @@ public class TestApiOTM extends AbstractTest {
 
     @Test
     public void test_get_current_time(){
-        System.out.println(otm.get_current_time());
+
     }
 
     ////////////////////////////////////////////////////////
@@ -224,7 +222,7 @@ public class TestApiOTM extends AbstractTest {
     }
 
     @Test
-    public void test_set_random_seed(long seed){
+    public void test_set_random_seed(){
 
     }
 

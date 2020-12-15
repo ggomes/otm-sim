@@ -32,7 +32,7 @@ public class TestAllConfig extends AbstractTest {
     @Test
     public void test_load() {
         try {
-            System.out.println(testname);
+            System.out.println(testname + " load");
             OTM otm = new OTM();
             otm.load_test(testname);
         } catch (OTMException e) {
@@ -45,7 +45,7 @@ public class TestAllConfig extends AbstractTest {
     public void test_run() {
         try {
 
-            System.out.println(testname);
+            System.out.println(testname + " run");
 
             OTM otm = new OTM();
             otm.load_test(testname);

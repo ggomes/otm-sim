@@ -442,7 +442,7 @@ public class Network {
             if(link.road_geom.in_is_full_length())
                 offset = 0;
             else {
-                int dn_in_lanes = link.road_geom.dn_in != null ? link.road_geom.dn_in.lanes : 0;
+                int dn_in_lanes = link.road_geom.in != null ? link.road_geom.in.lanes : 0;
                 offset = dn_in_lanes;
             }
         }
@@ -501,10 +501,10 @@ public class Network {
 
         // set barriers .................
         if(link.road_geom!=null){
-            if(link.road_geom.dn_in!=null && !link.road_geom.dn_in.isopen)
-                link.in_barriers = generate_barriers(link,link.road_geom.dn_in);
-            if(link.road_geom.dn_out!=null && !link.road_geom.dn_out.isopen)
-                link.out_barriers = generate_barriers(link,link.road_geom.dn_out);
+            if(link.road_geom.in !=null && !link.road_geom.in.isopen)
+                link.in_barriers = generate_barriers(link,link.road_geom.in);
+            if(link.road_geom.out !=null && !link.road_geom.out.isopen)
+                link.out_barriers = generate_barriers(link,link.road_geom.out);
         }
 
     }
@@ -521,10 +521,10 @@ public class Network {
         int start_lane = 1;
 
         // inner addlane ..................................
-        if(link.road_geom!=null && link.road_geom.dn_in!=null){
+        if(link.road_geom!=null && link.road_geom.in !=null){
 
             // collect road connections for this addlane
-            final int end_lane = link.road_geom.dn_in.lanes;
+            final int end_lane = link.road_geom.in.lanes;
             Set<RoadConnection> myrcs = out_rcs.stream()
                     .filter(rc->rc.start_link_from_lane <= end_lane)
                     .collect(toSet());
@@ -537,7 +537,7 @@ public class Network {
             // create the lane group
             lanegroups.add(create_dnflw_lanegroup(link,
                     1,
-                    link.road_geom.dn_in.lanes,
+                    link.road_geom.in.lanes,
                     myrcs));
 
             start_lane = end_lane + 1;
@@ -574,13 +574,13 @@ public class Network {
                 prevrcs));
 
         // outer addlane ..................................
-        if(link.road_geom!=null && link.road_geom.dn_out!=null){
+        if(link.road_geom!=null && link.road_geom.out !=null){
 
             final int fstart_lane = start_lane + link.full_lanes;
-            final int fend_lane = fstart_lane + link.road_geom.dn_out.lanes -1;
+            final int fend_lane = fstart_lane + link.road_geom.out.lanes -1;
 
             // collect road connections for this addlane
-            final int end_lane = start_lane+link.road_geom.dn_out.lanes-1;
+            final int end_lane = start_lane+link.road_geom.out.lanes-1;
             Set<RoadConnection> myrcs = out_rcs==null ? null : out_rcs.stream()
                     .filter(rc->rc.start_link_to_lane >= fstart_lane )
                     .collect(toSet());
@@ -593,7 +593,7 @@ public class Network {
             // create the lane group
             lanegroups.add(create_dnflw_lanegroup(link,
                     fstart_lane,
-                    link.road_geom.dn_out.lanes,
+                    link.road_geom.out.lanes,
                     myrcs));
 
         }
@@ -618,16 +618,16 @@ public class Network {
         Side side = sides.iterator().next();
         switch(side){
             case in:    // inner addlane lane group
-                rp = link.road_geom.dn_in.roadparam;
-                length = link.road_geom.dn_in.get_length(link.length);
+                rp = link.road_geom.in.roadparam;
+                length = link.road_geom.in.get_length(link.length);
                 break;
             case middle:    // full lane lane group
                 rp = link.road_param_full;
                 length = link.length;
                 break;
             case out:    // outer addlane lane group
-                rp = link.road_geom.dn_out.roadparam;
-                length = link.road_geom.dn_out.get_length(link.length);
+                rp = link.road_geom.out.roadparam;
+                length = link.road_geom.out.get_length(link.length);
                 break;
         }
 
