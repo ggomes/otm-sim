@@ -12,6 +12,8 @@
     <url>http://maven.apache.org</url>
 
     <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -178,13 +180,6 @@
             <version>1.2.1</version>
             <scope>runtime</scope>
         </dependency>
-
-        <!-- OTM BASE
-        <dependency>
-            <groupId>edu.berkeley.ucbtrans</groupId>
-            <artifactId>otm-base</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency> -->
 
         <!-- JUNIT -->
         <dependency>
