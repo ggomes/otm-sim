@@ -4,7 +4,7 @@ import error.OTMException;
 import core.Link;
 import core.Scenario;
 
-public class OutputLinkVHT extends AbstractOutputTimedLink {
+public class OutputSubnetworkVHT extends AbstractOutputTimedLink {
 
     public double outDt_hr;
 
@@ -12,7 +12,7 @@ public class OutputLinkVHT extends AbstractOutputTimedLink {
     // construction
     //////////////////////////////////////////////////////
 
-    public OutputLinkVHT(Scenario scenario, String prefix, String output_folder, Long commodity_id, Long subnetwork_id, Float outDt) throws OTMException {
+    public OutputSubnetworkVHT(Scenario scenario, String prefix, String output_folder, Long commodity_id, Long subnetwork_id, Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,subnetwork_id,outDt);
         this.type = Type.vht;
         outDt_hr = this.outDt / 3600.0;

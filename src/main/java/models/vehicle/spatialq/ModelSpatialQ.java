@@ -35,7 +35,7 @@ public class ModelSpatialQ extends AbstractVehicleModel {
             case "queues":
                 Long commodity_id = jaxb_or.getCommodity();
                 Float outDt = jaxb_or.getDt();
-                output = new OutputQueues(scenario,prefix, output_folder, commodity_id, links.stream().map(x->x.getId()).collect(Collectors.toList()), outDt);
+                output = new OutputLinkQueues(scenario,prefix, output_folder, commodity_id, links.stream().map(x->x.getId()).collect(Collectors.toList()), outDt);
                 break;
             default:
                 throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());

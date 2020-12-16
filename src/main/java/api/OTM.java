@@ -578,11 +578,11 @@ public class OTM {
                     case "lanegroup_veh":
                         output = new OutputLaneGroupVehicles(scenario, prefix, output_folder, commodity_id, null, outDt);
                         break;
-                    case "link_vht":
-                        output = new OutputLinkVHT(scenario, prefix, output_folder, commodity_id, null, outDt);
+                    case "subnetwork_vht":
+                        output = new OutputSubnetworkVHT(scenario, prefix, output_folder, commodity_id, null, outDt);
                         break;
                     case "vehicle_events":
-                        output = new OutputVehicle(scenario, prefix, output_folder, commodity_id);
+                        output = new OutputVehicleEvents(scenario, prefix, output_folder, commodity_id);
                         break;
                     case "vehicle_class":
                         output = new OutputVehicleClass(scenario, prefix, output_folder);

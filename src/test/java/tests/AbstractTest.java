@@ -21,6 +21,7 @@ public abstract class AbstractTest {
         test_configs.put("onramp_hov","onramp_nohov.xml");
         test_configs.put("onramp_nohov","onramp_nohov.xml");
         test_configs.put("onramp_offramp","onramp_offramp.xml");
+        test_configs.put("output_test","output_test.xml");
     }
 
     public static Collection<String> get_test_config_names() {

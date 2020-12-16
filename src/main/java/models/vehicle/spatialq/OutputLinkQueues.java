@@ -9,7 +9,7 @@ import core.Scenario;
 
 import java.util.*;
 
-public class OutputQueues extends AbstractOutputTimed {
+public class OutputLinkQueues extends AbstractOutputTimed {
 
     public Set<Long> link_ids;
     public Map<Long,QueueInfo> lg2qinfo; // lane group -> 2 queues
@@ -18,7 +18,7 @@ public class OutputQueues extends AbstractOutputTimed {
     // construction
     //////////////////////////////////////////////////////
 
-    public OutputQueues(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids,Float outDt) throws OTMException {
+    public OutputLinkQueues(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, commodity_id, outDt);
 
         this.link_ids = new HashSet<>();

@@ -1,7 +1,7 @@
 package api;
 
 import error.OTMException;
-import models.vehicle.spatialq.OutputQueues;
+import models.vehicle.spatialq.OutputLinkQueues;
 import output.*;
 
 import java.util.Collection;
@@ -16,6 +16,7 @@ import static java.util.stream.Collectors.toSet;
 public class Output {
 
     private api.OTM myapi;
+
     protected Output(api.OTM myapi){
         this.myapi = myapi;
     }
@@ -116,7 +117,7 @@ public class Output {
      */
     public void request_link_queues(String prefix,String output_folder,Long commodity_id, Collection<Long> link_ids, Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputQueues(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputLinkQueues(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -318,7 +319,7 @@ public class Output {
      */
     public void request_subnetwork_vht(String prefix,String output_folder,Long commodity_id,Long subnetwork_id,Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputLinkVHT(myapi.scenario,prefix,output_folder,commodity_id,subnetwork_id,outDt));
+            this.myapi.scenario.outputs.add(new OutputSubnetworkVHT(myapi.scenario,prefix,output_folder,commodity_id,subnetwork_id,outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -336,7 +337,7 @@ public class Output {
      */
     public void request_vehicle_events(String prefix,String output_folder,Long commodity_id){
         try {
-            this.myapi.scenario.outputs.add(new OutputVehicle(myapi.scenario,prefix,output_folder,commodity_id));
+            this.myapi.scenario.outputs.add(new OutputVehicleEvents(myapi.scenario,prefix,output_folder,commodity_id));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -352,11 +353,11 @@ public class Output {
     }
 
     /**
-     * Request vehicle travel times.
+     * Request travel times.
      * @param prefix Prefix for the output files. null means do not write to file.
      * @param output_folder Output folder. null means do not write to file.
      */
-    public void request_vehicle_travel_time(String prefix,String output_folder){
+    public void request_travel_time(String prefix, String output_folder){
         this.myapi.scenario.outputs.add(new OutputTravelTime(myapi.scenario,prefix,output_folder));
     }
 

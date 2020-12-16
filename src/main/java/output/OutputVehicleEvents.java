@@ -9,7 +9,7 @@ import models.vehicle.spatialq.Queue;
 import cmd.RunParameters;
 import core.Scenario;
 
-public class OutputVehicle extends AbstractOutputEvent implements InterfaceVehicleListener {
+public class OutputVehicleEvents extends AbstractOutputEvent implements InterfaceVehicleListener {
 
     private final String suffix;
     public Long commodity_id;
@@ -18,7 +18,7 @@ public class OutputVehicle extends AbstractOutputEvent implements InterfaceVehic
     // construction
     //////////////////////////////////////////////////////
 
-    public OutputVehicle(Scenario scenario, String prefix, String output_folder, Long commodity_id) throws OTMException {
+    public OutputVehicleEvents(Scenario scenario, String prefix, String output_folder, Long commodity_id) throws OTMException {
         super(scenario,prefix,output_folder);
         this.type = Type.vehicle_events;
 

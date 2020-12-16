@@ -1,11 +1,10 @@
 package tests;
 
 import error.OTMException;
-import models.vehicle.spatialq.OutputQueues;
+import models.vehicle.spatialq.OutputLinkQueues;
 import org.junit.Ignore;
 import org.junit.Test;
 import output.*;
-import cmd.OTM;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -102,7 +101,7 @@ public class DebugRuns extends AbstractTest {
             if(do_vehicles){
                 otm.output.request_vehicle_events(prefix,output_folder,comm_id);
                 otm.output.request_vehicle_class(prefix,output_folder);
-                otm.output.request_vehicle_travel_time(prefix,output_folder);
+                otm.output.request_travel_time(prefix,output_folder);
             }
 
             // controllers
@@ -126,8 +125,8 @@ public class DebugRuns extends AbstractTest {
                 if (output instanceof OutputLinkSumVehicles)
                     ((OutputLinkSumVehicles) output).plot_for_links(null, String.format("%s/link_sumveh.png", png_folder));
 
-                if (output instanceof OutputQueues)
-                    ((OutputQueues) output).plot(String.format("%s/link_sumqueues.png", png_folder));
+                if (output instanceof OutputLinkQueues)
+                    ((OutputLinkQueues) output).plot(String.format("%s/link_sumqueues.png", png_folder));
 
                 // lane groups
 
@@ -172,13 +171,13 @@ public class DebugRuns extends AbstractTest {
                 if (output instanceof OutputPathTravelTime)
                     ((OutputPathTravelTime) output).plot(String.format("%s/path_tt.png", png_folder));
 
-                if (output instanceof OutputLinkVHT)
-                    ((OutputLinkVHT) output).plot_for_links(null, String.format("%s/vht.png", png_folder));
+                if (output instanceof OutputSubnetworkVHT)
+                    ((OutputSubnetworkVHT) output).plot_for_links(null, String.format("%s/vht.png", png_folder));
 
                 // vehicle events
 
-                if (output instanceof OutputVehicle)
-                    ((OutputVehicle) output).plot(String.format("%s/veh_events.png", png_folder));
+                if (output instanceof OutputVehicleEvents)
+                    ((OutputVehicleEvents) output).plot(String.format("%s/veh_events.png", png_folder));
 
 //                if (output instanceof OutputVehicleClass)
 //                    ((OutputVehicleClass) output).plot(String.format("%s/veh_class.png", png_folder));
