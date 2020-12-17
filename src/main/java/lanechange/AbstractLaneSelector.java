@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractLaneSelector implements Pokable {
+public abstract class AbstractLaneSelector implements InterfaceLaneSelector,Pokable {
 
     protected float dt;
     protected AbstractLaneGroup lg;
@@ -22,7 +22,6 @@ public abstract class AbstractLaneSelector implements Pokable {
     protected long commid;
 
     // this will be called by a lgrestric controller whenever it changes the lc options.
-    public abstract void update_lane_change_probabilities_with_options(Long pathorlinkid,Set<Maneuver> lcoptions);
 
     public AbstractLaneSelector(AbstractLaneGroup lg,float dt,long commid){
         this.dt = dt;
@@ -93,4 +92,5 @@ public abstract class AbstractLaneSelector implements Pokable {
         for(Long pathorlinkid : side2prob.keySet())
             update_lane_change_probabilities_with_options(pathorlinkid,side2prob.get(pathorlinkid).keySet());
     }
+
 }

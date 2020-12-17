@@ -160,7 +160,7 @@ public class ControllerTollLaneGroup extends AbstractController {
                     nom_ls.put(commid,oldls);
                     if(oldls instanceof LogitLaneSelector) {
                         LogitLaneSelector oldlogit = (LogitLaneSelector) oldls;
-                        newls = new LogitLaneSelector(gplg,0,(float)oldlogit.getKeep(),(float)oldlogit.getRho_vehperlane(), commid);
+                        newls = new LogitLaneSelector(gplg,0,(float)oldlogit.keep,(float)oldlogit.rho_vehperlane, commid);
                     }
                     else
                         newls = new LogitLaneSelector(gplg,0,def_keep,def_rho_vpkmplane, commid);
@@ -213,7 +213,7 @@ public class ControllerTollLaneGroup extends AbstractController {
                 add_term = toll_coef*toll;
             }
             for(Long commid : tolled_comms)
-                toll_ls.get(commid).setAdd_in(add_term);
+                toll_ls.get(commid).add_in = add_term;
         }
 
     }

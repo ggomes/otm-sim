@@ -39,4 +39,5 @@ public class UniformLaneSelector extends AbstractLaneSelector {
         if(has_out)
             myside2prob.put(Maneuver.lcout,s);
     }
+
 }

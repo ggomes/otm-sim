@@ -9,27 +9,36 @@ import java.util.Set;
 
 public class LogitLaneSelector extends AbstractLaneSelector {
 
-    private double keep = 0.7;                  // [-] positive utility of keeping your lane
-    private double rho_vehperlane = 0.018504;   // [1/vehperlane] positive utility of changing lanes into a lane with lower density
-    private double add_in;  // additional terms used for setting toll on hot lane
-    private final double threshold = 0.95d;
+    public final double keep;             // [-] positive utility of keeping your lane
+    public final double rho_vehperlane;   // [1/vehperlane] positive utility of changing lanes into a lane with lower density
+    public double add_in;  // additional terms used for setting toll on hot lane
+//    public final double threshold = 0.95d;
 
     public LogitLaneSelector(AbstractLaneGroup lg, float dt,jaxb.Parameters params,Long commid) {
         super(lg,dt,commid);
+        double temp_keep = 0.7;
+        double temp_rho_vehperlane = 0.018504;
+        double temp_add_in = 0d;
         if(params!=null){
             for(jaxb.Parameter p : params.getParameter()){
                 switch(p.getName()){
                     case "keep":
-                        this.keep = Math.abs(Float.parseFloat(p.getValue()));
+                        temp_keep = Math.abs(Float.parseFloat(p.getValue()));
                         break;
                     case "rho_vpkmplane":
-                        this.rho_vehperlane = Math.abs(Float.parseFloat(p.getValue()))/(lg.length/1000.0);
+                        temp_rho_vehperlane = Math.abs(Float.parseFloat(p.getValue()))/(lg.length/1000.0);
+                        break;
+                    case "add_in":
+                        temp_rho_vehperlane = Math.abs(Float.parseFloat(p.getValue()))/(lg.length/1000.0);
                         break;
                 }
             }
         }
-        this.add_in = 0d;
+        this.keep = temp_keep;
+        this.rho_vehperlane = temp_rho_vehperlane;
+        this.add_in = temp_add_in;
     }
+
     public LogitLaneSelector(AbstractLaneGroup lg, float dt,float keep,float rho_vpkmplane,Long commid) {
         super(lg,dt,commid);
         this.keep = keep;
@@ -119,30 +128,6 @@ public class LogitLaneSelector extends AbstractLaneSelector {
 //            if(timestamp % 300 ==0 )
 //                System.out.println(String.format("%.0f\t%.2f\t%.2f\t%.2f\t%.2f",timestamp,ui,um,uo,add_in));
 //        }
-    }
-
-    public double getKeep() {
-        return keep;
-    }
-
-    public void setKeep(double keep) {
-        this.keep = keep;
-    }
-
-    public double getRho_vehperlane() {
-        return rho_vehperlane;
-    }
-
-    public void setRho_vehperlane(double rho_vehperlane) {
-        this.rho_vehperlane = rho_vehperlane;
-    }
-
-    public double getAdd_in() {
-        return add_in;
-    }
-
-    public void setAdd_in(double add_in) {
-        this.add_in = add_in;
     }
 
 }
