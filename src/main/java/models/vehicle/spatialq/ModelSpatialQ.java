@@ -8,7 +8,6 @@ import error.OTMException;
 import models.vehicle.AbstractVehicleModel;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
-import output.animation.AbstractLinkInfo;
 import utils.StochasticProcess;
 
 import java.util.*;
@@ -56,7 +55,6 @@ public class ModelSpatialQ extends AbstractVehicleModel {
     //////////////////////////////////////////////////////////////
     // Completions from AbstractModel
     //////////////////////////////////////////////////////////////
-
 
     @Override
     public void set_state_for_link(Link link) {

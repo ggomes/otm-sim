@@ -18,8 +18,6 @@ import utils.StochasticProcess;
 
 import java.util.*;
 
-import static java.util.stream.Collectors.toSet;
-
 public abstract class AbstractFluidModel extends AbstractModel implements InterfaceFluidModel {
 
     public final float max_cell_length;
@@ -37,7 +35,6 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     //////////////////////////////////////////////////////////////
     // final for fluid models
     //////////////////////////////////////////////////////////////
-
 
     @Override
     public void set_links(Set<Link> links, Collection<core.RoadConnection> road_connections) throws OTMException {
@@ -131,15 +128,6 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     public final AbstractDemandGenerator create_source(Link origin, Profile1D profile, Commodity commodity, Path path) {
         return new FluidDemandGenerator(origin,profile,commodity,path);
     }
-
-//    @Override
-//    public AbstractLinkInfo get_link_info(Link link) {
-//        return new output.animation.macro.LinkInfo(link);
-//    }
-
-    //////////////////////////////////////////////////////////////
-    // extendable
-    //////////////////////////////////////////////////////////////
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {

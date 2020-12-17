@@ -12,6 +12,7 @@ import models.Maneuver;
 import models.fluid.*;
 import output.AbstractOutput;
 import core.Scenario;
+import output.OutputCellVehicles;
 import traveltime.FluidLaneGroupTimer;
 import utils.OTMUtils;
 import utils.StochasticProcess;

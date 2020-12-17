@@ -14,8 +14,6 @@ import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
-import models.AbstractModel;
-import models.fluid.AbstractFluidModel;
 import plugin.PluginLoader;
 import profiles.*;
 import sensor.AbstractSensor;
