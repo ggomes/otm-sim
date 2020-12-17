@@ -12,7 +12,6 @@ import jaxb.OutputRequest;
 import core.AbstractLaneGroup;
 import models.AbstractModel;
 import output.AbstractOutput;
-import output.animation.AbstractLinkInfo;
 import core.Scenario;
 import profiles.Profile1D;
 import utils.StochasticProcess;
@@ -32,10 +31,7 @@ public class ModelNone extends AbstractModel {
     //////////////////////////////////////////////////////////////
 
     @Override
-    public void reset(Link link){ }
-
-    @Override
-    public void build() throws OTMException { }
+    public void set_state_for_link(Link link){ }
 
     @Override
     public void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time){
@@ -56,7 +52,7 @@ public class ModelNone extends AbstractModel {
     }
 
     @Override
-    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException{
+    public AbstractOutput create_output(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException{
         return null;
     }
 
@@ -67,11 +63,6 @@ public class ModelNone extends AbstractModel {
 
     @Override
     public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups){
-        return null;
-    }
-
-    @Override
-    public AbstractLinkInfo get_link_info(Link link){
         return null;
     }
 

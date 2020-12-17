@@ -315,7 +315,7 @@ public class OTM {
     public Map<Long,Set<Long>> get_link2lgs(){
         Map<Long,Set<Long>> lk2lgs = new HashMap<>();
         for(Link link : scenario.network.links.values())
-            lk2lgs.put(link.getId(),link.lanegroups_flwdn.stream()
+            lk2lgs.put(link.getId(),link.lgs.stream()
                     .map(x->x.id).collect(toSet()));
         return lk2lgs;
     }
@@ -336,7 +336,7 @@ public class OTM {
 
     public Queues get_link_queues(long link_id) throws Exception {
         Link link = scenario.network.links.get(link_id);
-        MesoLaneGroup lg = (MesoLaneGroup) link.lanegroups_flwdn.iterator().next();
+        MesoLaneGroup lg = (MesoLaneGroup) link.lgs.iterator().next();
         return new Queues(lg.waiting_queue.num_vehicles(),lg.transit_queue.num_vehicles());
     }
 
@@ -356,14 +356,14 @@ public class OTM {
 
         Link link = scenario.network.links.get(link_id);
 
-        if(link.lanegroups_flwdn.size()>1)
+        if(link.lgs.size()>1)
             throw new Exception("Cannot call set_link_vehicles on multi-lane group links");
 
 //        if(link.model.type!= ModelType.VehicleMeso)
 //            throw new Exception("Cannot call set_link_vehicles on non-meso models");
 
         long comm_id = scenario.commodities.keySet().iterator().next();
-        MesoLaneGroup lg = (MesoLaneGroup) link.lanegroups_flwdn.iterator().next();
+        MesoLaneGroup lg = (MesoLaneGroup) link.lgs.iterator().next();
         SplitMatrixProfile smp = lg.link.get_split_profile(comm_id);
 
         // transit queue ................
@@ -557,7 +557,7 @@ public class OTM {
                 if(!scenario.network.models.containsKey(jaxb_or.getModel()))
                     throw new OTMException("Bad model name in output : " + jaxb_or.getModel());
                 AbstractModel model = scenario.network.models.get(jaxb_or.getModel());
-                output = model.create_output_object(scenario,prefix,output_folder,jaxb_or);
+                output = model.create_output(scenario,prefix,output_folder,jaxb_or);
             }
 
             else {

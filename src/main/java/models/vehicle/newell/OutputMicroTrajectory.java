@@ -47,7 +47,7 @@ public class OutputMicroTrajectory extends AbstractOutputTimed {
         if(write_to_file){
             try {
                 for(Link link : model.links){
-                    for(AbstractLaneGroup alg : link.lanegroups_flwdn){
+                    for(AbstractLaneGroup alg : link.lgs){
                         NewellLaneGroup lg = (NewellLaneGroup) alg;
                         for(NewellVehicle vehicle : lg.vehicles)
                             writer.write(String.format("%.2f\t%d\t%d\t%.2f\n",timestamp,vehicle.getId(), lg.id,vehicle.pos));

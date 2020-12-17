@@ -12,7 +12,6 @@ import core.AbstractLaneGroup;
 import profiles.Profile1D;
 import utils.OTMUtils;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +35,7 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
 
         if(!commodity.pathfull) {
 
-            if(link.lanegroups_flwdn.size()!=1)
+            if(link.lgs.size()!=1)
                 errorLog.addError(String.format("Source on link %d with more than one lane group",link.getId()));
 
             // TODO DEAL WITH THIS RESTRICTION
@@ -69,13 +68,13 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
                 Long nextlink_id = link.outlink2lanegroups.keySet().iterator().next();
                 State state = new State(comm_id,nextlink_id,false);
 
-                List<Double> capacities = link.lanegroups_flwdn.stream()
+                List<Double> capacities = link.lgs.stream()
                         .map(lg->((FluidLaneGroup)lg).capacity_veh_per_dt)
                         .collect(Collectors.toList());
                 double sum = capacities.stream().reduce(0d,Double::sum);
 
-                for(int i=0;i<link.lanegroups_flwdn.size();i++){
-                    FluidLaneGroup lg = (FluidLaneGroup)link.lanegroups_flwdn.get(i);
+                for(int i = 0; i<link.lgs.size(); i++){
+                    FluidLaneGroup lg = (FluidLaneGroup)link.lgs.get(i);
                     lg.source_flow.put(state,flow_veh_per_timestep*capacities.get(i)/sum);
                 }
 

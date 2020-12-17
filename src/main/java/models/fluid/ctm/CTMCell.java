@@ -72,7 +72,7 @@ public class CTMCell extends AbstractCell {
     }
 
     @Override
-    public void reset() {
+    public void set_state() {
 
     }
 

@@ -29,7 +29,7 @@ public class OutputLinkQueues extends AbstractOutputTimed {
             if(!scenario.network.links.containsKey(link_id))
                 continue;
             Link link = scenario.network.links.get(link_id);
-            for(AbstractLaneGroup lg : link.lanegroups_flwdn)
+            for(AbstractLaneGroup lg : link.lgs)
                 lg2qinfo.put(lg.id, new QueueInfo(0f,outDt));
         }
 
@@ -73,7 +73,7 @@ public class OutputLinkQueues extends AbstractOutputTimed {
         } else {
             for(Long link_id : link_ids) {
                 Link link = scenario.network.links.get(link_id);
-                for (AbstractLaneGroup alg : link.lanegroups_flwdn) {
+                for (AbstractLaneGroup alg : link.lgs) {
                     MesoLaneGroup lg = (MesoLaneGroup) alg;
                     QueueInfo queueInfo = lg2qinfo.get(lg.id);
                     queueInfo.waiting_profile.values.add((double)lg.waiting_queue.num_vehicles());
@@ -139,7 +139,7 @@ public class OutputLinkQueues extends AbstractOutputTimed {
         Map<Queue.Type,Profile1D> X = new HashMap<>();
 
         Profile1D profile = null;
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn){
+        for(AbstractLaneGroup lg : link.lgs){
             if(!lg2qinfo.containsKey(lg.id))
                 continue;
 
@@ -163,7 +163,7 @@ public class OutputLinkQueues extends AbstractOutputTimed {
         Map<Queue.Type,Profile1D> X = new HashMap<>();
 
         Profile1D profile = null;
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn){
+        for(AbstractLaneGroup lg : link.lgs){
             if(!lg2qinfo.containsKey(lg.id))
                 continue;
 

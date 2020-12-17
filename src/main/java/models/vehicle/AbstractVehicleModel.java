@@ -19,14 +19,6 @@ public abstract class AbstractVehicleModel extends AbstractModel implements Inte
         super(AbstractModel.Type.Vehicle,name, is_default,process);
     }
 
-    @Override
-    public final void build() throws OTMException { }
-
-    @Override
-    public final void set_links(Set<Link> links) {
-        super.set_links(links);
-    }
-
     //////////////////////////////////////////////////////////////
     // sample implementation
     //////////////////////////////////////////////////////////////

@@ -29,7 +29,7 @@ public class ModelSpatialQ extends AbstractVehicleModel {
     }
 
     @Override
-    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
+    public AbstractOutput create_output(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
         AbstractOutput output = null;
         switch (jaxb_or.getQuantity()) {
             case "queues":
@@ -53,18 +53,13 @@ public class ModelSpatialQ extends AbstractVehicleModel {
         return std_lanegroup_proportions(candidate_lanegroups);
     }
 
-    @Override
-    public AbstractLinkInfo get_link_info(Link link) {
-        return new output.animation.meso.LinkInfo(link);
-    }
-
     //////////////////////////////////////////////////////////////
     // Completions from AbstractModel
     //////////////////////////////////////////////////////////////
 
 
     @Override
-    public void reset(Link link) {
+    public void set_state_for_link(Link link) {
 
     }
 

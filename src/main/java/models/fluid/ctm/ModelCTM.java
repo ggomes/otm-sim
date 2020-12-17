@@ -37,7 +37,7 @@ public class ModelCTM extends AbstractFluidModel {
     }
 
     @Override
-    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
+    public AbstractOutput create_output(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
         AbstractOutput output = null;
 //        switch (jaxb_or.getQuantity()) {
 //            case "cell_veh":
@@ -82,7 +82,7 @@ public class ModelCTM extends AbstractFluidModel {
     @Override
     public void update_link_state(Link link,float timestamp) throws OTMException {
 
-        for(AbstractLaneGroup alg : link.lanegroups_flwdn) {
+        for(AbstractLaneGroup alg : link.lgs) {
 
             FluidLaneGroup lg = (FluidLaneGroup) alg;
 
@@ -163,21 +163,21 @@ public class ModelCTM extends AbstractFluidModel {
 
     private void perform_lane_changes(Link link,float timestamp) {
 
-        if(link.lanegroups_flwdn.size()<2)
+        if(link.lgs.size()<2)
             return;
 
             // WARNING: THIS ASSUMES ONLY FULL LENGTH ADDLANES
 
 //        REWRITE THIS !!!!!
 
-        int cells_in_full_lg = ((FluidLaneGroup)link.lanegroups_flwdn.iterator().next()).cells.size();
+        int cells_in_full_lg = ((FluidLaneGroup)link.lgs.iterator().next()).cells.size();
 
         // scan cross section from upstream to downstream
         for (int i = 0; i < cells_in_full_lg; i++) {
 
             // compute total flows reduction for each lane group
             Map<Long, Double> gamma = new HashMap<>();
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn) {
+            for (AbstractLaneGroup alg : link.lgs) {
                 FluidLaneGroup lg = (FluidLaneGroup) alg;
                 CTMCell cell = (CTMCell) lg.cells.get(i);
                 double demand_to_me = 0d;
@@ -201,7 +201,7 @@ public class ModelCTM extends AbstractFluidModel {
             // WARNING: This assumes that no state has vehicles going in both directions.
             // ie a flow that goes left does not also go right. Otherwise I think there may
             // be "data races", where the result depends on the order of lgs.
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn) {
+            for (AbstractLaneGroup alg : link.lgs) {
                 FluidLaneGroup to_lg = (FluidLaneGroup) alg;
                 CTMCell to_cell = (CTMCell) to_lg.cells.get(i);
                 double my_gamma = gamma.get(to_lg.id);
@@ -254,7 +254,7 @@ public class ModelCTM extends AbstractFluidModel {
 
     // call update_supply_demand on each cell
     private void update_supply_for_all_cells(Link link,float timestamp) {
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn) {
+        for(AbstractLaneGroup lg : link.lgs) {
             FluidLaneGroup ctmlg = (FluidLaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell->cell.update_supply());
@@ -262,7 +262,7 @@ public class ModelCTM extends AbstractFluidModel {
     }
 
     private void update_demand(Link link,float timestamp) {
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn) {
+        for(AbstractLaneGroup lg : link.lgs) {
             FluidLaneGroup ctmlg = (FluidLaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_demand());

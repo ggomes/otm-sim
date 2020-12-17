@@ -15,6 +15,7 @@ import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
 import models.AbstractModel;
+import models.fluid.AbstractFluidModel;
 import plugin.PluginLoader;
 import profiles.*;
 import sensor.AbstractSensor;
@@ -90,11 +91,6 @@ public class ScenarioFactory {
                 else
                     for(Link link : scenario.network.links.values())
                         commodity.register_commodity(link, commodity, null);
-
-        // build the models ..........................................
-        if(!jaxb_only)
-            for(AbstractModel model : scenario.network.models.values())
-                model.build();
 
         // lane change models .............................
         if(!jaxb_only)
@@ -380,7 +376,7 @@ public class ScenarioFactory {
 
         if(jlcs==null) {
             for(Link link : links.values())
-                for(AbstractLaneGroup lg : link.lanegroups_flwdn)
+                for(AbstractLaneGroup lg : link.lgs)
                     lg.assign_lane_selector(default_type,default_dt,null,comms.keySet());
             return;
         }
@@ -393,7 +389,7 @@ public class ScenarioFactory {
             unassigned.removeAll(linkids);
             for(Long linkid : linkids)
                 if(links.containsKey(linkid))
-                    for(AbstractLaneGroup lg : links.get(linkid).lanegroups_flwdn)
+                    for(AbstractLaneGroup lg : links.get(linkid).lgs)
                         lg.assign_lane_selector(type,lc.getDt(),lc.getParameters(),commids);
         }
 
@@ -403,7 +399,7 @@ public class ScenarioFactory {
             float my_dt = x.isPresent() ? x.get().getDt() : default_dt;
             jaxb.Parameters my_params = x.isPresent() ? x.get().getParameters() : null;
             for(Long linkid : unassigned)
-                for(AbstractLaneGroup lg : links.get(linkid).lanegroups_flwdn)
+                for(AbstractLaneGroup lg : links.get(linkid).lgs)
                     lg.assign_lane_selector(my_default_type,my_dt,my_params,comms.keySet());
         }
 

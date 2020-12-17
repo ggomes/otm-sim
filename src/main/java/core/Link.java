@@ -45,7 +45,7 @@ public class Link implements InterfaceScenarioElement {
     // Longitudinal lanegroups: flow exits from the bottom edge.
     // There are stay lanegroups and downstream addlanes
     // ordered from inner to outer
-    public List<AbstractLaneGroup> lanegroups_flwdn;
+    public List<AbstractLaneGroup> lgs;
 
     // barriers
     public Set<Barrier> in_barriers;
@@ -109,7 +109,7 @@ public class Link implements InterfaceScenarioElement {
         this.shape = new ArrayList<>();
 
         // lanegroups ......................................
-        lanegroups_flwdn = new ArrayList<>();
+        lgs = new ArrayList<>();
         dnlane2lanegroup = new HashMap<>();
 
         // routing ............................................
@@ -174,20 +174,20 @@ public class Link implements InterfaceScenarioElement {
             errorLog.addError("link " + id + ": model==null");
         if( dnlane2lanegroup ==null )
             errorLog.addError("link " + id + ": dnlane2lanegroup==null");
-        if( lanegroups_flwdn ==null )
+        if( lgs ==null )
             errorLog.addError("link " + id + ": lanegroups==null");
 
         // all lanegroups are represented in dnlane2lanegroup
-        if(lanegroups_flwdn !=null && dnlane2lanegroup !=null) {
+        if(lgs !=null && dnlane2lanegroup !=null) {
             Set<Long> A = dnlane2lanegroup.values().stream().map(x->x.id).collect(toSet());
-            Set<Long> B = lanegroups_flwdn.stream().map(x->x.id).collect(toSet());
+            Set<Long> B = lgs.stream().map(x->x.id).collect(toSet());
             if (!A.equals(B))
                 errorLog.addError("link " + id + ": not all lanegroups are represented in dnlane2lanegroup");
         }
 
         // lanegroups
-        if(lanegroups_flwdn !=null)
-            lanegroups_flwdn.forEach(x->x.validate(errorLog));
+        if(lgs !=null)
+            lgs.forEach(x->x.validate(errorLog));
 
         // out_road_connections all lead to links that are immediately downstream
         Set<Link> dwn_links = this.get_roadconnections_leaving().stream()
@@ -219,7 +219,7 @@ public class Link implements InterfaceScenarioElement {
     }
 
     public void initialize(Scenario scenario, float start_time) throws OTMException {
-        for(AbstractLaneGroup lg : lanegroups_flwdn)
+        for(AbstractLaneGroup lg : lgs)
             lg.initialize(scenario,start_time);
 
         if(split_profile!=null)
@@ -261,9 +261,9 @@ public class Link implements InterfaceScenarioElement {
         network = null;
         start_node = null;
         end_node = null;
-        if(lanegroups_flwdn !=null)
-            lanegroups_flwdn.forEach(lg->lg.delete());
-        lanegroups_flwdn = null;
+        if(lgs !=null)
+            lgs.forEach(lg->lg.delete());
+        lgs = null;
         dnlane2lanegroup = null;
         path2outlink = null;
         outlink2lanegroups = null;
@@ -280,7 +280,7 @@ public class Link implements InterfaceScenarioElement {
 
     public void set_flwdn_lanegroups(List<AbstractLaneGroup> lgs) {
 
-        lanegroups_flwdn = new ArrayList<>();
+        this.lgs = new ArrayList<>();
         dnlane2lanegroup = new HashMap<>();
 
         if(lgs==null || lgs.isEmpty())
@@ -288,7 +288,7 @@ public class Link implements InterfaceScenarioElement {
 
         // lanegroups
         for(AbstractLaneGroup lg : lgs)
-            lanegroups_flwdn.add(lg);
+            this.lgs.add(lg);
 
         // dnlane2lanegroup
         for (AbstractLaneGroup lg : lgs)
@@ -296,29 +296,10 @@ public class Link implements InterfaceScenarioElement {
                 dnlane2lanegroup.put(lane, lg);
     }
 
-    public void set_model(AbstractModel newmodel, boolean is_model_source_link) throws OTMException {
 
-        if (model==null){
-            this.model = newmodel;
-            this.is_model_source_link = is_model_source_link;
-            return;
-        }
-
-        if(model.is_default && !newmodel.is_default) {
-            this.model = newmodel;
-            this.is_model_source_link = is_model_source_link;
-            return;
-        }
-
-        if(model.is_default && newmodel.is_default)
-            throw new OTMException("Multiple default models");
-
-        if(!model.is_default && !newmodel.is_default)
-            throw new OTMException("ModelType multiply assigned for link " + this.id);
-    }
 
     public double get_max_vehicles(){
-        return lanegroups_flwdn.stream().mapToDouble(x->x.get_max_vehicles()).sum();
+        return lgs.stream().mapToDouble(x->x.get_max_vehicles()).sum();
     }
 
     public void set_actuator_flowToLinks(ActuatorFlowToLinks act){
@@ -481,14 +462,14 @@ public class Link implements InterfaceScenarioElement {
     }
 
     public Set<RoadConnection> get_roadconnections_leaving(){
-        return lanegroups_flwdn.stream()
+        return lgs.stream()
                 .flatMap(lg->lg.outlink2roadconnection.values().stream())
                 .collect(toSet());
     }
 
     public Set<RoadConnection> get_roadconnections_entering(){
         Set<RoadConnection> rcs = start_node.in_links.values().stream()
-                .flatMap(lk->lk.lanegroups_flwdn.stream())
+                .flatMap(lk->lk.lgs.stream())
                 .flatMap(lg->lg.outlink2roadconnection.values().stream())
                 .filter(rc->rc.end_link.getId()==this.getId())
                 .collect(toSet());
@@ -621,13 +602,13 @@ public class Link implements InterfaceScenarioElement {
     ///////////////////////////////////////////
 
     public double get_veh() {
-        return lanegroups_flwdn.stream()
+        return lgs.stream()
                 .mapToDouble(x->x.get_total_vehicles())
                 .sum();
     }
 
     public double get_veh_for_commodity(Long commodity_id) {
-        return lanegroups_flwdn.stream()
+        return lgs.stream()
                 .mapToDouble(x->x.vehs_dwn_for_comm(commodity_id))
                 .sum();
     }

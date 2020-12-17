@@ -57,7 +57,7 @@ public class ActuatorFlowToLinks extends AbstractActuator {
 
         Optional<RoadConnection> orc = linkMLup.start_node.in_links.values().stream()
                 .filter(inlink->inlink.road_type==Link.RoadType.freeway)
-                .flatMap(inlink->inlink.lanegroups_flwdn.stream())
+                .flatMap(inlink->inlink.lgs.stream())
                 .filter(lg->lg.outlink2roadconnection.containsKey(linkMLup.getId()))
                 .map(lg->lg.outlink2roadconnection.get(linkMLup.getId()))
                 .findFirst();

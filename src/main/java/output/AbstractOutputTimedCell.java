@@ -44,7 +44,7 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
             if(!(link.model instanceof AbstractFluidModel))
                 throw new OTMException("Cell output cannot be generated for links with non-fluid models");
 
-            for(AbstractLaneGroup lg : link.lanegroups_flwdn){
+            for(AbstractLaneGroup lg : link.lgs){
                 FluidLaneGroup flg = (FluidLaneGroup)lg;
                 ordered_lgs.add(flg);
                 List<CellProfile> profs = new ArrayList<>();

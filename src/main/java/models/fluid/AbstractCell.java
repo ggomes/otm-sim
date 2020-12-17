@@ -20,7 +20,7 @@ public abstract class AbstractCell {
     public FlowAccumulatorState flw_lcout_acc;
     public FlowAccumulatorState flw_lcin_acc;
 
-    public abstract void reset();
+    public abstract void set_state();
     public abstract void allocate_state();
     public abstract Map<State,Double> get_demand();
     public abstract void update_supply();
