@@ -17,8 +17,8 @@ import java.util.*;
 
 public class ModelCTM extends AbstractFluidModel {
 
-    public ModelCTM(String name, Set<Link> links, Collection<RoadConnection>road_connections, StochasticProcess process, jaxb.ModelParams param, jaxb.Lanechanges lcs) throws OTMException     {
-        super(name,links,road_connections,param.getSimDt()==null ? -1 : param.getSimDt(),process,param,lcs);
+    public ModelCTM(String name, Set<Link> links, StochasticProcess process, jaxb.ModelParams param) throws OTMException     {
+        super(name,links,param.getSimDt()==null ? -1 : param.getSimDt(),process,param);
     }
 
     //////////////////////////////////////////////////////////////

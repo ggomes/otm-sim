@@ -118,7 +118,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     @Override
     public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long next_link_id) throws OTMException {
 
-        for(AbstractVehicle aveh : create_vehicles_from_packet(vp,next_link_id)){
+         for(AbstractVehicle aveh : create_vehicles_from_packet(vp,next_link_id)){
 
             NewellVehicle vehicle = (NewellVehicle)aveh;
 

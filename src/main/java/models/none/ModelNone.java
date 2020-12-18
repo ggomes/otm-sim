@@ -23,7 +23,7 @@ import java.util.Set;
 public class ModelNone extends AbstractModel {
 
     public ModelNone(String name,Set<Link> links) throws OTMException {
-        super(AbstractModel.Type.None,name, links,null,null,null);
+        super(AbstractModel.Type.None,name, links,null);
     }
 
     //////////////////////////////////////////////////////////////

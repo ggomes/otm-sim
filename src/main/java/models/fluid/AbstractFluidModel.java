@@ -7,6 +7,7 @@ import core.geometry.Side;
 import dispatch.Dispatcher;
 import error.OTMException;
 import core.State;
+import jaxb.Lanechanges;
 import models.AbstractModel;
 import models.fluid.nodemodel.NodeModel;
 import models.fluid.nodemodel.RoadConnection;
@@ -26,10 +27,15 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     protected Set<Link> sink_links = new HashSet<>();
     protected Map<Long, NodeModel> node_models;
 
-    public AbstractFluidModel(String name, Set<Link> links,  Collection<core.RoadConnection>road_connections, float dt_sec, StochasticProcess process, jaxb.ModelParams param, jaxb.Lanechanges lcs) throws OTMException {
-        super(AbstractModel.Type.Fluid,name,links,road_connections,process,lcs);
+    public AbstractFluidModel(String name, Set<Link> links, float dt_sec, StochasticProcess process, jaxb.ModelParams params) throws OTMException {
+        super(AbstractModel.Type.Fluid,name,links,process);
         this.dt_sec = dt_sec;
-        this.max_cell_length = param.getMaxCellLength()==null ? -1 : param.getMaxCellLength();
+        this.max_cell_length = params.getMaxCellLength()==null ? -1 : params.getMaxCellLength();
+    }
+
+    @Override
+    public void configure(Scenario scenario, Collection<core.RoadConnection> road_connections, Lanechanges lcs) throws OTMException {
+        super.configure(scenario, road_connections, lcs);
 
         Set<Node> all_nodes = new HashSet<>();
 

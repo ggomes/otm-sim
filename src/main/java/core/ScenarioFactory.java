@@ -12,8 +12,13 @@ import control.commodity.ControllerOfframpFlow;
 import control.commodity.ControllerTollLaneGroup;
 import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
+import core.geometry.AddLanes;
+import core.geometry.Gate;
+import core.geometry.RoadGeometry;
+import core.geometry.Side;
 import error.OTMErrorLog;
 import error.OTMException;
+import lanechange.LinkLaneSelector;
 import models.AbstractModel;
 import models.fluid.ctm.ModelCTM;
 import models.none.ModelNone;
@@ -52,7 +57,7 @@ public class ScenarioFactory {
         scenario.network = ScenarioFactory.create_network_from_jaxb(scenario, js.getCommodities(), js.getNetwork(), jaxb_only);
 
         // generate models
-        scenario.models = create_models_from_jaxb(js.getModels().getModel(),scenario.network.links, scenario.network.road_connections.values());
+        scenario.models = create_models_from_jaxb(scenario,js.getModels().getModel(),scenario.network.links, scenario.network.road_connections.values());
 
         // commodities ......................................................
         scenario.subnetworks = ScenarioFactory.create_subnetworks_from_jaxb(
@@ -71,7 +76,7 @@ public class ScenarioFactory {
         scenario.controllers = ScenarioFactory.create_controllers_from_jaxb(scenario,js.getControllers() );
 
         // populate link.path2outlink (requires commodities)
-        if(!jaxb_only) {
+         if(!jaxb_only) {
             Set<Subnetwork> used_paths = scenario.commodities.values().stream()
                     .filter(c -> c.pathfull)
                     .map(c -> c.subnetworks)
@@ -183,7 +188,7 @@ public class ScenarioFactory {
         return network;
     }
 
-    private static Map<String, AbstractModel> create_models_from_jaxb(List<jaxb.Model> jms, Map<Long,Link> all_links, Collection<RoadConnection>road_connections) throws OTMException {
+    private static Map<String, AbstractModel> create_models_from_jaxb(Scenario scenario,List<jaxb.Model> jms, Map<Long,Link> all_links, Collection<RoadConnection>road_connections) throws OTMException {
 
         Map<String, AbstractModel> models = new HashMap<>();
 
@@ -237,27 +242,21 @@ public class ScenarioFactory {
                 case "ctm":
                     model = new ModelCTM(jmodel.getName(),
                             my_links,
-                            road_connections,
                             process,
-                            jmodel.getModelParams(),
-                            jmodel.getLanechanges() );
+                            jmodel.getModelParams());
                     break;
 
                 case "spaceq":
                     model = new ModelSpatialQ(jmodel.getName(),
                             my_links,
-                            road_connections,
-                            process,
-                            jmodel.getLanechanges() );
+                            process);
                     break;
 
                 case "micro":
                     model = new ModelNewell(jmodel.getName(),
                             my_links,
-                            road_connections,
                             process,
-                            jmodel.getModelParams(),
-                            jmodel.getLanechanges()  );
+                            jmodel.getModelParams());
                     break;
 
                 case "none":
@@ -275,9 +274,11 @@ public class ScenarioFactory {
                     break;
 
             }
+
+            model.configure(scenario,road_connections,jmodel.getLanechanges() );
+
             models.put(jmodel.getName(),model);
             assigned_links.addAll(model.links);
-
         }
 
         // assign 'none' model to remaining links

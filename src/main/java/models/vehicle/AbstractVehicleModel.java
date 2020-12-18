@@ -13,8 +13,8 @@ import java.util.*;
 
 public abstract class AbstractVehicleModel extends AbstractModel implements InterfaceVehicleModel {
 
-    public AbstractVehicleModel(String name, Set<Link> links, Collection<RoadConnection>road_connections, StochasticProcess process, jaxb.ModelParams param, jaxb.Lanechanges lcs) throws OTMException {
-        super(AbstractModel.Type.Vehicle,name,links,road_connections,process, lcs);
+    public AbstractVehicleModel(String name, Set<Link> links, StochasticProcess process) throws OTMException {
+        super(AbstractModel.Type.Vehicle,name,links,process);
     }
 
     //////////////////////////////////////////////////////////////

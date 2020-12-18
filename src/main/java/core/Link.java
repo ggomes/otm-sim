@@ -285,26 +285,14 @@ public class Link implements InterfaceScenarioElement {
         shape = null;
     }
 
-    public void set_flwdn_lanegroups(List<AbstractLaneGroup> lgs) {
-
-        this.lgs = new ArrayList<>();
+    public void set_lanegroups(List<AbstractLaneGroup> lgs) {
+        this.lgs = lgs;
         dnlane2lanegroup = new HashMap<>();
-
-        if(lgs==null || lgs.isEmpty())
-            return;
-
-        // lanegroups
-        for(AbstractLaneGroup lg : lgs)
-            this.lgs.add(lg);
-
-        // dnlane2lanegroup
         for (AbstractLaneGroup lg : lgs)
             for (int lane=lg.start_lane_dn;lane<lg.start_lane_dn+lg.num_lanes;lane++)                       // iterate through dn lanes
                 dnlane2lanegroup.put(lane, lg);
     }
-
-
-
+    
     public double get_max_vehicles(){
         return lgs.stream().mapToDouble(x->x.get_max_vehicles()).sum();
     }

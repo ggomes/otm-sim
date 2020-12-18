@@ -3,6 +3,7 @@ package models;
 import core.*;
 import core.geometry.AddLanes;
 import core.geometry.Gate;
+import core.geometry.RoadGeometry;
 import core.geometry.Side;
 import error.OTMException;
 import core.packet.PacketLaneGroup;
@@ -14,9 +15,7 @@ import utils.StochasticProcess;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -40,32 +39,40 @@ public abstract class AbstractModel implements InterfaceModel {
     // construction
     //////////////////////////////////////////////////
 
-    public AbstractModel(Type type, String name, Set<Link> links, Collection<RoadConnection> road_connections, StochasticProcess process, Lanechanges lcs) throws OTMException {
+    public  AbstractModel(Type type, String name, Set<Link> links, StochasticProcess process) throws OTMException {
         this.type = type;
         this.name = name;
         this.stochastic_process = process;
-
-        // set links
         this.links = links;
+    }
+
+    public void configure(Scenario scenario,Collection<RoadConnection>road_connections, jaxb.Lanechanges lcs) throws OTMException {
 
         if(links==null || links.isEmpty())
             return;
 
-        Scenario scenario = links.iterator().next().network.scenario;
-
         // set link models (links will choose new over default, so this determines the link list for each model)
         for (Link link : links) {
+
+            link.model = this;
+
             // determine whether link is a relative source link
             // (a relative source is one that has at least one incoming link that is not in the model)
-            boolean incoming_are_all_in_model = links.containsAll(link.start_node.in_links.values());
-            link.model = this;
-            link.is_model_source_link = !link.is_source && !incoming_are_all_in_model;
+            link.is_model_source_link = !link.is_source && !links.containsAll(link.start_node.in_links.values());
 
             // create lane groups
-            Set<RoadConnection> out_rc = link.end_node.road_connections.stream()
+            Set<RoadConnection> out_rcs = link.end_node.road_connections.stream()
                     .filter(rc->rc.start_link==link)
                     .collect(toSet());
-            create_lane_groups(link, out_rc);
+
+            if (out_rcs.isEmpty() && !link.is_sink)
+                throw new OTMException("out_rcs.isEmpty() && !link.is_sink FOR LINK "+link.getId());
+
+            // create lanegroups
+            List<AbstractLaneGroup> mylgs = create_lanegroups(link, out_rcs);
+            link.set_lanegroups(mylgs);
+            apply_road_geom(link,mylgs);
+            set_neighbors(link);
 
             // populate link.outlink2lanegroups
             if(!link.is_sink) {
@@ -81,7 +88,7 @@ public abstract class AbstractModel implements InterfaceModel {
 
         }
 
-        // set out lanegroups on road connections
+        // populate rc.out_lanegroups
         for(RoadConnection rc : road_connections) {
             if (rc.end_link != null) {
                 rc.out_lanegroups = new HashSet<>();
@@ -171,91 +178,7 @@ public abstract class AbstractModel implements InterfaceModel {
     // private
     //////////////////////////////////////////////////
 
-    private static void create_lane_groups(Link link,final Set<RoadConnection> out_rcs) throws OTMException {
-
-        if (link.model == null)
-            throw new OTMException("Not all links have a model.");
-
-        if (out_rcs.isEmpty() && !link.is_sink)
-            throw new OTMException("out_rcs.isEmpty() && !link.is_sink FOR LINK "+link.getId());
-
-        // create lanegroups
-        link.set_flwdn_lanegroups(create_dnflw_lanegroups(link, out_rcs));
-
-        // set start_lane_up ...................
-        int offset = 0;
-        if(link.road_geom!=null){
-            if(link.road_geom.in_is_full_length())
-                offset = 0;
-            else {
-                int dn_in_lanes = link.road_geom.in != null ? link.road_geom.in.lanes : 0;
-                offset = dn_in_lanes;
-            }
-        }
-
-        for (AbstractLaneGroup lg : link.lgs) {
-            switch (lg.side) {
-                case in:
-                    if(link.road_geom.in_is_full_length())
-                        lg.start_lane_up = lg.start_lane_dn;
-                    break;
-                case middle:
-                    lg.start_lane_up = lg.start_lane_dn - offset;
-                    break;
-                case out:
-                    if(link.road_geom.out_is_full_length())
-                        lg.start_lane_up = lg.start_lane_dn - offset;
-                    break;
-            }
-        }
-
-        // set neighbors ...................
-
-        // ................... long lanegroups = {dn addlane, stay lgs}
-        int num_dn_lanes = link.get_num_dn_lanes();
-        if(num_dn_lanes>1) {
-            List<AbstractLaneGroup> long_lgs = IntStream.rangeClosed(1, link.get_num_dn_lanes())
-                    .mapToObj(lane -> link.dnlane2lanegroup.get(lane)).collect(toList());
-            AbstractLaneGroup prev_lg = null;
-            for (int lane = 1; lane <= num_dn_lanes; lane++) {
-
-                AbstractLaneGroup lg = long_lgs.get(lane - 1);
-
-                assert(lg!=null);
-
-                if (prev_lg == null)
-                    prev_lg = lg;
-                if (lg != prev_lg) {
-                    lg.neighbor_in = prev_lg;
-                    prev_lg.neighbor_out = lg;
-                    prev_lg = lg;
-                }
-            }
-
-            prev_lg = null;
-            for(int lane=num_dn_lanes;lane>=1;lane--){
-                AbstractLaneGroup lg = long_lgs.get(lane-1);
-                if(prev_lg==null)
-                    prev_lg = lg;
-                if(lg!=prev_lg) {
-                    lg.neighbor_out = prev_lg;
-                    prev_lg.neighbor_in = lg;
-                    prev_lg = lg;
-                }
-            }
-        }
-
-        // set barriers .................
-        if(link.road_geom!=null){
-            if(link.road_geom.in !=null && !link.road_geom.in.isopen)
-                link.in_barriers = generate_barriers(link,link.road_geom.in);
-            if(link.road_geom.out !=null && !link.road_geom.out.isopen)
-                link.out_barriers = generate_barriers(link,link.road_geom.out);
-        }
-
-    }
-
-    private static List<AbstractLaneGroup> create_dnflw_lanegroups(Link link, Set<RoadConnection> out_rcs) throws OTMException {
+    private static List<AbstractLaneGroup> create_lanegroups(Link link, Set<RoadConnection> out_rcs) throws OTMException {
         // Find unique subsets of road connections, and create a lane group for each one.
 
         List<AbstractLaneGroup> lanegroups = new ArrayList<>();
@@ -280,7 +203,7 @@ public abstract class AbstractModel implements InterfaceModel {
                 throw new OTMException("Road connections do not conform to rules.");
 
             // create the lane group
-            lanegroups.add(create_dnflw_lanegroup(link,
+            lanegroups.add(create_lanegroup(link,
                     1,
                     link.road_geom.in.lanes,
                     myrcs));
@@ -304,7 +227,7 @@ public abstract class AbstractModel implements InterfaceModel {
                             rc.start_link_to_lane >= flane)
                     .collect(toSet());
             if(!myrcs.equals(prevrcs)){
-                lanegroups.add(create_dnflw_lanegroup(link,
+                lanegroups.add(create_lanegroup(link,
                         lg_start_lane,
                         lane-lg_start_lane,
                         prevrcs));
@@ -313,7 +236,7 @@ public abstract class AbstractModel implements InterfaceModel {
             }
         }
 
-        lanegroups.add(create_dnflw_lanegroup(link,
+        lanegroups.add(create_lanegroup(link,
                 lg_start_lane,
                 lane-lg_start_lane,
                 prevrcs));
@@ -336,7 +259,7 @@ public abstract class AbstractModel implements InterfaceModel {
                 throw new OTMException("Road connections do not conform to rules.");
 
             // create the lane group
-            lanegroups.add(create_dnflw_lanegroup(link,
+            lanegroups.add(create_lanegroup(link,
                     fstart_lane,
                     link.road_geom.out.lanes,
                     myrcs));
@@ -346,17 +269,12 @@ public abstract class AbstractModel implements InterfaceModel {
         return lanegroups;
     }
 
-    private static AbstractLaneGroup create_dnflw_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
+    private static AbstractLaneGroup create_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
 
         // Determine whether it is an addlane lanegroup or a full lane lane group.
         Set<Side> sides = new HashSet<>();
         for(int lane=dn_start_lane;lane<dn_start_lane+num_lanes;lane++)
             sides.add(link.get_side_for_dn_lane(lane));
-
-        // all lanes must belong to one of the 3
-        // That is, there are no lane groups that is both inner and full length, or outer and full length.
-//        if(sides.size()!=1)
-//            throw new OTMException(String.format("Rule broken: Lane groups must be contained in addlanes or stay lanes. Check link %d",link.getId()));
 
         jaxb.Roadparam rp = null;
         float length = 0f;
@@ -380,6 +298,47 @@ public abstract class AbstractModel implements InterfaceModel {
         return link.model.create_lane_group(link,side,length,num_lanes,dn_start_lane,out_rcs,rp);
     }
 
+    private static void apply_road_geom(Link link, List<AbstractLaneGroup>lgs){
+
+        RoadGeometry road_geom = link.road_geom;
+
+        // set start_lane_up ...................
+        int offset = 0;
+        if(road_geom!=null){
+            if(road_geom.in_is_full_length())
+                offset = 0;
+            else {
+                int dn_in_lanes = road_geom.in != null ? road_geom.in.lanes : 0;
+                offset = dn_in_lanes;
+            }
+        }
+
+        for (AbstractLaneGroup lg : lgs) {
+            switch (lg.side) {
+                case in:
+                    if(road_geom==null || road_geom.in_is_full_length())
+                        lg.start_lane_up = lg.start_lane_dn;
+                    break;
+                case middle:
+                    lg.start_lane_up = lg.start_lane_dn - offset;
+                    break;
+                case out:
+                    if(road_geom==null || road_geom.out_is_full_length())
+                        lg.start_lane_up = lg.start_lane_dn - offset;
+                    break;
+            }
+        }
+
+        // set barriers .................
+        if(road_geom!=null){
+            if(road_geom.in !=null && !road_geom.in.isopen)
+                link.in_barriers = generate_barriers(link,road_geom.in);
+            if(road_geom.out !=null && !road_geom.out.isopen)
+                link.out_barriers = generate_barriers(link,road_geom.out);
+        }
+
+    }
+
     private static HashSet<Barrier> generate_barriers(Link link, AddLanes addlanes){
         HashSet<Barrier> X = new HashSet<>();
         List<Float> gate_points = new ArrayList<>();
@@ -398,39 +357,36 @@ public abstract class AbstractModel implements InterfaceModel {
         return X;
     }
 
-    private static void assign_lane_change_models(Set<Long> allcommids,Map<Long,Link> links,jaxb.Lanechanges jlcs) throws OTMException {
+    private static void set_neighbors(Link link) {
 
-//        String default_type = "keep";
-//        float default_dt = 0f;
-//
-//        if(jlcs==null) {
-//            for(Link link : links.values())
-//                for(AbstractLaneGroup lg : link.lgs)
-//                    lg.assign_lane_selector(default_type,default_dt,null,allcommids);
-//            return;
-//        }
-//
-//        Set<Long> unassigned = new HashSet<>(links.keySet());
-//        for(jaxb.Lanechange lc : jlcs.getLanechange()){
-//            String type = lc.getType();
-//            Collection<Long> linkids = lc.getLinks()==null ? links.keySet() : OTMUtils.csv2longlist(lc.getLinks());
-//            Collection<Long> commids = lc.getComms()==null ? allcommids : OTMUtils.csv2longlist(lc.getComms());
-//            unassigned.removeAll(linkids);
-//            for(Long linkid : linkids)
-//                if(links.containsKey(linkid))
-//                    for(AbstractLaneGroup lg : links.get(linkid).lgs)
-//                        lg.assign_lane_selector(type,lc.getDt(),lc.getParameters(),commids);
-//        }
-//
-//        if(!unassigned.isEmpty()){
-//            Optional<jaxb.Lanechange> x = jlcs.getLanechange().stream().filter(xx -> xx.isIsDefault()).findFirst();
-//            String my_default_type = x.isPresent() ? x.get().getType() : default_type;
-//            float my_dt = x.isPresent() ? x.get().getDt() : default_dt;
-//            jaxb.Parameters my_params = x.isPresent() ? x.get().getParameters() : null;
-//            for(Long linkid : unassigned)
-//                for(AbstractLaneGroup lg : links.get(linkid).lgs)
-//                    lg.assign_lane_selector(my_default_type,my_dt,my_params,allcommids);
-//        }
+        int num_dn_lanes = link.get_num_dn_lanes();
+
+        if(num_dn_lanes<=1)
+            return;
+
+        AbstractLaneGroup prev_lg = null;
+        for (int lane = 1; lane <= num_dn_lanes; lane++) {
+            AbstractLaneGroup lg = link.dnlane2lanegroup.get(lane);
+            if (prev_lg == null)
+                prev_lg = lg;
+            if (lg != prev_lg) {
+                lg.neighbor_in = prev_lg;
+                prev_lg.neighbor_out = lg;
+                prev_lg = lg;
+            }
+        }
+
+        prev_lg = null;
+        for(int lane=num_dn_lanes;lane>=1;lane--){
+            AbstractLaneGroup lg = link.dnlane2lanegroup.get(lane);
+            if(prev_lg==null)
+                prev_lg = lg;
+            if(lg!=prev_lg) {
+                lg.neighbor_out = prev_lg;
+                prev_lg.neighbor_in = lg;
+                prev_lg = lg;
+            }
+        }
 
     }
 
