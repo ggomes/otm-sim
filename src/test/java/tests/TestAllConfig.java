@@ -24,6 +24,7 @@ public class TestAllConfig extends AbstractTest {
     final float start_time = 0f;
     final float duration = 2000f;
     final boolean makeplots = false;
+    final Float outDt = 2f;
 
     public TestAllConfig(String testname){
         this.testname = testname;
@@ -53,7 +54,6 @@ public class TestAllConfig extends AbstractTest {
             // request outputs
             String prefix = testname;
             Set<Long> link_ids = otm.scenario.network.links.keySet();
-            Float outDt = 10f;
             for(Long comm : otm.scenario.commodities.keySet()) {
                 otm.output.request_links_flow(makeplots?null:prefix,makeplots?null:output_folder, comm, link_ids, outDt);
                 otm.output.request_links_veh(makeplots?null:prefix, makeplots?null:output_folder, comm, link_ids, outDt);
