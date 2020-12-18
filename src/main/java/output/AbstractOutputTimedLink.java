@@ -56,7 +56,10 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
         }
 
         // subnetwork==null, all links in common, otherwise, all links in subnetwork
-        Collection<Link> links = subnetwork==null?scenario.network.links.values():subnetwork.get_links();
+        Collection<Link> links = subnetwork==null ?
+                scenario.network.links.values() :
+                subnetwork.get_link_ids().stream().map(x->scenario.network.links.get(x)).collect(Collectors.toSet());
+
         ordered_ids = new long[links.size()];
         linkprofiles = new HashMap<>();
         int i = 0;

@@ -6,8 +6,7 @@ import error.OTMException;
 import utils.OTMUtils;
 
 import java.util.*;
-
-import static java.util.stream.Collectors.toList;
+import java.util.stream.Collectors;
 
 public class Path extends Subnetwork {
 
@@ -19,18 +18,21 @@ public class Path extends Subnetwork {
 
     public Path(jaxb.Subnetwork js, Network network) throws OTMException {
         super(js, network);
-        create_ordered_links();
+        if(!create_ordered_links(network))
+            throw new OTMException(String.format("Subnetwork %d is not a path.",js.getId()));
     }
 
-    public Path(Network network) {
+    public Path(Network network) throws OTMException {
         super(network);
-        create_ordered_links();
+        if(!create_ordered_links(network))
+            throw new OTMException("Network is not a path.");
     }
 
-    public Path(Subnetwork subnet) {
-        super(subnet);
-        create_ordered_links();
-    }
+//    public Path(Subnetwork subnet) {
+//        super(subnet);
+//        if(!create_ordered_links(network))
+//            throw new OTMException("Subetwork is not a path.");
+//    }
 
     ///////////////////////////////////////////////////
     // InterfaceScenarioElement
@@ -75,23 +77,11 @@ public class Path extends Subnetwork {
         return ind>ordered_links.size()-1 ? null : ordered_links.get(ind);
     }
 
-//    // Returns null if it is a sink or a x-to-one case with no road connections defined
-//    public RoadConnection get_roadconn_following(AbstractLaneGroup lg){
-//        if(lg==null)
-//            return null;
-//        Link next_link = get_link_following(lg.link);
-//        if(next_link!=null)
-//            return lg.get_roadconnection_for_outlink(next_link.getId());
-//        else
-//            return null;
-//    }
-
     public boolean has(Link link){
         return this.ordered_links.contains(link);
     }
 
-    @Override
-    public Collection<Link> get_links() {
+    public List<Link> get_ordered_links() {
         return ordered_links;
     }
 
@@ -99,16 +89,28 @@ public class Path extends Subnetwork {
     // private
     ///////////////////////////////////////////////////
 
-    private void create_ordered_links(){
 
-        // generate ordered links ..........
-        // get all sources in the subnetwork
-        // guaranteed to be single source because it is a path
-        List<Link> sources = this.links.stream()
+    ///////////////////////////////////////////////////
+    // private
+    ///////////////////////////////////////////////////
+
+
+    private boolean create_ordered_links(Network network){
+
+        Set<Link> links = this.link_ids.stream()
+                .map(x->network.links.get(x))
+                .collect(Collectors.toSet());
+
+
+        // check that there is exactly one source in links
+        Set<Link> sources = links.stream()
                 .filter(x->x.is_source)
-                .collect(toList());
-        Link current = sources.get(0);
+                .collect(Collectors.toSet());
 
+        if(sources.size()!=1)
+            return false;
+
+        Link current = sources.iterator().next();
         Set<Link> unchecked = new HashSet<>();
         unchecked.addAll(links);
         unchecked.remove(current);
@@ -117,14 +119,15 @@ public class Path extends Subnetwork {
         ordered_links.add(current);
 
         while(!unchecked.isEmpty()){
-
-            Collection<Link> next_links = current.end_node.out_links;
-            Set<Link> next_link = OTMUtils.intersect(next_links,links);
-
+            Set<Link> next_link = OTMUtils.intersect(current.end_node.out_links, links);
+            if(next_link.size()>1)
+                return false;
             current = next_link.iterator().next();
             ordered_links.add(current);
             unchecked.remove(current);
         }
+
+        return true;
     }
 
 }

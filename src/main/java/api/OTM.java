@@ -1,5 +1,6 @@
 package api;
 
+import commodity.Path;
 import commodity.Subnetwork;
 import core.AbstractLaneGroup;
 import core.Link;
@@ -210,7 +211,7 @@ public class OTM {
      */
     public Set<Long> get_path_ids(){
         return scenario.subnetworks.values().stream()
-                .filter(x->x.isPath())
+                .filter(x->x instanceof Path)
                 .map(x->x.getId())
                 .collect(toSet());
     }
@@ -236,8 +237,7 @@ public class OTM {
         if(!scenario.network.links.keySet().containsAll(linkids))
             throw new OTMException("Bad link id in subnetwork_delete_link");
 
-        Set<Link> links = linkids.stream().map(i->scenario.network.links.get(i)).collect(toSet());
-        scenario.subnetworks.get(subnetid).remove_links(links);
+        scenario.subnetworks.get(subnetid).remove_links(linkids);
     }
 
     public void subnetwork_add_links(long subnetid,Set<Long> linkids) throws OTMException {
@@ -247,8 +247,7 @@ public class OTM {
         if(!scenario.network.links.keySet().containsAll(linkids))
             throw new OTMException("Bad link id in subnetwork_add_link");
 
-        Set<Link> links = linkids.stream().map(i->scenario.network.links.get(i)).collect(toSet());
-        scenario.subnetworks.get(subnetid).add_links(links);
+        scenario.subnetworks.get(subnetid).add_links(linkids);
     }
 
     ////////////////////////////////////////////////////////
@@ -554,9 +553,9 @@ public class OTM {
             Float outDt = jaxb_or.getDt();
 
             if(jaxb_or.getModel()!=null){
-                if(!scenario.network.models.containsKey(jaxb_or.getModel()))
+                if(!scenario.models.containsKey(jaxb_or.getModel()))
                     throw new OTMException("Bad model name in output : " + jaxb_or.getModel());
-                AbstractModel model = scenario.network.models.get(jaxb_or.getModel());
+                AbstractModel model = scenario.models.get(jaxb_or.getModel());
                 output = model.create_output(scenario,prefix,output_folder,jaxb_or);
             }
 

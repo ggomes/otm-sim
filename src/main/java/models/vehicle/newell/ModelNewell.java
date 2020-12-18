@@ -22,8 +22,8 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
     public float dt;
 
-    public ModelNewell(String name, boolean is_default, StochasticProcess process, jaxb.ModelParams param) {
-        super(name, is_default,process);
+    public ModelNewell(String name, Set<Link> links, Collection<RoadConnection>road_connections, StochasticProcess process, jaxb.ModelParams param, jaxb.Lanechanges lcs) throws OTMException {
+        super(name,links,road_connections,process,param,lcs);
         this.dt = param.getSimDt()==null ? -1 : param.getSimDt();
     }
 

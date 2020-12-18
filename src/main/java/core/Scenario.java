@@ -35,6 +35,7 @@ public class Scenario {
     public Set<AbstractOutput> outputs = new HashSet<>();
 
     // Scenario elements
+    public Map<String,AbstractModel> models;
     public Map<Long,Commodity> commodities = new HashMap<>();     // commodity id -> commodity
     public Map<Long,Subnetwork> subnetworks = new HashMap<>();    // subnetwork id -> subnetwork
     public Network network;
@@ -42,16 +43,8 @@ public class Scenario {
     public Map<Long, AbstractActuator> actuators = new HashMap<>();
     public Map<Long, AbstractSensor> sensors = new HashMap<>();
 
-    // commodity/link -> demand profile
-
-    // WHY DO I NEED THIS IN THE SCENARIO?
-//    public Map<KeyCommodityDemandTypeId,AbstractDemandProfile> data_demands;
-
     // travel time computation
     public LinkTravelTimeManager path_tt_manager;
-
-    // available actuators
-    public Set<String> available_actuator_types;
 
     ///////////////////////////////////////////////////
     // construction
@@ -65,10 +58,11 @@ public class Scenario {
 
         OTMErrorLog errorLog =  new OTMErrorLog();
 
+        network.validate(errorLog);
+        if(models!=null)
+            models.values().stream().forEach(x -> x.validate(errorLog));
         if( subnetworks!=null )
             subnetworks.values().forEach(x -> x.validate(errorLog));
-        if( network!=null )
-            network.validate(errorLog);
         if( sensors!=null )
             sensors.values().stream().forEach(x -> x.validate(errorLog));
         if( controllers!=null )
@@ -81,7 +75,7 @@ public class Scenario {
 
             if( errorLog.getErrors().stream().anyMatch(e->e.description.contains("CFL")) ){
                 Map<String,Double> maxdt = new HashMap<>();
-                for(AbstractModel model : network.models.values())
+                for(AbstractModel model : models.values())
                     maxdt.put(model.name,Double.POSITIVE_INFINITY);
                 for(String str : errorLog.getErrors().stream().filter(e->e.description.contains("CFL")).map(e->e.description).collect(toSet())) {
                     String[] tokens = str.split(" ");
@@ -126,22 +120,6 @@ public class Scenario {
         if(dispatcher!=null)
             dispatcher.initialize();
 
-//        // To initialize the commodities I will need a map, for each link, from outlink to viable road connections
-//        Map<Long,Map<Long,Set<RoadConnection>>> link_outlink2rcs = new HashMap<>();
-//        for(Link link : network.links.values()) {
-//            Map<Long,Set<RoadConnection>> X = new HashMap<>();
-//            link_outlink2rcs.put(link.getId(),X);
-//            for (AbstractLaneGroup lg : link.lanegroups_flwdn)
-//                for (Map.Entry<Long, RoadConnection> e : lg.outlink2roadconnection.entrySet()) {
-//                    if (!X.containsKey(e.getKey()))
-//                        X.put(e.getKey(), new HashSet<>());
-//                    X.get(e.getKey()).add(e.getValue());
-//                }
-//        }
-
-//        for(Commodity commodity : commodities.values())
-//            commodity.initialize(this);
-
         // initialize and register outputs
         for(AbstractOutput x : outputs)
             x.initialize(this);
@@ -151,6 +129,9 @@ public class Scenario {
             output.register(runParams,dispatcher);
 
         network.initialize(this,runParams.start_time);
+
+        for(AbstractModel model : models.values())
+            model.initialize(this,runParams.start_time);
 
         for(AbstractSensor x : sensors.values())
             x.initialize(this);
@@ -162,9 +143,6 @@ public class Scenario {
 
         if(path_tt_manager!=null)
             path_tt_manager.initialize(dispatcher);
-
-        // register initial events for each model
-        network.models.values().forEach(m->m.register_with_dispatcher(this, dispatcher, runParams.start_time));
 
         is_initialized = true;
     }

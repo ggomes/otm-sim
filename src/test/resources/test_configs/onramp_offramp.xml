@@ -8,8 +8,8 @@
 	</commodities>
 
 	<subnetworks>
-		<subnetwork id="1">1,2,3,4,5</subnetwork>
-		<subnetwork id="2">6,3,7</subnetwork>
+		<subnetwork id="1" isroute="true">1,2,3,4,5</subnetwork>
+		<subnetwork id="2" isroute="true">6,3,7</subnetwork>
 	</subnetworks>
 
 	<models>

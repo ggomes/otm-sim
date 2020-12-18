@@ -1,8 +1,8 @@
 package output;
 
+import commodity.Path;
 import commodity.Subnetwork;
 import core.Link;
-import error.OTMErrorLog;
 import error.OTMException;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -11,27 +11,33 @@ import core.Scenario;
 
 import java.io.*;
 
-public abstract class AbstractOutputTimedSubnetwork extends AbstractOutputTimed {
+public abstract class AbstractOutputTimedPath extends AbstractOutputTimed {
 
-    public Subnetwork subnetwork;
+    public Path path;
     public Profile1D profile;
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
-    public AbstractOutputTimedSubnetwork(Scenario scenario, String prefix, String output_folder, Long commodity_id, Long subnetwork_id, Float outDt) throws OTMException {
+    public AbstractOutputTimedPath(Scenario scenario, String prefix, String output_folder, Long commodity_id, Long subnetwork_id, Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,outDt);
 
         // get subnetwork
-        if(subnetwork_id==null)
-            subnetwork = null;
-        else{
-            if (!scenario.subnetworks.containsKey(subnetwork_id))
-                throw new OTMException("Bad subnetwork id in output request.");
-
-            subnetwork = scenario.subnetworks.get(subnetwork_id);
+        if(subnetwork_id==null) {
+            path = null;
+            return;
         }
+
+        if (!scenario.subnetworks.containsKey(subnetwork_id))
+            throw new OTMException("Bad subnetwork id in output request.");
+
+        Subnetwork subnet = scenario.subnetworks.get(subnetwork_id);
+
+        if(!(subnet instanceof Path))
+            throw new OTMException("Subnetwork in output request is not a path.");
+
+        path = (Path) subnet;
     }
 
     //////////////////////////////////////////////////////
@@ -42,21 +48,12 @@ public abstract class AbstractOutputTimedSubnetwork extends AbstractOutputTimed 
     public void plot(String filename) throws OTMException {
         XYSeriesCollection dataset = new XYSeriesCollection();
         dataset.addSeries(get_series());
-        make_time_chart(dataset,String.format("Subnetwork %d",subnetwork.getId()),get_yaxis_label(),filename);
+        make_time_chart(dataset,String.format("Subnetwork %d",path.getId()),get_yaxis_label(),filename);
     }
 
     //////////////////////////////////////////////////////
     // AbstractOutput
     //////////////////////////////////////////////////////
-
-    @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
-        if (subnetwork == null)
-            errorLog.addError("Bad path id in AbstractOutputTimedSubnetwork");
-        else
-            subnetwork.validate(errorLog);
-    }
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
@@ -68,7 +65,7 @@ public abstract class AbstractOutputTimedSubnetwork extends AbstractOutputTimed 
                 if (filename != null) {
                     String subfilename = filename.substring(0, filename.length() - 4);
                     Writer links_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_links.txt"));
-                    for (Link link : subnetwork.get_links())
+                    for (Link link : path.get_ordered_links() )
                         links_writer.write(link.getId() + "\t");
                     links_writer.close();
                 }
@@ -84,12 +81,12 @@ public abstract class AbstractOutputTimedSubnetwork extends AbstractOutputTimed 
     // final
     //////////////////////////////////////////////////////
 
-    public final Long get_subnetwork_id(){
-        return subnetwork==null ? null : subnetwork.getId();
+    public final Long get_path_id(){
+        return path.getId();
     }
 
     public final XYSeries get_series() {
-        return profile.get_series(String.format("%d",get_subnetwork_id()));
+        return profile.get_series(String.format("%d", get_path_id()));
     }
 
 }

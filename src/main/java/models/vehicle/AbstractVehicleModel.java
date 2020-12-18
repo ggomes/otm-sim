@@ -2,10 +2,8 @@ package models.vehicle;
 
 import commodity.Commodity;
 import commodity.Path;
-import core.AbstractDemandGenerator;
-import core.Link;
+import core.*;
 import error.OTMException;
-import core.AbstractLaneGroup;
 import models.AbstractModel;
 import profiles.Profile1D;
 import utils.OTMUtils;
@@ -15,8 +13,8 @@ import java.util.*;
 
 public abstract class AbstractVehicleModel extends AbstractModel implements InterfaceVehicleModel {
 
-    public AbstractVehicleModel(String name, boolean is_default, StochasticProcess process) {
-        super(AbstractModel.Type.Vehicle,name, is_default,process);
+    public AbstractVehicleModel(String name, Set<Link> links, Collection<RoadConnection>road_connections, StochasticProcess process, jaxb.ModelParams param, jaxb.Lanechanges lcs) throws OTMException {
+        super(AbstractModel.Type.Vehicle,name,links,road_connections,process, lcs);
     }
 
     //////////////////////////////////////////////////////////////

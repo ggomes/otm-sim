@@ -1,18 +1,18 @@
 package control.commodity;
 
 import actuator.ActuatorOpenCloseLaneGroup;
-import core.AbstractLaneGroup;
-import core.FlowAccumulatorState;
-import core.LaneGroupSet;
-import core.Scenario;
+import core.*;
 import control.AbstractController;
 import control.command.CommandRestrictionMap;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import error.OTMException;
 import jaxb.Controller;
-import lanechange.AbstractLaneSelector;
+import lanechange.InterfaceLaneSelector;
+import lanechange.LinkLaneSelector;
 import lanechange.LogitLaneSelector;
+import lanechange.TollLaneSelector;
+import models.Maneuver;
 import models.fluid.AbstractFluidModel;
 import models.fluid.FluidLaneGroup;
 import utils.OTMUtils;
@@ -35,7 +35,7 @@ public class ControllerTollLaneGroup extends AbstractController {
     public float speed_threshold_meterpdt;
     public LookupTable vplpdt_to_cents_table;
 
-    public Set<LGInfo> lginfos;
+    public Set<LinkInfo> lginfos;
 
     public ControllerTollLaneGroup(Scenario scenario, Controller jcnt) throws OTMException {
         super(scenario, jcnt);
@@ -75,7 +75,7 @@ public class ControllerTollLaneGroup extends AbstractController {
         ActuatorOpenCloseLaneGroup act = (ActuatorOpenCloseLaneGroup)actuators.values().iterator().next();
         this.lginfos = new HashSet<>();
         for (AbstractLaneGroup hotlg : ((LaneGroupSet) act.target).lgs)
-            lginfos.add(new LGInfo(hotlg));
+            lginfos.add(new LinkInfo(hotlg));
     }
 
     @Override
@@ -115,7 +115,7 @@ public class ControllerTollLaneGroup extends AbstractController {
             command.put(act_id,new CommandRestrictionMap(X));
 
             // put lane selector backs
-            lginfos.forEach(l->l.restore(scenario));
+            lginfos.forEach(l->l.restore());
         }
 
         // register next poke
@@ -124,74 +124,30 @@ public class ControllerTollLaneGroup extends AbstractController {
 
     }
 
-    class LGInfo {
-        AbstractLaneGroup gplg;
-        AbstractLaneGroup hotlg;
+    class LinkInfo {
         FlowAccumulatorState fa;
         double ffspeed_meterperdt;
-        Map<Long,AbstractLaneSelector> nom_ls;
-        Map<Long,LogitLaneSelector> toll_ls;
+        NomAndToll gp;
+        NomAndToll hot;
         double prev_count;
 
-        public LGInfo(AbstractLaneGroup hotlg){
-            this.hotlg = hotlg;
-            this.gplg = hotlg.neighbor_out;
+        public LinkInfo(AbstractLaneGroup hotlg){
             this.fa = hotlg.request_flow_accumulator(null);
             prev_count = fa.get_total_count();
+            hot = create_lane_selectors(hotlg);
+            gp = create_lane_selectors(hotlg.neighbor_out);
         }
 
         public void initialize(Dispatcher dispatcher){
-            nom_ls = new HashMap<>();
-            toll_ls = new HashMap<>();
-
-            int numcells =  ((FluidLaneGroup)hotlg).cells.size();
-            double celllength_meter = hotlg.length / numcells;
-            ffspeed_meterperdt = ((FluidLaneGroup)hotlg).ffspeed_cell_per_dt * celllength_meter;
-            ffspeed_meterperdt *= dt/((AbstractFluidModel)hotlg.link.model).dt_sec;
-
-            for(Long commid : tolled_comms){
-                LogitLaneSelector newls;
-                if(gplg.lane_selector.containsKey(commid)) {
-                    AbstractLaneSelector oldls =  gplg.lane_selector.get(commid);
-
-                    // remove future pokes
-                    dispatcher.remove_events_for_recipient(EventPoke.class,oldls);
-
-                    nom_ls.put(commid,oldls);
-                    if(oldls instanceof LogitLaneSelector) {
-                        LogitLaneSelector oldlogit = (LogitLaneSelector) oldls;
-                        newls = new LogitLaneSelector(gplg,0,(float)oldlogit.keep,(float)oldlogit.rho_vehperlane, commid);
-                    }
-                    else
-                        newls = new LogitLaneSelector(gplg,0,def_keep,def_rho_vpkmplane, commid);
-                }
-                else
-                    newls = new LogitLaneSelector(gplg,0,def_keep,def_rho_vpkmplane, commid);
-                try {
-                    newls.initialize(scenario,start_time);
-                } catch (OTMException e) {
-                    e.printStackTrace();
-                }
-                toll_ls.put(commid,newls);
-                gplg.lane_selector.put(commid,newls);
-            }
+            int numcells =  ((FluidLaneGroup)hot.lg).cells.size();
+            double celllength_meter = hot.lg.length / numcells;
+            ffspeed_meterperdt = ((FluidLaneGroup)hot.lg).ffspeed_cell_per_dt * celllength_meter;
+            ffspeed_meterperdt *= dt/((AbstractFluidModel)hot.lg.link.model).dt_sec;
         }
 
-        public void restore(Scenario scenario){
-            try {
-                for(Long commid : tolled_comms) {
-                    if (nom_ls.containsKey(commid)) {
-                        AbstractLaneSelector old_ls = nom_ls.get(commid);
-                        old_ls.initialize(scenario,scenario.dispatcher.current_time);
-                        gplg.lane_selector.put(commid, old_ls);
-                    }
-
-                    // remove future pokes for generated lane selectors
-                    scenario.dispatcher.remove_events_for_recipient(EventPoke.class,toll_ls.get(commid));
-                }
-            } catch (OTMException e) {
-                e.printStackTrace();
-            }
+        public void restore(){
+            gp.restore();
+            hot.restore();
         }
 
         public void update(){
@@ -199,23 +155,64 @@ public class ControllerTollLaneGroup extends AbstractController {
             double flow_vpdt = count-prev_count;
             prev_count = count;
 
-            double veh = hotlg.get_total_vehicles();
+            double hot_veh = hot.lg.get_total_vehicles();
 
-            double speed_meterperdt = veh<1 ? ffspeed_meterperdt : hotlg.length*flow_vpdt/veh;
-            if(speed_meterperdt>ffspeed_meterperdt)
-                speed_meterperdt = ffspeed_meterperdt;
+            double hot_speed_meterperdt = hot_veh<1 ? ffspeed_meterperdt : hot.lg.length*flow_vpdt/hot_veh;
+            if(hot_speed_meterperdt>ffspeed_meterperdt)
+                hot_speed_meterperdt = ffspeed_meterperdt;
 
             double add_term;
-            if(speed_meterperdt > speed_threshold_meterpdt)
+            if(hot_speed_meterperdt > speed_threshold_meterpdt)
                 add_term = Double.POSITIVE_INFINITY;
             else {
-                double toll = vplpdt_to_cents_table.get_value_for((float)flow_vpdt/hotlg.num_lanes);
+                double toll = vplpdt_to_cents_table.get_value_for((float)flow_vpdt/hot.lg.num_lanes);
                 add_term = toll_coef*toll;
             }
-            for(Long commid : tolled_comms)
-                toll_ls.get(commid).add_in = add_term;
+
+            for(InterfaceLaneSelector ls : hot.toll.values())
+                ((TollLaneSelector)ls).add_in = add_term;
+
         }
 
     }
+
+    class NomAndToll {
+        AbstractLaneGroup lg;
+        Map<State,InterfaceLaneSelector> nom;
+        Map<State,InterfaceLaneSelector> toll;
+
+        public NomAndToll(AbstractLaneGroup lg){
+            this.lg = lg;
+        }
+
+        public void restore(){
+            for(Map.Entry<State,InterfaceLaneSelector> e : nom.entrySet())
+                lg.link.lane_selector.lcs.get(lg.id).put(e.getKey(),e.getValue());
+        }
+    }
+
+    private NomAndToll create_lane_selectors(AbstractLaneGroup lg){
+        NomAndToll X = new NomAndToll(lg);
+        for( Map.Entry<State , Map<Maneuver,Double>> e : lg.state2lanechangeprob.entrySet() ){
+            State state = e.getKey();
+            TollLaneSelector newls;
+            if(tolled_comms.contains(state.commodity_id)){
+                InterfaceLaneSelector oldls =  lg.link.lane_selector.lcs.get(lg.id).get(state);
+                // store
+                X.nom.put(state,oldls);
+                // create a new lane selector
+                if(oldls instanceof TollLaneSelector) {
+                    TollLaneSelector oldlogit = (TollLaneSelector) oldls;
+                    newls = new TollLaneSelector(lg,0,(float)oldlogit.keep,(float)oldlogit.rho_vehperlane, state.commodity_id);
+                }
+                else
+                    newls = new TollLaneSelector(lg,0,def_keep,def_rho_vpkmplane, state.commodity_id);
+                X.toll.put(state,newls);
+                lg.link.lane_selector.lcs.get(lg.id).put(state,newls);
+            }
+        }
+        return X;
+    }
+
 
 }

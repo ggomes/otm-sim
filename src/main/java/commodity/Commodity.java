@@ -16,7 +16,6 @@ public class Commodity implements InterfaceScenarioElement {
     protected final Long id;
     public final String name;
     public final Set<Subnetwork> subnetworks;
-    public  Set<Link> all_links;
     public boolean pathfull;
     public float pvequiv;
 
@@ -27,39 +26,12 @@ public class Commodity implements InterfaceScenarioElement {
     // construction
     ///////////////////////////////////////////////////
 
-    public Commodity(long id, String name, List<Long> subnet_ids, Scenario scenario){
-        this.id = id;
-        this.name = name;
-        this.subnetworks = new HashSet<>();
-        this.pvequiv = 1f;
-        this.all_links = new HashSet<>();
-        if(subnet_ids!=null)
-            for(Long subnet_id : subnet_ids){
-                Subnetwork subnet = scenario.subnetworks.get(subnet_id);
-                if(subnet!=null)
-                    this.subnetworks.add(subnet);
-//                all_lanegroups.addAll(subnet.lanegroups);
-                all_links.addAll(subnet.links);
-            }
-        this.vehicle_event_listeners = new HashSet<>();
-        this.pathfull = false;
-    }
-
     public Commodity(jaxb.Commodity jaxb_comm, List<Long> subnet_ids, Scenario scenario) throws OTMException {
         this.id = jaxb_comm.getId();
         this.name = jaxb_comm.getName();
         this.pathfull = jaxb_comm.isPathfull();
-        this.subnetworks = new HashSet<>();
+        this.subnetworks = pathfull ? subnet_ids.stream().map(id->scenario.subnetworks.get(id)).collect(Collectors.toSet()) : null;
         this.pvequiv = jaxb_comm.getPvequiv();
-        this.all_links = new HashSet<>();
-        if(subnet_ids!=null)
-            for(Long subnet_id : subnet_ids){
-                Subnetwork subnet = scenario.subnetworks.get(subnet_id);
-                if(subnet!=null) {
-                    this.subnetworks.add(subnet);
-                    all_links.addAll(subnet.links);
-                }
-            }
         this.vehicle_event_listeners = new HashSet<>();
     }
 
@@ -90,15 +62,18 @@ public class Commodity implements InterfaceScenarioElement {
         jcomm.setPathfull(pathfull);
         jcomm.setPvequiv(pvequiv);
 
-        List<Long> subnets = subnetworks.stream().map(x->x.getId()).collect(Collectors.toList());
+        if(pathfull) {
+            List<Long> subnets = subnetworks.stream().map(x -> x.getId()).collect(Collectors.toList());
 
-        // exclude subnetwork 0
-        subnets.remove(0l);
+            if(!subnets.isEmpty()) {
+                String str = OTMUtils.comma_format(subnetworks.stream().map(x -> x.getId()).collect(Collectors.toList()));
+                jcomm.setSubnetworks(str);
+            }
 
-        if(!subnets.isEmpty()) {
-            String str = OTMUtils.comma_format(subnetworks.stream().map(x -> x.getId()).collect(Collectors.toList()));
-            jcomm.setSubnetworks(str);
+            // exclude subnetwork 0
+            subnets.remove(0l);
         }
+
         return jcomm;
     }
 
@@ -110,54 +85,18 @@ public class Commodity implements InterfaceScenarioElement {
         return pathfull ? DemandType.pathfull : DemandType.pathless;
     }
 
-    public boolean travels_on_link(Link link){
-        return all_links.contains(link);
-    }
-
     public void add_vehicle_event_listener(InterfaceVehicleListener ev) {
         vehicle_event_listeners.add(ev);
     }
 
 
     public List<Long> get_subnetwork_ids(){
-        return this.subnetworks.stream().map(x->x.id).collect(toList());
-    }
-
-    public Set<Subnetwork> get_subnetworks_for_link(Link link){
-        Set<Subnetwork> x = new HashSet<>();
-
-        // all links are members of the single subnetwork for pathless commodities
-        if(!pathfull) {
-            x.add(subnetworks.iterator().next());
-            return x;
-        }
-
-        // otherwise check all subnetworks for this link
-        for(Subnetwork subnetwork : subnetworks)
-            if(subnetwork.links.contains(link))
-                x.add(subnetwork);
-        return x;
-    }
-
-    public Set<Subnetwork> get_subnetworks_for_lanegroup(AbstractLaneGroup lg){
-        Link link = lg.link;
-        Set<Link> next_links = lg.get_out_links();
-        Set<Subnetwork> x = new HashSet<>();
-        for(Subnetwork subnetwork : subnetworks) {
-            if (subnetwork.links.contains(link) && subnetwork.links.stream().anyMatch(z->next_links.contains(z)))
-                x.add(subnetwork);
-        }
-        return x;
+        return pathfull ? this.subnetworks.stream().map(x->x.id).collect(toList()) : new ArrayList<>();
     }
 
     public String get_name(){
         return name;
     }
-
-//    public Path get_path(){
-//        return this.path;
-//    }
-
 
     ////////////////////////////////////////////
     // private

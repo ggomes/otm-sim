@@ -6,6 +6,7 @@ import error.OTMException;
 import core.geometry.RoadGeometry;
 import jaxb.Points;
 import jaxb.Roadparam;
+import lanechange.LinkLaneSelector;
 import models.AbstractModel;
 import profiles.SplitMatrixProfile;
 import traveltime.LinkTravelTimer;
@@ -39,6 +40,9 @@ public class Link implements InterfaceScenarioElement {
     // model .............................................
     public AbstractModel model;
     public boolean is_model_source_link;
+
+    // lane selection model
+    public LinkLaneSelector lane_selector;  // comm->lane selector
 
     // lanegroups ......................................
 
@@ -229,6 +233,9 @@ public class Link implements InterfaceScenarioElement {
         if(demandGenerators !=null)
             for(AbstractDemandGenerator gen : demandGenerators)
                 gen.initialize(scenario);
+
+        if(lane_selector!=null)
+            lane_selector.initialize(scenario,start_time);
     }
 
     @Override

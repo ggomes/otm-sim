@@ -22,8 +22,8 @@ import java.util.Set;
 
 public class ModelNone extends AbstractModel {
 
-    public ModelNone(String name, boolean is_default, StochasticProcess process, jaxb.ModelParams param) {
-        super(AbstractModel.Type.None,name, is_default, process);
+    public ModelNone(String name,Set<Link> links) throws OTMException {
+        super(AbstractModel.Type.None,name, links,null,null,null);
     }
 
     //////////////////////////////////////////////////////////////

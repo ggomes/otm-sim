@@ -7,6 +7,9 @@ import core.geometry.Side;
 import error.OTMException;
 import core.packet.PacketLaneGroup;
 import core.packet.PacketLink;
+import jaxb.Lanechanges;
+import lanechange.LinkLaneSelector;
+import utils.OTMUtils;
 import utils.StochasticProcess;
 
 import java.util.*;
@@ -29,23 +32,26 @@ public abstract class AbstractModel implements InterfaceModel {
 
     public final Type type;
     public final String name;
-    public final boolean is_default;
     public final StochasticProcess stochastic_process;
     public Set<Link> links;
+//    public LinkLaneSelector lane_selector;
 
     //////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////
 
-    public AbstractModel(Type type,String name, boolean is_default, StochasticProcess process){
+    public AbstractModel(Type type, String name, Set<Link> links, Collection<RoadConnection> road_connections, StochasticProcess process, Lanechanges lcs) throws OTMException {
         this.type = type;
         this.name = name;
-        this.is_default = is_default;
         this.stochastic_process = process;
-    }
 
-    public void set_links(Set<Link> links,Collection<RoadConnection> road_connections) throws OTMException {
+        // set links
         this.links = links;
+
+        if(links==null || links.isEmpty())
+            return;
+
+        Scenario scenario = links.iterator().next().network.scenario;
 
         // set link models (links will choose new over default, so this determines the link list for each model)
         for (Link link : links) {
@@ -62,7 +68,6 @@ public abstract class AbstractModel implements InterfaceModel {
             create_lane_groups(link, out_rc);
 
             // populate link.outlink2lanegroups
-
             if(!link.is_sink) {
                 link.outlink2lanegroups = new HashMap<>();
                 for(Link outlink : link.end_node.out_links) {
@@ -86,13 +91,33 @@ public abstract class AbstractModel implements InterfaceModel {
             }
         }
 
+        // set lane change model .............................................
+        String default_type = "keep";
+        float default_dt = 0f;
+
+        if(lcs==null) {
+            for(Link link : links)
+                link.lane_selector = new LinkLaneSelector(default_type,default_dt,null,link,scenario.commodities.keySet());
+
+        } else {
+            for(jaxb.Lanechange lc : lcs.getLanechange()){
+                Collection<Long> commids = lc.getComms()==null ?
+                        scenario.commodities.keySet() :
+                        OTMUtils.csv2longlist(lc.getComms());
+                for(Link link : links)
+                    link.lane_selector = new LinkLaneSelector(lc.getType(),lc.getDt(),lc.getParameters(),link,commids);
+            }
+        }
+
     }
 
-    public void initialize(Scenario scenario) throws OTMException {
+    public void initialize(Scenario scenario, float start_time) throws OTMException {
         for(Link link : links){
             for(AbstractLaneGroup lg : link.lgs)
                 lg.allocate_state();
         }
+
+        register_with_dispatcher(scenario, scenario.dispatcher, start_time);
     }
 
     //////////////////////////////////////////////////
@@ -372,4 +397,41 @@ public abstract class AbstractModel implements InterfaceModel {
         }
         return X;
     }
+
+    private static void assign_lane_change_models(Set<Long> allcommids,Map<Long,Link> links,jaxb.Lanechanges jlcs) throws OTMException {
+
+//        String default_type = "keep";
+//        float default_dt = 0f;
+//
+//        if(jlcs==null) {
+//            for(Link link : links.values())
+//                for(AbstractLaneGroup lg : link.lgs)
+//                    lg.assign_lane_selector(default_type,default_dt,null,allcommids);
+//            return;
+//        }
+//
+//        Set<Long> unassigned = new HashSet<>(links.keySet());
+//        for(jaxb.Lanechange lc : jlcs.getLanechange()){
+//            String type = lc.getType();
+//            Collection<Long> linkids = lc.getLinks()==null ? links.keySet() : OTMUtils.csv2longlist(lc.getLinks());
+//            Collection<Long> commids = lc.getComms()==null ? allcommids : OTMUtils.csv2longlist(lc.getComms());
+//            unassigned.removeAll(linkids);
+//            for(Long linkid : linkids)
+//                if(links.containsKey(linkid))
+//                    for(AbstractLaneGroup lg : links.get(linkid).lgs)
+//                        lg.assign_lane_selector(type,lc.getDt(),lc.getParameters(),commids);
+//        }
+//
+//        if(!unassigned.isEmpty()){
+//            Optional<jaxb.Lanechange> x = jlcs.getLanechange().stream().filter(xx -> xx.isIsDefault()).findFirst();
+//            String my_default_type = x.isPresent() ? x.get().getType() : default_type;
+//            float my_dt = x.isPresent() ? x.get().getDt() : default_dt;
+//            jaxb.Parameters my_params = x.isPresent() ? x.get().getParameters() : null;
+//            for(Long linkid : unassigned)
+//                for(AbstractLaneGroup lg : links.get(linkid).lgs)
+//                    lg.assign_lane_selector(my_default_type,my_dt,my_params,allcommids);
+//        }
+
+    }
+
 }

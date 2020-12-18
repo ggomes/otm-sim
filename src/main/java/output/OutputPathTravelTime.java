@@ -8,10 +8,9 @@ import core.Scenario;
 import java.io.IOException;
 import java.util.List;
 
-public class OutputPathTravelTime extends AbstractOutputTimedSubnetwork {
+public class OutputPathTravelTime extends AbstractOutputTimedPath {
 
     public boolean instantaneous = true;
-    public Path path;
 
     //////////////////////////////////////////////////////
     // construction
@@ -20,11 +19,6 @@ public class OutputPathTravelTime extends AbstractOutputTimedSubnetwork {
     public OutputPathTravelTime(Scenario scenario, String prefix, String output_folder, Long subnetwork_id, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, null, subnetwork_id, outDt);
         this.type = Type.path_travel_time;
-
-        if (subnetwork==null || !subnetwork.isPath())
-            throw new OTMException("The requested subnetwork is not a path.");
-
-        this.path = (Path) this.subnetwork;
     }
 
     //////////////////////////////////////////////////////
@@ -79,10 +73,6 @@ public class OutputPathTravelTime extends AbstractOutputTimedSubnetwork {
     // final
     //////////////////////////////////////////////////////
 
-    public final long get_path_id(){
-        return path.getId();
-    }
-
     public final double compute_predictive_travel_time(float start_time){
 //        float curr_time = start_time;
 //        for(Link link:path.ordered_links)
@@ -136,7 +126,7 @@ public class OutputPathTravelTime extends AbstractOutputTimedSubnetwork {
     //////////////////////////////////////////////////////
 
     private double compute_instantaneous_travel_time(){
-        return path.get_links().stream().
+        return path.get_ordered_links().stream().
                 mapToDouble(link->link.link_tt.instantaneous_travel_time)
                 .sum();
     }

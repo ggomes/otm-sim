@@ -175,7 +175,7 @@ public class TestApiOTM extends AbstractTest {
             api.OTM otm = new api.OTM();
             otm.load_test("line_ctm");
 
-            Set<Float> sim_dts = otm.scenario.network.models.values().stream()
+            Set<Float> sim_dts = otm.scenario.models.values().stream()
                     .filter(m->m.type== AbstractModel.Type.Fluid)
                     .map(m->((AbstractFluidModel)m).dt_sec)
                     .collect(toSet());

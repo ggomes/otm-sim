@@ -30,7 +30,7 @@ public class LinkTravelTimeManager {
                 throw new OTMException("All path travel time requests must have the same dt.");
 
         // add all links to set
-        links.addAll(path_tt_writer.path.get_links());
+        links.addAll(path_tt_writer.path.get_ordered_links());
     }
 
     public void initialize(Dispatcher dispatcher){

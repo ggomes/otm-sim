@@ -7,14 +7,14 @@ import models.fluid.FluidLaneGroup;
 
 import java.util.Map;
 
-public class LogitLaneSelector implements InterfaceLaneSelector {
+public class TollLaneSelector implements InterfaceLaneSelector {
 
     public final double keep;             // [-] positive utility of keeping your lane
     public final double rho_vehperlane;   // [1/vehperlane] positive utility of changing lanes into a lane with lower density
     public double add_in;  // additional terms used for setting toll on hot lane
 //    public final double threshold = 0.95d;
 
-    public LogitLaneSelector(AbstractLaneGroup lg,jaxb.Parameters params) {
+    public TollLaneSelector(AbstractLaneGroup lg,jaxb.Parameters params) {
 
         double temp_keep = 0.7;
         double temp_rho_vehperlane = 0.018504;
@@ -39,7 +39,7 @@ public class LogitLaneSelector implements InterfaceLaneSelector {
         this.add_in = temp_add_in;
     }
 
-    public LogitLaneSelector(AbstractLaneGroup lg, float dt,float keep,float rho_vpkmplane,Long commid) {
+    public TollLaneSelector(AbstractLaneGroup lg, float dt,float keep,float rho_vpkmplane,Long commid) {
         this.keep = keep;
         this.rho_vehperlane = rho_vpkmplane;
         this.add_in = 0d;

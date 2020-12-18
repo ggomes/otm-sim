@@ -65,12 +65,6 @@
 		</xs:complexType>
 	</xs:element>
 
-
-
-
-
-
-
 	<!-- the string content of the actuator_target is used to identify a
 	complex target, such as a set of lanegroups. The id is used to identify a
 	 simple target, such as a node. -->
@@ -135,7 +129,6 @@
 				<xs:element ref="otm:network" minOccurs="1" maxOccurs="1" />
 				<xs:element ref="otm:subnetworks" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:models" minOccurs="0" maxOccurs="1" />
-				<xs:element ref="otm:lanechanges" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:demands" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:splits" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:controllers" minOccurs="0" maxOccurs="1" />
@@ -367,6 +360,7 @@
 		<xs:complexType>
 			<xs:all>
 				<xs:element ref="otm:model_params" minOccurs="0" />
+				<xs:element ref="otm:lanechanges" minOccurs="0" />
 			</xs:all>
 			<xs:attribute name="type" type="xs:string" use="required" />
 			<xs:attribute name="name" type="xs:string" use="required" />
@@ -388,9 +382,6 @@
 		</xs:complexType>
 	</xs:element>
 
-
-	<!-- model .................................................................... -->
-
 	<xs:element name="lanechanges">
 		<xs:complexType>
 			<xs:sequence>
@@ -406,9 +397,7 @@
 			</xs:all>
 			<xs:attribute name="dt" type="xs:float" default="0"/>
 			<xs:attribute name="type" type="xs:string" use="required" />
-			<xs:attribute name="links" type="xs:string" />
 			<xs:attribute name="comms" type="xs:string" />
-			<xs:attribute name="is_default" type="xs:boolean" default="false" />
 		</xs:complexType>
 	</xs:element>
 
@@ -456,6 +445,7 @@
 		<xs:complexType mixed="true">
 			<xs:attribute name="id" type="xs:long" use="required"/>
 			<xs:attribute name="name" type="xs:string" />
+			<xs:attribute name="isroute" type="xs:boolean" default="false"/>
 		</xs:complexType>
 	</xs:element>
 

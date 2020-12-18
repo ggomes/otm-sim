@@ -1,10 +1,8 @@
 package lanechange;
 
-import models.Maneuver;
-
-import java.util.Set;
+import core.AbstractLaneGroup;
+import core.State;
 
 public interface InterfaceLaneSelector {
-    void update_lane_change_probabilities_with_options(Long pathorlinkid, Set<Maneuver> lcoptions);
-
+    void update_lane_change_probabilities_with_options(AbstractLaneGroup lg, State state);
 }

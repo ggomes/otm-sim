@@ -1,31 +1,24 @@
 package models.fluid.ctm;
 
-import core.FlowAccumulatorState;
-import core.Link;
+import core.*;
 
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.OutputRequest;
-import core.State;
-import core.AbstractLaneGroup;
 import models.Maneuver;
 import models.fluid.*;
 import output.AbstractOutput;
-import core.Scenario;
 import output.OutputCellVehicles;
 import traveltime.FluidLaneGroupTimer;
 import utils.OTMUtils;
 import utils.StochasticProcess;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ModelCTM extends AbstractFluidModel {
 
-    public ModelCTM(String name, boolean is_default, StochasticProcess process, jaxb.ModelParams param) {
-        super(name,is_default,param.getSimDt()==null ? -1 : param.getSimDt(),process,param.getMaxCellLength());
+    public ModelCTM(String name, Set<Link> links, Collection<RoadConnection>road_connections, StochasticProcess process, jaxb.ModelParams param, jaxb.Lanechanges lcs) throws OTMException     {
+        super(name,links,road_connections,param.getSimDt()==null ? -1 : param.getSimDt(),process,param,lcs);
     }
 
     //////////////////////////////////////////////////////////////

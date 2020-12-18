@@ -242,7 +242,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     ////////////////////////////////////////////
 
     // This is called when vehicles are added to the first cell in a lanegroup.
-    // They decide which way to chenge lanes within the lanegroup.
+    // They decide which way to change lanes within the lanegroup.
     public Map<Maneuver,Double> get_lc_probabilities(State state,Set<Maneuver> lcoptions) throws OTMException {
 
         if(lcoptions==null) {
@@ -252,8 +252,8 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         }
 
         // otherwise use the lane selector, if it exists
-        if(lane_selector!=null && lane_selector.containsKey(state.commodity_id))
-            return lane_selector.get(state.commodity_id).get_lanechange_probabilities(state.pathOrlink_id);
+        if(state2lanechangeprob!=null && state2lanechangeprob.containsKey(state))
+            return state2lanechangeprob.get(state);
 
         // otherwise distribute equally
         double v = 1d/lcoptions.size();

@@ -24,7 +24,6 @@ public class Network {
     public boolean node_positions_in_meters;    // true->meters, false->gps
 
     public Map<Long,jaxb.Roadparam> road_params;    // keep this for the sake of the scenario splitter
-    public Map<String, AbstractModel> models; // TODO: MAKE THIS A SCENARIO ELEMENT
 
     // scenario elements
     public Map<Long,Node> nodes;
@@ -42,7 +41,7 @@ public class Network {
         links = new HashMap<>();
     }
 
-    public Network(Scenario scenario, List<jaxb.Commodity> jaxb_comms, List<jaxb.Model> jaxb_models, jaxb.Nodes jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadgeoms jaxb_geoms, jaxb.Roadconnections jaxb_conns, jaxb.Roadparams jaxb_params,boolean jaxb_only) throws OTMException {
+    public Network(Scenario scenario, List<jaxb.Commodity> jaxb_comms, jaxb.Nodes jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadgeoms jaxb_geoms, jaxb.Roadconnections jaxb_conns, jaxb.Roadparams jaxb_params,boolean jaxb_only) throws OTMException {
 
         this(scenario);
 
@@ -92,9 +91,6 @@ public class Network {
             }
         }
 
-        // generate models
-        models = generate_models(jaxb_models,links,road_connections);
-
     }
 
 
@@ -107,16 +103,11 @@ public class Network {
         links.values().forEach(x->x.validate(errorLog));
         road_geoms.values().forEach(x->x.validate(errorLog));
         road_connections.values().forEach(x->x.validate(errorLog));
-        models.values().forEach(x->x.validate(errorLog));
     }
 
     public void initialize(Scenario scenario,float start_time) throws OTMException {
-
         for(Link link : links.values())
             link.initialize(scenario,start_time);
-
-        for(AbstractModel model : models.values())
-            model.initialize(scenario);
     }
 
     public jaxb.Network to_jaxb(){
@@ -212,128 +203,6 @@ public class Network {
                 road_geoms.put(jaxb_geom.getId(), new RoadGeometry(jaxb_geom,road_params));
         }
         return road_geoms;
-    }
-
-    private static Map<String, AbstractModel> generate_models(List<jaxb.Model> jaxb_models, Map<Long,Link> all_links,Map<Long,RoadConnection>road_connections) throws OTMException {
-
-        if(jaxb_models==null) {
-            jaxb_models = new ArrayList<>();
-            jaxb.Model jaxb_model = new jaxb.Model();
-            jaxb_models.add(jaxb_model);
-            jaxb_model.setType("none");
-            jaxb_model.setName("default none");
-            jaxb_model.setIsDefault(true);
-        }
-
-        Map<String, AbstractModel> models = new HashMap<>();
-        Map<String,Set<Link>> model2links = new HashMap<>();
-        Set<Link> assigned_links = new HashSet<>();
-        ModelNone nonemodel = null;
-
-        boolean has_default_model = false;
-
-        for(jaxb.Model jaxb_model : jaxb_models ){
-
-            String name = jaxb_model.getName();
-
-            if(model2links.containsKey(name))
-                throw new OTMException("Duplicate model name.");
-
-            StochasticProcess process;
-            try {
-                process = jaxb_model.getProcess()==null ? StochasticProcess.poisson : StochasticProcess.valueOf(jaxb_model.getProcess());
-            } catch (IllegalArgumentException e) {
-                process = StochasticProcess.poisson;
-            }
-
-            AbstractModel model;
-            switch(jaxb_model.getType()){
-                case "ctm":
-                    model = new ModelCTM(jaxb_model.getName(),
-                                         jaxb_model.isIsDefault(),
-                                         process,
-                                         jaxb_model.getModelParams());
-                    break;
-
-                case "spaceq":
-                    model = new ModelSpatialQ(jaxb_model.getName(),
-                                        jaxb_model.isIsDefault(),
-                                        process,
-                                        null);
-                    break;
-
-                case "micro":
-                    model = new ModelNewell(jaxb_model.getName(),
-                            jaxb_model.isIsDefault(),
-                            process,
-                            jaxb_model.getModelParams() );
-
-                    break;
-
-                case "none":
-                    model = new ModelNone(jaxb_model.getName(),
-                                        jaxb_model.isIsDefault(),
-                                        process,
-                                        null );
-
-                    nonemodel = (ModelNone) model;
-                    break;
-
-                default:
-
-                    // it might be a plugin
-                    model = PluginLoader.get_model_instance(jaxb_model,process);
-
-                    if(model==null)
-                        throw new OTMException("Bad model type: " + jaxb_model.getType());
-                    break;
-
-            }
-            models.put(jaxb_model.getName(),model);
-
-            // save the links for this model
-            Set<Link> my_links = new HashSet<>();
-            if(jaxb_model.isIsDefault()){
-                if(has_default_model)
-                    throw new OTMException("Multiple default models.");
-                has_default_model = true;
-                my_links.addAll(all_links.values());
-            } else {
-                List<Long> link_ids = OTMUtils.csv2longlist(jaxb_model.getLinks());
-                for(Long link_id : link_ids){
-                    if(!all_links.containsKey(link_id))
-                        throw new OTMException("Unknown link id in model " + jaxb_model.getName());
-                    my_links.add(all_links.get(link_id));
-                }
-            }
-            assigned_links.addAll(my_links);
-
-            model2links.put(model.name,my_links);
-
-        }
-
-        // assign 'none' model to remaining links
-        if(assigned_links.size()<all_links.values().size()){
-            Set<Link> my_links = new HashSet<>();
-            my_links.addAll(all_links.values());
-            my_links.removeAll(assigned_links);
-
-            if(nonemodel==null) {
-                if(models.containsKey("none"))
-                    throw new OTMException("'none' is a prohibited name for a model.");
-                nonemodel = new ModelNone("none", false, StochasticProcess.deterministic,null);
-                models.put("none", nonemodel);
-                model2links.put("none",my_links);
-            } else {
-                my_links.addAll(model2links.get(nonemodel.name));
-                model2links.put(nonemodel.name,my_links);
-            }
-        }
-
-        for( AbstractModel model : models.values())
-            model.set_links(model2links.get(model.name),road_connections.values());
-
-        return models;
     }
 
     private static HashMap<Long,RoadConnection> read_road_connections(jaxb.Roadconnections jrcs,Map<Long,Link> links) throws OTMException {

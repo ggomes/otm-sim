@@ -63,8 +63,8 @@
 		</roadparams>
 	</network>
 	<subnetworks>
-		<subnetwork id="1">8,7,11,10,3</subnetwork>
-		<subnetwork id="2">8,7,11,12</subnetwork>
+		<subnetwork id="1" isroute="true">8,7,11,10,3</subnetwork>
+		<subnetwork id="2" isroute="true">8,7,11,12</subnetwork>
 	</subnetworks>
 	<demands>
 		<demand link_id="0" commodity_id="1" dt="500">100,200,300,0</demand>

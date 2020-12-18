@@ -26,19 +26,10 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     protected Set<Link> sink_links = new HashSet<>();
     protected Map<Long, NodeModel> node_models;
 
-    public AbstractFluidModel(String name, boolean is_default, float dt_sec, StochasticProcess process, Float max_cell_length) {
-        super(AbstractModel.Type.Fluid,name, is_default,process);
+    public AbstractFluidModel(String name, Set<Link> links,  Collection<core.RoadConnection>road_connections, float dt_sec, StochasticProcess process, jaxb.ModelParams param, jaxb.Lanechanges lcs) throws OTMException {
+        super(AbstractModel.Type.Fluid,name,links,road_connections,process,lcs);
         this.dt_sec = dt_sec;
-        this.max_cell_length = max_cell_length==null ? -1 : max_cell_length;
-    }
-
-    //////////////////////////////////////////////////////////////
-    // final for fluid models
-    //////////////////////////////////////////////////////////////
-
-    @Override
-    public void set_links(Set<Link> links, Collection<core.RoadConnection> road_connections) throws OTMException {
-        super.set_links(links,road_connections);
+        this.max_cell_length = param.getMaxCellLength()==null ? -1 : param.getMaxCellLength();
 
         Set<Node> all_nodes = new HashSet<>();
 
@@ -130,8 +121,8 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     }
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
+    public void initialize(Scenario scenario, float start_time) throws OTMException {
+        super.initialize(scenario,start_time);
 
         for(NodeModel node_model : node_models.values())
             node_model.initialize(scenario);

@@ -265,9 +265,9 @@ public class DebugRuns extends AbstractTest {
     @Test
     public void load_save(){
         try {
-            String configfile = "/home/gomes/code/otm/otm-sim/src/test/resources/test_configs/onramp_hov.xml";
-            api.OTM otm = new api.OTM(configfile,false,false);
-            otm.save("/home/gomes/code/otm/otm-sim/temp/aaa.xml");
+            String configfile = "/home/gomes/Desktop/aaa/aaa_1.xml";
+            api.OTM otm = new api.OTM(configfile,true,false);
+            otm.save("/home/gomes/Desktop/aaa/bbb.xml");
             assertNotNull(otm);
         } catch (OTMException e) {
             fail(e.getMessage());

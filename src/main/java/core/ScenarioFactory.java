@@ -14,14 +14,22 @@ import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
+import models.AbstractModel;
+import models.fluid.ctm.ModelCTM;
+import models.none.ModelNone;
+import models.vehicle.newell.ModelNewell;
+import models.vehicle.spatialq.ModelSpatialQ;
 import plugin.PluginLoader;
 import profiles.*;
 import sensor.AbstractSensor;
 import sensor.FixedSensor;
 import utils.OTMUtils;
+import utils.StochasticProcess;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 public class ScenarioFactory {
@@ -41,7 +49,10 @@ public class ScenarioFactory {
             PluginLoader.load_plugins( js.getPlugins() );
 
         // network ...........................................................
-        scenario.network = ScenarioFactory.create_network_from_jaxb(scenario, js.getCommodities(),js.getModels(), js.getNetwork(), jaxb_only);
+        scenario.network = ScenarioFactory.create_network_from_jaxb(scenario, js.getCommodities(), js.getNetwork(), jaxb_only);
+
+        // generate models
+        scenario.models = create_models_from_jaxb(js.getModels().getModel(),scenario.network.links, scenario.network.road_connections.values());
 
         // commodities ......................................................
         scenario.subnetworks = ScenarioFactory.create_subnetworks_from_jaxb(
@@ -68,7 +79,7 @@ public class ScenarioFactory {
                     .collect(toSet());
 
             for (Subnetwork subnet : used_paths) {
-                if (!subnet.isPath())
+                if (!(subnet instanceof Path))
                     throw new OTMException(String.format("ERROR: Subnetwork %d is assigned to a pathfull commodity, but it is not a linear path", subnet.getId()));
                 Path path = (Path) subnet;
                 for (int i = 0; i < path.ordered_links.size() - 1; i++) {
@@ -81,18 +92,17 @@ public class ScenarioFactory {
 
         // allocate the state ..............................................
         if(!jaxb_only)
-            for(Commodity commodity : scenario.commodities.values())
-                if(commodity.pathfull)
-                    for(Subnetwork subnetwork : commodity.subnetworks)
-                        for(Link link : subnetwork.get_links())
+            for(Commodity commodity : scenario.commodities.values()) {
+                if (commodity.pathfull)
+                    for (Subnetwork subnetwork : commodity.subnetworks)
+                        for (Long linkid : subnetwork.get_link_ids()) {
+                            Link link = scenario.network.links.get(linkid);
                             commodity.register_commodity(link, commodity, subnetwork);
+                        }
                 else
-                    for(Link link : scenario.network.links.values())
+                    for (Link link : scenario.network.links.values())
                         commodity.register_commodity(link, commodity, null);
-
-        // lane change models .............................
-        if(!jaxb_only)
-            assign_lane_change_models(scenario.commodities,scenario.network.links,js.getLanechanges());
+            }
 
         // splits ...........................................................
         ScenarioFactory.create_splits_from_jaxb(scenario.network, js.getSplits());
@@ -160,11 +170,10 @@ public class ScenarioFactory {
     // private
     ///////////////////////////////////////////
 
-    private static core.Network create_network_from_jaxb(Scenario scenario, jaxb.Commodities jaxb_comms, jaxb.Models jaxb_models, jaxb.Network jaxb_network, boolean jaxb_only) throws OTMException {
+    private static core.Network create_network_from_jaxb(Scenario scenario, jaxb.Commodities jaxb_comms, jaxb.Network jaxb_network, boolean jaxb_only) throws OTMException {
         core.Network network = new core.Network(
                 scenario ,
                 jaxb_comms==null ? null : jaxb_comms.getCommodity(),
-                jaxb_models==null ? null : jaxb_models.getModel(),
                 jaxb_network.getNodes(),
                 jaxb_network.getLinks().getLink(),
                 jaxb_network.getRoadgeoms() ,
@@ -172,6 +181,118 @@ public class ScenarioFactory {
                 jaxb_network.getRoadparams() ,
                 jaxb_only);
         return network;
+    }
+
+    private static Map<String, AbstractModel> create_models_from_jaxb(List<jaxb.Model> jms, Map<Long,Link> all_links, Collection<RoadConnection>road_connections) throws OTMException {
+
+        Map<String, AbstractModel> models = new HashMap<>();
+
+        if(jms==null) {
+            jms = new ArrayList<>();
+            jaxb.Model jaxb_model = new jaxb.Model();
+            jms.add(jaxb_model);
+            jaxb_model.setType("none");
+            jaxb_model.setName("default none");
+            jaxb_model.setIsDefault(true);
+        }
+
+        // throw jmodels into a set
+        Set<jaxb.Model> jmodels = new HashSet<>(jms);
+
+        // duplicate names
+        Set<String> names = jmodels.stream().map(x->x.getName()).collect(toSet());
+        if( names.size()!=jmodels.size())
+            throw new OTMException("There are duplicate model names.");
+
+        // has default
+        Set<String> defs = jmodels.stream()
+                .filter(x->x.isIsDefault())
+                .map(x->x.getName())
+                .collect(Collectors.toSet());
+
+        if(defs.size()>1)
+            throw new OTMException("Multiple defaults.");
+
+        Set<Link> assigned_links = new HashSet<>();
+        for(jaxb.Model jmodel : jmodels ){
+
+            StochasticProcess process;
+            try {
+                process = jmodel.getProcess()==null ? StochasticProcess.poisson : StochasticProcess.valueOf(jmodel.getProcess());
+            } catch (IllegalArgumentException e) {
+                process = StochasticProcess.poisson;
+            }
+
+            // links for this model
+            Set<Link> my_links = jmodel.isIsDefault() ? new HashSet<>(all_links.values()) :
+                    OTMUtils.csv2longlist(jmodel.getLinks()).stream()
+                    .map( linkid -> all_links.get(linkid) )
+                    .collect(toSet());
+
+            if(my_links.stream().anyMatch(x->x==null))
+                throw new OTMException("Unknown link id in model " + jmodel.getName());
+
+            AbstractModel model;
+            switch(jmodel.getType()){
+                case "ctm":
+                    model = new ModelCTM(jmodel.getName(),
+                            my_links,
+                            road_connections,
+                            process,
+                            jmodel.getModelParams(),
+                            jmodel.getLanechanges() );
+                    break;
+
+                case "spaceq":
+                    model = new ModelSpatialQ(jmodel.getName(),
+                            my_links,
+                            road_connections,
+                            process,
+                            jmodel.getLanechanges() );
+                    break;
+
+                case "micro":
+                    model = new ModelNewell(jmodel.getName(),
+                            my_links,
+                            road_connections,
+                            process,
+                            jmodel.getModelParams(),
+                            jmodel.getLanechanges()  );
+                    break;
+
+                case "none":
+                    model = new ModelNone(jmodel.getName() ,
+                            my_links);
+                    break;
+
+                default:
+
+                    // it might be a plugin
+                    model = PluginLoader.get_model_instance(jmodel,process);
+
+                    if(model==null)
+                        throw new OTMException("Bad model type: " + jmodel.getType());
+                    break;
+
+            }
+            models.put(jmodel.getName(),model);
+            assigned_links.addAll(model.links);
+
+        }
+
+        // assign 'none' model to remaining links
+        if(assigned_links.size()<all_links.values().size()){
+
+            if(models.containsKey("none"))
+                throw new OTMException("'none' is a prohibited name for a model.");
+
+            Set<Link> my_links = new HashSet<>();
+            my_links.addAll(all_links.values());
+            my_links.removeAll(assigned_links);
+            models.put("none", new ModelNone("none",my_links));
+        }
+
+        return models;
     }
 
     private static Map<Long, AbstractSensor> create_sensors_from_jaxb(Scenario scenario, jaxb.Sensors jaxb_sensors) throws OTMException {
@@ -252,83 +373,16 @@ public class ScenarioFactory {
         if(jaxb_subnets!=null && jaxb_subnets.getSubnetwork().stream().anyMatch(x->x.getId()==0L))
             throw new OTMException("Subnetwork id '0' is not allowed.");
 
-        // create global commodity
-//        if(have_global_commodity) {
-//            Subnetwork subnet = new Subnetwork(network);
-//            subnetworks.put(0l, subnet.isPath() ? new Path(network) : subnet );
-//        }
-
         if ( jaxb_subnets != null ){
-            // initialize
             for (jaxb.Subnetwork jaxb_subnet : jaxb_subnets.getSubnetwork()) {
                 if (subnetworks.containsKey(jaxb_subnet.getId()))
                     throw new OTMException("Repeated subnetwork id");
-                Subnetwork subnet = new Subnetwork(jaxb_subnet,network);
-//                subnetworks.put(jaxb_subnet.getId(), subnet.is_path ? new Path(jaxb_subnet,network) : subnet );
-                subnetworks.put(jaxb_subnet.getId(), subnet.isPath() ? new Path(subnet) : subnet );
+                boolean isroute = jaxb_subnet.isIsroute();
+                subnetworks.put(jaxb_subnet.getId(),
+                        isroute ? new Path(jaxb_subnet,network) : new Subnetwork(jaxb_subnet,network)
+                );
             }
         }
-
-//        // build subnetwork of lanegroups
-//        for(Subnetwork subnetwork : subnetworks.values()){
-//
-//            // special case for global subnetworks
-//            if(subnetwork.is_global) {
-//                subnetwork.add_lanegroups(network.get_lanegroups());
-//                continue;
-//            }
-//
-//            for(Link link : subnetwork.links){
-//
-//                // case single lane group, then add it and continue
-//                // this takes care of the one2one case
-//                if(link.lanegroups_flwdn.size()==1){
-//                    subnetwork.add_lanegroup( link.lanegroups_flwdn.values().iterator().next());
-//                    continue;
-//                }
-//
-//                // lane covered by road connections from inputs to here
-//                Set<Integer> input_lanes = new HashSet<>();
-//                if(link.is_source)
-//                    input_lanes.addAll(link.get_up_lanes());
-//                else {
-//                    Set<Link> inputs = OTMUtils.intersect(link.start_node.in_links.values(), subnetwork.links);
-//                    for (Link input : inputs) {
-//                        if (input.outlink2lanegroups.containsKey(link.getId())) {
-//                            for (AbstractLaneGroup lg : input.outlink2lanegroups.get(link.getId())) {
-//                                RoadConnection rc = lg.get_roadconnection_for_outlink(link.getId());
-//                                if (rc != null)
-//                                    input_lanes.addAll(IntStream.rangeClosed(rc.end_link_from_lane, rc.end_link_to_lane)
-//                                            .boxed().collect(toSet()));
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                // lane covered by road connections from here to outputs
-//                Set<Integer> output_lanes = new HashSet<>();
-//                if(link.is_sink) {
-//                    for(int lane=1;lane<=link.get_num_dn_lanes();lane++)
-//                        output_lanes.add(lane);
-//                }
-//                else {
-//                    Set<Link> outputs = OTMUtils.intersect(link.end_node.out_links.values(), subnetwork.links);
-//                    for (Link output : outputs)
-//                        for (AbstractLaneGroup lg : link.lanegroups_flwdn.values()) {
-//                            RoadConnection rc = lg.get_roadconnection_for_outlink(output.getId());
-//                            if (rc != null)
-//                                output_lanes.addAll(IntStream.rangeClosed(rc.start_link_from_lane, rc.start_link_to_lane)
-//                                        .boxed().collect(toSet()));
-//                        }
-//                }
-//
-//                // add the lanegroups that cover the intersection of the two
-//                Set<Integer> subnetlanes = OTMUtils.intersect(input_lanes,output_lanes);
-//                for(Integer lane : subnetlanes)
-//                    subnetwork.add_lanegroup( link.get_lanegroup_for_dn_lane(lane) ); // TODO FIX THIS!!!
-//            }
-//
-//        }
 
         return subnetworks;
     }
@@ -365,42 +419,6 @@ public class ScenarioFactory {
         }
 
         return commodities;
-    }
-
-    private static void assign_lane_change_models(Map<Long,Commodity> comms,Map<Long,Link> links,jaxb.Lanechanges jlcs) throws OTMException {
-
-        String default_type = "keep";
-        float default_dt = 0f;
-
-        if(jlcs==null) {
-            for(Link link : links.values())
-                for(AbstractLaneGroup lg : link.lgs)
-                    lg.assign_lane_selector(default_type,default_dt,null,comms.keySet());
-            return;
-        }
-
-        Set<Long> unassigned = new HashSet<>(links.keySet());
-        for(jaxb.Lanechange lc : jlcs.getLanechange()){
-            String type = lc.getType();
-            Collection<Long> linkids = lc.getLinks()==null ? links.keySet() : OTMUtils.csv2longlist(lc.getLinks());
-            Collection<Long> commids = lc.getComms()==null ? comms.keySet() : OTMUtils.csv2longlist(lc.getComms());
-            unassigned.removeAll(linkids);
-            for(Long linkid : linkids)
-                if(links.containsKey(linkid))
-                    for(AbstractLaneGroup lg : links.get(linkid).lgs)
-                        lg.assign_lane_selector(type,lc.getDt(),lc.getParameters(),commids);
-        }
-
-        if(!unassigned.isEmpty()){
-            Optional<jaxb.Lanechange> x = jlcs.getLanechange().stream().filter(xx -> xx.isIsDefault()).findFirst();
-            String my_default_type = x.isPresent() ? x.get().getType() : default_type;
-            float my_dt = x.isPresent() ? x.get().getDt() : default_dt;
-            jaxb.Parameters my_params = x.isPresent() ? x.get().getParameters() : null;
-            for(Long linkid : unassigned)
-                for(AbstractLaneGroup lg : links.get(linkid).lgs)
-                    lg.assign_lane_selector(my_default_type,my_dt,my_params,comms.keySet());
-        }
-
     }
 
     private static void create_demands_from_jaxb(Network network, jaxb.Demands jaxb_demands) throws OTMException  {

@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 
 public class ModelSpatialQ extends AbstractVehicleModel {
 
-    public ModelSpatialQ(String name, boolean is_default, StochasticProcess process, jaxb.ModelParams param) {
-        super(name,is_default,process);
+    public ModelSpatialQ(String name, Set<Link> links,  Collection<RoadConnection>road_connections, StochasticProcess process, jaxb.Lanechanges lcs) throws OTMException {
+        super(name,links,road_connections,process,null,lcs);
     }
 
     //////////////////////////////////////////////////////////////
