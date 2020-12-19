@@ -285,7 +285,6 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         return X;
     }
 
-
     public final FlowAccumulatorState request_flow_accumulators_for_cell(Set<Long> comm_ids,int cell_index){
         AbstractCell cell = cells.get(cell_index);
         if(cell.flw_acc==null)
@@ -308,6 +307,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         }
         return X;
     }
+
     public final List<FlowAccumulatorState> request_flow_lcin_accumulators_for_cells(Long comm_id){
         List<FlowAccumulatorState> X = new ArrayList<>();
         for(AbstractCell cell : cells){

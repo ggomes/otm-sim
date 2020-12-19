@@ -39,7 +39,7 @@
 			<link id="7" length="1000" start_node_id="4" end_node_id="8" roadparam="1" full_lanes="1"/>
 		</links>
 		<roadconnections>
-			<roadconnection id="1" in_link="3" out_link="4" out_link_lanes="1#4" />
+			<roadconnection id="1" in_link="3" in_link_lanes="1#4" out_link="4" out_link_lanes="1#4" />
 			<roadconnection id="2" in_link="3" in_link_lanes="5#5" out_link="7" out_link_lanes="1#1" />
 		</roadconnections>
 		<roadparams>
@@ -48,8 +48,8 @@
 	</network>
 
 	<demands>
-		<demand commodity_id="1" subnetwork="2" dt="2000">800,0</demand>
 		<demand commodity_id="1" subnetwork="1" dt="2000">300,0</demand>
+		<demand commodity_id="1" subnetwork="2" dt="2000">800,0</demand>
 		<demand commodity_id="2" link_id="1" dt="2000">1000,0</demand>
 	</demands>
 

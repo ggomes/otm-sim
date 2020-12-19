@@ -1,5 +1,6 @@
 package actuator;
 
+import core.Network;
 import core.Scenario;
 import error.OTMException;
 import jaxb.Actuator;

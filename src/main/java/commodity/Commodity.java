@@ -26,11 +26,11 @@ public class Commodity implements InterfaceScenarioElement {
     // construction
     ///////////////////////////////////////////////////
 
-    public Commodity(jaxb.Commodity jaxb_comm, List<Long> subnet_ids, Scenario scenario) throws OTMException {
+    public Commodity(jaxb.Commodity jaxb_comm, List<Long> subnet_ids, Map<Long, Subnetwork> subnetworks) throws OTMException {
         this.id = jaxb_comm.getId();
         this.name = jaxb_comm.getName();
         this.pathfull = jaxb_comm.isPathfull();
-        this.subnetworks = pathfull ? subnet_ids.stream().map(id->scenario.subnetworks.get(id)).collect(Collectors.toSet()) : null;
+        this.subnetworks = pathfull ? subnet_ids.stream().map(id->subnetworks.get(id)).collect(Collectors.toSet()) : null;
         this.pvequiv = jaxb_comm.getPvequiv();
         this.vehicle_event_listeners = new HashSet<>();
     }

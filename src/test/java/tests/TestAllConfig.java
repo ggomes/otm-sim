@@ -23,7 +23,7 @@ public class TestAllConfig extends AbstractTest {
     String testname;
     final float start_time = 0f;
     final float duration = 2000f;
-    final boolean makeplots = false;
+    final boolean makeplots = true;
     final Float outDt = 2f;
 
     public TestAllConfig(String testname){
@@ -110,11 +110,9 @@ public class TestAllConfig extends AbstractTest {
                 boolean is_same = Math.abs(x1.get(j) - x2.get(j)) < 0.1;
 
                 if(!is_same)
-                    System.out.println(String.format("*%d\t%d\t%f\t%f",i,j,x1.get(j),x2.get(j)));
-//                else
-//                    System.out.println(String.format("%d\t%d\t%f\t%f",i,j,x1.get(j),x2.get(j)));
+                    System.out.println(String.format("%d\t%d\t%f\t%f",i,j,x1.get(j),x2.get(j)));
 
-//                assertTrue(is_same);
+                assertTrue(is_same);
             }
         }
     }

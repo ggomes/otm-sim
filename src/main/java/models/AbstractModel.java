@@ -8,7 +8,6 @@ import core.geometry.Side;
 import error.OTMException;
 import core.packet.PacketLaneGroup;
 import core.packet.PacketLink;
-import jaxb.Lanechanges;
 import lanechange.LinkLaneSelector;
 import utils.OTMUtils;
 import utils.StochasticProcess;
@@ -33,7 +32,6 @@ public abstract class AbstractModel implements InterfaceModel {
     public final String name;
     public final StochasticProcess stochastic_process;
     public Set<Link> links;
-//    public LinkLaneSelector lane_selector;
 
     //////////////////////////////////////////////////
     // construction
@@ -99,22 +97,20 @@ public abstract class AbstractModel implements InterfaceModel {
         }
 
         // set lane change model .............................................
-        String default_type = "keep";
-        float default_dt = 0f;
-
-        if(lcs==null) {
-            for(Link link : links)
-                link.lane_selector = new LinkLaneSelector(default_type,default_dt,null,link,scenario.commodities.keySet());
-
-        } else {
-            for(jaxb.Lanechange lc : lcs.getLanechange()){
-                Collection<Long> commids = lc.getComms()==null ?
-                        scenario.commodities.keySet() :
-                        OTMUtils.csv2longlist(lc.getComms());
-                for(Link link : links)
-                    link.lane_selector = new LinkLaneSelector(lc.getType(),lc.getDt(),lc.getParameters(),link,commids);
-            }
-        }
+//
+//        if(lcs==null) {
+//            for(Link link : links)
+//                link.lane_selector = new LinkLaneSelector("keep",0f,null,link,scenario.commodities.keySet());
+//
+//        } else {
+//            for(jaxb.Lanechange lc : lcs.getLanechange()){
+//                Collection<Long> commids = lc.getComms()==null ?
+//                        scenario.commodities.keySet() :
+//                        OTMUtils.csv2longlist(lc.getComms());
+//                for(Link link : links)
+//                    link.lane_selector = new LinkLaneSelector(lc.getType(),lc.getDt(),lc.getParameters(),link,commids);
+//            }
+//        }
 
     }
 

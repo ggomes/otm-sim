@@ -44,7 +44,7 @@ public class Subnetwork implements InterfaceScenarioElement {
         this.used_by_comm.addAll(that.used_by_comm);
     }
 
-    public Subnetwork(jaxb.Subnetwork js,Network network) throws OTMException{
+    public Subnetwork(jaxb.Subnetwork js) throws OTMException{
         this.id = js.getId();
         this.name = js.getName();
         this.link_ids = new HashSet<>();

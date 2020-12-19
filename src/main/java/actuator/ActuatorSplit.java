@@ -2,6 +2,7 @@ package actuator;
 
 import commodity.Commodity;
 import core.Link;
+import core.Network;
 import core.Node;
 import core.Scenario;
 import control.command.InterfaceCommand;

@@ -2,6 +2,7 @@ package actuator;
 
 import commodity.Commodity;
 import core.Link;
+import core.Network;
 import core.RoadConnection;
 import core.Scenario;
 import control.command.CommandDoubleArray;
@@ -28,7 +29,7 @@ public class ActuatorFlowToLinks extends AbstractActuator {
     public Map<Long,Double> outlink2portion = null;
     public double gamma = 1d;
 
-    public ActuatorFlowToLinks(Scenario scenario, Actuator jact) throws OTMException {
+    public ActuatorFlowToLinks(Scenario scenario,Actuator jact) throws OTMException {
         super(scenario, jact);
 
         Link temp_linkMLup = null;

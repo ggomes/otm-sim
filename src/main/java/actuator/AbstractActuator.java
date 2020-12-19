@@ -58,7 +58,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
                 // if it is a lanegroup, then the id is for the link, and lanes must be used
                 if(type==ScenarioElementType.lanegroups)
-                    this.target = OTMUtils.read_lanegroups(e.getLanegroups(),scenario);
+                    this.target = OTMUtils.read_lanegroups(e.getLanegroups(),scenario.network);
                 else
                     this.target = (InterfaceActuatorTarget) scenario.get_element(type,id);
 
@@ -148,11 +148,11 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     // AbstractActuatorLanegroup
     /////////////////////////////////////////////////////////////////////
 
-    protected Set<AbstractLaneGroup> read_lanegroups(Scenario scenario, Actuator jact) throws OTMException {
+    protected Set<AbstractLaneGroup> read_lanegroups(Network network, Actuator jact) throws OTMException {
         if(jact.getActuatorTarget()==null || !jact.getActuatorTarget().getType().equalsIgnoreCase("lanegroups"))
             return null;
         jaxb.ActuatorTarget e = jact.getActuatorTarget();
-        LaneGroupSet lgs = OTMUtils.read_lanegroups(e.getLanegroups(),scenario);
+        LaneGroupSet lgs = OTMUtils.read_lanegroups(e.getLanegroups(),network);
         return lgs.lgs;
     }
 

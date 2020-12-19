@@ -17,7 +17,7 @@ public class Path extends Subnetwork {
     ///////////////////////////////////////////////////
 
     public Path(jaxb.Subnetwork js, Network network) throws OTMException {
-        super(js, network);
+        super(js);
         if(!create_ordered_links(network))
             throw new OTMException(String.format("Subnetwork %d is not a path.",js.getId()));
     }

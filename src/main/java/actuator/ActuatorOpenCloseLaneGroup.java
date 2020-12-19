@@ -2,6 +2,7 @@ package actuator;
 
 import core.AbstractLaneGroup;
 import core.LaneGroupSet;
+import core.Network;
 import core.Scenario;
 import control.command.CommandRestrictionMap;
 import control.command.InterfaceCommand;

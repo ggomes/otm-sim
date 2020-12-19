@@ -143,9 +143,6 @@ public class NodeModel {
         dlgs = dn_lgs_map;
     }
 
-    public void validate(OTMErrorLog errorLog) {
-    }
-
     public void initialize(Scenario scenario) {
         // allocate states in ulgs
         ulgs.values().forEach( ulg -> ulg.lg.states.forEach( state -> ulg.add_state(state)));
@@ -179,9 +176,6 @@ public class NodeModel {
             step6();
         }
 
-        // update flow accumulators
-        // TODO CHECK THIS
-//        update_flow_accumulators();
     }
 
     private boolean eval_stop(int iteration){

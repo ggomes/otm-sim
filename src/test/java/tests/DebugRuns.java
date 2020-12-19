@@ -28,20 +28,20 @@ public class DebugRuns extends AbstractTest {
 
             boolean do_links        = true;
             boolean do_lanegroups   = true;
-            boolean do_cells        = true;
+            boolean do_cells        = false;
             boolean do_subnetworks  = false;
             boolean do_vehicles     = false;
             boolean do_controllers  = false;
 
             boolean sysout2file = false;
-            String configfile = "/home/gomes/code/otm/otm-sim/src/test/resources/test_configs/onramp_hov.xml";
+            String configfile = "/home/gomes/code/otm/otm-sim/src/test/resources/test_configs/onramp_nohov.xml";
             float start_time = 0f;
-            float duration = 200f;
-            float outdt = 10f;
+            float duration = 2000f;
+            float outdt = 2f;
             String prefix = makeplots?null:"x";
             String output_folder = makeplots?null:"/home/gomes/code/otm/otm-sim/temp";
             String png_folder = "/home/gomes/code/otm/otm-sim/temp";
-            Set<Long> link_ids =  Set.of(0l,1l,2l,3l,4l,5l,6l);
+            Set<Long> link_ids =  Set.of(3l,4l,7l);
 
             Long subnetid = null;
             Long cntrl_id = null;

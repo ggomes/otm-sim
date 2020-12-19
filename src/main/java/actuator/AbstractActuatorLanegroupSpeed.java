@@ -1,6 +1,7 @@
 package actuator;
 
 import core.AbstractLaneGroup;
+import core.Network;
 import core.Scenario;
 import control.command.CommandNumber;
 import control.command.InterfaceCommand;
@@ -22,7 +23,7 @@ public abstract class AbstractActuatorLanegroupSpeed extends AbstractActuator {
 
     public AbstractActuatorLanegroupSpeed(Scenario scenario, Actuator jact) throws OTMException {
         super(scenario, jact);
-        this.lanegroups = read_lanegroups(scenario,jact);
+        this.lanegroups = read_lanegroups(scenario.network,jact);
     }
 
     ///////////////////////////////////////////////////

@@ -56,9 +56,6 @@ public class ScenarioFactory {
         // network ...........................................................
         scenario.network = ScenarioFactory.create_network_from_jaxb(scenario, js.getCommodities(), js.getNetwork(), jaxb_only);
 
-        // generate models
-        scenario.models = create_models_from_jaxb(scenario,js.getModels().getModel(),scenario.network.links, scenario.network.road_connections.values());
-
         // commodities ......................................................
         scenario.subnetworks = ScenarioFactory.create_subnetworks_from_jaxb(
                 scenario.network,
@@ -66,13 +63,15 @@ public class ScenarioFactory {
                 have_global_commodity(js.getCommodities()) );
 
         scenario.commodities = ScenarioFactory.create_commodities_from_jaxb(
-                scenario,
                 scenario.subnetworks,
                 js.getCommodities());
 
+        // generate models
+        scenario.models = create_models_from_jaxb(scenario,js.getModels().getModel(),scenario.network.links, scenario.network.road_connections.values());
+
         // control ...............................................
-        scenario.actuators = ScenarioFactory.create_actuators_from_jaxb(scenario, js.getActuators() );
         scenario.sensors = ScenarioFactory.create_sensors_from_jaxb(scenario, js.getSensors() );
+        scenario.actuators = ScenarioFactory.create_actuators_from_jaxb(scenario, js.getActuators() );
         scenario.controllers = ScenarioFactory.create_controllers_from_jaxb(scenario,js.getControllers() );
 
         // populate link.path2outlink (requires commodities)
@@ -114,6 +113,46 @@ public class ScenarioFactory {
 
         // demands ..........................................................
         ScenarioFactory.create_demands_from_jaxb(scenario.network, js.getDemands());
+
+        // lane change models .................................................
+        for(jaxb.Model jmodel : js.getModels().getModel()){
+            AbstractModel model = scenario.models.get(jmodel.getName());
+            jaxb.Lanechanges lcs = jmodel.getLanechanges();
+
+            if(lcs==null) {
+                for(Link link : model.links)
+                    link.lane_selector = new LinkLaneSelector("keep",0f,null,link,scenario.commodities.keySet());
+
+            } else {
+                for(jaxb.Lanechange lc : lcs.getLanechange()){
+                    Collection<Long> commids = lc.getComms()==null ?
+                            scenario.commodities.keySet() :
+                            OTMUtils.csv2longlist(lc.getComms());
+                    for(Link link : model.links)
+                        link.lane_selector = new LinkLaneSelector(lc.getType(),lc.getDt(),lc.getParameters(),link,commids);
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // validate ................................................
         if(validate) {
@@ -380,7 +419,7 @@ public class ScenarioFactory {
                     throw new OTMException("Repeated subnetwork id");
                 boolean isroute = jaxb_subnet.isIsroute();
                 subnetworks.put(jaxb_subnet.getId(),
-                        isroute ? new Path(jaxb_subnet,network) : new Subnetwork(jaxb_subnet,network)
+                        isroute ? new Path(jaxb_subnet,network) : new Subnetwork(jaxb_subnet)
                 );
             }
         }
@@ -388,7 +427,7 @@ public class ScenarioFactory {
         return subnetworks;
     }
 
-    private static Map<Long, Commodity> create_commodities_from_jaxb(Scenario scenario,Map<Long, Subnetwork> subnetworks, jaxb.Commodities jaxb_commodities) throws OTMException {
+    private static Map<Long, Commodity> create_commodities_from_jaxb(Map<Long, Subnetwork> subnetworks, jaxb.Commodities jaxb_commodities) throws OTMException {
 
         HashMap<Long, Commodity> commodities = new HashMap<>();
 
@@ -410,7 +449,7 @@ public class ScenarioFactory {
             if(!is_global && !subnetworks.keySet().containsAll(subnet_ids))
                 throw new OTMException(String.format("Bad subnetwork id in commodity %d",jaxb_comm.getId()) );
 
-            Commodity comm = new Commodity( jaxb_comm,subnet_ids,scenario);
+            Commodity comm = new Commodity( jaxb_comm,subnet_ids,subnetworks);
             commodities.put( jaxb_comm.getId(), comm );
 
             // inform the subnetwork of their commodities

@@ -2,6 +2,7 @@ package actuator;
 
 import control.command.CommandSignal;
 import control.command.InterfaceCommand;
+import core.Network;
 import error.OTMErrorLog;
 import error.OTMException;
 import core.Scenario;

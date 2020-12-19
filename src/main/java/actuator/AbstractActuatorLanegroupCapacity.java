@@ -1,5 +1,6 @@
 package actuator;
 
+import core.Network;
 import core.Scenario;
 import control.command.CommandNumber;
 import control.command.InterfaceCommand;
@@ -25,7 +26,7 @@ public abstract class AbstractActuatorLanegroupCapacity extends AbstractActuator
 
     public AbstractActuatorLanegroupCapacity(Scenario scenario, Actuator jact) throws OTMException {
         super(scenario, jact);
-        this.lanegroups = read_lanegroups(scenario,jact);
+        this.lanegroups = read_lanegroups(scenario.network,jact);
         this.total_lanes = lanegroups==null || lanegroups.isEmpty() ? 0 : lanegroups.stream().mapToInt(x->x.num_lanes).sum();
     }
 
