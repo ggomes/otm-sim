@@ -292,7 +292,7 @@ public class Link implements InterfaceScenarioElement {
             for (int lane=lg.start_lane_dn;lane<lg.start_lane_dn+lg.num_lanes;lane++)                       // iterate through dn lanes
                 dnlane2lanegroup.put(lane, lg);
     }
-    
+
     public double get_max_vehicles(){
         return lgs.stream().mapToDouble(x->x.get_max_vehicles()).sum();
     }
