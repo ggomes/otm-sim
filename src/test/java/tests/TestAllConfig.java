@@ -88,6 +88,8 @@ public class TestAllConfig extends AbstractTest {
         File outfile = new File(output_path);
         String outname = outfile.getName();
 
+        System.out.println("-------- " + outname + " -----------");
+
         ClassLoader classLoader = getClass().getClassLoader();
 
         URL url = classLoader.getResource("test_output/" + outname);
