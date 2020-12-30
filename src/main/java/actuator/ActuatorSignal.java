@@ -10,7 +10,7 @@ import core.Scenario;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ActuatorSignal extends AbstractActuatorLanegroupCapacity {
+public class ActuatorSignal extends AbstractActuator {
 
     public Map<Long, SignalPhase> signal_phases;
 
@@ -32,6 +32,7 @@ public class ActuatorSignal extends AbstractActuatorLanegroupCapacity {
         for(jaxb.Phase jaxb_phase : jaxb_actuator.getSignal().getPhase())
             signal_phases.put(jaxb_phase.getId(), new SignalPhase(scenario, this, jaxb_phase));
 
+//        this.lanegroups =
     }
 
     ///////////////////////////////////////////////////

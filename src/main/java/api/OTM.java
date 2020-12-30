@@ -45,14 +45,22 @@ import static java.util.stream.Collectors.toSet;
  */
 public class OTM {
 
-    public core.Scenario scenario;
-    public api.Output output;
+    private core.Scenario scenario;
+    private api.Output output;
 
     ////////////////////////////////////////////////////////
     // construction
     ////////////////////////////////////////////////////////
 
     public OTM(){}
+
+    public core.Scenario scenario(){
+        return scenario;
+    }
+
+    public api.Output output(){
+        return output;
+    }
 
     /**
      * Constructor. Equivalent to OTM(configfile,true,false)
@@ -128,10 +136,8 @@ public class OTM {
      */
     public void initialize(float start_time,String output_requests_file,String prefix,String output_folder) throws OTMException {
 
-        Dispatcher dispatcher = scenario.dispatcher;
-
         // build and attach dispatcher
-        dispatcher = new Dispatcher();
+        Dispatcher dispatcher = new Dispatcher();
 
         // append outputs from output request file ..................
         if(output_requests_file!=null && !output_requests_file.isEmpty()) {

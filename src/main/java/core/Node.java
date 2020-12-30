@@ -99,20 +99,6 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
         is_sink = false;
     }
 
-
-    ////////////////////////////////////////////
-    // get / set
-    ///////////////////////////////////////////
-
-    public int num_inputs(){
-        return in_links.size();
-    }
-
-    public int num_outputs(){
-        return out_links.size();
-    }
-
-
     ////////////////////////////////////////////
     //  InterfaceActuatorTarget
     ///////////////////////////////////////////
@@ -132,6 +118,26 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
         if(actuator!=null)
             throw new OTMException("Node already has an actuator");
         this.actuator=act;
+    }
+
+    ////////////////////////////////////////////
+    // API
+    ///////////////////////////////////////////
+
+    public int num_inputs(){
+        return in_links.size();
+    }
+
+    public int num_outputs(){
+        return out_links.size();
+    }
+
+    public Float get_x(){
+        return xcoord;
+    }
+
+    public Float get_y(){
+        return ycoord;
     }
 
 }

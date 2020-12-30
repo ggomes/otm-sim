@@ -300,7 +300,31 @@ public class Scenario {
     }
 
     ///////////////////////////////////////////////////
-    // get
+    // run
+    ///////////////////////////////////////////////////
+
+    public void terminate() {
+        try {
+            for(AbstractOutput or : outputs)
+                or.close();
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+    }
+
+    ///////////////////////////////////////////////////
+    // travel time manager
+    ///////////////////////////////////////////////////
+
+    public void add_path_travel_time(OutputPathTravelTime path_tt_writer) throws OTMException {
+        if(path_tt_manager==null)
+            path_tt_manager = new LinkTravelTimeManager(this);
+
+        path_tt_manager.add_path_travel_time_writer(path_tt_writer);
+    }
+
+    ///////////////////////////////////////////////////
+    // API
     ///////////////////////////////////////////////////
 
     public float get_current_time(){
@@ -346,28 +370,61 @@ public class Scenario {
         return link.demandGenerators.stream().map(z->z.profile).collect(toSet());
     }
 
-    ///////////////////////////////////////////////////
-    // run
-    ///////////////////////////////////////////////////
-
-    public void terminate() {
-        try {
-            for(AbstractOutput or : outputs)
-                or.close();
-        } catch (OTMException e) {
-            e.printStackTrace();
-        }
+    public int num_links(){
+        return network.links.size();
     }
 
-    ///////////////////////////////////////////////////
-    // travel time manager
-    ///////////////////////////////////////////////////
-
-    public void add_path_travel_time(OutputPathTravelTime path_tt_writer) throws OTMException {
-        if(path_tt_manager==null)
-            path_tt_manager = new LinkTravelTimeManager(this);
-
-        path_tt_manager.add_path_travel_time_writer(path_tt_writer);
+    public Collection<Long> link_ids(){
+        return network.links.keySet();
     }
+
+    public Link get_link(long link_id) throws OTMException {
+        if(!network.links.containsKey(link_id))
+            throw new OTMException("Bad link id in Scenario.get_link");
+        return network.links.get(link_id);
+    }
+
+    public int num_nodes(){
+        return network.nodes.size();
+    }
+
+    public Collection<Long> node_ids(){
+        return network.nodes.keySet();
+    }
+
+    public Node get_node(long node_id)throws OTMException {
+        if(!network.nodes.containsKey(node_id))
+            throw new OTMException("Bad node id in Scenario.get_link");
+        return network.nodes.get(node_id);
+    }
+
+
+    public int num_commodities() {
+        return commodities.size();
+    }
+
+    public int num_subnetworks() {
+        return subnetworks.size();
+    }
+
+    public int num_sensors() {
+        return sensors.size();
+    }
+
+    public int num_actuators() {
+        return actuators.size();
+    }
+
+    public int num_controllers() {
+        return controllers.size();
+    }
+
+
+
+
+
+
+
+
 
 }

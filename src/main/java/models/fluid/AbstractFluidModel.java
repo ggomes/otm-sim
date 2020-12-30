@@ -85,7 +85,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
             // barriers .........................
             barriers_to_cells(link,link.in_barriers,cell_length_meters,link.get_num_dn_in_lanes());
-            barriers_to_cells(link,link.out_barriers,cell_length_meters,link.get_num_dn_in_lanes()+link.get_num_full_lanes());
+            barriers_to_cells(link,link.out_barriers,cell_length_meters,link.get_num_dn_in_lanes()+link.get_full_lanes());
 
         }
 

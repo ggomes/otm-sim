@@ -1,29 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <output_requests xmlns="opentrafficmodels">
 
-  <output_request quantity = "lanegroups"  />
+	<!-- links -->
+	<output_request quantity="link_flw" dt="30" commodity_id="1" />
+	<output_request quantity="link_flw" dt="30" />
+	<output_request quantity="link_veh" dt="30" commodity_id="1" />
+	<output_request quantity="link_veh" dt="30" />
+<!-- otm.output.request_links_sum_veh(prefix,output_folder,comm_id,link_ids,outdt);
+otm.output.request_link_queues(prefix,output_folder,comm_id,link_ids,outdt); -->
 
-  <!--   <output_request quantity = "vehicle_events" />
-  --><!--   <output_request quantity = "controller" controller = "1"  />
-  <output_request quantity = "actuator" actuator = "1"  /> -->
+	<!-- lane groups -->
+	<output_request quantity="lanegroups"  />
+	<output_request quantity="lanegroup_flw" dt="30" commodity_id="1" />
+	<output_request quantity="lanegroup_flw" dt="30" />
+	<output_request quantity="lanegroup_veh" dt="30" commodity_id="1" />
+	<output_request quantity="lanegroup_veh" dt="30" />
+<!-- otm.output.request_lanegroup_sum_veh(prefix,output_folder,comm_id,link_ids,outdt); -->
+
+	<!-- cells -->
+<!-- otm.output.request_cell_flw(prefix,output_folder,comm_id,link_ids,outdt);
+otm.output.request_cell_veh(prefix,output_folder,comm_id,link_ids,outdt);
+otm.output.request_cell_sum_veh(prefix,output_folder,comm_id,link_ids,outdt);
+otm.output.request_cell_sum_veh_dwn(prefix,output_folder,comm_id,link_ids,outdt);
+otm.output.request_cell_lanechange_out(prefix,output_folder,comm_id,link_ids,outdt);
+otm.output.request_cell_lanechange_in(prefix,output_folder,comm_id,link_ids,outdt); -->
 
 
-  <!--   <output_request quantity = "link_veh" dt = "30" commodity_id = "1" />
-  -->  
+	<!-- subnetworks -->
+<!-- otm.output.request_path_travel_time(prefix,output_folder,subnetid,outdt);
+otm.output.request_subnetwork_vht(prefix,output_folder,comm_id,subnetid,outdt); -->
 
-  <output_request quantity = "link_veh" dt = "30" />
 
-  <!--   <output_request quantity = "link_flw" dt = "30" commodity_id = "1" />
-  <output_request quantity = "link_flw" dt = "30" />
+	<!-- vehicle events -->
+	<output_request quantity="vehicle_events" />
+<!-- otm.output.request_vehicle_class(prefix,output_folder);
+otm.output.request_travel_time(prefix,output_folder); -->
 
-  <output_request quantity = "link_vht" dt = "30" commodity_id = "1" />
-  <output_request quantity = "link_vht" dt = "30" />
-
-  <output_request quantity = "lanegroup_veh" dt = "30" commodity_id = "1" />
-  <output_request quantity = "lanegroup_veh" dt = "30" />
-
-  <output_request quantity = "lanegroup_flw" dt = "30" commodity_id = "1" />
-  <output_request quantity = "lanegroup_flw" dt = "30" /> -->
+	<!-- controllers -->
+	<output_request quantity="controller" controller="1"  />
 
 </output_requests>
-

@@ -28,25 +28,26 @@ public class DebugRuns extends AbstractTest {
 
             boolean do_links        = true;
             boolean do_lanegroups   = true;
-            boolean do_cells        = false;
+            boolean do_cells        = true;
             boolean do_subnetworks  = false;
             boolean do_vehicles     = false;
             boolean do_controllers  = false;
 
             boolean sysout2file = false;
-            String configfile = "/home/gomes/code/otm/otm-sim/src/test/resources/test_configs/onramp_nohov.xml";
+            String configfile = "/home/gomes/Desktop/juliette/intersection.xml";
             float start_time = 0f;
-            float duration = 2000f;
+            float duration = 300f;
             float outdt = 2f;
             String prefix = makeplots?null:"x";
-            String output_folder = makeplots?null:"/home/gomes/code/otm/otm-sim/temp";
-            String png_folder = "/home/gomes/code/otm/otm-sim/temp";
-            Set<Long> link_ids =  Set.of(3l,4l,7l);
+            String output_folder = makeplots?null:"/home/gomes/Desktop/juliette";
+            String png_folder = "/home/gomes/Desktop/juliette";
+            Set<Long> link_ids =  null; //Set.of(3l,4l,7l);
 
             Long subnetid = null;
             Long cntrl_id = null;
 
             Long comm_id=null;
+
             // ..........................................
 
             // redirect System.out to a file
@@ -65,55 +66,58 @@ public class DebugRuns extends AbstractTest {
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);
 
+            if(link_ids==null)
+                link_ids = otm.scenario().network.links.keySet();
+
             // links
             if(do_links){
-                otm.output.request_links_flow(prefix,output_folder,comm_id,link_ids,outdt);
-                otm.output.request_links_veh(prefix,output_folder,comm_id,link_ids,outdt);
+                otm.output().request_links_flow(prefix,output_folder,comm_id,link_ids,outdt);
+                otm.output().request_links_veh(prefix,output_folder,comm_id,link_ids,outdt);
 //                otm.output.request_links_sum_veh(prefix,output_folder,comm_id,link_ids,outdt);
 //                otm.output.request_link_queues(prefix,output_folder,comm_id,link_ids,outdt);
             }
 
             // lane groups
             if(do_lanegroups){
-                otm.output.request_lanegroups(prefix,output_folder);
-                otm.output.request_lanegroup_flw(prefix,output_folder,comm_id,link_ids,outdt);
-                otm.output.request_lanegroup_veh(prefix,output_folder,comm_id,link_ids,outdt);
-                otm.output.request_lanegroup_sum_veh(prefix,output_folder,comm_id,link_ids,outdt);
+                otm.output().request_lanegroups(prefix,output_folder);
+                otm.output().request_lanegroup_flw(prefix,output_folder,comm_id,link_ids,outdt);
+                otm.output().request_lanegroup_veh(prefix,output_folder,comm_id,link_ids,outdt);
+                otm.output().request_lanegroup_sum_veh(prefix,output_folder,comm_id,link_ids,outdt);
             }
 
             // cells
             if(do_cells){
-                otm.output.request_cell_flw(prefix,output_folder,comm_id,link_ids,outdt);
-                otm.output.request_cell_veh(prefix,output_folder,comm_id,link_ids,outdt);
-                otm.output.request_cell_sum_veh(prefix,output_folder,comm_id,link_ids,outdt);
-                otm.output.request_cell_sum_veh_dwn(prefix,output_folder,comm_id,link_ids,outdt);
-                otm.output.request_cell_lanechange_out(prefix,output_folder,comm_id,link_ids,outdt);
-                otm.output.request_cell_lanechange_in(prefix,output_folder,comm_id,link_ids,outdt);
+                otm.output().request_cell_flw(prefix,output_folder,comm_id,link_ids,outdt);
+                otm.output().request_cell_veh(prefix,output_folder,comm_id,link_ids,outdt);
+                otm.output().request_cell_sum_veh(prefix,output_folder,comm_id,link_ids,outdt);
+                otm.output().request_cell_sum_veh_dwn(prefix,output_folder,comm_id,link_ids,outdt);
+                otm.output().request_cell_lanechange_out(prefix,output_folder,comm_id,link_ids,outdt);
+                otm.output().request_cell_lanechange_in(prefix,output_folder,comm_id,link_ids,outdt);
             }
 
             // subnetworks
             if(do_subnetworks){
-                otm.output.request_path_travel_time(prefix,output_folder,subnetid,outdt);
-                otm.output.request_subnetwork_vht(prefix,output_folder,comm_id,subnetid,outdt);
+                otm.output().request_path_travel_time(prefix,output_folder,subnetid,outdt);
+                otm.output().request_subnetwork_vht(prefix,output_folder,comm_id,subnetid,outdt);
             }
 
             // vehicle events
             if(do_vehicles){
-                otm.output.request_vehicle_events(prefix,output_folder,comm_id);
-                otm.output.request_vehicle_class(prefix,output_folder);
-                otm.output.request_travel_time(prefix,output_folder);
+                otm.output().request_vehicle_events(prefix,output_folder,comm_id);
+                otm.output().request_vehicle_class(prefix,output_folder);
+                otm.output().request_travel_time(prefix,output_folder);
             }
 
             // controllers
             if(do_controllers){
-                otm.output.request_controller(prefix,output_folder,cntrl_id);
+                otm.output().request_controller(prefix,output_folder,cntrl_id);
             }
 
             // Run .................................
             otm.run(start_time,duration);
 
             // Print output .........................
-            for(AbstractOutput output :  otm.output.get_data()){
+            for(AbstractOutput output :  otm.output().get_data()){
 
                 // links
                 if (output instanceof OutputLinkFlow)
@@ -222,7 +226,7 @@ public class DebugRuns extends AbstractTest {
             link_ids.add(3l);
 
 //            otm.output.request_lanegroup_flw(0l,link_ids,outdt);
-            otm.output.request_lanegroup_veh(null,null,0l,link_ids,outdt);
+            otm.output().request_lanegroup_veh(null,null,0l,link_ids,outdt);
 
             // Run .................................
             otm.initialize(start_time);
@@ -238,7 +242,7 @@ public class DebugRuns extends AbstractTest {
             otm.terminate();
 
             // Print output .........................
-            for(AbstractOutput output :  otm.output.get_data()){
+            for(AbstractOutput output :  otm.output().get_data()){
 
                 if (output instanceof OutputLaneGroupFlow) {
                     OutputLaneGroupFlow x = (OutputLaneGroupFlow) output;
@@ -283,6 +287,70 @@ public class DebugRuns extends AbstractTest {
             assertNotNull(otm);
         } catch (OTMException e) {
             fail(e.getMessage());
+        }
+    }
+
+
+    @Ignore
+    @Test
+    public void xxx() {
+
+        try {
+
+            String configfile = "/home/gomes/Desktop/test/intersection.xml";
+            float start_time = 0f;
+            float duration = 300f;
+            float outdt = 2f;
+            String prefix = null; // "javaapi";
+            String output_folder = null; // "/home/gomes/Desktop/test/output";
+            Long comm_id=null;
+
+            // Load ..............................
+            api.OTM otm = new api.OTM(configfile,true,false);
+
+            // links
+            Set<Long> link_ids = otm.scenario().network.links.keySet();
+            otm.output().request_links_flow(prefix,output_folder,comm_id,link_ids,outdt);
+            otm.output().request_links_veh(prefix,output_folder,comm_id,link_ids,outdt);
+
+            // lane groups
+            otm.output().request_lanegroups(prefix,output_folder);
+            otm.output().request_lanegroup_flw(prefix,output_folder,comm_id,link_ids,outdt);
+            otm.output().request_lanegroup_veh(prefix,output_folder,comm_id,link_ids,outdt);
+
+            // controllers
+            otm.output().request_controller(prefix,output_folder,0l);
+
+            // Run .................................
+            otm.run(start_time,duration);
+
+
+
+
+
+
+            String png_folder = "/home/gomes/Desktop/test/output";
+            for(AbstractOutput output :  otm.output().get_data()){
+
+                // links
+                if (output instanceof OutputLinkFlow)
+                    ((OutputLinkFlow) output).plot_for_links(null, String.format("%s/link_flow.png", png_folder));
+
+                if (output instanceof OutputLinkVehicles)
+                    ((OutputLinkVehicles) output).plot_for_links(null, String.format("%s/link_veh.png", png_folder));
+
+                // lane groups
+                if (output instanceof OutputLaneGroupFlow)
+                    ((OutputLaneGroupFlow) output).plot_for_links(null,"flows",  String.format("%s/lg_flow.png", png_folder));
+
+                if (output instanceof OutputLaneGroupVehicles)
+                    ((OutputLaneGroupVehicles) output).plot_for_links(null, "veh",String.format("%s/lg_veh.png", png_folder));
+
+            }
+
+        } catch (OTMException e) {
+            System.out.print(e);
+            fail();
         }
     }
 

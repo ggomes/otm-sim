@@ -488,12 +488,9 @@ public class Link implements InterfaceScenarioElement {
     }
 
     ////////////////////////////////////////////
-    // configuration getters
+    // API
     ///////////////////////////////////////////
 
-    public int get_num_full_lanes(){
-        return full_lanes;
-    }
 
     public int get_num_dn_in_lanes(){
         if(road_geom==null)
@@ -641,6 +638,34 @@ public class Link implements InterfaceScenarioElement {
     @Override
     public String toString() {
         return String.format("link %d",id);
+    }
+
+    ////////////////////////////////////////////
+    // API
+    ///////////////////////////////////////////
+
+    public int get_full_lanes(){
+        return full_lanes;
+    }
+
+    public float get_full_length(){
+        return length;
+    }
+
+    public boolean get_is_source(){
+        return is_source;
+    }
+
+    public boolean get_is_sink(){
+        return is_sink;
+    }
+
+    public long get_start_node_id(){
+        return start_node.id;
+    }
+
+    public long get_end_node_id(){
+        return end_node.id;
     }
 
 }
