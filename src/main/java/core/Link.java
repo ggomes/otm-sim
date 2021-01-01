@@ -7,7 +7,6 @@ import core.geometry.RoadGeometry;
 import jaxb.Points;
 import jaxb.Roadparam;
 import lanechange.LinkLaneSelector;
-import models.AbstractModel;
 import profiles.SplitMatrixProfile;
 import traveltime.LinkTravelTimer;
 import core.packet.PacketLaneGroup;
@@ -22,24 +21,24 @@ public class Link implements InterfaceScenarioElement {
     public enum RoadType {none,offramp,onramp,freeway,connector,bridge,ghost}
 
     // basics ........................................
-    protected final long id;
-    public Network network;
+    public final long id;
+    public final Network network;
     public final float length;          // meters
     public final int full_lanes;
-    public core.Node start_node;
-    public core.Node end_node;
-    public boolean is_source;
-    public boolean is_sink;
+    public final core.Node start_node;
+    public final core.Node end_node;
+    protected boolean is_source;
+    protected boolean is_sink;
 
     // parameters .........................................
-    public RoadType road_type;
-    public RoadGeometry road_geom;
-    public Roadparam road_param_full;        // for the sake of writing again to jaxb
-    public List<Point> shape;           // not used by otm-sim
+    public final RoadType road_type;
+    public final RoadGeometry road_geom;
+    public final Roadparam road_param_full;        // for the sake of writing again to jaxb
+    public final List<Point> shape;           // not used by otm-sim
 
     // model .............................................
     public AbstractModel model;
-    public boolean is_model_source_link;
+    protected boolean is_model_source_link;
 
     // lane selection model
     public LinkLaneSelector lane_selector;  // comm->lane selector
@@ -82,7 +81,7 @@ public class Link implements InterfaceScenarioElement {
     // construction
     ///////////////////////////////////////////
 
-    public Link(Network network, jaxb.Roadparam rp, long id, float length, int full_lanes, Node start_node, Node end_node) throws OTMException {
+    public Link(Network network, jaxb.Roadparam rp, long id, float length, int full_lanes, Node start_node, Node end_node, RoadGeometry rg, Link.RoadType rt,Points jpoints) throws OTMException {
 
         if (start_node == null)
             throw new OTMException("Unknown start node id in link " + id);
@@ -90,50 +89,29 @@ public class Link implements InterfaceScenarioElement {
         if (end_node == null)
             throw new OTMException("Unknown end node id in link " + id);
 
-        // basics ..............................
         this.id = id;
         this.network = network;
         this.length = length;
         this.full_lanes = full_lanes;
         this.start_node = start_node;
         this.end_node = end_node;
-
-        // source and sink. this is set later by the network
+        this.road_param_full = rp;
+        this.road_type = (rt == null) ? RoadType.none : rt;
+        this.road_geom = rg;
         this.is_source = true;
         this.is_sink = true;
 
-        // node io
+        lgs = new ArrayList<>();
+        dnlane2lanegroup = new HashMap<>();
+        path2outlink = new HashMap<>();
+        outlink2lanegroups = new HashMap<>();
+        demandGenerators = new HashSet<>();
+
         this.start_node.add_output_link(this);
         this.end_node.add_input_link(this);
 
-        // parameters .........................................
-        this.road_param_full = rp;
-
         // shape
         this.shape = new ArrayList<>();
-
-        // lanegroups ......................................
-        lgs = new ArrayList<>();
-        dnlane2lanegroup = new HashMap<>();
-
-        // routing ............................................
-        path2outlink = new HashMap<>();
-        outlink2lanegroups = new HashMap<>();
-
-        // demands ............................................
-        demandGenerators = new HashSet<>();
-
-    }
-
-    public Link(Network network, jaxb.Roadparam rp, long id, float length, int full_lanes, Node start_node, Node end_node, RoadGeometry rg, Link.RoadType rt,Points jpoints) throws OTMException {
-
-        this(network,rp,id,length,full_lanes,start_node,end_node);
-
-        // parameters .........................................
-        this.road_type = rt==null ? RoadType.none : rt;
-        this.road_geom = rg;
-
-        // shape
         if (jpoints != null && jpoints.getPoint() != null)
             for (jaxb.Point jpoint : jpoints.getPoint())
                 shape.add(new Point(jpoint.getX(), jpoint.getY()));
@@ -260,29 +238,6 @@ public class Link implements InterfaceScenarioElement {
             jpoint.setY(point.y);
         }
         return jlink;
-    }
-
-    ///////////////////////////////////////////
-
-    public void delete(){
-        network = null;
-        start_node = null;
-        end_node = null;
-        if(lgs !=null)
-            lgs.forEach(lg->lg.delete());
-        lgs = null;
-        dnlane2lanegroup = null;
-        path2outlink = null;
-        outlink2lanegroups = null;
-        split_profile = null;
-        if(demandGenerators !=null)
-            demandGenerators.forEach(s->s.delete());
-        demandGenerators = null;
-        road_type = null;
-        road_geom = null;
-        model = null;
-//        travel_timers = null;
-        shape = null;
     }
 
     public void set_lanegroups(List<AbstractLaneGroup> lgs) {
@@ -491,6 +446,13 @@ public class Link implements InterfaceScenarioElement {
     // API
     ///////////////////////////////////////////
 
+    public boolean is_source(){
+        return is_source;
+    }
+
+    public boolean is_sink(){
+        return is_sink;
+    }
 
     public int get_num_dn_in_lanes(){
         if(road_geom==null)
@@ -666,6 +628,14 @@ public class Link implements InterfaceScenarioElement {
 
     public long get_end_node_id(){
         return end_node.id;
+    }
+
+    public boolean is_model_source_link(){
+        return is_model_source_link;
+    }
+
+    public AbstractModel model(){
+        return model;
     }
 
 }

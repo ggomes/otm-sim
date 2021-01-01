@@ -4,7 +4,7 @@ import commodity.Commodity;
 import commodity.Path;
 import core.*;
 import error.OTMException;
-import models.AbstractModel;
+import core.AbstractModel;
 import profiles.Profile1D;
 import utils.OTMUtils;
 import utils.StochasticProcess;

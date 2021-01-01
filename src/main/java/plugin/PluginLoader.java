@@ -2,7 +2,7 @@ package plugin;
 
 import control.AbstractController;
 import error.OTMException;
-import models.AbstractModel;
+import core.AbstractModel;
 import core.Scenario;
 import utils.StochasticProcess;
 

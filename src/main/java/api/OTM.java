@@ -11,7 +11,7 @@ import dispatch.EventDemandChange;
 import dispatch.EventStopSimulation;
 import error.OTMException;
 import jaxb.OutputRequests;
-import models.AbstractModel;
+import core.AbstractModel;
 import models.vehicle.spatialq.EventTransitToWaiting;
 import models.vehicle.spatialq.MesoLaneGroup;
 import models.vehicle.spatialq.MesoVehicle;
@@ -282,7 +282,7 @@ public class OTM {
      */
     public Set<Long> get_source_link_ids(){
         return scenario.network.links.values().stream()
-                .filter(x->x.is_source)
+                .filter(x->x.is_source())
                 .map(x->x.getId())
                 .collect(toSet());
     }

@@ -10,11 +10,10 @@ import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.OutputRequest;
 import core.AbstractLaneGroup;
-import models.AbstractModel;
+import core.AbstractModel;
 import output.AbstractOutput;
 import core.Scenario;
 import profiles.Profile1D;
-import utils.StochasticProcess;
 
 import java.util.Collection;
 import java.util.Map;

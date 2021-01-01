@@ -8,7 +8,7 @@ import dispatch.Dispatcher;
 import error.OTMException;
 import core.State;
 import jaxb.Lanechanges;
-import models.AbstractModel;
+import core.AbstractModel;
 import models.fluid.nodemodel.NodeModel;
 import models.fluid.nodemodel.RoadConnection;
 import models.fluid.nodemodel.UpLaneGroup;
@@ -42,10 +42,10 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
         // create cells
         for(Link link : links) {
 
-            if(link.is_source)
+            if(link.is_source())
                 source_links.add(link);
 
-            if(link.is_sink)
+            if(link.is_sink())
                 sink_links.add(link);
 
             if(!link.start_node.is_source)
@@ -56,7 +56,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
             // compute cell length .............
             float r = link.length/max_cell_length;
-            boolean is_source_or_sink = link.is_source || link.is_sink;
+            boolean is_source_or_sink = link.is_source() || link.is_sink();
 
             int num_cells = is_source_or_sink ?
                     1 :
@@ -72,7 +72,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
                 // translate parameters to per-cell units
                 float cell_length = flg.length / flg.cells.size() / 1000f;    // [km]
-                if (!link.is_source) {
+                if (!link.is_source()) {
                     flg.nom_ffspeed_cell_per_dt /= cell_length;
                     flg.ffspeed_cell_per_dt /= cell_length;
                     flg.jam_density_veh_per_cell *= cell_length;

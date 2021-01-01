@@ -52,12 +52,12 @@ public class Subnetwork implements InterfaceScenarioElement {
         this.used_by_comm = new HashSet<>();
     }
 
-    public Subnetwork(Network network) {
-        this.id = 0L;
-        this.name = "whole network";
-        this.link_ids = network.links.keySet();
-        this.used_by_comm = new HashSet<>();
-    }
+//    public Subnetwork(Network network) {
+//        this.id = 0L;
+//        this.name = "whole network";
+//        this.link_ids = network.links.keySet();
+//        this.used_by_comm = new HashSet<>();
+//    }
 
     ///////////////////////////////////////////////////
     // InterfaceScenarioElement

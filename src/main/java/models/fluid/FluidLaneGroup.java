@@ -38,7 +38,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     public FluidLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
         super(link, side,length, num_lanes, start_lane, out_rcs,rp);
 
-        if(link.is_source)
+        if(link.is_source())
             this.source_flow = new HashMap<>();
     }
 
@@ -52,7 +52,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         if (jam_density_veh_per_cell < 0)
             errorLog.addError("non-negativity");
 
-        if (!link.is_source) {
+        if (!link.is_source()) {
             if (ffspeed_cell_per_dt < 0)
                 errorLog.addError("ffspeed_cell_per_dt < 0 (link " + link.getId() + ")");
             if (wspeed_cell_per_dt < 0)
@@ -89,7 +89,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 //        if(link.model_type==Link.ModelType.mn)
 //            r.setJamDensity(Float.POSITIVE_INFINITY);
 
-        float dt_sec = ((AbstractFluidModel)link.model).dt_sec;
+        float dt_sec = ((AbstractFluidModel)link.model()).dt_sec;
         if(Float.isNaN(dt_sec))
             return;
 
@@ -100,7 +100,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         float ffspeed_veh = r.getSpeed() * dt_hr;   // [km/dt]
 
         nom_capacity_veh_per_dt = capacity_vehperlane * num_lanes;
-        if (link.is_source) {
+        if (link.is_source()) {
             nom_ffspeed_cell_per_dt = Double.NaN;
             ffspeed_cell_per_dt = Double.NaN;
             jam_density_veh_per_cell = Double.NaN;
@@ -122,7 +122,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     @Override
     public void set_actuator_capacity_vps(double rate_vps) {
-        double act_capacity_veh_per_dt = rate_vps * ((AbstractFluidModel)link.model).dt_sec;
+        double act_capacity_veh_per_dt = rate_vps * ((AbstractFluidModel)link.model()).dt_sec;
         this.capacity_veh_per_dt = Math.min(act_capacity_veh_per_dt,nom_capacity_veh_per_dt);
 
         // set w
@@ -133,7 +133,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     @Override
     public void set_actuator_speed_mps(double speed_mps) {
         float cell_length = this.length / this.cells.size();
-        float dt_sec = ((AbstractFluidModel)link.model).dt_sec;
+        float dt_sec = ((AbstractFluidModel)link.model()).dt_sec;
         float act_ffspeed_veh = ((float)speed_mps) * dt_sec / cell_length;
         this.ffspeed_cell_per_dt = Math.min(act_ffspeed_veh,nom_ffspeed_cell_per_dt);
 
@@ -166,7 +166,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
         // When the link is a model source, then the core.packet first goes into a buffer.
         // From there it is "processed", meaning that some part goes into the upstream cell.
-        if(link.is_model_source_link) {
+        if(link.is_model_source_link()) {
             // add core.packet to buffer
             assert(false); // DOES THIS EVER HAPPEN? PERHAPS SOURCE FLOWS ARE PROC ESSED IN UPDATE_FLOW_II AND
                             // VEHICLES ARE PLACED DIRECTLY INTO THE UPSTREAM CELL
@@ -212,7 +212,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     public void update_supply(){
 
         // shut off if buffer is full
-        if(link.is_model_source_link && buffer.get_total_veh()>=1d)
+        if(link.is_model_source_link() && buffer.get_total_veh()>=1d)
             supply = 0d;
         else {
             AbstractCell upcell = get_upstream_cell();
@@ -360,7 +360,6 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     }
 
     public void process_buffer(float timestamp) throws OTMException {
-        assert(link.is_model_source_link);
 
         double buffer_size = buffer.get_total_veh();
 

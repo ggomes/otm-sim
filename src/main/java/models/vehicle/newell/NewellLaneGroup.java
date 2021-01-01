@@ -175,7 +175,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
         Link next_link = null;
         RoadConnection rc = null;
 
-        if(!link.is_sink){
+        if(!link.is_sink()){
 
             // get next link
             State state = vehicle.get_state();

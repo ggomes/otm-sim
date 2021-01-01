@@ -12,7 +12,7 @@ import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Controller;
-import models.AbstractModel;
+import core.AbstractModel;
 import models.fluid.FluidLaneGroup;
 
 import java.util.HashMap;
@@ -78,7 +78,7 @@ public abstract class AbstractControllerRampMetering extends AbstractController 
                 if(lgs.size()!=1)
                     errorLog.addError("Queue overide actuators must be associated with a single lane group");
                 Link or = lgs.iterator().next().link;
-                if(or.is_source)
+                if(or.is_source())
                     errorLog.addError("Queue override does not work when the onramp is a source link.");
                 if(!or.model.type.equals(AbstractModel.Type.Fluid))
                     errorLog.addError("Queue override is only implemented for fluid models.");

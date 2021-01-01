@@ -116,12 +116,12 @@ public class ModelCTM extends AbstractFluidModel {
                             double out_flow = flow_dwn==null ? 0d : flow_dwn.values().stream().mapToDouble(x->x).sum();
 
                             if(out_flow==0)
-                                tt = link.is_source ? dt_sec : dt_sec / lg.ffspeed_cell_per_dt;
+                                tt = link.is_source() ? dt_sec : dt_sec / lg.ffspeed_cell_per_dt;
                             else
                                 tt = dt_sec * veh / out_flow;
 
                         } else
-                            tt = link.is_source ? dt_sec : dt_sec / lg.ffspeed_cell_per_dt;
+                            tt = link.is_source() ? dt_sec : dt_sec / lg.ffspeed_cell_per_dt;
                         total_travel_time += tt;
                     }
 
@@ -138,7 +138,7 @@ public class ModelCTM extends AbstractFluidModel {
             lg.update_supply();
 
             // process buffer
-            if(link.is_model_source_link) {
+            if(link.is_model_source_link()) {
                 lg.process_buffer(timestamp);
                 lg.update_supply();
             }

@@ -38,6 +38,7 @@ public class StateContainer {
     public Set<AbstractVehicle> add_packet_and_extract_vehicles(StateContainer container, AbstractLaneGroup lg){
 
         AbstractVehicleModel model = (AbstractVehicleModel) lg.link.model;
+        Scenario scenario = lg.link.network.scenario;
 
         Set<AbstractVehicle> vehicles = new HashSet<>();
 
@@ -50,7 +51,6 @@ public class StateContainer {
                 int num_veh = (int) value;
                 amount.put(key,value - num_veh);
                 for(int i=0;i<num_veh;i++) {
-                    Scenario scenario = lg.link.network.scenario;
                     Commodity commodity = scenario.commodities.get(key.commodity_id);
                     AbstractVehicle vehicle = model.create_vehicle(key.commodity_id, commodity.vehicle_event_listeners);
                     vehicle.set_state(key);

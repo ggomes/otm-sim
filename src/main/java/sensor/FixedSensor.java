@@ -8,7 +8,7 @@ import dispatch.Dispatcher;
 import error.OTMException;
 import jaxb.Sensor;
 import core.Scenario;
-import models.AbstractModel;
+import core.AbstractModel;
 import models.fluid.FluidLaneGroup;
 import utils.OTMUtils;
 

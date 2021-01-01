@@ -79,11 +79,11 @@ public class CTMCell extends AbstractCell {
     @Override
     public void update_supply(){
 
-        if(laneGroup.link.is_source)
+        if(laneGroup.link.is_source())
             return;
 
         // update supply ..............................................
-        if (laneGroup.link.is_sink)
+        if (laneGroup.link.is_sink())
             supply = laneGroup.capacity_veh_per_dt;
         else {
 
@@ -96,7 +96,7 @@ public class CTMCell extends AbstractCell {
             if(am_dnstrm)
                 supply = Math.min(laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - total_vehicles), laneGroup.capacity_veh_per_dt);
             else {
-                if(am_upstrm && laneGroup.link.is_model_source_link)
+                if(am_upstrm && laneGroup.link.is_model_source_link())
                     total_vehicles += laneGroup.buffer.get_total_veh();
                 supply = laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - total_vehicles);
             }
@@ -125,7 +125,7 @@ public class CTMCell extends AbstractCell {
         else {
 
             // compute total flow leaving the cell in the absence of flow control
-            if (laneGroup.link.is_source)
+            if (laneGroup.link.is_source())
                 // sources discharge at capacity
                 total_demand = Math.min(total_vehicles, laneGroup.capacity_veh_per_dt);
             else {

@@ -78,13 +78,6 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
         return jnode;
     }
 
-    public void delete(){
-        network = null;
-        in_links = null;
-        out_links = null;
-        road_connections = null;
-    }
-
     public void add_road_connection(RoadConnection rc){
         this.road_connections.add(rc);
     }

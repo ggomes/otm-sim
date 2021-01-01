@@ -114,7 +114,7 @@ public class Commodity implements InterfaceScenarioElement {
         else {
 
             // for pathless/sink, next link id is same as this id
-            if (link.is_sink) {
+            if (link.is_sink()) {
                 for (AbstractLaneGroup lg : link.lgs)
                     lg.add_state(comm.getId(), null,link.getId(), false);
 

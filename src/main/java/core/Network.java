@@ -3,14 +3,6 @@ package core;
 import error.OTMErrorLog;
 import error.OTMException;
 import core.geometry.*;
-import models.AbstractModel;
-import models.fluid.ctm.ModelCTM;
-import models.none.ModelNone;
-import models.vehicle.newell.ModelNewell;
-import models.vehicle.spatialq.ModelSpatialQ;
-import plugin.PluginLoader;
-import utils.OTMUtils;
-import utils.StochasticProcess;
 
 import java.util.*;
 
@@ -41,7 +33,7 @@ public class Network {
         links = new HashMap<>();
     }
 
-    public Network(Scenario scenario, List<jaxb.Commodity> jaxb_comms, jaxb.Nodes jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadgeoms jaxb_geoms, jaxb.Roadconnections jaxb_conns, jaxb.Roadparams jaxb_params,boolean jaxb_only) throws OTMException {
+    public Network(Scenario scenario, jaxb.Nodes jaxb_nodes, List<jaxb.Link> jaxb_links, jaxb.Roadgeoms jaxb_geoms, jaxb.Roadconnections jaxb_conns, jaxb.Roadparams jaxb_params,boolean jaxb_only) throws OTMException {
 
         this(scenario);
 
@@ -60,18 +52,6 @@ public class Network {
                 link.is_source = link.start_node.in_links.isEmpty();
                 link.is_sink = link.end_node.out_links.isEmpty();
             }
-
-        // allocate split matrix
-        if(jaxb_comms!=null){
-            Set<Long> pathless_comms = jaxb_comms.stream()
-                    .filter(c->!c.isPathfull())
-                    .map(c->c.getId())
-                    .collect(toSet());
-
-            links.values().stream()
-                    .filter(link -> !link.is_sink && link.end_node.out_links.size()>1)
-                    .forEach(link -> link.allocate_splits(pathless_comms));
-        }
 
         // read road connections (requires links)
         road_connections = read_road_connections(jaxb_conns,links);

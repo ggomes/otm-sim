@@ -16,23 +16,43 @@ public class Path extends Subnetwork {
     // construction
     ///////////////////////////////////////////////////
 
-    public Path(jaxb.Subnetwork js, Network network) throws OTMException {
+    public Path(jaxb.Subnetwork js) throws OTMException {
         super(js);
-        if(!create_ordered_links(network))
-            throw new OTMException(String.format("Subnetwork %d is not a path.",js.getId()));
     }
 
-    public Path(Network network) throws OTMException {
-        super(network);
-        if(!create_ordered_links(network))
-            throw new OTMException("Network is not a path.");
-    }
+    public boolean populate_ordered_links(Network network){
 
-//    public Path(Subnetwork subnet) {
-//        super(subnet);
-//        if(!create_ordered_links(network))
-//            throw new OTMException("Subetwork is not a path.");
-//    }
+        Set<Link> links = this.link_ids.stream()
+                .map(x->network.links.get(x))
+                .collect(Collectors.toSet());
+
+        // check that there is exactly one source in links
+        Set<Link> sources = links.stream()
+                .filter(x->x.is_source())
+                .collect(Collectors.toSet());
+
+        if(sources.size()!=1)
+            return false;
+
+        Link current = sources.iterator().next();
+        Set<Link> unchecked = new HashSet<>();
+        unchecked.addAll(links);
+        unchecked.remove(current);
+
+        ordered_links = new ArrayList<>();
+        ordered_links.add(current);
+
+        while(!unchecked.isEmpty()){
+            Set<Link> next_link = OTMUtils.intersect(current.end_node.out_links, links);
+            if(next_link.size()>1)
+                return false;
+            current = next_link.iterator().next();
+            ordered_links.add(current);
+            unchecked.remove(current);
+        }
+
+        return true;
+    }
 
     ///////////////////////////////////////////////////
     // InterfaceScenarioElement
@@ -46,7 +66,7 @@ public class Path extends Subnetwork {
             errorLog.addError("ordered_links.size()<2");
 
         // first link must be a source
-        if(!ordered_links.get(0).is_source)
+        if(!ordered_links.get(0).is_source())
             errorLog.addError("first link in path is not a source");
     }
 
@@ -83,51 +103,6 @@ public class Path extends Subnetwork {
 
     public List<Link> get_ordered_links() {
         return ordered_links;
-    }
-
-    ///////////////////////////////////////////////////
-    // private
-    ///////////////////////////////////////////////////
-
-
-    ///////////////////////////////////////////////////
-    // private
-    ///////////////////////////////////////////////////
-
-
-    private boolean create_ordered_links(Network network){
-
-        Set<Link> links = this.link_ids.stream()
-                .map(x->network.links.get(x))
-                .collect(Collectors.toSet());
-
-
-        // check that there is exactly one source in links
-        Set<Link> sources = links.stream()
-                .filter(x->x.is_source)
-                .collect(Collectors.toSet());
-
-        if(sources.size()!=1)
-            return false;
-
-        Link current = sources.iterator().next();
-        Set<Link> unchecked = new HashSet<>();
-        unchecked.addAll(links);
-        unchecked.remove(current);
-
-        ordered_links = new ArrayList<>();
-        ordered_links.add(current);
-
-        while(!unchecked.isEmpty()){
-            Set<Link> next_link = OTMUtils.intersect(current.end_node.out_links, links);
-            if(next_link.size()>1)
-                return false;
-            current = next_link.iterator().next();
-            ordered_links.add(current);
-            unchecked.remove(current);
-        }
-
-        return true;
     }
 
 }

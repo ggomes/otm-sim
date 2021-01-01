@@ -32,13 +32,12 @@ public class LinkLaneSelector implements Pokable {
                 if (commids.contains(state.commodity_id))
                     lcslg.put(state, create_lane_selector(lg, type, params));
             }
-
         }
 
         // dt==0 means update every time step
         // dt<0 means update only once upon initialization
-        if(this.dt==0 && (link.model instanceof AbstractFluidModel))
-            this.dt = ((AbstractFluidModel)link.model).dt_sec;
+        if(this.dt==0 && (link.model() instanceof AbstractFluidModel))
+            this.dt = ((AbstractFluidModel)link.model()).dt_sec;
 
     }
 

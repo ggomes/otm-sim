@@ -4,7 +4,6 @@ import actuator.AbstractActuator;
 import commodity.Commodity;
 import commodity.Subnetwork;
 import dispatch.EventInitializeController;
-import models.AbstractModel;
 import models.fluid.AbstractFluidModel;
 import cmd.RunParameters;
 import traveltime.LinkTravelTimeManager;
@@ -323,14 +322,6 @@ public class Scenario {
         path_tt_manager.add_path_travel_time_writer(path_tt_writer);
     }
 
-    ///////////////////////////////////////////////////
-    // API
-    ///////////////////////////////////////////////////
-
-    public float get_current_time(){
-        return dispatcher.current_time;
-    }
-
     public InterfaceScenarioElement get_element(ScenarioElementType type, Long id){
 
         switch(type){
@@ -354,50 +345,23 @@ public class Scenario {
         return null;
     }
 
-    public Set<Profile1D> get_demands_for_commodity(Long commodity_id){
-        return network.links.values().stream()
-                .filter(link->link.demandGenerators!=null)
-                .flatMap(link->link.demandGenerators.stream())
-                .filter(gen->commodity_id==gen.commodity.getId())
-                .map(s->s.profile)
-                .collect(toSet());
+    ///////////////////////////////////////////////////
+    // API
+    ///////////////////////////////////////////////////
+
+    public float get_current_time(){
+        return dispatcher.current_time;
     }
 
-    public Set<Profile1D> get_demands_for_link(Long link_id){
-        Link link = this.network.links.get(link_id);
-        if(link==null)
-            return null;
-        return link.demandGenerators.stream().map(z->z.profile).collect(toSet());
-    }
-
-    public int num_links(){
-        return network.links.size();
-    }
-
-    public Collection<Long> link_ids(){
-        return network.links.keySet();
-    }
-
-    public Link get_link(long link_id) throws OTMException {
-        if(!network.links.containsKey(link_id))
-            throw new OTMException("Bad link id in Scenario.get_link");
-        return network.links.get(link_id);
-    }
+    // get number of elements .........................
 
     public int num_nodes(){
         return network.nodes.size();
     }
 
-    public Collection<Long> node_ids(){
-        return network.nodes.keySet();
+    public int num_links(){
+        return network.links.size();
     }
-
-    public Node get_node(long node_id)throws OTMException {
-        if(!network.nodes.containsKey(node_id))
-            throw new OTMException("Bad node id in Scenario.get_link");
-        return network.nodes.get(node_id);
-    }
-
 
     public int num_commodities() {
         return commodities.size();
@@ -418,6 +382,103 @@ public class Scenario {
     public int num_controllers() {
         return controllers.size();
     }
+
+    // id sets .......................................
+
+    public Collection<Long> node_ids(){
+        return network.nodes.keySet();
+    }
+
+    public Collection<Long> link_ids(){
+        return network.links.keySet();
+    }
+
+    public Collection<Long> commodity_ids(){
+        return commodities.keySet();
+    }
+
+    public Collection<Long> subnetwork_ids(){
+        return subnetworks.keySet();
+    }
+
+    public Collection<Long> actuator_ids(){
+        return actuators.keySet();
+    }
+
+    public Collection<Long> sensor_ids(){
+        return sensors.keySet();
+    }
+
+    public Collection<Long> controller_ids(){
+        return controllers.keySet();
+    }
+
+    // elements by id .................................
+
+    public Node get_node(long id)throws OTMException {
+        if(!network.nodes.containsKey(id))
+            throw new OTMException("Bad id in Scenario.get_link");
+        return network.nodes.get(id);
+    }
+
+    public Link get_link(long id) throws OTMException {
+        if(!network.links.containsKey(id))
+            throw new OTMException("Bad id in Scenario.get_link");
+        return network.links.get(id);
+    }
+
+    public Commodity get_commodity(long id) throws OTMException {
+        if(!commodities.containsKey(id))
+            throw new OTMException("Bad id in Scenario.get_commodity");
+        return commodities.get(id);
+    }
+
+    public Subnetwork get_subnetwork(long id) throws OTMException {
+        if(!subnetworks.containsKey(id))
+            throw new OTMException("Bad id in Scenario.get_subnetwork");
+        return subnetworks.get(id);
+    }
+
+    public AbstractActuator get_actuator(long id) throws OTMException {
+        if(!actuators.containsKey(id))
+            throw new OTMException("Bad id in Scenario.get_actuator");
+        return actuators.get(id);
+    }
+
+    public AbstractSensor get_sensor(long id) throws OTMException {
+        if(!sensors.containsKey(id))
+            throw new OTMException("Bad id in Scenario.get_sensor");
+        return sensors.get(id);
+    }
+
+    public AbstractController get_controller(long id) throws OTMException {
+        if(!controllers.containsKey(id))
+            throw new OTMException("Bad id in Scenario.get_controller");
+        return controllers.get(id);
+    }
+
+
+
+
+    public Set<Profile1D> get_demands_for_commodity(Long commodity_id){
+        return network.links.values().stream()
+                .filter(link->link.demandGenerators!=null)
+                .flatMap(link->link.demandGenerators.stream())
+                .filter(gen->commodity_id==gen.commodity.getId())
+                .map(s->s.profile)
+                .collect(toSet());
+    }
+
+    public Set<Profile1D> get_demands_for_link(Long link_id){
+        Link link = this.network.links.get(link_id);
+        if(link==null)
+            return null;
+        return link.demandGenerators.stream().map(z->z.profile).collect(toSet());
+    }
+
+
+
+
 
 
 

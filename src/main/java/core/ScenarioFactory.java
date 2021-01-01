@@ -12,14 +12,9 @@ import control.commodity.ControllerOfframpFlow;
 import control.commodity.ControllerTollLaneGroup;
 import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
-import core.geometry.AddLanes;
-import core.geometry.Gate;
-import core.geometry.RoadGeometry;
-import core.geometry.Side;
 import error.OTMErrorLog;
 import error.OTMException;
 import lanechange.LinkLaneSelector;
-import models.AbstractModel;
 import models.fluid.ctm.ModelCTM;
 import models.none.ModelNone;
 import models.vehicle.newell.ModelNewell;
@@ -34,7 +29,6 @@ import utils.StochasticProcess;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 public class ScenarioFactory {
@@ -49,72 +43,32 @@ public class ScenarioFactory {
 
         Scenario scenario = new Scenario();
 
-        // plugins ..........................................................
+        // plugins
         if(!jaxb_only)
             PluginLoader.load_plugins( js.getPlugins() );
 
-        // network ...........................................................
-        scenario.network = ScenarioFactory.create_network_from_jaxb(scenario, js.getCommodities(), js.getNetwork(), jaxb_only);
+        // network and subnetworks
+        ScenarioFactory.create_network_and_subnetworks_from_jaxb(scenario, js.getNetwork(), js.getSubnetworks(), jaxb_only);
 
-        // commodities ......................................................
-        scenario.subnetworks = ScenarioFactory.create_subnetworks_from_jaxb(
-                scenario.network,
-                js.getSubnetworks() ,
-                have_global_commodity(js.getCommodities()) );
-
-        scenario.commodities = ScenarioFactory.create_commodities_from_jaxb(
-                scenario.subnetworks,
-                js.getCommodities());
+        // commodities
+        scenario.commodities = ScenarioFactory.create_commodities_from_jaxb(scenario.subnetworks, js.getCommodities());
 
         // generate models
         scenario.models = create_models_from_jaxb(scenario,js.getModels().getModel(),scenario.network.links, scenario.network.road_connections.values());
 
-        // control ...............................................
-        scenario.sensors = ScenarioFactory.create_sensors_from_jaxb(scenario, js.getSensors() );
-        scenario.actuators = ScenarioFactory.create_actuators_from_jaxb(scenario, js.getActuators() );
-        scenario.controllers = ScenarioFactory.create_controllers_from_jaxb(scenario,js.getControllers() );
-
-        // populate link.path2outlink (requires commodities)
-         if(!jaxb_only) {
-            Set<Subnetwork> used_paths = scenario.commodities.values().stream()
-                    .filter(c -> c.pathfull)
-                    .map(c -> c.subnetworks)
-                    .flatMap(c -> c.stream())
-                    .collect(toSet());
-
-            for (Subnetwork subnet : used_paths) {
-                if (!(subnet instanceof Path))
-                    throw new OTMException(String.format("ERROR: Subnetwork %d is assigned to a pathfull commodity, but it is not a linear path", subnet.getId()));
-                Path path = (Path) subnet;
-                for (int i = 0; i < path.ordered_links.size() - 1; i++) {
-                    Link link = path.ordered_links.get(i);
-                    Link next_link = path.ordered_links.get(i + 1);
-                    link.path2outlink.put(path.getId(), next_link);
-                }
-            }
-        }
-
-        // allocate the state ..............................................
+        // allocate the state
         if(!jaxb_only)
             for(Commodity commodity : scenario.commodities.values()) {
                 if (commodity.pathfull)
                     for (Subnetwork subnetwork : commodity.subnetworks)
-                        for (Long linkid : subnetwork.get_link_ids()) {
-                            Link link = scenario.network.links.get(linkid);
-                            commodity.register_commodity(link, commodity, subnetwork);
-                        }
+                        for (Long linkid : subnetwork.get_link_ids())
+                            commodity.register_commodity( scenario.network.links.get(linkid) , commodity, subnetwork);
                 else
                     for (Link link : scenario.network.links.values())
                         commodity.register_commodity(link, commodity, null);
             }
 
-        // splits ...........................................................
-        ScenarioFactory.create_splits_from_jaxb(scenario.network, js.getSplits());
-
-        // demands ..........................................................
-        ScenarioFactory.create_demands_from_jaxb(scenario.network, js.getDemands());
-
-        // lane change models .................................................
+        // lane change models
         for(jaxb.Model jmodel : js.getModels().getModel()){
             AbstractModel model = scenario.models.get(jmodel.getName());
             jaxb.Lanechanges lcs = jmodel.getLanechanges();
@@ -134,27 +88,18 @@ public class ScenarioFactory {
             }
         }
 
+        // control
+        scenario.sensors = ScenarioFactory.create_sensors_from_jaxb(scenario, js.getSensors() );
+        scenario.actuators = ScenarioFactory.create_actuators_from_jaxb(scenario, js.getActuators() );
+        scenario.controllers = ScenarioFactory.create_controllers_from_jaxb(scenario,js.getControllers() );
 
+        // splits
+        ScenarioFactory.create_splits_from_jaxb(scenario.network, scenario.commodities, js.getSplits());
 
+        // demands
+        ScenarioFactory.create_demands_from_jaxb(scenario.network, js.getDemands());
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // validate ................................................
+        // validate
         if(validate) {
             OTMErrorLog errorLog = scenario.validate();
             errorLog.check();
@@ -214,17 +159,46 @@ public class ScenarioFactory {
     // private
     ///////////////////////////////////////////
 
-    private static core.Network create_network_from_jaxb(Scenario scenario, jaxb.Commodities jaxb_comms, jaxb.Network jaxb_network, boolean jaxb_only) throws OTMException {
-        core.Network network = new core.Network(
+    private static void create_network_and_subnetworks_from_jaxb(Scenario scenario, jaxb.Network jaxb_network, jaxb.Subnetworks jaxb_subnetworks, boolean jaxb_only) throws OTMException {
+
+        if(jaxb_subnetworks!=null && jaxb_subnetworks.getSubnetwork().stream().anyMatch(x->x.getId()==0L))
+            throw new OTMException("Subnetwork id '0' is not allowed.");
+
+        scenario.subnetworks = new HashMap<>();
+        if ( jaxb_subnetworks != null ){
+            for (jaxb.Subnetwork jaxb_subnet : jaxb_subnetworks.getSubnetwork()) {
+                if (scenario.subnetworks.containsKey(jaxb_subnet.getId()))
+                    throw new OTMException("Repeated subnetwork id");
+                scenario.subnetworks.put(jaxb_subnet.getId(), jaxb_subnet.isIsroute() ? new Path(jaxb_subnet) : new Subnetwork(jaxb_subnet) );
+            }
+        }
+
+        scenario.network = new core.Network(
                 scenario ,
-                jaxb_comms==null ? null : jaxb_comms.getCommodity(),
                 jaxb_network.getNodes(),
                 jaxb_network.getLinks().getLink(),
                 jaxb_network.getRoadgeoms() ,
                 jaxb_network.getRoadconnections() ,
                 jaxb_network.getRoadparams() ,
                 jaxb_only);
-        return network;
+
+        for(Subnetwork subnetwork : scenario.subnetworks.values()) {
+            if (subnetwork instanceof Path) {
+                Path path = (Path) subnetwork;
+
+                // populate ordered links
+                if (!path.populate_ordered_links(scenario.network))
+                    throw new OTMException(String.format("Subnetwork %d is not a path.", subnetwork.getId()));
+
+                // link.path2outlink
+                for (int i = 0; i < path.ordered_links.size() - 1; i++) {
+                    Link link = path.ordered_links.get(i);
+                    Link next_link = path.ordered_links.get(i + 1);
+                    link.path2outlink.put(path.getId(), next_link);
+                }
+            }
+        }
+
     }
 
     private static Map<String, AbstractModel> create_models_from_jaxb(Scenario scenario,List<jaxb.Model> jms, Map<Long,Link> all_links, Collection<RoadConnection>road_connections) throws OTMException {
@@ -406,27 +380,6 @@ public class ScenarioFactory {
         return controllers;
     }
 
-    private static Map<Long, Subnetwork> create_subnetworks_from_jaxb(Network network, jaxb.Subnetworks jaxb_subnets,boolean have_global_commodity) throws OTMException {
-
-        HashMap<Long, Subnetwork> subnetworks = new HashMap<>();
-
-        if(jaxb_subnets!=null && jaxb_subnets.getSubnetwork().stream().anyMatch(x->x.getId()==0L))
-            throw new OTMException("Subnetwork id '0' is not allowed.");
-
-        if ( jaxb_subnets != null ){
-            for (jaxb.Subnetwork jaxb_subnet : jaxb_subnets.getSubnetwork()) {
-                if (subnetworks.containsKey(jaxb_subnet.getId()))
-                    throw new OTMException("Repeated subnetwork id");
-                boolean isroute = jaxb_subnet.isIsroute();
-                subnetworks.put(jaxb_subnet.getId(),
-                        isroute ? new Path(jaxb_subnet,network) : new Subnetwork(jaxb_subnet)
-                );
-            }
-        }
-
-        return subnetworks;
-    }
-
     private static Map<Long, Commodity> create_commodities_from_jaxb(Map<Long, Subnetwork> subnetworks, jaxb.Commodities jaxb_commodities) throws OTMException {
 
         HashMap<Long, Commodity> commodities = new HashMap<>();
@@ -492,16 +445,29 @@ public class ScenarioFactory {
         }
     }
 
-    private static void  create_splits_from_jaxb(Network network, jaxb.Splits jaxb_splits) throws OTMException {
+    private static void  create_splits_from_jaxb(Network network, Map<Long,Commodity> commodities, jaxb.Splits jaxb_splits) throws OTMException {
+
         if (jaxb_splits == null || jaxb_splits.getSplitNode().isEmpty())
             return;
 
+        // allocate split matrix
+        Set<Long> pathless_comms = commodities.values().stream()
+                .filter(c->!c.pathfull)
+                .map(c->c.getId())
+                .collect(toSet());
+
+        network.links.values().stream()
+                .filter(link -> !link.is_sink && link.end_node.out_links.size()>1)
+                .forEach(link -> link.allocate_splits(pathless_comms));
+
+        // split values from jaxb
         for (jaxb.SplitNode jaxb_split_node : jaxb_splits.getSplitNode()) {
             long commodity_id = jaxb_split_node.getCommodityId();
             long link_in_id = jaxb_split_node.getLinkIn();
 
             if(!network.links.containsKey(link_in_id))
                 continue;
+
             Link link_in = network.links.get(link_in_id);
 
             if(link_in.split_profile==null || !link_in.split_profile.containsKey(commodity_id))
@@ -518,18 +484,7 @@ public class ScenarioFactory {
                 if(network.links.containsKey(linkout_id))
                     smp.splits.add_entry(linkout_id,  jaxb_split.getContent() );
             }
-
-
         }
-    }
-
-    private static boolean have_global_commodity(jaxb.Commodities jc){
-        if(jc==null)
-            return false;
-        for(jaxb.Commodity c : jc.getCommodity())
-            if(!c.isPathfull() && (c.getSubnetworks()==null || c.getSubnetworks().isEmpty()))
-                return true;
-        return false;
     }
 
 }

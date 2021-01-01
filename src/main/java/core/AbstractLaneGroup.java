@@ -161,12 +161,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // overridable
     ///////////////////////////////////////////////////
 
-    public void delete(){
-        link = null;
-        actuator_capacity = null;
-        flw_acc = null;
-    }
-
     public void initialize(Scenario scenario, float start_time) throws OTMException {
         if(link.is_model_source_link)
             this.buffer = new StateContainer();
@@ -212,7 +206,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return flw_acc;
     }
 
-    public final void add_state(long comm_id, Long path_id,Long next_link_id, boolean ispathfull) throws OTMException {
+    public final void add_state(long comm_id, Long path_id,Long next_link_id, boolean ispathfull) {
 
         State state = ispathfull ?
                 new State(comm_id, path_id, true) :

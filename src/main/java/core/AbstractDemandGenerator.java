@@ -34,11 +34,6 @@ public abstract class AbstractDemandGenerator {
         this.source_demand_vps = 0f;
     }
 
-    public void delete(){
-        link = null;
-        profile = null;
-    }
-
     public void set_demand_vps(Dispatcher dispatcher, float time, double vps) throws OTMException {
         source_demand_vps = vps;
     }

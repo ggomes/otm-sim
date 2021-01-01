@@ -1,4 +1,4 @@
-package models;
+package core;
 
 import core.*;
 import core.geometry.AddLanes;
@@ -9,6 +9,7 @@ import error.OTMException;
 import core.packet.PacketLaneGroup;
 import core.packet.PacketLink;
 import lanechange.LinkLaneSelector;
+import models.InterfaceModel;
 import utils.OTMUtils;
 import utils.StochasticProcess;
 
@@ -56,14 +57,14 @@ public abstract class AbstractModel implements InterfaceModel {
 
             // determine whether link is a relative source link
             // (a relative source is one that has at least one incoming link that is not in the model)
-            link.is_model_source_link = !link.is_source && !links.containsAll(link.start_node.in_links.values());
+            link.is_model_source_link = !link.is_source() && !links.containsAll(link.start_node.in_links.values());
 
             // create lane groups
             Set<RoadConnection> out_rcs = link.end_node.road_connections.stream()
                     .filter(rc->rc.start_link==link)
                     .collect(toSet());
 
-            if (out_rcs.isEmpty() && !link.is_sink)
+            if (out_rcs.isEmpty() && !link.is_sink())
                 throw new OTMException("out_rcs.isEmpty() && !link.is_sink FOR LINK "+link.getId());
 
             // create lanegroups
@@ -73,7 +74,7 @@ public abstract class AbstractModel implements InterfaceModel {
             set_neighbors(link);
 
             // populate link.outlink2lanegroups
-            if(!link.is_sink) {
+            if(!link.is_sink()) {
                 link.outlink2lanegroups = new HashMap<>();
                 for(Link outlink : link.end_node.out_links) {
                     Set<AbstractLaneGroup> lgs = link.lgs.stream()
@@ -180,7 +181,7 @@ public abstract class AbstractModel implements InterfaceModel {
         List<AbstractLaneGroup> lanegroups = new ArrayList<>();
 
         // empty out_rc <=> sink
-        assert(out_rcs.isEmpty()==link.is_sink);
+        assert(out_rcs.isEmpty()==link.is_sink());
 
         int start_lane = 1;
 
