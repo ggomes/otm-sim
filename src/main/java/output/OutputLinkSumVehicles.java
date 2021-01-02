@@ -4,7 +4,7 @@ import core.Scenario;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import models.fluid.AbstractFluidModel;
+import core.AbstractFluidModel;
 import models.fluid.EventUpdateTotalLinkVehicles;
 import cmd.RunParameters;
 
@@ -30,7 +30,7 @@ public class OutputLinkSumVehicles  extends AbstractOutputTimedLink {
 
         // get the dt
         try {
-            Set<Float> dts = linkprofiles.values().stream().map(x -> ((AbstractFluidModel) x.link.model).dt_sec).collect(toSet());
+            Set<Float> dts = linkprofiles.values().stream().map(x -> ((AbstractFluidModel) x.link.get_model()).dt_sec).collect(toSet());
             simDt = null;
             if(dts.size()==1)
                 this.simDt = dts.iterator().next();
@@ -57,7 +57,7 @@ public class OutputLinkSumVehicles  extends AbstractOutputTimedLink {
         super.validate(errorLog);
 
         // all links must have fluid models
-        if(!linkprofiles.values().stream().allMatch(x->x.link.model instanceof AbstractFluidModel)) {
+        if(!linkprofiles.values().stream().allMatch(x->x.link.get_model() instanceof AbstractFluidModel)) {
             errorLog.addError("Sum vehicles output can only be requested for links with fluid models.");
             return;
         }

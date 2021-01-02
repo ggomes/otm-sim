@@ -41,17 +41,17 @@ public class CTMCell extends AbstractCell {
         // downstream flow
         veh_dwn = new HashMap<>();
         demand_dwn = new HashMap<>();
-        for (State k : laneGroup.states) {
+        for (State k : laneGroup.get_states()) {
             veh_dwn.put(k, 0d);
             demand_dwn.put(k, 0d);
         }
         total_vehs_dwn = 0d;
 
         // outward flow
-        if (laneGroup.neighbor_out != null) {
+        if (laneGroup.get_neighbor_out() != null) {
             veh_out = new HashMap<>();
             demand_out = new HashMap<>();
-            for (State k : laneGroup.neighbor_out.states) {
+            for (State k : laneGroup.get_neighbor_out().get_states()) {
                 veh_out.put(k, 0d);
                 demand_out.put(k, 0d);
             }
@@ -59,10 +59,10 @@ public class CTMCell extends AbstractCell {
         }
 
         // inward flow
-        if (laneGroup.neighbor_in != null) {
+        if (laneGroup.get_neighbor_in() != null) {
             veh_in = new HashMap<>();
             demand_in = new HashMap<>();
-            for (State k : laneGroup.neighbor_in.states) {
+            for (State k : laneGroup.get_neighbor_in().get_states()) {
                 veh_in.put(k, 0d);
                 demand_in.put(k, 0d);
             }
@@ -79,11 +79,11 @@ public class CTMCell extends AbstractCell {
     @Override
     public void update_supply(){
 
-        if(laneGroup.link.is_source())
+        if(laneGroup.get_link().is_source())
             return;
 
         // update supply ..............................................
-        if (laneGroup.link.is_sink())
+        if (laneGroup.get_link().is_sink())
             supply = laneGroup.capacity_veh_per_dt;
         else {
 
@@ -96,7 +96,7 @@ public class CTMCell extends AbstractCell {
             if(am_dnstrm)
                 supply = Math.min(laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - total_vehicles), laneGroup.capacity_veh_per_dt);
             else {
-                if(am_upstrm && laneGroup.link.is_model_source_link())
+                if(am_upstrm && laneGroup.get_link().is_model_source_link())
                     total_vehicles += laneGroup.buffer.get_total_veh();
                 supply = laneGroup.wspeed_cell_per_dt * (laneGroup.jam_density_veh_per_cell - total_vehicles);
             }
@@ -125,7 +125,7 @@ public class CTMCell extends AbstractCell {
         else {
 
             // compute total flow leaving the cell in the absence of flow control
-            if (laneGroup.link.is_source())
+            if (laneGroup.get_link().is_source())
                 // sources discharge at capacity
                 total_demand = Math.min(total_vehicles, laneGroup.capacity_veh_per_dt);
             else {

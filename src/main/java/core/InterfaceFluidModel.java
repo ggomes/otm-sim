@@ -1,8 +1,8 @@
-package models.fluid;
+package core;
 
-import core.Link;
 import error.OTMException;
-import models.InterfaceModel;
+import models.fluid.AbstractCell;
+import models.fluid.FluidLaneGroup;
 
 public interface InterfaceFluidModel extends InterfaceModel {
     void compute_lanechange_demand_supply(Link link, float timestamp) throws OTMException;

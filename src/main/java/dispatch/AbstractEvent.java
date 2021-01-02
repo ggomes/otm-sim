@@ -14,8 +14,8 @@ import error.OTMException;
 //    40	dispatch.EventCreateVehicle
 //    44 	models.vehicle.spatialq.EventTransitToWaiting
 //    45	models.vehicle.spatialq.EventReleaseVehicleFromLaneGroup
-//    50	models.fluid.EventFluidModelUpdate
-//    55	models.fluid.EventFluidStateUpdate
+//    50	core.EventFluidModelUpdate
+//    55	core.EventFluidStateUpdate
 //    60	model.Newell.poke
 //    65	dispatch.EventComputeTravelTime
 //    69    models.fluid.EventUpdateTotalLanegroupVehicles

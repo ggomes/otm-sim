@@ -3,7 +3,7 @@ package tests;
 import api.OTM;
 import error.OTMException;
 import core.AbstractModel;
-import models.fluid.AbstractFluidModel;
+import core.AbstractFluidModel;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;

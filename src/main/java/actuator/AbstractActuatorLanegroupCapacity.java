@@ -27,7 +27,7 @@ public abstract class AbstractActuatorLanegroupCapacity extends AbstractActuator
     public AbstractActuatorLanegroupCapacity(Scenario scenario, Actuator jact) throws OTMException {
         super(scenario, jact);
         this.lanegroups = read_lanegroups(scenario.network,jact);
-        this.total_lanes = lanegroups==null || lanegroups.isEmpty() ? 0 : lanegroups.stream().mapToInt(x->x.num_lanes).sum();
+        this.total_lanes = lanegroups==null || lanegroups.isEmpty() ? 0 : lanegroups.stream().mapToInt(x->x.get_num_lanes()).sum();
     }
 
     ///////////////////////////////////////////////////
@@ -44,7 +44,7 @@ public abstract class AbstractActuatorLanegroupCapacity extends AbstractActuator
 
         // check that the lanes provided cover all lane, ie that total lanes
         // equals the sum of lanes in the lanegroups
-        int lg_lanes = lanegroups.stream().mapToInt(x->x.num_lanes).sum();
+        int lg_lanes = lanegroups.stream().mapToInt(x->x.get_num_lanes()).sum();
         if(lg_lanes!=total_lanes)
             errorLog.addError("A lane group actuator must exactly cover its lane groups");
     }
@@ -61,7 +61,7 @@ public abstract class AbstractActuatorLanegroupCapacity extends AbstractActuator
         if(rate_vps==null)
             return;
         for(AbstractLaneGroup lg : lanegroups)
-            lg.set_actuator_capacity_vps(rate_vps * lg.num_lanes / total_lanes);
+            lg.set_actuator_capacity_vps(rate_vps * lg.get_num_lanes() / total_lanes);
     }
 
 }

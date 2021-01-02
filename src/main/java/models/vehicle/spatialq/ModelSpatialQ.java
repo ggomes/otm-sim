@@ -5,7 +5,7 @@ import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import jaxb.OutputRequest;
 import error.OTMException;
-import models.vehicle.AbstractVehicleModel;
+import core.AbstractVehicleModel;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
 import utils.StochasticProcess;

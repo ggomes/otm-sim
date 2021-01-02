@@ -10,7 +10,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.OutputRequest;
 import core.AbstractLaneGroup;
-import models.vehicle.AbstractVehicleModel;
+import core.AbstractVehicleModel;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
 import core.Scenario;
@@ -105,7 +105,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
         // apply Newell's update formula to all vehicles
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lgs) {
+            for (AbstractLaneGroup alg : link.get_lgs()) {
                 NewellLaneGroup lg = (NewellLaneGroup) alg;
                 for( NewellVehicle vehicle : lg.vehicles ) {
                     double dx = Math.min(lg.dv, vehicle.headway - lg.dw);
@@ -118,17 +118,17 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
         // move vehicles to new link
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lgs) {
+            for (AbstractLaneGroup alg : link.get_lgs()) {
                 NewellLaneGroup lg = (NewellLaneGroup) alg;
                 Iterator<NewellVehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
                     NewellVehicle vehicle = it.next();
                     // possibly release the vehicle from this lanegroup
-                    if (vehicle.new_pos > lg.length) {
+                    if (vehicle.new_pos > lg.get_length()) {
                         boolean released = lg.release_vehicle(timestamp, it, vehicle);
 
                         if(!released)
-                            vehicle.new_pos = (vehicle.pos + lg.length)/2d;
+                            vehicle.new_pos = (vehicle.pos + lg.get_length())/2d;
 
                     }
                 }
@@ -137,7 +137,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
         // update position
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lgs) {
+            for (AbstractLaneGroup alg : link.get_lgs()) {
                 NewellLaneGroup lg = (NewellLaneGroup) alg;
                 Iterator<NewellVehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
@@ -149,7 +149,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
         // update headway
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lgs) {
+            for (AbstractLaneGroup alg : link.get_lgs()) {
                 NewellLaneGroup lg = (NewellLaneGroup) alg;
                 Iterator<NewellVehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
@@ -160,7 +160,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
                             vehicle.headway = Double.POSITIVE_INFINITY;
                         else{
 
-                            Collection<AbstractLaneGroup> next_lgs = link.network.links.get(vehicle.get_next_link_id()).lgs;
+                            Collection<AbstractLaneGroup> next_lgs = link.get_network().links.get(vehicle.get_next_link_id()).get_lgs();
                             OptionalDouble next_vehicle_position = next_lgs.stream()
                                     .mapToDouble(x->x.get_upstream_vehicle_position())
                                     .min();
@@ -168,7 +168,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
                             if( !next_vehicle_position.isPresent() || Double.isNaN(next_vehicle_position.getAsDouble()) ){
                                 vehicle.headway = Double.POSITIVE_INFINITY;
                             } else {
-                                vehicle.headway = next_vehicle_position.getAsDouble() + vehicle.get_lanegroup().length - vehicle.pos;
+                                vehicle.headway = next_vehicle_position.getAsDouble() + vehicle.get_lanegroup().get_length() - vehicle.pos;
                             }
 
                         }
@@ -177,7 +177,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
                         if(vehicle.leader.get_lanegroup()==vehicle.get_lanegroup())
                             vehicle.headway = vehicle.leader.pos - vehicle.pos;
                         else
-                            vehicle.headway = vehicle.leader.pos - vehicle.pos + vehicle.get_lanegroup().length;
+                            vehicle.headway = vehicle.leader.pos - vehicle.pos + vehicle.get_lanegroup().get_length();
                     }
                 }
 

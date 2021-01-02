@@ -1,7 +1,5 @@
-package models.vehicle;
+package core;
 
-import core.AbstractVehicle;
-import models.InterfaceModel;
 import output.InterfaceVehicleListener;
 
 import java.util.Set;

@@ -2,7 +2,6 @@ package actuator;
 
 import commodity.Commodity;
 import core.Link;
-import core.Network;
 import core.RoadConnection;
 import core.Scenario;
 import control.command.CommandDoubleArray;
@@ -11,7 +10,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
 import jaxb.Parameter;
-import models.fluid.AbstractFluidModel;
+import core.AbstractFluidModel;
 import core.packet.PacketLink;
 import utils.OTMUtils;
 
@@ -56,11 +55,11 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         this.comm = temp_comm;
         this.outlink_ids = temp_outlinkids;
 
-        Optional<RoadConnection> orc = linkMLup.start_node.in_links.values().stream()
-                .filter(inlink->inlink.road_type==Link.RoadType.freeway)
-                .flatMap(inlink->inlink.lgs.stream())
-                .filter(lg->lg.outlink2roadconnection.containsKey(linkMLup.getId()))
-                .map(lg->lg.outlink2roadconnection.get(linkMLup.getId()))
+        Optional<RoadConnection> orc = linkMLup.get_start_node().get_in_links().stream()
+                .filter(inlink->inlink.get_road_type()==Link.RoadType.freeway)
+                .flatMap(inlink->inlink.get_lgs().stream())
+                .map(lg->lg.get_rc_for_outlink(linkMLup.getId()))
+                .filter(rc->rc!=null)
                 .findFirst();
 
         this.rc = orc.isPresent() ? orc.get() : null;
@@ -115,7 +114,7 @@ public class ActuatorFlowToLinks extends AbstractActuator {
             return;
 
         CommandDoubleArray c = (CommandDoubleArray)command;
-        double alpha = ((AbstractFluidModel)linkMLup.model).dt_sec / 3600f;
+        double alpha = ((AbstractFluidModel)linkMLup.get_model()).dt_sec / 3600f;
         this.total_outlink2flows = 0d;
         for(int i=0;i<c.ids.length;i++) {
             double x = c.values[i] * alpha;

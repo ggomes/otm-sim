@@ -28,10 +28,10 @@ public class Queue {
 //        this.lane_change_requests = new PriorityQueue<>(LaneChangeRequest::compareTimestamp);
         switch(type){
             case transit:
-                id = "t" + lanegroup.id;
+                id = "t" + lanegroup.getId();
                 break;
             case waiting:
-                id = "w" + lanegroup.id;
+                id = "w" + lanegroup.getId();
                 break;
             default:
                 id = "";

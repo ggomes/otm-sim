@@ -1,14 +1,12 @@
-package models.fluid;
+package core;
 
 import commodity.Commodity;
 import commodity.Path;
-import core.*;
 import core.geometry.Side;
 import dispatch.Dispatcher;
 import error.OTMException;
-import core.State;
 import jaxb.Lanechanges;
-import core.AbstractModel;
+import models.fluid.*;
 import models.fluid.nodemodel.NodeModel;
 import models.fluid.nodemodel.RoadConnection;
 import models.fluid.nodemodel.UpLaneGroup;
@@ -21,7 +19,7 @@ import java.util.*;
 
 public abstract class AbstractFluidModel extends AbstractModel implements InterfaceFluidModel {
 
-    public final float max_cell_length;
+    protected final float max_cell_length;
     public final float dt_sec;
     protected Set<Link> source_links = new HashSet<>();
     protected Set<Link> sink_links = new HashSet<>();
@@ -48,24 +46,24 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
             if(link.is_sink())
                 sink_links.add(link);
 
-            if(!link.start_node.is_source)
-                all_nodes.add(link.start_node);
+            if(!link.get_start_node().is_source)
+                all_nodes.add(link.get_start_node());
 
-            if(!link.end_node.is_sink)
-                all_nodes.add(link.end_node);
+            if(!link.get_end_node().is_sink)
+                all_nodes.add(link.get_end_node());
 
             // compute cell length .............
-            float r = link.length/max_cell_length;
+            float r = link.get_full_length()/max_cell_length;
             boolean is_source_or_sink = link.is_source() || link.is_sink();
 
             int num_cells = is_source_or_sink ?
                     1 :
                     OTMUtils.approximately_equals(r%1.0,0.0) ? (int) r :  1+((int) r);
 
-            float cell_length_meters = link.length/num_cells;
+            float cell_length_meters = link.get_full_length()/num_cells;
 
             // create cells ....................
-            for (AbstractLaneGroup lg : link.lgs) {
+            for (AbstractLaneGroup lg : link.get_lgs()) {
 
                 FluidLaneGroup flg = (FluidLaneGroup) lg;
                 flg.create_cells(this, cell_length_meters);
@@ -84,8 +82,8 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
             }
 
             // barriers .........................
-            barriers_to_cells(link,link.in_barriers,cell_length_meters,link.get_num_dn_in_lanes());
-            barriers_to_cells(link,link.out_barriers,cell_length_meters,link.get_num_dn_in_lanes()+link.get_full_lanes());
+            barriers_to_cells(link,link.get_in_barriers(),cell_length_meters,link.get_num_dn_in_lanes());
+            barriers_to_cells(link,link.get_out_barriers(),cell_length_meters,link.get_num_dn_in_lanes()+link.get_full_lanes());
 
         }
 
@@ -104,7 +102,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
     @Override
     public void set_state_for_link(Link link) {
-        for(AbstractLaneGroup alg : link.lgs){
+        for(AbstractLaneGroup alg : link.get_lgs()){
             FluidLaneGroup lg = (FluidLaneGroup) alg;
             lg.cells.forEach(x->x.set_state());
         }
@@ -167,7 +165,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
         // add to source links
         for(Link link : source_links){
-            for(AbstractLaneGroup alg : link.lgs){
+            for(AbstractLaneGroup alg : link.get_lgs()){
                 FluidLaneGroup lg = (FluidLaneGroup)alg;
                 lg.cells.get(0).add_vehicles(lg.source_flow,null,null);
             }
@@ -175,7 +173,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
         // release from sink links
         for(Link link : sink_links){
-            for(AbstractLaneGroup alg : link.lgs) {
+            for(AbstractLaneGroup alg : link.get_lgs()) {
                 FluidLaneGroup lg = (FluidLaneGroup) alg;
                 Map<State,Double> flow_dwn = lg.get_demand();
 
@@ -193,7 +191,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
             // flows on road connections arrive to links on give lanes convert to packets and send
             for(RoadConnection rc : node_model.rcs.values()) {
                 Link link = rc.rc.get_end_link();
-                link.model.add_vehicle_packet(link,timestamp, new PacketLink(rc.f_rs, rc.rc));
+                link.get_model().add_vehicle_packet(link,timestamp, new PacketLink(rc.f_rs, rc.rc));
             }
 
             // set exit flows on non-sink lanegroups
@@ -233,20 +231,20 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
             return;
 
         // inner lane group
-        FluidLaneGroup inlg = (FluidLaneGroup) link.lgs.stream()
+        FluidLaneGroup inlg = (FluidLaneGroup) link.get_lgs().stream()
                 .filter(lg->lg.start_lane_dn+lg.num_lanes-1==in_lane)
                 .findFirst().get();
 
         // outer full lane
-        FluidLaneGroup outlg = (FluidLaneGroup) link.lgs.stream()
+        FluidLaneGroup outlg = (FluidLaneGroup) link.get_lgs().stream()
                 .filter(lg->lg.start_lane_dn==in_lane+1)
                 .findFirst().get();
 
         // loop through inner barriers
         for(Barrier b : barriers){
 
-            int start = Math.round((link.length-b.start)/cell_length_meters);
-            int end = Math.round((link.length-b.end)/cell_length_meters);
+            int start = Math.round((link.get_full_length()-b.start)/cell_length_meters);
+            int end = Math.round((link.get_full_length()-b.end)/cell_length_meters);
 
             if(start>end){
 

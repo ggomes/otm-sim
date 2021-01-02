@@ -12,16 +12,16 @@ public class Network {
 
     protected static Long max_rcid;
 
-    public Scenario scenario;
-    public boolean node_positions_in_meters;    // true->meters, false->gps
+    protected Scenario scenario;
+    protected boolean node_positions_in_meters;    // true->meters, false->gps
 
-    public Map<Long,jaxb.Roadparam> road_params;    // keep this for the sake of the scenario splitter
+    protected Map<Long,jaxb.Roadparam> road_params;    // keep this for the sake of the scenario splitter
 
     // scenario elements
     public Map<Long,Node> nodes;
     public Map<Long,Link> links;
-    public Map<Long, RoadGeometry> road_geoms;
-    protected Map<Long,RoadConnection> road_connections;
+    public Map<Long,RoadConnection> road_connections;
+    protected Map<Long, RoadGeometry> road_geoms;
 
     ///////////////////////////////////////////
     // construction
@@ -72,7 +72,6 @@ public class Network {
         }
 
     }
-
 
     /////////////////////////////////////////////////
     // InterfaceScenarioElement-like
@@ -221,18 +220,6 @@ public class Network {
         }
 
         return rcs;
-    }
-
-    ////////////////////////////////////////////
-    // get / set
-    ///////////////////////////////////////////
-
-    public Collection<RoadConnection> get_road_connections(){
-        return road_connections.values();
-    }
-
-    public RoadConnection get_road_connection(Long id){
-        return road_connections.get(id);
     }
 
     ///////////////////////////////////////////

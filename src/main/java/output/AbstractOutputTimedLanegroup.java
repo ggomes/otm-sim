@@ -36,9 +36,9 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
             if(!scenario.network.links.containsKey(link_id))
                 continue;
             Link link = scenario.network.links.get(link_id);
-            for(AbstractLaneGroup lg : link.lgs){
+            for(AbstractLaneGroup lg : link.get_lgs()){
                 ordered_lgs.add(lg);
-                lgprofiles.put(lg.id, new LaneGroupProfile(lg));
+                lgprofiles.put(lg.getId(), new LaneGroupProfile(lg));
             }
         }
 
@@ -71,7 +71,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
             }
         } else {
             for(AbstractLaneGroup lg : ordered_lgs){
-                LaneGroupProfile lgProfile = lgprofiles.get(lg.id);
+                LaneGroupProfile lgProfile = lgprofiles.get(lg.getId());
                 lgProfile.add_value(get_value_for_lanegroup(lg));
             }
         }
@@ -101,7 +101,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
                     Writer lanegroups_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_cols.txt"));
                     for(LaneGroupProfile lgprof: lgprofiles.values()){
                         AbstractLaneGroup lg = lgprof.lg;
-                        lanegroups_writer.write(lg.id+","+lg.link.getId() + "," + lg.start_lane_dn+ "," + (lg.start_lane_dn+lg.num_lanes-1) +"\n"); // start/end dn lanes
+                        lanegroups_writer.write(lg.getId()+","+lg.get_link().getId() + "," + lg.get_start_lane_dn()+ "," + (lg.get_start_lane_dn()+lg.get_num_lanes()-1) +"\n"); // start/end dn lanes
                     }
                     lanegroups_writer.close();
                 }
@@ -122,9 +122,9 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
     //////////////////////////////////////////////////////
 
     public XYSeries get_series_for_lg(AbstractLaneGroup lg) {
-        if(!lgprofiles.containsKey(lg.id))
+        if(!lgprofiles.containsKey(lg.getId()))
             return null;
-        return lgprofiles.get(lg.id).profile.get_series(String.format("%d (%d-%d)",lg.link.getId(),lg.start_lane_dn,lg.start_lane_dn+lg.num_lanes-1));
+        return lgprofiles.get(lg.getId()).profile.get_series(String.format("%d (%d-%d)",lg.get_link().getId(),lg.get_start_lane_dn(),lg.get_start_lane_dn()+lg.get_num_lanes()-1));
     }
 
     //////////////////////////////////////////////////////
@@ -139,9 +139,9 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
             return null;
 
         Map<Long,Profile1D> profiles = new HashMap<>();
-        for(AbstractLaneGroup lg : scenario.network.links.get(link_id).lgs)
-            if(lgprofiles.containsKey(lg.id))
-                profiles.put(lg.id,lgprofiles.get(lg.id).profile);
+        for(AbstractLaneGroup lg : scenario.network.links.get(link_id).get_lgs())
+            if(lgprofiles.containsKey(lg.getId()))
+                profiles.put(lg.getId(),lgprofiles.get(lg.getId()).profile);
 
         return profiles;
     }
@@ -152,7 +152,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
         if(link_ids==null)
             lgs.addAll(ordered_lgs);
         else
-            lgs = ordered_lgs.stream().filter(lg -> link_ids.contains(lg.link.getId())).collect(Collectors.toSet());
+            lgs = ordered_lgs.stream().filter(lg -> link_ids.contains(lg.get_link().getId())).collect(Collectors.toSet());
 
         XYSeriesCollection dataset = new XYSeriesCollection();
 

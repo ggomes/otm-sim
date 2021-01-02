@@ -5,7 +5,7 @@ import core.Link;
 import core.Scenario;
 import error.OTMErrorLog;
 import error.OTMException;
-import models.fluid.AbstractFluidModel;
+import core.AbstractFluidModel;
 import models.fluid.FluidLaneGroup;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -41,14 +41,14 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
                 continue;
             Link link = scenario.network.links.get(link_id);
 
-            if(!(link.model instanceof AbstractFluidModel))
+            if(!(link.get_model() instanceof AbstractFluidModel))
                 throw new OTMException("Cell output cannot be generated for links with non-fluid models");
 
-            for(AbstractLaneGroup lg : link.lgs){
+            for(AbstractLaneGroup lg : link.get_lgs()){
                 FluidLaneGroup flg = (FluidLaneGroup)lg;
                 ordered_lgs.add(flg);
                 List<CellProfile> profs = new ArrayList<>();
-                lgprofiles.put(lg.id,profs);
+                lgprofiles.put(lg.getId(),profs);
                 for(int i=0;i<flg.cells.size();i++)
                     profs.add(new CellProfile());
             }
@@ -84,7 +84,7 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
             }
         } else {
             for(FluidLaneGroup lg : ordered_lgs){
-                List<CellProfile> cellprofs = lgprofiles.get(lg.id);
+                List<CellProfile> cellprofs = lgprofiles.get(lg.getId());
                 double [] values = get_value_for_lanegroup(lg);
                 for(int i=0;i<values.length;i++)
                     cellprofs.get(i).add_value(values[i]);
@@ -115,7 +115,7 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
                     Writer cells_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_cols.txt"));
                     for(FluidLaneGroup lg: ordered_lgs)
                         for(int i=0;i<lg.cells.size();i++)
-                            cells_writer.write(i+","+lg.id+","+lg.link.getId() + "," + lg.start_lane_dn+ "," + (lg.start_lane_dn+lg.num_lanes-1) +"\n"); // start/end dn lanes
+                            cells_writer.write(i+","+lg.getId()+","+lg.get_link().getId() + "," + lg.get_start_lane_dn()+ "," + (lg.get_start_lane_dn()+lg.get_num_lanes()-1) +"\n"); // start/end dn lanes
                     cells_writer.close();
                 }
             } catch (FileNotFoundException exc) {
@@ -137,7 +137,7 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
     public Profile2D get_values_for_lg(FluidLaneGroup lg){
         Profile2D X = new Profile2D(0f,outDt);
         try {
-            List<CellProfile> cellprofs = lgprofiles.get(lg.id);
+            List<CellProfile> cellprofs = lgprofiles.get(lg.getId());
             for(int i=0;i<cellprofs.size();i++)
                 X.add_entry(i,cellprofs.get(i).profile.values);
         } catch (OTMException e) {
@@ -148,10 +148,10 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
 
     public List<XYSeries> get_series_for_lg(FluidLaneGroup lg) {
         List<XYSeries> X = new ArrayList<>();
-        List<CellProfile> cellprofs = lgprofiles.get(lg.id);
+        List<CellProfile> cellprofs = lgprofiles.get(lg.getId());
         for(int i=0;i<cellprofs.size();i++){
             CellProfile cellprof = cellprofs.get(i);
-            String label = String.format("%d (%d-%d) cell %d",lg.link.getId(),lg.start_lane_dn,lg.start_lane_dn+lg.num_lanes-1,i);
+            String label = String.format("%d (%d-%d) cell %d",lg.get_link().getId(),lg.get_start_lane_dn(),lg.get_start_lane_dn()+lg.get_num_lanes()-1,i);
             X.add(cellprof.profile.get_series(label));
         }
         return X;
@@ -171,7 +171,7 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
         if(link_ids==null)
             lgs.addAll(ordered_lgs);
         else
-            lgs = ordered_lgs.stream().filter(lg->link_ids.contains(lg.link.getId())).collect(Collectors.toSet());
+            lgs = ordered_lgs.stream().filter(lg->link_ids.contains(lg.get_link().getId())).collect(Collectors.toSet());
 
         XYSeriesCollection dataset = new XYSeriesCollection();
 

@@ -6,7 +6,7 @@ import core.Scenario;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import models.fluid.AbstractFluidModel;
+import core.AbstractFluidModel;
 import models.fluid.EventUpdateTotalLanegroupVehicles;
 import profiles.Profile1D;
 import cmd.RunParameters;
@@ -32,8 +32,8 @@ public class OutputLaneGroupSumVehicles extends AbstractOutputTimedLanegroup {
         this.type = Type.lanegroup_sumveh;
 
         // get the dt
-        Set<Link> links = lgprofiles.values().stream().map(lgp->lgp.lg.link).collect(toSet());
-        Set<Float> dts = links.stream().map(link->((AbstractFluidModel)link.model).dt_sec).collect(toSet());
+        Set<Link> links = lgprofiles.values().stream().map(lgp->lgp.lg.get_link()).collect(toSet());
+        Set<Float> dts = links.stream().map(link->((AbstractFluidModel)link.get_model()).dt_sec).collect(toSet());
         simDt = null;
         if(dts.size()==1)
             this.simDt = dts.iterator().next();
@@ -55,10 +55,10 @@ public class OutputLaneGroupSumVehicles extends AbstractOutputTimedLanegroup {
     public void validate(OTMErrorLog errorLog) {
         super.validate(errorLog);
 
-        Set<Link> links = lgprofiles.values().stream().map(lgp->lgp.lg.link).collect(toSet());
+        Set<Link> links = lgprofiles.values().stream().map(lgp->lgp.lg.get_link()).collect(toSet());
 
         // all links must have fluid models
-        if(!links.stream().allMatch(link->link.model instanceof AbstractFluidModel)) {
+        if(!links.stream().allMatch(link->link.get_model() instanceof AbstractFluidModel)) {
             errorLog.addError("Average vehicles output can only be requested for links with fluid models.");
             return;
         }
@@ -70,8 +70,8 @@ public class OutputLaneGroupSumVehicles extends AbstractOutputTimedLanegroup {
     public void update_total_vehicles(float timestamp){
         Long commid = commodity==null ? null : commodity.getId();
         for(AbstractLaneGroup lg : ordered_lgs){
-            float current_value = lg2total.get(lg.id);
-            lg2total.put(lg.id,current_value + lg.get_total_vehicles_for_commodity(commid));
+            float current_value = lg2total.get(lg.getId());
+            lg2total.put(lg.getId(),current_value + lg.get_total_vehicles_for_commodity(commid));
         }
 
     }
@@ -105,8 +105,8 @@ public class OutputLaneGroupSumVehicles extends AbstractOutputTimedLanegroup {
 
     @Override
     protected double get_value_for_lanegroup(AbstractLaneGroup lg){
-        double value = lg2total.get(lg.id);
-        lg2total.put(lg.id,0f);
+        double value = lg2total.get(lg.getId());
+        lg2total.put(lg.getId(),0f);
         return value;
     }
 

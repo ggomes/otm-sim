@@ -89,7 +89,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 //        if(link.model_type==Link.ModelType.mn)
 //            r.setJamDensity(Float.POSITIVE_INFINITY);
 
-        float dt_sec = ((AbstractFluidModel)link.model()).dt_sec;
+        float dt_sec = ((AbstractFluidModel)link.get_model()).dt_sec;
         if(Float.isNaN(dt_sec))
             return;
 
@@ -122,7 +122,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     @Override
     public void set_actuator_capacity_vps(double rate_vps) {
-        double act_capacity_veh_per_dt = rate_vps * ((AbstractFluidModel)link.model()).dt_sec;
+        double act_capacity_veh_per_dt = rate_vps * ((AbstractFluidModel)link.get_model()).dt_sec;
         this.capacity_veh_per_dt = Math.min(act_capacity_veh_per_dt,nom_capacity_veh_per_dt);
 
         // set w
@@ -133,7 +133,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     @Override
     public void set_actuator_speed_mps(double speed_mps) {
         float cell_length = this.length / this.cells.size();
-        float dt_sec = ((AbstractFluidModel)link.model()).dt_sec;
+        float dt_sec = ((AbstractFluidModel)link.get_model()).dt_sec;
         float act_ffspeed_veh = ((float)speed_mps) * dt_sec / cell_length;
         this.ffspeed_cell_per_dt = Math.min(act_ffspeed_veh,nom_ffspeed_cell_per_dt);
 

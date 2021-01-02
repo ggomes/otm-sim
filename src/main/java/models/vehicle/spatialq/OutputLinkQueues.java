@@ -29,8 +29,8 @@ public class OutputLinkQueues extends AbstractOutputTimed {
             if(!scenario.network.links.containsKey(link_id))
                 continue;
             Link link = scenario.network.links.get(link_id);
-            for(AbstractLaneGroup lg : link.lgs)
-                lg2qinfo.put(lg.id, new QueueInfo(0f,outDt));
+            for(AbstractLaneGroup lg : link.get_lgs())
+                lg2qinfo.put(lg.getId(), new QueueInfo(0f,outDt));
         }
 
     }
@@ -73,9 +73,9 @@ public class OutputLinkQueues extends AbstractOutputTimed {
         } else {
             for(Long link_id : link_ids) {
                 Link link = scenario.network.links.get(link_id);
-                for (AbstractLaneGroup alg : link.lgs) {
+                for (AbstractLaneGroup alg : link.get_lgs()) {
                     MesoLaneGroup lg = (MesoLaneGroup) alg;
-                    QueueInfo queueInfo = lg2qinfo.get(lg.id);
+                    QueueInfo queueInfo = lg2qinfo.get(lg.getId());
                     queueInfo.waiting_profile.values.add((double)lg.waiting_queue.num_vehicles());
                     queueInfo.transit_profile.values.add((double)lg.transit_queue.num_vehicles());
                 }
@@ -139,11 +139,11 @@ public class OutputLinkQueues extends AbstractOutputTimed {
         Map<Queue.Type,Profile1D> X = new HashMap<>();
 
         Profile1D profile = null;
-        for(AbstractLaneGroup lg : link.lgs){
-            if(!lg2qinfo.containsKey(lg.id))
+        for(AbstractLaneGroup lg : link.get_lgs()){
+            if(!lg2qinfo.containsKey(lg.getId()))
                 continue;
 
-            QueueInfo queueinfo = lg2qinfo.get(lg.id);
+            QueueInfo queueinfo = lg2qinfo.get(lg.getId());
 
             if(profile==null)
                 profile = queueinfo.waiting_profile.clone();
@@ -163,11 +163,11 @@ public class OutputLinkQueues extends AbstractOutputTimed {
         Map<Queue.Type,Profile1D> X = new HashMap<>();
 
         Profile1D profile = null;
-        for(AbstractLaneGroup lg : link.lgs){
-            if(!lg2qinfo.containsKey(lg.id))
+        for(AbstractLaneGroup lg : link.get_lgs()){
+            if(!lg2qinfo.containsKey(lg.getId()))
                 continue;
 
-            QueueInfo queueinfo = lg2qinfo.get(lg.id);
+            QueueInfo queueinfo = lg2qinfo.get(lg.getId());
 
             if(profile==null)
                 profile = queueinfo.transit_profile.clone();

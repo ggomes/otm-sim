@@ -50,9 +50,9 @@ public class ActuatorSplit extends AbstractActuator {
         if(linkMLup==null || linkFRs.isEmpty())
             return;
 
-        Node node = linkMLup.end_node;
-        linkMLdwn = node.out_links.stream()
-                .filter(link->link.road_type== Link.RoadType.freeway)
+        Node node = linkMLup.get_end_node();
+        linkMLdwn = node.get_out_links().stream()
+                .filter(link->link.get_road_type()== Link.RoadType.freeway)
                 .findFirst().get();
         System.out.println(linkMLdwn);
     }
@@ -88,7 +88,7 @@ public class ActuatorSplit extends AbstractActuator {
 //        }
 
         // confirm they are connected
-        if(linkFRs.stream().anyMatch(linkFR->linkMLup.end_node!=linkFR.start_node))
+        if(linkFRs.stream().anyMatch(linkFR->linkMLup.get_end_node()!=linkFR.get_start_node()))
             errorLog.addError("ActuatorSplit: linkin.end_node!=linkout.start_node");
 
     }

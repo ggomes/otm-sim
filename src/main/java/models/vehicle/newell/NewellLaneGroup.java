@@ -8,7 +8,7 @@ import error.OTMException;
 import jaxb.Roadparam;
 import core.State;
 import core.AbstractLaneGroup;
-import models.vehicle.AbstractVehicleModel;
+import core.AbstractVehicleModel;
 import models.vehicle.VehicleLaneGroup;
 import core.packet.PacketLaneGroup;
 import core.packet.PacketLink;
@@ -64,7 +64,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     public void set_road_params(Roadparam r) {
         super.set_road_params(r);
 
-        float dt = ((ModelNewell)link.model).dt;
+        float dt = ((ModelNewell)link.get_model()).dt;
 
         nom_dc = r.getCapacity() * num_lanes * dt / 3600d;  // [veh]
         nom_dv = r.getSpeed() * dt / 3.6d;      // [m]
@@ -78,13 +78,13 @@ public class NewellLaneGroup extends VehicleLaneGroup {
 
     @Override
     public void set_actuator_capacity_vps(double rate_vps) {
-        dc = Math.min( nom_dc, rate_vps * ((ModelNewell)link.model).dt );
+        dc = Math.min( nom_dc, rate_vps * ((ModelNewell)link.get_model()).dt );
         dw = dc / (jam_vehpermeter - dc/dv); // [m]
     }
 
     @Override
     public void set_actuator_speed_mps(double speed_mps) {
-        dv = Math.min( nom_dv, speed_mps * ((ModelNewell)link.model).dt );
+        dv = Math.min( nom_dv, speed_mps * ((ModelNewell)link.get_model()).dt );
         dw = dc / (jam_vehpermeter - dc/dv); // [m]
     }
 
@@ -179,14 +179,14 @@ public class NewellLaneGroup extends VehicleLaneGroup {
 
             // get next link
             State state = vehicle.get_state();
-            Long next_link_id = state.isPath ? link.path2outlink.get(state.pathOrlink_id).getId() : state.pathOrlink_id;
+            Long next_link_id = state.isPath ? link.get_next_link_in_path(state.pathOrlink_id).getId() : state.pathOrlink_id;
 
             rc = outlink2roadconnection.get(next_link_id);
-            next_link = rc.end_link;
+            next_link = rc.get_end_link();
 
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
-            OptionalDouble next_supply_o = rc.out_lanegroups.stream()
+            OptionalDouble next_supply_o = rc.get_out_lanegroups().stream()
                     .mapToDouble(AbstractLaneGroup::get_supply)
                     .max();
 
@@ -197,7 +197,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
         if(next_supply > OTMUtils.epsilon){
 
             // possibly disconnect from follower
-            if(next_link==null || !(next_link.model instanceof AbstractVehicleModel))
+            if(next_link==null || !(next_link.get_model() instanceof AbstractVehicleModel))
                 if(vehicle.follower!=null) {
                     vehicle.follower.headway = Double.POSITIVE_INFINITY;
                     vehicle.follower.leader = null;
@@ -205,7 +205,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
 
             // remove the vehicle from the lanegroup
             it.remove();
-            vehicle.new_pos -= vehicle.lg.length;
+            vehicle.new_pos -= vehicle.lg.get_length();
 
             // inform flow accumulators
             update_flow_accummulators(vehicle.get_state(), 1f);
@@ -216,7 +216,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
 
             // send vehicle core.packet to next link
             if(next_link!=null && rc!=null)
-                next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
+                next_link.get_model().add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
 
             update_supply();
 

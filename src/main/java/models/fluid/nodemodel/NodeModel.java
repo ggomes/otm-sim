@@ -1,14 +1,8 @@
 package models.fluid.nodemodel;
 
-import core.Link;
-import core.Node;
-import error.OTMErrorLog;
+import core.*;
 import error.OTMException;
-import core.State;
-import core.AbstractLaneGroup;
-import models.fluid.*;
 import models.fluid.FluidLaneGroup;
-import core.Scenario;
 import utils.OTMUtils;
 
 import java.util.HashMap;
@@ -38,31 +32,29 @@ public class NodeModel {
         // if the node has no road connections, it is because it is a source node, a sink node,
         // or a many-to-one node. NodeModels are not constructed for sources and sinks, so it
         // must be many-to-one.
-        if(node.road_connections.isEmpty()){
+        if(node.get_road_connections().isEmpty()){
 
             // this should not happen because we are completing road connections
             assert(false);
-            assert(!node.is_sink && !node.is_source);
-            assert(node.is_many2one);
 
             // currently works only for one-to-one
             // TODO: GENERALIZE THIS FOR MANY-TO-ONE
 
             // there is only one upstream link
-            assert(node.in_links.size()==1);
-            Link up_link = node.in_links.values().iterator().next();
+            assert(node.num_inputs()==1);
+            Link up_link = node.get_in_links().iterator().next();
 
             // there is only one dnstream link
-            assert(node.out_links.size()==1);
-            Link dn_link = node.out_links.iterator().next();
+            assert(node.num_outputs()==1);
+            Link dn_link = node.get_out_links().iterator().next();
 
             // there is only one upstream lanegroup
-            assert(up_link.lgs.size()==1);
-            FluidLaneGroup up_lanegroup = (FluidLaneGroup) up_link.lgs.iterator().next();
+            assert(up_link.get_lgs().size()==1);
+            FluidLaneGroup up_lanegroup = (FluidLaneGroup) up_link.get_lgs().iterator().next();
 
             // there is only one dnstream lanegroup
-            assert(dn_link.lgs.size()==1);
-            FluidLaneGroup dn_lanegroup = (FluidLaneGroup) dn_link.lgs.iterator().next();
+            assert(dn_link.get_lgs().size()==1);
+            FluidLaneGroup dn_lanegroup = (FluidLaneGroup) dn_link.get_lgs().iterator().next();
 
             // add a fictitious road connection with id 0
             RoadConnection rc = new RoadConnection(0L,null);
@@ -71,14 +63,14 @@ public class NodeModel {
             // ulgs
             ulgs = new HashMap<>();
             UpLaneGroup ulg = new UpLaneGroup(up_lanegroup);
-            ulgs.put(up_lanegroup.id,ulg);
+            ulgs.put(up_lanegroup.getId(),ulg);
             ulg.add_road_connection(rc);
             rc.add_up_lanegroup(ulg);
 
             // dlgs
             dlgs = new HashMap<>();
             DnLaneGroup dlg = new DnLaneGroup(dn_lanegroup);
-            dlgs.put(dn_lanegroup.id,dlg);
+            dlgs.put(dn_lanegroup.getId(),dlg);
             rc.add_dn_lanegroup(dlg);
             dlg.add_road_connection(rc);
 
@@ -91,19 +83,19 @@ public class NodeModel {
         Map<Long,DnLaneGroup> dn_lgs_map = new HashMap<>();
 
         // iterate through the road connections
-        for (core.RoadConnection xrc : node.road_connections) {
+        for (core.RoadConnection xrc : node.get_road_connections()) {
 
             // skip road connections starting in discrete event links
-            if( xrc.get_start_link()==null )
+            if( !xrc.has_start_link() )
                 continue;
 
             // skip if it is disconnected
-            if( xrc.in_lanegroups.isEmpty() || xrc.out_lanegroups.isEmpty())
+            if( xrc.get_in_lanegroups().isEmpty() || xrc.get_out_lanegroups().isEmpty())
                 continue;
 
             // incoming fluid lane groups
-            Set<AbstractLaneGroup> in_fluid_lgs = xrc.in_lanegroups.stream()
-                    .filter(x -> x.link.model instanceof AbstractFluidModel)
+            Set<AbstractLaneGroup> in_fluid_lgs = xrc.get_in_lanegroups().stream()
+                    .filter(x -> x.get_link().get_model() instanceof AbstractFluidModel)
                     .collect(toSet());
 
             if( in_fluid_lgs.isEmpty() )
@@ -116,24 +108,24 @@ public class NodeModel {
             for (AbstractLaneGroup xup_lg : in_fluid_lgs) {
 
                 UpLaneGroup ulg;
-                if (!up_lgs_map.containsKey(xup_lg.id)) {
+                if (!up_lgs_map.containsKey(xup_lg.getId())) {
                     ulg = new UpLaneGroup((FluidLaneGroup) xup_lg);
-                    up_lgs_map.put(xup_lg.id, ulg);
+                    up_lgs_map.put(xup_lg.getId(), ulg);
                 } else
-                    ulg = up_lgs_map.get(xup_lg.id);
+                    ulg = up_lgs_map.get(xup_lg.getId());
                 ulg.add_road_connection(rc);
                 rc.add_up_lanegroup(ulg);
 
             }
 
             // go through its downstream lanegroups
-            for (AbstractLaneGroup xdn_lg : xrc.out_lanegroups) {
+            for (AbstractLaneGroup xdn_lg : xrc.get_out_lanegroups()) {
                 DnLaneGroup dlg;
-                if (!dn_lgs_map.containsKey(xdn_lg.id)) {
+                if (!dn_lgs_map.containsKey(xdn_lg.getId())) {
                     dlg = new DnLaneGroup(xdn_lg);
-                    dn_lgs_map.put(xdn_lg.id, dlg);
+                    dn_lgs_map.put(xdn_lg.getId(), dlg);
                 } else
-                    dlg = dn_lgs_map.get(xdn_lg.id);
+                    dlg = dn_lgs_map.get(xdn_lg.getId());
                 rc.add_dn_lanegroup(dlg);
                 dlg.add_road_connection(rc);
             }
@@ -145,7 +137,7 @@ public class NodeModel {
 
     public void initialize(Scenario scenario) {
         // allocate states in ulgs
-        ulgs.values().forEach( ulg -> ulg.lg.states.forEach( state -> ulg.add_state(state)));
+        ulgs.values().forEach( ulg -> ulg.lg.get_states().forEach( state -> ulg.add_state(state)));
     }
 
     public Set<State> get_states_for_road_connection(long rc_id){
@@ -262,7 +254,7 @@ public class NodeModel {
                 // total_demand = sum of demands in upstream road connections, times the proportion
                 // directed at this lanegroup
 //                Double d_h = dlg.rcs.values().stream().mapToDouble(rc -> rc.dnlg_infos.get(dlg.lg.id).alpha_rh * Math.min(rc.d_r, rc.fbar)).sum();
-                Double d_h = dlg.rcs.values().stream().mapToDouble(rc -> rc.dnlg_infos.get(dlg.lg.id).alpha_rh * rc.d_r).sum();
+                Double d_h = dlg.rcs.values().stream().mapToDouble(rc -> rc.dnlg_infos.get(dlg.lg.getId()).alpha_rh * rc.d_r).sum();
                 dlg.gamma_h = d_h>dlg.s_h ? 1d-dlg.s_h /d_h : 0d;
             }
 
@@ -295,17 +287,12 @@ public class NodeModel {
                     ulg.f_gs.put(state,ulg.f_gs.get(state)+stateInfo.delta_gs);
 
                     // reduce d_gr
-                    if(ulg.lg.state2roadconnection.containsKey(state) ){
-                        Long rc_id = ulg.lg.state2roadconnection.get(state);
+                    if(ulg.lg.has_state(state) ){
+                        Long rc_id = ulg.lg.get_rc_for_state(state);
                         if(ulg.rc_infos.containsKey(rc_id))
                             ulg.rc_infos.get(rc_id).d_gr -= stateInfo.delta_gs;
                     }
 
-                    if(ulg.lg.state2roadconnection.containsKey(state) ){
-                        Long rc_id = ulg.lg.state2roadconnection.get(state);
-                        if(ulg.rc_infos.containsKey(rc_id))
-                            ulg.rc_infos.get(rc_id).d_gr -= stateInfo.delta_gs;
-                    }
                 }
             }
 
@@ -340,7 +327,7 @@ public class NodeModel {
 
         for(DnLaneGroup dlg : dlgs.values() ) {
             double sum = dlg.rcs.values().stream()
-                    .mapToDouble(rc -> rc.delta_r*rc.dnlg_infos.get(dlg.lg.id).alpha_rh/(1d-rc.gamma_r))
+                    .mapToDouble(rc -> rc.delta_r*rc.dnlg_infos.get(dlg.lg.getId()).alpha_rh/(1d-rc.gamma_r))
                     .sum();
             dlg.s_h -= (1d-dlg.gamma_h)*sum;
         }

@@ -8,7 +8,6 @@ import jaxb.OutputRequest;
 import models.Maneuver;
 import models.fluid.*;
 import output.AbstractOutput;
-import output.OutputCellVehicles;
 import traveltime.FluidLaneGroupTimer;
 import utils.OTMUtils;
 import utils.StochasticProcess;
@@ -76,11 +75,11 @@ public class ModelCTM extends AbstractFluidModel {
     @Override
     public void update_link_state(Link link,float timestamp) throws OTMException {
 
-        for(AbstractLaneGroup alg : link.lgs) {
+        for(AbstractLaneGroup alg : link.get_lgs()) {
 
             FluidLaneGroup lg = (FluidLaneGroup) alg;
 
-            if(lg.states.isEmpty())
+            if(!lg.has_states())
                 continue;
 
             double total_travel_time = 0d;
@@ -157,58 +156,58 @@ public class ModelCTM extends AbstractFluidModel {
 
     private void perform_lane_changes(Link link,float timestamp) {
 
-        if(link.lgs.size()<2)
+        if(link.get_lgs().size()<2)
             return;
 
             // WARNING: THIS ASSUMES ONLY FULL LENGTH ADDLANES
 
 //        REWRITE THIS !!!!!
 
-        int cells_in_full_lg = ((FluidLaneGroup)link.lgs.iterator().next()).cells.size();
+        int cells_in_full_lg = ((FluidLaneGroup)link.get_lgs().iterator().next()).cells.size();
 
         // scan cross section from upstream to downstream
         for (int i = 0; i < cells_in_full_lg; i++) {
 
             // compute total flows reduction for each lane group
             Map<Long, Double> gamma = new HashMap<>();
-            for (AbstractLaneGroup alg : link.lgs) {
+            for (AbstractLaneGroup alg : link.get_lgs()) {
                 FluidLaneGroup lg = (FluidLaneGroup) alg;
                 CTMCell cell = (CTMCell) lg.cells.get(i);
                 double demand_to_me = 0d;
-                if (lg.neighbor_in!=null) {
-                    CTMCell ncell = (CTMCell) ((FluidLaneGroup) lg.neighbor_in).cells.get(i);
+                if (lg.get_neighbor_in()!=null) {
+                    CTMCell ncell = (CTMCell) ((FluidLaneGroup) lg.get_neighbor_in()).cells.get(i);
                     if(!ncell.out_barrier)
                         demand_to_me += ncell.total_vehs_out;
                 }
-                if (lg.neighbor_out != null) {
-                    CTMCell ncell = (CTMCell) ((FluidLaneGroup) lg.neighbor_out).cells.get(i);
+                if (lg.get_neighbor_out() != null) {
+                    CTMCell ncell = (CTMCell) ((FluidLaneGroup) lg.get_neighbor_out()).cells.get(i);
                     if(!ncell.in_barrier)
                         demand_to_me += ncell.total_vehs_in;
                 }
 
                 double lc_supply = cell.supply * lg.lc_w;
 
-                gamma.put(lg.id, demand_to_me > lc_supply ? lc_supply / demand_to_me : 1d);
+                gamma.put(lg.getId(), demand_to_me > lc_supply ? lc_supply / demand_to_me : 1d);
             }
 
             // lane change flow
             // WARNING: This assumes that no state has vehicles going in both directions.
             // ie a flow that goes left does not also go right. Otherwise I think there may
             // be "data races", where the result depends on the order of lgs.
-            for (AbstractLaneGroup alg : link.lgs) {
+            for (AbstractLaneGroup alg : link.get_lgs()) {
                 FluidLaneGroup to_lg = (FluidLaneGroup) alg;
                 CTMCell to_cell = (CTMCell) to_lg.cells.get(i);
-                double my_gamma = gamma.get(to_lg.id);
+                double my_gamma = gamma.get(to_lg.getId());
 
-                if (to_lg.neighbor_in != null) {
-                    FluidLaneGroup from_lg = (FluidLaneGroup) to_lg.neighbor_in;
+                if (to_lg.get_neighbor_in() != null) {
+                    FluidLaneGroup from_lg = (FluidLaneGroup) to_lg.get_neighbor_in();
                     CTMCell ncell = (CTMCell) from_lg.cells.get(i);
                     if(!ncell.out_barrier)
                         ncell.total_vehs_out -= do_lane_changes(to_lg, to_cell, my_gamma, ncell.flw_lcout_acc, ncell.veh_out);
                 }
 
-                if (to_lg.neighbor_out != null) {
-                    FluidLaneGroup from_lg = (FluidLaneGroup) to_lg.neighbor_out;
+                if (to_lg.get_neighbor_out() != null) {
+                    FluidLaneGroup from_lg = (FluidLaneGroup) to_lg.get_neighbor_out();
                     CTMCell ncell = (CTMCell) from_lg.cells.get(i);
                     if(!ncell.in_barrier)
                         ncell.total_vehs_in -= do_lane_changes(to_lg,to_cell,my_gamma, ncell.flw_lcin_acc,ncell.veh_in);
@@ -248,17 +247,17 @@ public class ModelCTM extends AbstractFluidModel {
 
     // call update_supply_demand on each cell
     private void update_supply_for_all_cells(Link link,float timestamp) {
-        for(AbstractLaneGroup lg : link.lgs) {
+        for(AbstractLaneGroup lg : link.get_lgs()) {
             FluidLaneGroup ctmlg = (FluidLaneGroup) lg;
-            if(!ctmlg.states.isEmpty())
+            if(ctmlg.has_states())
                 ctmlg.cells.forEach(cell->cell.update_supply());
         }
     }
 
     private void update_demand(Link link,float timestamp) {
-        for(AbstractLaneGroup lg : link.lgs) {
+        for(AbstractLaneGroup lg : link.get_lgs()) {
             FluidLaneGroup ctmlg = (FluidLaneGroup) lg;
-            if(!ctmlg.states.isEmpty())
+            if(ctmlg.has_states())
                 ctmlg.cells.forEach(cell -> cell.update_demand());
         }
     }
@@ -283,7 +282,7 @@ public class ModelCTM extends AbstractFluidModel {
 
                 // choose lane change direction in destination cell
                 // prefer middle
-                Set<Maneuver> new_lcs = to_lg.state2lanechangedirections.get(state);
+                Set<Maneuver> new_lcs = to_lg.get_maneuvers_for_state(state);
                 Maneuver newmaneuver = new_lcs.contains(Maneuver.stay) ?  Maneuver.stay : new_lcs.iterator().next();
                 switch (newmaneuver) {
                     case lcin:

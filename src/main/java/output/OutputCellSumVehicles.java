@@ -5,7 +5,7 @@ import core.Scenario;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import models.fluid.AbstractFluidModel;
+import core.AbstractFluidModel;
 import models.fluid.EventUpdateTotalCellVehicles;
 import models.fluid.FluidLaneGroup;
 import cmd.RunParameters;
@@ -29,15 +29,15 @@ public class OutputCellSumVehicles extends AbstractOutputTimedCell {
         this.type = Type.cell_sumveh;
 
         // get the dt
-        Set<Link> links = ordered_lgs.stream().map(lg->lg.link).collect(toSet());
-        Set<Float> dts = links.stream().map(link->((AbstractFluidModel)link.model).dt_sec).collect(toSet());
+        Set<Link> links = ordered_lgs.stream().map(lg->lg.get_link()).collect(toSet());
+        Set<Float> dts = links.stream().map(link->((AbstractFluidModel)link.get_model()).dt_sec).collect(toSet());
         simDt = null;
         if(dts.size()==1)
             this.simDt = dts.iterator().next();
 
         lg2totals = new HashMap<>();
         for(FluidLaneGroup lg : ordered_lgs)
-            lg2totals.put(lg.id,new double[lg.get_num_cells()]);
+            lg2totals.put(lg.getId(),new double[lg.get_num_cells()]);
     }
 
     @Override
@@ -52,10 +52,10 @@ public class OutputCellSumVehicles extends AbstractOutputTimedCell {
     public void validate(OTMErrorLog errorLog) {
         super.validate(errorLog);
 
-        Set<Link> links = ordered_lgs.stream().map(lg->lg.link).collect(toSet());
+        Set<Link> links = ordered_lgs.stream().map(lg->lg.get_link()).collect(toSet());
 
         // all links must have fluid models
-        if(!links.stream().allMatch(link->link.model instanceof AbstractFluidModel)) {
+        if(!links.stream().allMatch(link->link.get_model() instanceof AbstractFluidModel)) {
             errorLog.addError("Average vehicles output can only be requested for links with fluid models.");
             return;
         }
@@ -67,7 +67,7 @@ public class OutputCellSumVehicles extends AbstractOutputTimedCell {
     public void update_total_vehicles(float timestamp){
         Long commid = commodity==null ? null : commodity.getId();
         for(FluidLaneGroup lg : ordered_lgs){
-            double[] current_values = lg2totals.get(lg.id);
+            double[] current_values = lg2totals.get(lg.getId());
             for(int i=0;i<lg.cells.size();i++)
                 current_values[i] += lg.cells.get(i).get_veh_for_commodity(commid);
         }
@@ -102,8 +102,8 @@ public class OutputCellSumVehicles extends AbstractOutputTimedCell {
 
     @Override
     protected double[] get_value_for_lanegroup(FluidLaneGroup lg) {
-        double [] values = lg2totals.get(lg.id);
-        lg2totals.put(lg.id,new double[lg.get_num_cells()]);
+        double [] values = lg2totals.get(lg.getId());
+        lg2totals.put(lg.getId(),new double[lg.get_num_cells()]);
         return values;
     }
 

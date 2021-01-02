@@ -8,7 +8,7 @@ import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMException;
-import models.fluid.AbstractFluidModel;
+import core.AbstractFluidModel;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,10 +25,10 @@ public class LinkLaneSelector implements Pokable {
         this.link = link;
 
         lcs = new HashMap<>();
-        for(AbstractLaneGroup lg : link.lgs ) {
+        for(AbstractLaneGroup lg : link.get_lgs() ) {
             Map<State, InterfaceLaneSelector> lcslg = new HashMap<>();
-            lcs.put(lg.id, lcslg);
-            for (State state : lg.states) {
+            lcs.put(lg.getId(), lcslg);
+            for (State state : lg.get_states()) {
                 if (commids.contains(state.commodity_id))
                     lcslg.put(state, create_lane_selector(lg, type, params));
             }
@@ -36,8 +36,8 @@ public class LinkLaneSelector implements Pokable {
 
         // dt==0 means update every time step
         // dt<0 means update only once upon initialization
-        if(this.dt==0 && (link.model() instanceof AbstractFluidModel))
-            this.dt = ((AbstractFluidModel)link.model()).dt_sec;
+        if(this.dt==0 && (link.get_model() instanceof AbstractFluidModel))
+            this.dt = ((AbstractFluidModel)link.get_model()).dt_sec;
 
     }
 

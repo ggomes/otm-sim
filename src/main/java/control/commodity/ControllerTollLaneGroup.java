@@ -5,15 +5,12 @@ import core.*;
 import control.AbstractController;
 import control.command.CommandRestrictionMap;
 import dispatch.Dispatcher;
-import dispatch.EventPoke;
 import error.OTMException;
 import jaxb.Controller;
 import lanechange.InterfaceLaneSelector;
-import lanechange.LinkLaneSelector;
-import lanechange.LogitLaneSelector;
 import lanechange.TollLaneSelector;
 import models.Maneuver;
-import models.fluid.AbstractFluidModel;
+import core.AbstractFluidModel;
 import models.fluid.FluidLaneGroup;
 import utils.OTMUtils;
 import utils.LookupTable;
@@ -135,14 +132,14 @@ public class ControllerTollLaneGroup extends AbstractController {
             this.fa = hotlg.request_flow_accumulator(null);
             prev_count = fa.get_total_count();
             hot = create_lane_selectors(hotlg);
-            gp = create_lane_selectors(hotlg.neighbor_out);
+            gp = create_lane_selectors(hotlg.get_neighbor_out());
         }
 
         public void initialize(Dispatcher dispatcher){
             int numcells =  ((FluidLaneGroup)hot.lg).cells.size();
-            double celllength_meter = hot.lg.length / numcells;
+            double celllength_meter = hot.lg.get_length() / numcells;
             ffspeed_meterperdt = ((FluidLaneGroup)hot.lg).ffspeed_cell_per_dt * celllength_meter;
-            ffspeed_meterperdt *= dt/((AbstractFluidModel)hot.lg.link.model).dt_sec;
+            ffspeed_meterperdt *= dt/((AbstractFluidModel)hot.lg.get_link().get_model()).dt_sec;
         }
 
         public void restore(){
@@ -157,7 +154,7 @@ public class ControllerTollLaneGroup extends AbstractController {
 
             double hot_veh = hot.lg.get_total_vehicles();
 
-            double hot_speed_meterperdt = hot_veh<1 ? ffspeed_meterperdt : hot.lg.length*flow_vpdt/hot_veh;
+            double hot_speed_meterperdt = hot_veh<1 ? ffspeed_meterperdt : hot.lg.get_length()*flow_vpdt/hot_veh;
             if(hot_speed_meterperdt>ffspeed_meterperdt)
                 hot_speed_meterperdt = ffspeed_meterperdt;
 
@@ -165,7 +162,7 @@ public class ControllerTollLaneGroup extends AbstractController {
             if(hot_speed_meterperdt > speed_threshold_meterpdt)
                 add_term = Double.POSITIVE_INFINITY;
             else {
-                double toll = vplpdt_to_cents_table.get_value_for((float)flow_vpdt/hot.lg.num_lanes);
+                double toll = vplpdt_to_cents_table.get_value_for((float)flow_vpdt/hot.lg.get_num_lanes());
                 add_term = toll_coef*toll;
             }
 
@@ -187,17 +184,18 @@ public class ControllerTollLaneGroup extends AbstractController {
 
         public void restore(){
             for(Map.Entry<State,InterfaceLaneSelector> e : nom.entrySet())
-                lg.link.lane_selector.lcs.get(lg.id).put(e.getKey(),e.getValue());
+                lg.get_link().get_lane_selector_for_lane_group(lg.getId()).put(e.getKey(),e.getValue());
         }
     }
 
     private NomAndToll create_lane_selectors(AbstractLaneGroup lg){
         NomAndToll X = new NomAndToll(lg);
-        for( Map.Entry<State , Map<Maneuver,Double>> e : lg.state2lanechangeprob.entrySet() ){
-            State state = e.getKey();
+
+        for(State state : lg.get_states()){
+
             TollLaneSelector newls;
             if(tolled_comms.contains(state.commodity_id)){
-                InterfaceLaneSelector oldls =  lg.link.lane_selector.lcs.get(lg.id).get(state);
+                InterfaceLaneSelector oldls =  lg.get_link().get_lane_selector_for_lane_group(lg.getId()).get(state);
                 // store
                 X.nom.put(state,oldls);
                 // create a new lane selector
@@ -208,7 +206,7 @@ public class ControllerTollLaneGroup extends AbstractController {
                 else
                     newls = new TollLaneSelector(lg,0,def_keep,def_rho_vpkmplane, state.commodity_id);
                 X.toll.put(state,newls);
-                lg.link.lane_selector.lcs.get(lg.id).put(state,newls);
+                lg.get_link().get_lane_selector_for_lane_group(lg.getId()).put(state,newls);
             }
         }
         return X;

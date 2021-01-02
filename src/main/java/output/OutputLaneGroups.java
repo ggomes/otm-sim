@@ -39,7 +39,7 @@ public class OutputLaneGroups extends AbstractOutput {
         try {
 
             for(Link link : scenario.network.links.values())
-                for(AbstractLaneGroup lg : link.lgs)
+                for(AbstractLaneGroup lg : link.get_lgs())
                     writer.write(dnlgstring(lg));
 
             writer.close();
@@ -50,11 +50,11 @@ public class OutputLaneGroups extends AbstractOutput {
     }
 
     private static String dnlgstring(AbstractLaneGroup lg){
-        return String.format("%d\t%d\t%d\t%d\t%d\n",lg.id , lg.link.getId(),0,lg.start_lane_dn,lg.num_lanes);
+        return String.format("%d\t%d\t%d\t%d\t%d\n",lg.getId() , lg.get_link().getId(),0,lg.get_start_lane_dn(),lg.get_num_lanes());
     }
 
     private static String uplgstring(AbstractLaneGroup lg){
-        return String.format("%d\t%d\t%d\t%d\t%d\n",lg.id , lg.link.getId(),1,lg.start_lane_up,lg.num_lanes);
+        return String.format("%d\t%d\t%d\t%d\t%d\n",lg.getId() , lg.get_link().getId(),1,lg.get_start_lane_up(),lg.get_num_lanes());
     }
 
 }

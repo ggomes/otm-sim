@@ -46,7 +46,7 @@ public class OutputLaneGroupVehicles extends AbstractOutputTimedLanegroup {
 
     @Override
     protected double get_value_for_lanegroup(AbstractLaneGroup lg){
-        if(!lgprofiles.containsKey(lg.id))
+        if(!lgprofiles.containsKey(lg.getId()))
             return Double.NaN;
         else {
             return lg.get_total_vehicles_for_commodity(commodity == null ? null : commodity.getId());

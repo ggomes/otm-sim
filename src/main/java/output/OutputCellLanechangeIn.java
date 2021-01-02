@@ -36,7 +36,7 @@ public class OutputCellLanechangeIn extends AbstractOutputTimedCell {
         super.initialize(scenario);
         flw_accs = new HashMap<>();
         for(FluidLaneGroup lg : ordered_lgs)
-            flw_accs.put(lg.id, lg.request_flow_lcin_accumulators_for_cells(commodity == null ? null : commodity.getId()));
+            flw_accs.put(lg.getId(), lg.request_flow_lcin_accumulators_for_cells(commodity == null ? null : commodity.getId()));
     }
 
     //////////////////////////////////////////////////////
@@ -62,8 +62,8 @@ public class OutputCellLanechangeIn extends AbstractOutputTimedCell {
         double [] X = new double[lg.cells.size()];
         for(int i=0;i<lg.cells.size();i++)
             X[i] = commodity==null ?
-                    flw_accs.get(lg.id).get(i).get_total_count() :
-                    flw_accs.get(lg.id).get(i).get_count_for_commodity(commodity.getId());
+                    flw_accs.get(lg.getId()).get(i).get_total_count() :
+                    flw_accs.get(lg.getId()).get(i).get_count_for_commodity(commodity.getId());
         return X;
     }
 
@@ -71,9 +71,9 @@ public class OutputCellLanechangeIn extends AbstractOutputTimedCell {
     public List<XYSeries> get_series_for_lg(FluidLaneGroup lg) {
 
         List<XYSeries> X = new ArrayList<>();
-        List<CellProfile> cellprofs = lgprofiles.get(lg.id);
+        List<CellProfile> cellprofs = lgprofiles.get(lg.getId());
         for(int i=0;i<cellprofs.size();i++){
-            String label = String.format("%d (%d-%d) cell %d",lg.link.getId(),lg.start_lane_dn,lg.start_lane_dn+lg.num_lanes-1,i);
+            String label = String.format("%d (%d-%d) cell %d",lg.get_link().getId(),lg.get_start_lane_dn(),lg.get_start_lane_dn()+lg.get_num_lanes()-1,i);
             X.add(get_flow_profile_in_vph(cellprofs.get(i)).get_series(label));
         }
         return X;

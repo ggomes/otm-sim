@@ -2,14 +2,10 @@ package models.vehicle;
 
 import commodity.Commodity;
 import commodity.Path;
-import core.AbstractDemandGenerator;
-import core.AbstractVehicle;
-import core.Link;
+import core.*;
 import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import error.OTMException;
-import core.State;
-import core.AbstractLaneGroup;
 import core.packet.PacketLaneGroup;
 import profiles.Profile1D;
 import utils.OTMUtils;
@@ -36,7 +32,7 @@ public class VehicleDemandGenerator extends AbstractDemandGenerator {
         if(vehicle_scheduled)
             return;
 
-        Float wait_time = OTMUtils.get_waiting_time(source_demand_vps,link.model.stochastic_process);
+        Float wait_time = OTMUtils.get_waiting_time(source_demand_vps,link.get_model().stochastic_process);
         if(wait_time!=null) {             ;
             dispatcher.register_event(new EventCreateVehicle(dispatcher, timestamp + wait_time, this));
             vehicle_scheduled = true;
@@ -45,7 +41,7 @@ public class VehicleDemandGenerator extends AbstractDemandGenerator {
 
     public void insert_vehicle(float timestamp) throws OTMException {
 
-        AbstractVehicleModel model = (AbstractVehicleModel) link.model;
+        AbstractVehicleModel model = (AbstractVehicleModel) link.get_model();
 
         // create a vehicle
         AbstractVehicle vehicle = model.create_vehicle(commodity.getId(),commodity.vehicle_event_listeners);
@@ -58,13 +54,13 @@ public class VehicleDemandGenerator extends AbstractDemandGenerator {
             vehicle.path = path;
 
         // extract next link
-        Long next_link = commodity.pathfull ? link.path2outlink.get(path.getId()).getId() : state.pathOrlink_id;
+        Long next_link = commodity.pathfull ? link.get_next_link_in_path(path.getId()).getId() : state.pathOrlink_id;
 
         // candidate lane groups
-        Set<AbstractLaneGroup> candidate_lane_groups = link.outlink2lanegroups.get(next_link);
+        Set<AbstractLaneGroup> candidate_lane_groups = link.get_lanegroups_for_outlink(next_link);
 
         // pick from among the eligible lane groups
-        AbstractLaneGroup join_lanegroup = link.model.lanegroup_proportions(candidate_lane_groups).keySet().iterator().next();
+        AbstractLaneGroup join_lanegroup = link.get_model().lanegroup_proportions(candidate_lane_groups).keySet().iterator().next();
 
         // package and add to joinlanegroup
         join_lanegroup.add_vehicle_packet(timestamp,new PacketLaneGroup(vehicle),next_link);

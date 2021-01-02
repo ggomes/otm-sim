@@ -302,7 +302,7 @@ public class OTMUtils {
             if(a2.length!=1)
                 throw new OTMException("Poorly formatted string. (3g50jmdrthk)");
 
-            int [] lanes = OTMUtils.read_lanes(a2[0],link.full_lanes);
+            int [] lanes = OTMUtils.read_lanes(a2[0],link.get_full_lanes());
 
             Set<AbstractLaneGroup> lgs = link.get_unique_lanegroups_for_dn_lanes(lanes[0],lanes[1]);
             if(lgs.size()!=1)

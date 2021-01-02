@@ -124,7 +124,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long next_link_id) throws OTMException {
 
         // for each vehicle
-        Dispatcher dispatcher = link.network.scenario.dispatcher;
+        Dispatcher dispatcher = link.get_scenario().dispatcher;
         for(AbstractVehicle absveh : create_vehicles_from_packet(vp,next_link_id)){
 
             MesoVehicle veh = (MesoVehicle) absveh;
@@ -209,14 +209,14 @@ public class MesoLaneGroup extends VehicleLaneGroup {
 
             // get next link
             State state = vehicle.get_state();
-            Long next_link_id = state.isPath ? link.path2outlink.get(state.pathOrlink_id).getId() : state.pathOrlink_id;
+            Long next_link_id = state.isPath ? link.get_next_link_in_path(state.pathOrlink_id).getId() : state.pathOrlink_id;
 
             rc = outlink2roadconnection.get(next_link_id);
-            next_link = rc.end_link;
+            next_link = rc.get_end_link();
 
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
-            OptionalDouble next_supply_o = rc.out_lanegroups.stream()
+            OptionalDouble next_supply_o = rc.get_out_lanegroups().stream()
                     .mapToDouble(AbstractLaneGroup::get_supply)
                     .max();
 
@@ -241,13 +241,13 @@ public class MesoLaneGroup extends VehicleLaneGroup {
 
             // send vehicle core.packet to next link
             if(next_link!=null && rc!=null)
-                next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
+                next_link.get_model().add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
 
             // TODO Need a better solution than this.
             // TODO This is adhoc for when the next links is a fluid model.
             // Todo Then the event counter is not getting triggered.
             // inform the queue counters
-            if( next_link!=null && !(next_link.model instanceof ModelSpatialQ) && vehicle.get_event_listeners()!=null) {
+            if( next_link!=null && !(next_link.get_model() instanceof ModelSpatialQ) && vehicle.get_event_listeners()!=null) {
                 for (InterfaceVehicleListener ev : vehicle.get_event_listeners())
                     ev.move_from_to_queue(timestamp, vehicle, waiting_queue, null);
             }
@@ -269,10 +269,10 @@ public class MesoLaneGroup extends VehicleLaneGroup {
 
     private void schedule_release_vehicle(float nowtime){
 
-        Float wait_time = OTMUtils.get_waiting_time(saturation_flow_rate_vps,link.model.stochastic_process);
+        Float wait_time = OTMUtils.get_waiting_time(saturation_flow_rate_vps,link.get_model().stochastic_process);
 
         if(wait_time!=null){
-            Scenario scenario = link.network.scenario;
+            Scenario scenario = link.get_scenario();
             float timestamp = nowtime + wait_time;
             scenario.dispatcher.register_event(
                     new EventReleaseVehicleFromLaneGroup(scenario.dispatcher,timestamp,this));

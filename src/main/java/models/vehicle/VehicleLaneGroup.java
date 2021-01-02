@@ -1,9 +1,6 @@
 package models.vehicle;
 
-import core.AbstractVehicle;
-import core.Link;
-import core.RoadConnection;
-import core.AbstractLaneGroup;
+import core.*;
 import jaxb.Roadparam;
 import core.packet.*;
 
@@ -67,7 +64,7 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
 
         Set<AbstractVehicle> vehs = new HashSet<>();
 
-        AbstractVehicleModel model = (AbstractVehicleModel) link.model;
+        AbstractVehicleModel model = (AbstractVehicleModel) link.get_model();
 
         // process 'vehicle' part
         if(!vp.vehicles.isEmpty())

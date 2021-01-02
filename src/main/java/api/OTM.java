@@ -164,7 +164,6 @@ public class OTM {
         initialize(start_time);
         advance(start_time + duration);
         terminate();
-        scenario.is_initialized = false;
     }
 
     /**
@@ -180,7 +179,6 @@ public class OTM {
         initialize(start_time,output_requests_file,prefix,output_folder);
         advance(duration);
         terminate();
-        scenario.is_initialized = false;
     }
 
     /**
@@ -269,8 +267,8 @@ public class OTM {
         for(Link link : scenario.network.links.values()){
             List<Long> A = new ArrayList<>();
             A.add(link.getId());
-            A.add(link.start_node.getId());
-            A.add(link.end_node.getId());
+            A.add(link.get_start_node().getId());
+            A.add(link.get_end_node().getId());
             X.add(A);
         }
         return X;
@@ -293,10 +291,10 @@ public class OTM {
      * @return A set of lane group ids.
      */
     public Set<Long> get_in_lanegroups_for_road_connection(long rcid){
-        RoadConnection rc = scenario.network.get_road_connection(rcid);
+        RoadConnection rc = scenario.network.road_connections.get(rcid);
         Set<Long> lgids = new HashSet<>();
-        for(AbstractLaneGroup lg : rc.in_lanegroups)
-            lgids.add(lg.id);
+        for(AbstractLaneGroup lg : rc.get_in_lanegroups())
+            lgids.add(lg.getId());
         return lgids;
     }
 
@@ -306,10 +304,10 @@ public class OTM {
      * @return A set of lane group ids.
      */
     public Set<Long> get_out_lanegroups_for_road_connection(long rcid){
-        RoadConnection rc = scenario.network.get_road_connection(rcid);
+        RoadConnection rc = scenario.network.road_connections.get(rcid);
         Set<Long> lgids = new HashSet<>();
-        for(AbstractLaneGroup lg : rc.out_lanegroups)
-            lgids.add(lg.id);
+        for(AbstractLaneGroup lg : rc.get_out_lanegroups())
+            lgids.add(lg.getId());
         return lgids;
     }
 
@@ -320,8 +318,8 @@ public class OTM {
     public Map<Long,Set<Long>> get_link2lgs(){
         Map<Long,Set<Long>> lk2lgs = new HashMap<>();
         for(Link link : scenario.network.links.values())
-            lk2lgs.put(link.getId(),link.lgs.stream()
-                    .map(x->x.id).collect(toSet()));
+            lk2lgs.put(link.getId(),link.get_lgs().stream()
+                    .map(x->x.getId()).collect(toSet()));
         return lk2lgs;
     }
 
@@ -341,7 +339,7 @@ public class OTM {
 
     public Queues get_link_queues(long link_id) throws Exception {
         Link link = scenario.network.links.get(link_id);
-        MesoLaneGroup lg = (MesoLaneGroup) link.lgs.iterator().next();
+        MesoLaneGroup lg = (MesoLaneGroup) link.get_lgs().iterator().next();
         return new Queues(lg.waiting_queue.num_vehicles(),lg.transit_queue.num_vehicles());
     }
 
@@ -361,15 +359,15 @@ public class OTM {
 
         Link link = scenario.network.links.get(link_id);
 
-        if(link.lgs.size()>1)
+        if(link.get_lgs().size()>1)
             throw new Exception("Cannot call set_link_vehicles on multi-lane group links");
 
 //        if(link.model.type!= ModelType.VehicleMeso)
 //            throw new Exception("Cannot call set_link_vehicles on non-meso models");
 
         long comm_id = scenario.commodities.keySet().iterator().next();
-        MesoLaneGroup lg = (MesoLaneGroup) link.lgs.iterator().next();
-        SplitMatrixProfile smp = lg.link.get_split_profile(comm_id);
+        MesoLaneGroup lg = (MesoLaneGroup) link.get_lgs().iterator().next();
+        SplitMatrixProfile smp = lg.get_link().get_split_profile(comm_id);
 
         // transit queue ................
         models.vehicle.spatialq.Queue tq = lg.transit_queue;
@@ -425,9 +423,9 @@ public class OTM {
 
         // delete sources from links
         for(Link link : scenario.network.links.values()) {
-            if (link.demandGenerators == null || link.demandGenerators.isEmpty())
+            if(!link.has_demands())
                 continue;
-            link.demandGenerators.clear();
+            link.get_demandGenerators().clear();
         }
 
         // delete all EventCreateVehicle and EventDemandChange from dispatcher
@@ -444,8 +442,8 @@ public class OTM {
      */
     public double get_total_trips() {
         return scenario.network.links.values().stream()
-                .filter(link->link.demandGenerators !=null && !link.demandGenerators.isEmpty())
-                .flatMap(link->link.demandGenerators.stream())
+                .filter(link->link.has_demands())
+                .flatMap(link->link.get_demandGenerators().stream())
                 .map(gen->gen.get_total_trips())
                 .reduce(0.0,Double::sum);
     }

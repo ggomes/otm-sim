@@ -6,6 +6,7 @@ import error.OTMException;
 import core.geometry.RoadGeometry;
 import jaxb.Points;
 import jaxb.Roadparam;
+import lanechange.InterfaceLaneSelector;
 import lanechange.LinkLaneSelector;
 import profiles.SplitMatrixProfile;
 import traveltime.LinkTravelTimer;
@@ -21,58 +22,58 @@ public class Link implements InterfaceScenarioElement {
     public enum RoadType {none,offramp,onramp,freeway,connector,bridge,ghost}
 
     // basics ........................................
-    public final long id;
-    public final Network network;
-    public final float length;          // meters
-    public final int full_lanes;
-    public final core.Node start_node;
-    public final core.Node end_node;
+    protected final long id;
+    protected final Network network;
+    protected final float length;          // meters
+    protected final int full_lanes;
+    protected final core.Node start_node;
+    protected final core.Node end_node;
     protected boolean is_source;
     protected boolean is_sink;
 
     // parameters .........................................
-    public final RoadType road_type;
-    public final RoadGeometry road_geom;
+    protected final RoadType road_type;
+    protected final RoadGeometry road_geom;
     public final Roadparam road_param_full;        // for the sake of writing again to jaxb
-    public final List<Point> shape;           // not used by otm-sim
+    protected final List<Point> shape;           // not used by otm-sim
 
     // model .............................................
-    public AbstractModel model;
+    protected AbstractModel model;
     protected boolean is_model_source_link;
 
     // lane selection model
-    public LinkLaneSelector lane_selector;  // comm->lane selector
+    protected LinkLaneSelector lane_selector;  // comm->lane selector
 
     // lanegroups ......................................
 
     // Longitudinal lanegroups: flow exits from the bottom edge.
     // There are stay lanegroups and downstream addlanes
     // ordered from inner to outer
-    public List<AbstractLaneGroup> lgs;
+    protected List<AbstractLaneGroup> lgs;
 
     // barriers
-    public Set<Barrier> in_barriers;
-    public Set<Barrier> out_barriers;
+    protected Set<Barrier> in_barriers;
+    protected Set<Barrier> out_barriers;
 
     // downstream lane count -> lane group
-    public Map<Integer, AbstractLaneGroup> dnlane2lanegroup;
+    protected Map<Integer, AbstractLaneGroup> dnlane2lanegroup;
 
     // routing information ...............................
 
     // map from path id (uses this link) to next link id (exits this link)
-    public Map<Long,Link> path2outlink;
+    protected Map<Long,Link> path2outlink;
 
     // outlink -> lanegroups from which outlink is reachable
-    public Map<Long,Set<AbstractLaneGroup>> outlink2lanegroups;
+    protected Map<Long,Set<AbstractLaneGroup>> outlink2lanegroups;
 
     // splits
     protected Map<Long, SplitMatrixProfile> split_profile; // commodity -> split matrix profile
 
     // control flows to downstream links
-    public ActuatorFlowToLinks act_flowToLinks;
+    protected ActuatorFlowToLinks act_flowToLinks;
 
     // demands ............................................
-    public Set<AbstractDemandGenerator> demandGenerators;
+    protected Set<AbstractDemandGenerator> demandGenerators;
 
     // travel timer
     public LinkTravelTimer link_tt;
@@ -443,8 +444,91 @@ public class Link implements InterfaceScenarioElement {
     }
 
     ////////////////////////////////////////////
+    // state and performance getters
+    ///////////////////////////////////////////
+
+    public double get_veh() {
+        return lgs.stream()
+                .mapToDouble(x->x.get_total_vehicles())
+                .sum();
+    }
+
+    public double get_veh_for_commodity(Long commodity_id) {
+        return lgs.stream()
+                .mapToDouble(x->x.get_total_vehicles_for_commodity(commodity_id))
+                .sum();
+    }
+
+    ////////////////////////////////////////////
+    // private
+    ///////////////////////////////////////////
+
+    private void add_to_lanegroup_packets(Map<Long, PacketLaneGroup> split_packets, Long nextlink_id, State key, Double vehicles){
+        PacketLaneGroup new_packet;
+        if(split_packets.containsKey(nextlink_id)){
+            new_packet = split_packets.get(nextlink_id);
+        } else {
+            new_packet = model.create_lanegroup_packet();
+            split_packets.put(nextlink_id,new_packet);
+        }
+        new_packet.add_fluid(key,vehicles);
+    }
+
+    private void add_to_lanegroup_packets(Map<Long, PacketLaneGroup> split_packets, Long nextlink_id, State key, AbstractVehicle vehicle){
+        PacketLaneGroup new_packet;
+        if(split_packets.containsKey(nextlink_id)){
+            new_packet = split_packets.get(nextlink_id);
+        } else {
+            new_packet = model.create_lanegroup_packet();
+            split_packets.put(nextlink_id,new_packet);
+        }
+        new_packet.add_vehicle(key,vehicle);
+    }
+
+    ///////////////////////////////////////
+    // toString
+    ///////////////////////////////////////
+
+    @Override
+    public String toString() {
+        return String.format("link %d",id);
+    }
+
+    ////////////////////////////////////////////
     // API
     ///////////////////////////////////////////
+
+    public Scenario get_scenario(){
+        return network.scenario;
+    }
+
+    public Network get_network(){
+        return network;
+    }
+
+    public int get_full_lanes(){
+        return full_lanes;
+    }
+
+    public float get_full_length(){
+        return length;
+    }
+
+    public Node get_start_node(){
+        return start_node;
+    }
+
+    public Node get_end_node(){
+        return end_node;
+    }
+
+    public boolean is_model_source_link(){
+        return is_model_source_link;
+    }
+
+    public AbstractModel get_model(){
+        return model;
+    }
 
     public boolean is_source(){
         return is_source;
@@ -546,96 +630,49 @@ public class Link implements InterfaceScenarioElement {
     public AbstractLaneGroup get_outer_full_lanegroup(){
         return dnlane2lanegroup.get(
                 road_geom==null || road_geom.in ==null ?
-                full_lanes :
-                road_geom.in.lanes+full_lanes );
+                        full_lanes :
+                        road_geom.in.lanes+full_lanes );
 
     }
 
-    ////////////////////////////////////////////
-    // state and performance getters
-    ///////////////////////////////////////////
-
-    public double get_veh() {
-        return lgs.stream()
-                .mapToDouble(x->x.get_total_vehicles())
-                .sum();
+    public RoadType get_road_type(){
+        return road_type;
     }
 
-    public double get_veh_for_commodity(Long commodity_id) {
-        return lgs.stream()
-                .mapToDouble(x->x.get_total_vehicles_for_commodity(commodity_id))
-                .sum();
+    public Map<State, InterfaceLaneSelector> get_lane_selector_for_lane_group(long lgid){
+        return lane_selector.lcs.get(lgid);
     }
 
-    ////////////////////////////////////////////
-    // private
-    ///////////////////////////////////////////
-
-    private void add_to_lanegroup_packets(Map<Long, PacketLaneGroup> split_packets, Long nextlink_id, State key, Double vehicles){
-        PacketLaneGroup new_packet;
-        if(split_packets.containsKey(nextlink_id)){
-            new_packet = split_packets.get(nextlink_id);
-        } else {
-            new_packet = model.create_lanegroup_packet();
-            split_packets.put(nextlink_id,new_packet);
-        }
-        new_packet.add_fluid(key,vehicles);
+    public List<AbstractLaneGroup> get_lgs(){
+        return lgs;
     }
 
-    private void add_to_lanegroup_packets(Map<Long, PacketLaneGroup> split_packets, Long nextlink_id, State key, AbstractVehicle vehicle){
-        PacketLaneGroup new_packet;
-        if(split_packets.containsKey(nextlink_id)){
-            new_packet = split_packets.get(nextlink_id);
-        } else {
-            new_packet = model.create_lanegroup_packet();
-            split_packets.put(nextlink_id,new_packet);
-        }
-        new_packet.add_vehicle(key,vehicle);
+    public Set<Barrier> get_in_barriers(){
+        return in_barriers;
     }
 
-    ///////////////////////////////////////
-    // toString
-    ///////////////////////////////////////
-
-    @Override
-    public String toString() {
-        return String.format("link %d",id);
+    public Set<Barrier> get_out_barriers(){
+        return out_barriers;
     }
 
-    ////////////////////////////////////////////
-    // API
-    ///////////////////////////////////////////
-
-    public int get_full_lanes(){
-        return full_lanes;
+    public Link get_next_link_in_path(long pathid){
+        return path2outlink.get(pathid);
     }
 
-    public float get_full_length(){
-        return length;
+    public Set<AbstractLaneGroup> get_lanegroups_for_outlink(long linkid){
+        return outlink2lanegroups.get(linkid);
     }
 
-    public boolean get_is_source(){
-        return is_source;
+    public Collection<Long> get_outlink_ids(){
+        return outlink2lanegroups.keySet();
     }
 
-    public boolean get_is_sink(){
-        return is_sink;
+    public boolean has_demands(){
+        return demandGenerators !=null && !demandGenerators.isEmpty();
     }
 
-    public long get_start_node_id(){
-        return start_node.id;
-    }
-
-    public long get_end_node_id(){
-        return end_node.id;
-    }
-
-    public boolean is_model_source_link(){
-        return is_model_source_link;
-    }
-
-    public AbstractModel model(){
-        return model;
+    public Set<AbstractDemandGenerator> get_demandGenerators(){
+        return demandGenerators;
     }
 
 }

@@ -1,10 +1,9 @@
-package models.vehicle;
+package core;
 
 import commodity.Commodity;
 import commodity.Path;
-import core.*;
 import error.OTMException;
-import core.AbstractModel;
+import models.vehicle.VehicleDemandGenerator;
 import profiles.Profile1D;
 import utils.OTMUtils;
 import utils.StochasticProcess;

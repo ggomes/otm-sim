@@ -77,10 +77,10 @@ public abstract class AbstractControllerRampMetering extends AbstractController 
                 Set<AbstractLaneGroup> lgs =  ((LaneGroupSet) abs_act.target).lgs;
                 if(lgs.size()!=1)
                     errorLog.addError("Queue overide actuators must be associated with a single lane group");
-                Link or = lgs.iterator().next().link;
+                Link or = lgs.iterator().next().get_link();
                 if(or.is_source())
                     errorLog.addError("Queue override does not work when the onramp is a source link.");
-                if(!or.model.type.equals(AbstractModel.Type.Fluid))
+                if(!or.get_model().type.equals(AbstractModel.Type.Fluid))
                     errorLog.addError("Queue override is only implemented for fluid models.");
             }
         }

@@ -1,8 +1,7 @@
-package models;
+package core;
 
 import commodity.Commodity;
 import commodity.Path;
-import core.*;
 import core.geometry.Side;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;

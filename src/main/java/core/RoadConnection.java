@@ -10,19 +10,15 @@ import static java.util.stream.Collectors.toSet;
 public class RoadConnection implements Comparable<RoadConnection>, InterfaceScenarioElement {
 
     protected final long id;
-    private final float length;
-    public final Link start_link;
-    public final int start_link_from_lane;
-    public final int start_link_to_lane;
-    public final Link end_link;
-    public final int end_link_from_lane;
-    public final int end_link_to_lane;
+    protected final Link start_link;
+    protected final int start_link_from_lane;
+    protected final int start_link_to_lane;
+    protected final Link end_link;
+    protected final int end_link_from_lane;
+    protected final int end_link_to_lane;
 
-    public Set<AbstractLaneGroup> in_lanegroups= new HashSet<>();
-    public Set<AbstractLaneGroup> out_lanegroups= new HashSet<>();
-
-    // control
-//    public float external_max_flow_vps;
+    protected Set<AbstractLaneGroup> in_lanegroups= new HashSet<>();
+    protected Set<AbstractLaneGroup> out_lanegroups= new HashSet<>();
 
     ///////////////////////////////////////////
     // construction
@@ -31,10 +27,8 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     public RoadConnection(final Map<Long,Link> links , jaxb.Roadconnection jaxb_rc ){
 
         id = jaxb_rc.getId();
-        length = jaxb_rc.getLength();
         start_link = links.get(jaxb_rc.getInLink())==null ? null : links.get(jaxb_rc.getInLink());
         end_link = links.get(jaxb_rc.getOutLink())==null ? null : links.get(jaxb_rc.getOutLink());
-//        external_max_flow_vps = Float.POSITIVE_INFINITY;
 
         if(jaxb_rc.getInLinkLanes()==null) {
             start_link_from_lane = 1;
@@ -60,10 +54,8 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     // This constructor is used to make fictitious road connections for one-one nodes
     public RoadConnection(long id,Link start_link,int start_link_from_lane,int start_link_to_lane,Link end_link,int end_link_from_lane,int end_link_to_lane) {
         this.id = id;
-        this.length = 0f;
         this.start_link = start_link;
         this.end_link = end_link;
-//        this.external_max_flow_vps = Float.POSITIVE_INFINITY;
         this.start_link_from_lane = start_link_from_lane;
         this.start_link_to_lane = start_link_to_lane;
         this.end_link_from_lane = end_link_from_lane;
@@ -124,9 +116,6 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
                 errorLog.addError(String.format("Road connection %d: end link not an outlink of inlink's end node.",id));
         }
 
-//        if(out_lanegroups.isEmpty() || out_lanegroup_probability.isEmpty())
-//            errorLog.addError("out_lanegroup_probability.isEmpty())");
-
         if(in_lanegroups.stream().anyMatch(x->x==null))
             errorLog.addError("null in_lanegroup in road connection " + this.getId());
 
@@ -142,8 +131,6 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
                 errorLog.addError("all_outlink.iterator().next().id!=end_link.id");
         }
 
-//        if(!OTMUtils.approximately_equals(out_lanegroup_probability.stream().mapToDouble(Double::new).sum(),1d))
-//            errorLog.addError("splits don't add to 1");
     }
 
     @Override
@@ -170,30 +157,6 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         return 0;
     }
 
-
-    //    public void set_in_out_lanegroups(){
-//        in_lanegroups = start_link !=null ?
-//                start_link.get_unique_lanegroups_for_dn_lanes(start_link_from_lane,start_link_to_lane) :
-//                new HashSet<>();
-//
-//        out_lanegroups = end_link!=null ?
-//                end_link.get_unique_lanegroups_for_up_lanes(end_link_from_lane,end_link_to_lane) :
-//                new HashSet<>();
-//    }
-
-
-    ///////////////////////////////////////////
-    // XXX
-    ///////////////////////////////////////////
-
-//    public void set_external_max_flow_vps(float timestamp,float rate_vps){
-//        this.external_max_flow_vps = rate_vps;
-//
-//        // tell the incoming lanegroups
-//        for(AbstractLaneGroup in_lanegroup : in_lanegroups)
-//            in_lanegroup.exiting_roadconnection_capacity_has_been_modified(timestamp);
-//    }
-
     ///////////////////////////////////////
     // toString
     ///////////////////////////////////////
@@ -206,7 +169,7 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     }
 
     ///////////////////////////////////////////
-    // get
+    // API
     ///////////////////////////////////////////
 
     public boolean has_start_link(){
@@ -237,17 +200,20 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         return start_link_to_lane-start_link_from_lane+1;
     }
 
+    public int get_end_link_from_lane(){
+        return end_link_from_lane;
+    }
 
-    public Set<State> get_states(){
+    public int get_end_link_to_lane(){
+        return end_link_to_lane;
+    }
 
-        Set<State> upstr_states = in_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
-        Set<State> dnstr_states = out_lanegroups.stream().flatMap(lg->lg.states.stream()).collect(toSet());
+    public Set<AbstractLaneGroup> get_in_lanegroups(){
+        return in_lanegroups;
+    }
 
-        // keep those pathfull states that are also present in the downstream lane groups
-        // and  those pathless states that are going to a downstream link
-        return upstr_states.stream()
-                .filter(k-> ( k.isPath && dnstr_states.contains(k) ) || (!k.isPath && k.pathOrlink_id==end_link.id))
-                .collect(toSet());
+    public Set<AbstractLaneGroup> get_out_lanegroups(){
+        return out_lanegroups;
     }
 
 }

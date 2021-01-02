@@ -26,10 +26,10 @@ public class LogitLaneSelector implements InterfaceLaneSelector {
                         temp_keep = Math.abs(Float.parseFloat(p.getValue()));
                         break;
                     case "rho_vpkmplane":
-                        temp_rho_vehperlane = Math.abs(Float.parseFloat(p.getValue()))/(lg.length/1000.0);
+                        temp_rho_vehperlane = Math.abs(Float.parseFloat(p.getValue()))/(lg.get_length()/1000.0);
                         break;
                     case "add_in":
-                        temp_rho_vehperlane = Math.abs(Float.parseFloat(p.getValue()))/(lg.length/1000.0);
+                        temp_rho_vehperlane = Math.abs(Float.parseFloat(p.getValue()))/(lg.get_length()/1000.0);
                         break;
                 }
             }
@@ -48,7 +48,7 @@ public class LogitLaneSelector implements InterfaceLaneSelector {
     @Override
     public void update_lane_change_probabilities_with_options(AbstractLaneGroup lg, State state) {
 
-        Map<Maneuver,Double> mnv2prob = lg.state2lanechangeprob.get(state);
+        Map<Maneuver,Double> mnv2prob = lg.get_maneuvprob_for_state(state);
 
         if(mnv2prob.size()==1){
             Maneuver mnv = mnv2prob.keySet().iterator().next();
@@ -65,13 +65,13 @@ public class LogitLaneSelector implements InterfaceLaneSelector {
         double em=0d;
         double eo=0d;
 
-        boolean has_in = mnv2prob.containsKey(Maneuver.lcin) && lg.neighbor_in!=null && mnv2prob.get(Maneuver.lcin)>0;
+        boolean has_in = mnv2prob.containsKey(Maneuver.lcin) && lg.get_neighbor_in()!=null && mnv2prob.get(Maneuver.lcin)>0;
         if(has_in) {
             if(Double.isInfinite(add_in))
                 ei = 0;
             else{
-                FluidLaneGroup tlg = (FluidLaneGroup)lg.neighbor_in;
-                ui = Math.min(0d, rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles() ) / tlg.num_lanes );
+                FluidLaneGroup tlg = (FluidLaneGroup)lg.get_neighbor_in();
+                ui = Math.min(0d, rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles() ) / tlg.get_num_lanes() );
 //                ui = rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles() ) / tlg.num_lanes;
                 ui -= add_in;
                 ei = Math.exp(ui);
@@ -81,16 +81,16 @@ public class LogitLaneSelector implements InterfaceLaneSelector {
         boolean has_middle = mnv2prob.containsKey(Maneuver.stay);
         if(has_middle) {
             FluidLaneGroup tlg = (FluidLaneGroup)lg;
-            um = Math.min(0d,rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.num_lanes );
+            um = Math.min(0d,rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.get_num_lanes() );
 //            um = rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.num_lanes;
             um += keep;
             em = Math.exp( um );
         }
 
-        boolean has_out = mnv2prob.containsKey(Maneuver.lcout) && lg.neighbor_out!=null && mnv2prob.get(Maneuver.lcout)>0;
+        boolean has_out = mnv2prob.containsKey(Maneuver.lcout) && lg.get_neighbor_out()!=null && mnv2prob.get(Maneuver.lcout)>0;
         if(has_out) {
-            FluidLaneGroup tlg = (FluidLaneGroup)lg.neighbor_out;
-            uo = Math.min(0d,rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.num_lanes );
+            FluidLaneGroup tlg = (FluidLaneGroup)lg.get_neighbor_out();
+            uo = Math.min(0d,rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.get_num_lanes() );
 //            uo = rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.num_lanes;
             eo = Math.exp(uo);
         }

@@ -43,7 +43,7 @@ public class Path extends Subnetwork {
         ordered_links.add(current);
 
         while(!unchecked.isEmpty()){
-            Set<Link> next_link = OTMUtils.intersect(current.end_node.out_links, links);
+            Set<Link> next_link = OTMUtils.intersect(current.get_end_node().get_out_links(), links);
             if(next_link.size()>1)
                 return false;
             current = next_link.iterator().next();
@@ -79,7 +79,7 @@ public class Path extends Subnetwork {
     }
 
     public Long get_origin_node_id(){
-        return get_origin().start_node.getId();
+        return get_origin().get_start_node().getId();
     }
 
     public Link get_destination(){
@@ -87,7 +87,7 @@ public class Path extends Subnetwork {
     }
 
     public Long get_destination_node_id(){
-        return get_destination().end_node.getId();
+        return get_destination().get_end_node().getId();
     }
 
     public Link get_link_following(Link link){

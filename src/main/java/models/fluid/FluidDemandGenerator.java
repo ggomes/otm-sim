@@ -2,13 +2,10 @@ package models.fluid;
 
 import commodity.Commodity;
 import commodity.Path;
-import core.AbstractDemandGenerator;
-import core.Link;
+import core.*;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import core.State;
-import core.AbstractLaneGroup;
 import profiles.Profile1D;
 import utils.OTMUtils;
 
@@ -27,7 +24,7 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
 
         if(commodity.pathfull) {
             Link next_link = path.get_link_following(link);
-            pathfull_lgs = link.outlink2lanegroups.get(next_link.getId());
+            pathfull_lgs = link.get_lanegroups_for_outlink(next_link.getId());
         }
     }
 
@@ -35,7 +32,7 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
 
         if(!commodity.pathfull) {
 
-            if(link.lgs.size()!=1)
+            if(link.get_lgs().size()!=1)
                 errorLog.addError(String.format("Source on link %d with more than one lane group",link.getId()));
 
             // TODO DEAL WITH THIS RESTRICTION
@@ -49,7 +46,7 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
     public void set_demand_vps(Dispatcher dispatcher, float time, double new_demand_vps) throws OTMException {
         super.set_demand_vps(dispatcher, time, new_demand_vps);
 
-        double flow_veh_per_timestep = source_demand_vps*((AbstractFluidModel)link.model).dt_sec;
+        double flow_veh_per_timestep = source_demand_vps*((AbstractFluidModel)link.get_model()).dt_sec;
         Long comm_id = commodity.getId();
 
         if(commodity.pathfull){
@@ -63,18 +60,18 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
         else {
 
             // Case no downstream split.
-            if(link.outlink2lanegroups.size()<2){
+            if(link.get_outlink_ids().size()<2){
 
-                Long nextlink_id = link.outlink2lanegroups.keySet().iterator().next();
+                Long nextlink_id = link.get_outlink_ids().iterator().next();
                 State state = new State(comm_id,nextlink_id,false);
 
-                List<Double> capacities = link.lgs.stream()
+                List<Double> capacities = link.get_lgs().stream()
                         .map(lg->((FluidLaneGroup)lg).capacity_veh_per_dt)
                         .collect(Collectors.toList());
                 double sum = capacities.stream().reduce(0d,Double::sum);
 
-                for(int i = 0; i<link.lgs.size(); i++){
-                    FluidLaneGroup lg = (FluidLaneGroup)link.lgs.get(i);
+                for(int i = 0; i<link.get_lgs().size(); i++){
+                    FluidLaneGroup lg = (FluidLaneGroup)link.get_lgs().get(i);
                     lg.source_flow.put(state,flow_veh_per_timestep*capacities.get(i)/sum);
                 }
 
@@ -96,14 +93,14 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
                         continue;
 
                     // get candidate lanegroups
-                    Set<AbstractLaneGroup> candidate_lanegroups = link.outlink2lanegroups.get(nextlink_id);
+                    Set<AbstractLaneGroup> candidate_lanegroups = link.get_lanegroups_for_outlink(nextlink_id);
 
                     // assign flows to candidate lanegroups
-                    double all_lanes = candidate_lanegroups.stream().mapToDouble(x->x.num_lanes).sum();
+                    double all_lanes = candidate_lanegroups.stream().mapToDouble(x->x.get_num_lanes()).sum();
                     double factor = flow_veh_per_timestep * split / all_lanes;
 
                     for(AbstractLaneGroup alg : candidate_lanegroups)
-                        ((FluidLaneGroup) alg).source_flow.put(state,factor * alg.num_lanes);
+                        ((FluidLaneGroup) alg).source_flow.put(state,factor * alg.get_num_lanes());
 
                 }
             }

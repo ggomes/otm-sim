@@ -1,6 +1,5 @@
 package core;
 
-import core.*;
 import core.geometry.AddLanes;
 import core.geometry.Gate;
 import core.geometry.RoadGeometry;
@@ -8,9 +7,6 @@ import core.geometry.Side;
 import error.OTMException;
 import core.packet.PacketLaneGroup;
 import core.packet.PacketLink;
-import lanechange.LinkLaneSelector;
-import models.InterfaceModel;
-import utils.OTMUtils;
 import utils.StochasticProcess;
 
 import java.util.*;
@@ -92,7 +88,7 @@ public abstract class AbstractModel implements InterfaceModel {
             if (rc.end_link != null) {
                 rc.out_lanegroups = new HashSet<>();
                 // TODO THIS SEEMS SLOW
-                for (int lane = rc.end_link_from_lane; lane <= rc.end_link_to_lane; lane++)
+                for (int lane = rc.get_end_link_from_lane(); lane <= rc.get_end_link_to_lane(); lane++)
                     rc.out_lanegroups.add(rc.end_link.get_lanegroup_for_up_lane(lane));
             }
         }

@@ -40,7 +40,7 @@ public class ControllerOfframpFlow extends AbstractController {
         act = (ActuatorSplit) actuators.values().iterator().next();
         Set<Long> commids = new HashSet<>();
         commids.add(act.comm.getId());
-        this.ml_sensor = new FixedSensor(dt, act.linkMLup,1,act.linkMLup.get_num_dn_lanes(),act.linkMLup.length,commids);
+        this.ml_sensor = new FixedSensor(dt, act.linkMLup,1,act.linkMLup.get_num_dn_lanes(),act.linkMLup.get_full_length(),commids);
     }
 
     @Override

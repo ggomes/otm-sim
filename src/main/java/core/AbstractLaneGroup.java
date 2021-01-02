@@ -28,44 +28,44 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         side2maneuver.put(Side.out,Maneuver.lcout);
     }
 
-    public final long id;
-    public Link link;
-    public final core.geometry.Side side;               // inner, middle, or outer (add lane in, full, add lane out)
-    public int start_lane_up = -1;       // counted with respect to upstream boundary
-    public int start_lane_dn = -1;       // counted with respect to downstream boundary
-    public final int num_lanes;
-    public float length;        // [m]
+    protected final long id;
+    protected Link link;
+    protected final core.geometry.Side side;               // inner, middle, or outer (add lane in, full, add lane out)
+    protected int start_lane_up = -1;       // counted with respect to upstream boundary
+    protected int start_lane_dn = -1;       // counted with respect to downstream boundary
+    protected final int num_lanes;
+    protected float length;        // [m]
 
-    public AbstractLaneGroup neighbor_in;       // lanegroup down and in
-    public AbstractLaneGroup neighbor_out;      // lanegroup down and out
+    protected AbstractLaneGroup neighbor_in;       // lanegroup down and in
+    protected AbstractLaneGroup neighbor_out;      // lanegroup down and out
 
     // set of keys for states in this lanegroup
-    public Set<State> states;   // TODO MOVE THIS TO DISCRETE TIME ONLY?
+    protected Set<State> states;   // TODO MOVE THIS TO DISCRETE TIME ONLY?
 
     public StateContainer buffer;
 
     protected double supply;       // [veh]
 
-    public AbstractActuatorLanegroupCapacity actuator_capacity;
-    public Map<Long, ActuatorOpenCloseLaneGroup> actuator_lgrestrict;   // commid->actuator
+    protected AbstractActuatorLanegroupCapacity actuator_capacity;
+    protected Map<Long, ActuatorOpenCloseLaneGroup> actuator_lgrestrict;   // commid->actuator
 
     // flow accumulator
-    public FlowAccumulatorState flw_acc;
+    protected FlowAccumulatorState flw_acc;
 
     // one-to-one map at the lanegroup level
-    public Map<Long, RoadConnection> outlink2roadconnection;
+    protected Map<Long, RoadConnection> outlink2roadconnection;
 
     // state to the road connection it must use (should be avoided in the one-to-one case)
     // I SHOULD BE ABLE TO ELIMINATE THIS SINCE IT IS SIMILAR TO OUTLINK2ROADCONNECTION
     // AND ALSO ONLY USED BY THE NODE MODEL
-    public Map<State,Long> state2roadconnection;
+    protected Map<State,Long> state2roadconnection;
 
     // target lane group to direction
-    public Map<State,Set<Maneuver>> state2lanechangedirections = new HashMap<>();
+    protected Map<State,Set<Maneuver>> state2lanechangedirections = new HashMap<>();
     private Map<State,Set<Maneuver>> disallowed_state2lanechangedirections = new HashMap<>();
 
     // lane changing
-    public Map<State , Map<Maneuver,Double>> state2lanechangeprob; // state-> maneuver -> probability
+    protected Map<State , Map<Maneuver,Double>> state2lanechangeprob; // state-> maneuver -> probability
 
     public AbstractLaneGroupTimer travel_timer;
 
@@ -169,40 +169,12 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             flw_acc.reset();
     }
 
-    ///////////////////////////////////////////////////
-    // final
-    ///////////////////////////////////////////////////
-
-    public final long getId(){
-        return id;
-    }
-
-    public final Link get_link(){
-        return link;
-    }
-
-    public final core.geometry.Side get_side(){
-        return side;
-    }
-
-    public final int get_start_lane_dn(){
-        return start_lane_dn;
-    }
-
-    public final int get_num_lanes(){
-        return num_lanes;
-    }
-
-    public final float get_length(){
-        return length;
-    }
-
     public final FlowAccumulatorState request_flow_accumulator(Set<Long> comm_ids){
         if(flw_acc==null)
             flw_acc = new FlowAccumulatorState();
         for(State state : states)
-                if(comm_ids==null || comm_ids.contains(state.commodity_id))
-                    flw_acc.add_state(state);
+            if(comm_ids==null || comm_ids.contains(state.commodity_id))
+                flw_acc.add_state(state);
         return flw_acc;
     }
 
@@ -261,6 +233,48 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     }
 
+    public final void update_flow_accummulators(State state, double num_vehicles){
+        if(flw_acc!=null)
+            flw_acc.increment(state,num_vehicles);
+    }
+
+//    public final RoadConnection get_target_road_connection_for_state(State state){
+//        Long outlink_id = state.isPath ? link.path2outlink.get(state.pathOrlink_id).getId() : state.pathOrlink_id;
+//        return outlink2roadconnection.get(outlink_id);
+//    }
+
+    ///////////////////////////////////////////////////
+    // API
+    ///////////////////////////////////////////////////
+
+    public final long getId(){
+        return id;
+    }
+
+    public final Link get_link(){
+        return link;
+    }
+
+    public final core.geometry.Side get_side(){
+        return side;
+    }
+
+    public final int get_start_lane_up(){
+        return start_lane_up;
+    }
+
+    public final int get_start_lane_dn(){
+        return start_lane_dn;
+    }
+
+    public final int get_num_lanes(){
+        return num_lanes;
+    }
+
+    public final float get_length(){
+        return length;
+    }
+
     public final float get_total_vehicles_for_commodity(Long commid) {
         return vehs_dwn_for_comm(commid)+vehs_in_for_comm(commid)+vehs_out_for_comm(commid);
     }
@@ -303,14 +317,40 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return link.end_node.out_links;
     }
 
-    public final void update_flow_accummulators(State state, double num_vehicles){
-        if(flw_acc!=null)
-            flw_acc.increment(state,num_vehicles);
+    public final AbstractLaneGroup get_neighbor_in(){
+        return neighbor_in;
     }
 
-    public final RoadConnection get_target_road_connection_for_state(State state){
-        Long outlink_id = state.isPath ? link.path2outlink.get(state.pathOrlink_id).getId() : state.pathOrlink_id;
-        return outlink2roadconnection.get(outlink_id);
+    public final AbstractLaneGroup get_neighbor_out(){
+        return neighbor_out;
+    }
+
+    public final Set<State> get_states(){
+        return states;
+    }
+
+    public boolean has_state(State state){
+        return states.contains(state);
+    }
+
+    public final boolean has_states(){
+        return !states.isEmpty();
+    }
+
+    public RoadConnection get_rc_for_outlink(long linkid){
+        return outlink2roadconnection.get(linkid);
+    }
+
+    public Long get_rc_for_state(State state){
+        return state2roadconnection.get(state);
+    }
+
+    public Set<Maneuver> get_maneuvers_for_state(State state){
+        return state2lanechangedirections.get(state);
+    }
+
+    public Map<Maneuver,Double> get_maneuvprob_for_state(State state){
+        return state2lanechangeprob.get(state);
     }
 
     ///////////////////////////////////////////////////

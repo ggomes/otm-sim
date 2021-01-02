@@ -11,21 +11,19 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
 
     public Network network;
     protected final long id;
-    public Map<Long,Link> in_links;
-    public Set<Link> out_links;
-    public Set<RoadConnection> road_connections;
+    protected Map<Long,Link> in_links;
+    protected Set<Link> out_links;
+    protected Set<RoadConnection> road_connections;
 
-    public boolean is_source;
-    public boolean is_vsource;
-    public boolean is_sink;
-
-    public boolean is_many2one;
+    protected boolean is_source;
+    protected boolean is_sink;
+    protected boolean is_many2one;
 
     // node flwpos
-    public Float xcoord;
-    public Float ycoord;
+    protected Float xcoord;
+    protected Float ycoord;
 
-    public AbstractActuator actuator;
+    protected AbstractActuator actuator;
 
     ///////////////////////////////////////////
     // construction
@@ -36,7 +34,6 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
         this.id = id;
         this.xcoord = xcoord;
         this.ycoord = ycoord;
-        this.is_vsource = is_vsource;
 
         this.in_links = new HashMap<>();
         this.out_links = new HashSet<>();
@@ -117,6 +114,14 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
     // API
     ///////////////////////////////////////////
 
+    public Collection<Link> get_in_links(){
+        return in_links.values();
+    }
+
+    public Collection<Link> get_out_links(){
+        return out_links;
+    }
+
     public int num_inputs(){
         return in_links.size();
     }
@@ -133,4 +138,7 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
         return ycoord;
     }
 
+    public Set<RoadConnection> get_road_connections(){
+        return road_connections;
+    }
 }

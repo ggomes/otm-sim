@@ -43,7 +43,7 @@ public class OutputLaneGroupFlow extends AbstractOutputTimedLanegroup {
         super.initialize(scenario);
         flw_accs = new HashMap<>();
         for(LaneGroupProfile lgprofile : lgprofiles.values())
-            flw_accs.put(lgprofile.lg.id,lgprofile.lg.request_flow_accumulator(commodity==null ? null : OTMUtils.hashset(commodity.getId())));
+            flw_accs.put(lgprofile.lg.getId(),lgprofile.lg.request_flow_accumulator(commodity==null ? null : OTMUtils.hashset(commodity.getId())));
     }
 
     //////////////////////////////////////////////////////
@@ -66,19 +66,19 @@ public class OutputLaneGroupFlow extends AbstractOutputTimedLanegroup {
 
     @Override
     protected double get_value_for_lanegroup(AbstractLaneGroup lg){
-        if(!lgprofiles.containsKey(lg.id))
+        if(!lgprofiles.containsKey(lg.getId()))
             return Double.NaN;
         if(commodity==null)
-            return flw_accs.get(lg.id).get_total_count();
+            return flw_accs.get(lg.getId()).get_total_count();
         else
-            return flw_accs.get(lg.id).get_count_for_commodity(commodity.getId());
+            return flw_accs.get(lg.getId()).get_count_for_commodity(commodity.getId());
     }
 
     @Override
     public XYSeries get_series_for_lg(AbstractLaneGroup lg) {
-        if(!lgprofiles.containsKey(lg.id))
+        if(!lgprofiles.containsKey(lg.getId()))
             return null;
-        return get_flow_profile_for_lg_in_vph(lg.id).get_series(String.format("%d (%d-%d)",lg.link.getId(),lg.start_lane_dn,lg.start_lane_dn+lg.num_lanes-1));
+        return get_flow_profile_for_lg_in_vph(lg.getId()).get_series(String.format("%d (%d-%d)",lg.get_link().getId(),lg.get_start_lane_dn(),lg.get_start_lane_dn()+lg.get_num_lanes()-1));
     }
 
     public Profile1D get_flow_profile_for_lg_in_vph(Long lgid){

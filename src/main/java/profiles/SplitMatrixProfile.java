@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 
 public class SplitMatrixProfile {
 
-    public long commodity_id;
-    public Link link_in;
-    public Profile2D splits;                       // link out id -> split profile
+    protected long commodity_id;
+    protected Link link_in;
+    protected Profile2D splits;                       // link out id -> split profile
 
     // current splits
     public Map<Long,Double> outlink2split;         // output link id -> split
@@ -35,7 +35,7 @@ public class SplitMatrixProfile {
 
     public void validate(Scenario scenario,OTMErrorLog errorLog) {
 
-        Node node = link_in.end_node;
+        Node node = link_in.get_end_node();
 
         if(splits==null)
             return;
@@ -57,9 +57,9 @@ public class SplitMatrixProfile {
         if(link_in==null)
             errorLog.addError("link_in==null");
 
-        Set<Long> reachable_outlinks = node.road_connections.stream()
-                .filter(rc->rc.start_link!=null && rc.end_link!=null && rc.start_link.getId().equals(link_in.getId()))
-                .map(z->z.end_link.getId())
+        Set<Long> reachable_outlinks = node.get_road_connections().stream()
+                .filter(rc->rc.has_start_link() && rc.has_end_link() && rc.get_start_link().getId().equals(link_in.getId()))
+                .map(z->z.get_end_link().getId())
                 .collect(Collectors.toSet());
 
         Set<Long> nonzero_outlinks = splits.get_nonzero_outlinks();
@@ -84,12 +84,6 @@ public class SplitMatrixProfile {
         Map<Long,Double> time_splits = splits.get_value_for_time(now);
         dispatcher.register_event(new EventSplitChange(dispatcher,now, this, time_splits));
     }
-
-//    public void add_split(Long link_outid,Double value) throws OTMException {
-//        value = Math.max(value,0d);
-//        value = Math.min(value,1d);
-//        splits.add_entry(link_outid,value);
-//    }
 
     ////////////////////////
     // get current values
@@ -168,8 +162,16 @@ public class SplitMatrixProfile {
     }
 
     ///////////////////////////////////////////
-    // public API
+    // API
     ///////////////////////////////////////////
+
+    public Profile2D get_splits(){
+        return splits;
+    }
+
+    public void set_splits(Profile2D x){
+        splits = x;
+    }
 
     public float get_dt(){
         return splits.dt==null ? Float.NaN : splits.dt;
@@ -183,8 +185,12 @@ public class SplitMatrixProfile {
         return splits.values;
     }
 
-    public Profile2D clone_splits(){
-        return splits.clone();
+    public long get_comm_id(){
+        return commodity_id;
+    }
+
+    public Link get_link_in(){
+        return link_in;
     }
 
     ///////////////////////////////////////////

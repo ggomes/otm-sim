@@ -17,11 +17,10 @@ public abstract class AbstractDemandGenerator {
     // Pathfull vs. Pathless. Pathfull can be speeded up by caching the candidate lane groups,
     // which do not change. This is already done in the fluid source.
 
-//    public DemandProfile profile;   // profile that created this source
-    public Profile1D profile;
-    public Link link;
-    public Path path;
-    public Commodity commodity;
+    protected Profile1D profile;
+    protected Link link;
+    protected Path path;
+    protected Commodity commodity;
 
     // demand value
     protected double source_demand_vps;    // vps

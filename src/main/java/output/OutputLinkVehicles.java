@@ -57,7 +57,7 @@ public class OutputLinkVehicles extends AbstractOutputTimedLink {
         if(!linkprofiles.containsKey(link_id))
             return null;
         Profile1D profile = linkprofiles.get(link_id).profile.clone();
-        profile.multiply(1000d/linkprofiles.get(link_id).link.length);
+        profile.multiply(1000d/linkprofiles.get(link_id).link.get_full_length());
         return profile.get_values();
     }
 

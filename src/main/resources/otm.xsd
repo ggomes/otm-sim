@@ -312,8 +312,8 @@
 	<xs:element name="roadconnection">
 		<xs:complexType>
 			<xs:attribute name="id" type="xs:long" use="required" />
-            <!-- length of the road connection in meters -->
-            <xs:attribute name="length" type="xs:float" default="0"/>
+            <!-- length of the road connection in meters
+            <xs:attribute name="length" type="xs:float" default="0"/> -->
 			<xs:attribute name="in_link" type="xs:long" use="required" />
             <!-- "1#3" -->
 			<xs:attribute name="in_link_lanes" type="xs:string" />

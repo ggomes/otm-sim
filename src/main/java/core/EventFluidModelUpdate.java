@@ -1,4 +1,4 @@
-package models.fluid;
+package core;
 
 import dispatch.AbstractEvent;
 import dispatch.Dispatcher;

@@ -4,7 +4,6 @@ import actuator.AbstractActuator;
 import commodity.Commodity;
 import commodity.Subnetwork;
 import dispatch.EventInitializeController;
-import models.fluid.AbstractFluidModel;
 import cmd.RunParameters;
 import traveltime.LinkTravelTimeManager;
 import control.AbstractController;
@@ -28,8 +27,6 @@ import static java.util.stream.Collectors.toSet;
 
 public class Scenario {
 
-    public boolean is_initialized;
-
     public Dispatcher dispatcher;
     public Set<AbstractOutput> outputs = new HashSet<>();
 
@@ -48,10 +45,6 @@ public class Scenario {
     ///////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////
-
-    public Scenario(){
-        this.is_initialized = false;
-    }
 
     public OTMErrorLog validate(){
 
@@ -142,8 +135,6 @@ public class Scenario {
 
         if(path_tt_manager!=null)
             path_tt_manager.initialize(dispatcher);
-
-        is_initialized = true;
     }
 
     ///////////////////////////////////////////////////
@@ -216,7 +207,7 @@ public class Scenario {
                     Long commodity_id = e.getKey();
                     SplitMatrixProfile profile = e.getValue();
 
-                    if(profile==null || profile.splits==null)
+                    if(profile==null || profile.get_splits()==null)
                         continue;
 
                     jaxb.SplitNode jspltnode = new jaxb.SplitNode();
@@ -226,7 +217,7 @@ public class Scenario {
                     if(!Float.isNaN(profile.get_dt()))
                         jspltnode.setDt(profile.get_dt());
                     jspltnode.setStartTime(profile.get_start_time());
-                    jspltnode.setLinkIn(profile.link_in.getId());
+                    jspltnode.setLinkIn(profile.get_link_in().getId());
                     jspltnode.setNodeId(link.end_node.getId());
 
                     List<Split> splitlist = jspltnode.getSplit();
@@ -332,7 +323,7 @@ public class Scenario {
             case link:
                 return network.links.get(id);
             case roadconnection:
-                return network.get_road_connection(id);
+                return network.road_connections.get(id);
             case controller:
                 return controllers.get(id);
             case actuator:
@@ -458,7 +449,7 @@ public class Scenario {
     }
 
 
-
+    // demands .................................
 
     public Set<Profile1D> get_demands_for_commodity(Long commodity_id){
         return network.links.values().stream()
@@ -475,17 +466,5 @@ public class Scenario {
             return null;
         return link.demandGenerators.stream().map(z->z.profile).collect(toSet());
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

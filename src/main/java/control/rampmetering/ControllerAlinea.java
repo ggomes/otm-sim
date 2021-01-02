@@ -46,22 +46,22 @@ public class ControllerAlinea extends AbstractControllerRampMetering {
             Link ml_link = ml_sensor.get_link();
 
             Roadparam p = ml_link.road_param_full;
-            param.gain_per_sec = p.getSpeed() * 1000f / 3600f / ml_link.length ; // [kph]*1000/3600/[m] -> [mps]
+            param.gain_per_sec = p.getSpeed() * 1000f / 3600f / ml_link.get_full_length() ; // [kph]*1000/3600/[m] -> [mps]
             float critical_density_vpkpl = p.getCapacity() / p.getSpeed();  // vpkpl
-            param.ref_density_veh = critical_density_vpkpl * ml_link.full_lanes * ml_link.length / 1000f;
+            param.ref_density_veh = critical_density_vpkpl * ml_link.get_full_lanes() * ml_link.get_full_length() / 1000f;
 
             param.ref_link = ml_link;
 
             // all lanegroups in the actuator must be in the same link
             LaneGroupSet lgs = (LaneGroupSet)act.target;
-            Set<Link> ors = lgs.lgs.stream().map(lg->lg.link).collect(Collectors.toSet());
+            Set<Link> ors = lgs.lgs.stream().map(lg->lg.get_link()).collect(Collectors.toSet());
 
             if(ors.size()!=1)
                 throw new OTMException("All lanegroups in any single actuator used by an Alinea controller must belong to the same link.");
 
             params.put(abs_act.id , param);
             command.put(act.id,
-                    new CommandNumber(Float.isInfinite(act.max_rate_vps) ? (float) ml_link.full_lanes*900f/3600f : act.max_rate_vps)
+                    new CommandNumber(Float.isInfinite(act.max_rate_vps) ? (float) ml_link.get_full_lanes()*900f/3600f : act.max_rate_vps)
             );
         }
     }

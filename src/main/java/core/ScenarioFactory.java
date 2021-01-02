@@ -477,12 +477,12 @@ public class ScenarioFactory {
 
             float start_time = jaxb_split_node.getStartTime();
             Float dt = jaxb_split_node.getDt();
-            smp.splits = new Profile2D(start_time,dt);
+            smp.set_splits( new Profile2D(start_time,dt) );
 
             for(jaxb.Split jaxb_split : jaxb_split_node.getSplit()) {
                 long linkout_id = jaxb_split.getLinkOut();
                 if(network.links.containsKey(linkout_id))
-                    smp.splits.add_entry(linkout_id,  jaxb_split.getContent() );
+                    smp.get_splits().add_entry(linkout_id,  jaxb_split.getContent() );
             }
         }
     }

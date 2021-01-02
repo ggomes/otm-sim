@@ -45,7 +45,7 @@ public class FixedSensor extends AbstractSensor {
                 scenario.network.links.get(jaxb_sensor.getLinkId()) : null;
 
         // read lanes
-        int [] x = OTMUtils.read_lanes(jaxb_sensor.getLanes(),link.full_lanes);
+        int [] x = OTMUtils.read_lanes(jaxb_sensor.getLanes(),link.get_full_lanes());
         start_lane = x[0];
         end_lane = x[1];
 
@@ -58,7 +58,7 @@ public class FixedSensor extends AbstractSensor {
 
     private void create_subsensors(float position,Set<Long> commids) throws OTMException {
 
-        if(link.model.type!= AbstractModel.Type.Fluid && position!=0f)
+        if(link.get_model().type!= AbstractModel.Type.Fluid && position!=0f)
             throw new OTMException("Currently only downstream fixed sensors are allowed for non-fluid models.");
 
         subsensors = new HashMap<>();
@@ -166,7 +166,7 @@ public class FixedSensor extends AbstractSensor {
             else{
                 FluidLaneGroup flg = (FluidLaneGroup) lg;
                 int n = flg.cells.size();
-                float cell_length = flg.length / n;
+                float cell_length = flg.get_length() / n;
                 int cell_index = n - ((int) (position/cell_length)) - 1;
                 if(cell_index<0)
                     cell_index=0;

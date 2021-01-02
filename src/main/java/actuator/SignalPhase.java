@@ -58,7 +58,7 @@ public class SignalPhase {
             if(rc==null)
                 throw new OTMException("bad road connection id in actuator id=" + this.id);
             rc_ids.add(id);
-            lanegroups.addAll(rc.in_lanegroups);
+            lanegroups.addAll(rc.get_in_lanegroups());
         }
     }
 
