@@ -1,6 +1,6 @@
 package control.rampmetering;
 
-import actuator.ActuatorMeter;
+import actuator.ActuatorLaneGroupCapacity;
 import core.Scenario;
 import control.command.CommandNumber;
 import dispatch.Dispatcher;
@@ -45,7 +45,7 @@ public class ControllerProfileRate extends AbstractControllerRampMetering {
     ///////////////////////////////////////////////////
 
     @Override
-    protected float compute_nooverride_rate_vps(ActuatorMeter act,float timestamp) {
+    protected float compute_nooverride_rate_vps(ActuatorLaneGroupCapacity act, float timestamp) {
         return ((float)actuator_rate_vph.get(act.id).get_value_for_time(timestamp))/3600f;
     }
 

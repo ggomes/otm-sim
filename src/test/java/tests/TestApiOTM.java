@@ -137,6 +137,36 @@ public class TestApiOTM extends AbstractTest {
     }
 
     ////////////////////////////////////////////////////////
+    // model set
+    ////////////////////////////////////////////////////////
+
+    @Ignore
+    @Test
+    public void test_set_model(){
+        try {
+
+            api.OTM otm = new api.OTM();
+            otm.load_test("line_ctm");
+
+            jaxb.Model model = new jaxb.Model();
+            model.setIsDefault(true);
+            model.setType("ctm");
+            model.setName("new ctm");
+
+            jaxb.ModelParams mp = new jaxb.ModelParams();
+            mp.setSimDt(2f);
+            mp.setMaxCellLength(100f);
+            model.setModelParams(mp);
+
+            otm.scenario().set_model(model);
+
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    ////////////////////////////////////////////////////////
     // STATE getters and setters -- may be model specific
     ////////////////////////////////////////////////////////
 

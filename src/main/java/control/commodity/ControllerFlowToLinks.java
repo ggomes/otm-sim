@@ -41,6 +41,11 @@ public class ControllerFlowToLinks extends AbstractController  {
     }
 
     @Override
+    public Class get_actuator_class() {
+        return ActuatorFlowToLinks.class;
+    }
+
+    @Override
     public void validate(OTMErrorLog errorLog) {
         super.validate(errorLog);
 
@@ -50,10 +55,6 @@ public class ControllerFlowToLinks extends AbstractController  {
         for(int i=0;i<fr_prof.length;i++)
             if(fr_prof[i]!=null)
                 fr_prof[i].validate(errorLog);
-
-//        Set<Long> act_linkids = act.linkFRs.stream().map(l->l.getId()).collect(Collectors.toSet());
-//        if(!act_linkids.equals(fr_ids))
-//            errorLog.addError("Controller and actuator link ids dont match.");
     }
 
     @Override

@@ -24,6 +24,21 @@ import java.util.HashMap;
 
 public class JaxbLoader {
 
+    public static HashMap<String,String> test_configs;
+
+    static {
+        test_configs = new HashMap<>();
+        test_configs.put("intersection","intersection.xml");
+        test_configs.put("line_ctm","line_ctm.xml");
+        test_configs.put("line_newell","line_newell.xml");
+        test_configs.put("line_spaceq","line_spaceq.xml");
+        test_configs.put("mixing","mixing.xml");
+        test_configs.put("onramp_hov","onramp_nohov.xml");
+        test_configs.put("onramp_nohov","onramp_nohov.xml");
+        test_configs.put("onramp_offramp","onramp_offramp.xml");
+        test_configs.put("output_test","output_test.xml");
+    }
+
     public static jaxb.Scenario load_scenario(String filename, boolean validate) throws OTMException {
         try {
             return (Scenario) create_unmarshaller(validate).unmarshal(new File(filename));
@@ -44,9 +59,10 @@ public class JaxbLoader {
         }
     }
 
-    public static jaxb.Scenario load_test_scenario(String configname, boolean validate) throws OTMException {
-        InputStream stream = JaxbLoader.class.getClassLoader().getResourceAsStream("test_configs/" + configname);
-        return load_scenario(stream,validate);
+    public static jaxb.Scenario load_test_scenario(String testname) throws OTMException {
+        InputStream stream = JaxbLoader.class.getClassLoader().getResourceAsStream("test_configs/" + test_configs.get(testname) );
+        jaxb.Scenario jscenario = load_scenario(stream,true);
+        return jscenario;
     }
 
     private static Unmarshaller create_unmarshaller(boolean validate) throws JAXBException, SAXException {

@@ -41,7 +41,7 @@ public abstract class AbstractModel implements InterfaceModel {
         this.links = links;
     }
 
-    public void configure(Scenario scenario,Collection<RoadConnection>road_connections, jaxb.Lanechanges lcs) throws OTMException {
+    public void configure(Scenario scenario, jaxb.Lanechanges lcs) throws OTMException {
 
         if(links==null || links.isEmpty())
             return;
@@ -69,6 +69,16 @@ public abstract class AbstractModel implements InterfaceModel {
             apply_road_geom(link,mylgs);
             set_neighbors(link);
 
+            // populate rc.out_lanegroups
+            for(RoadConnection rc : link.start_node.road_connections) {
+                if(rc.end_link==link){
+                    rc.out_lanegroups.clear();
+                    for (int lane = rc.get_end_link_from_lane(); lane <= rc.get_end_link_to_lane(); lane++)
+                        rc.out_lanegroups.add(link.get_lanegroup_for_up_lane(lane));
+
+                }
+            }
+
             // populate link.outlink2lanegroups
             if(!link.is_sink()) {
                 link.outlink2lanegroups = new HashMap<>();
@@ -82,32 +92,6 @@ public abstract class AbstractModel implements InterfaceModel {
             }
 
         }
-
-        // populate rc.out_lanegroups
-        for(RoadConnection rc : road_connections) {
-            if (rc.end_link != null) {
-                rc.out_lanegroups = new HashSet<>();
-                // TODO THIS SEEMS SLOW
-                for (int lane = rc.get_end_link_from_lane(); lane <= rc.get_end_link_to_lane(); lane++)
-                    rc.out_lanegroups.add(rc.end_link.get_lanegroup_for_up_lane(lane));
-            }
-        }
-
-        // set lane change model .............................................
-//
-//        if(lcs==null) {
-//            for(Link link : links)
-//                link.lane_selector = new LinkLaneSelector("keep",0f,null,link,scenario.commodities.keySet());
-//
-//        } else {
-//            for(jaxb.Lanechange lc : lcs.getLanechange()){
-//                Collection<Long> commids = lc.getComms()==null ?
-//                        scenario.commodities.keySet() :
-//                        OTMUtils.csv2longlist(lc.getComms());
-//                for(Link link : links)
-//                    link.lane_selector = new LinkLaneSelector(lc.getType(),lc.getDt(),lc.getParameters(),link,commids);
-//            }
-//        }
 
     }
 
@@ -262,7 +246,7 @@ public abstract class AbstractModel implements InterfaceModel {
         return lanegroups;
     }
 
-    private static AbstractLaneGroup create_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
+    private static AbstractLaneGroup create_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) {
 
         // Determine whether it is an addlane lanegroup or a full lane lane group.
         Set<Side> sides = new HashSet<>();

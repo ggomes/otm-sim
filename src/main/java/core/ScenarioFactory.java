@@ -54,7 +54,7 @@ public class ScenarioFactory {
         scenario.commodities = ScenarioFactory.create_commodities_from_jaxb(scenario.subnetworks, js.getCommodities());
 
         // generate models
-        scenario.models = create_models_from_jaxb(scenario,js.getModels().getModel(),scenario.network.links, scenario.network.road_connections.values());
+        scenario.models = create_models_from_jaxb(scenario,js.getModels().getModel());
 
         // allocate the state
         if(!jaxb_only)
@@ -201,7 +201,7 @@ public class ScenarioFactory {
 
     }
 
-    private static Map<String, AbstractModel> create_models_from_jaxb(Scenario scenario,List<jaxb.Model> jms, Map<Long,Link> all_links, Collection<RoadConnection>road_connections) throws OTMException {
+    private static Map<String, AbstractModel> create_models_from_jaxb(Scenario scenario,List<jaxb.Model> jms) throws OTMException {
 
         Map<String, AbstractModel> models = new HashMap<>();
 
@@ -233,80 +233,85 @@ public class ScenarioFactory {
 
         Set<Link> assigned_links = new HashSet<>();
         for(jaxb.Model jmodel : jmodels ){
-
-            StochasticProcess process;
-            try {
-                process = jmodel.getProcess()==null ? StochasticProcess.poisson : StochasticProcess.valueOf(jmodel.getProcess());
-            } catch (IllegalArgumentException e) {
-                process = StochasticProcess.poisson;
-            }
-
-            // links for this model
-            Set<Link> my_links = jmodel.isIsDefault() ? new HashSet<>(all_links.values()) :
-                    OTMUtils.csv2longlist(jmodel.getLinks()).stream()
-                    .map( linkid -> all_links.get(linkid) )
-                    .collect(toSet());
-
-            if(my_links.stream().anyMatch(x->x==null))
-                throw new OTMException("Unknown link id in model " + jmodel.getName());
-
-            AbstractModel model;
-            switch(jmodel.getType()){
-                case "ctm":
-                    model = new ModelCTM(jmodel.getName(),
-                            my_links,
-                            process,
-                            jmodel.getModelParams());
-                    break;
-
-                case "spaceq":
-                    model = new ModelSpatialQ(jmodel.getName(),
-                            my_links,
-                            process);
-                    break;
-
-                case "micro":
-                    model = new ModelNewell(jmodel.getName(),
-                            my_links,
-                            process,
-                            jmodel.getModelParams());
-                    break;
-
-                case "none":
-                    model = new ModelNone(jmodel.getName() ,
-                            my_links);
-                    break;
-
-                default:
-
-                    // it might be a plugin
-                    model = PluginLoader.get_model_instance(jmodel,process);
-
-                    if(model==null)
-                        throw new OTMException("Bad model type: " + jmodel.getType());
-                    break;
-
-            }
-
-            model.configure(scenario,road_connections,jmodel.getLanechanges() );
-
+            AbstractModel model = create_model(scenario,jmodel);
             models.put(jmodel.getName(),model);
             assigned_links.addAll(model.links);
         }
 
         // assign 'none' model to remaining links
-        if(assigned_links.size()<all_links.values().size()){
+        if(assigned_links.size()<scenario.network.links.size()){
 
             if(models.containsKey("none"))
                 throw new OTMException("'none' is a prohibited name for a model.");
 
             Set<Link> my_links = new HashSet<>();
-            my_links.addAll(all_links.values());
+            my_links.addAll(scenario.network.links.values());
             my_links.removeAll(assigned_links);
             models.put("none", new ModelNone("none",my_links));
         }
 
         return models;
+    }
+
+    protected static AbstractModel create_model(Scenario scenario,jaxb.Model jmodel) throws OTMException {
+
+        StochasticProcess process;
+        try {
+            process = jmodel.getProcess()==null ? StochasticProcess.poisson : StochasticProcess.valueOf(jmodel.getProcess());
+        } catch (IllegalArgumentException e) {
+            process = StochasticProcess.poisson;
+        }
+
+        // links for this model
+        Set<Link> my_links = jmodel.isIsDefault() ? new HashSet<>(scenario.network.links.values()) :
+                OTMUtils.csv2longlist(jmodel.getLinks()).stream()
+                .map( linkid -> scenario.network.links.get(linkid) )
+                .collect(toSet());
+
+        if(my_links.stream().anyMatch(x->x==null))
+            throw new OTMException("Unknown link id in model " + jmodel.getName());
+
+        AbstractModel model;
+        switch(jmodel.getType()){
+            case "ctm":
+                model = new ModelCTM(jmodel.getName(),
+                        my_links,
+                        process,
+                        jmodel.getModelParams());
+                break;
+
+            case "spaceq":
+                model = new ModelSpatialQ(jmodel.getName(),
+                        my_links,
+                        process);
+                break;
+
+            case "micro":
+                model = new ModelNewell(jmodel.getName(),
+                        my_links,
+                        process,
+                        jmodel.getModelParams());
+                break;
+
+            case "none":
+                model = new ModelNone(jmodel.getName() ,
+                        my_links);
+                break;
+
+            default:
+
+                // it might be a plugin
+                model = PluginLoader.get_model_instance(jmodel,process);
+
+                if(model==null)
+                    throw new OTMException("Bad model type: " + jmodel.getType());
+                break;
+
+        }
+
+        model.configure(scenario,jmodel.getLanechanges() );
+
+        return model;
     }
 
     private static Map<Long, AbstractSensor> create_sensors_from_jaxb(Scenario scenario, jaxb.Sensors jaxb_sensors) throws OTMException {
@@ -342,19 +347,16 @@ public class ScenarioFactory {
 
             AbstractActuator.Type type = AbstractActuator.Type.valueOf(jaxb_actuator.getType());
             switch(type){
-                case meter:
-                    actuator = new ActuatorMeter(scenario,jaxb_actuator);
+                case lg_capacity:
+                    actuator = new ActuatorLaneGroupCapacity(scenario,jaxb_actuator);
                     break;
                 case signal:
                     actuator = new ActuatorSignal(scenario,jaxb_actuator);
                     break;
-                case stop:
-                    actuator = new ActuatorStop(scenario,jaxb_actuator);
+                case lg_allowcomm:
+                    actuator = new ActuatorLaneGroupAllowComm(scenario,jaxb_actuator);
                     break;
-                case lg_restrict:
-                    actuator = new ActuatorOpenCloseLaneGroup(scenario,jaxb_actuator);
-                    break;
-                case lg_speed:
+                case lg_speedlimit:
                     throw new OTMException("NOT IMPLEMENTED YET");
                 case split:
                     actuator = new ActuatorSplit(scenario,jaxb_actuator);

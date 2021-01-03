@@ -58,6 +58,11 @@ public class ControllerSchedule extends AbstractController {
 
     }
 
+    @Override
+    public Class get_actuator_class() {
+        return AbstractActuator.class;
+    }
+
     ///////////////////////////////////////////////////
     // InterfaceScenarioElement
     ///////////////////////////////////////////////////

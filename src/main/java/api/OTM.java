@@ -12,6 +12,7 @@ import dispatch.EventStopSimulation;
 import error.OTMException;
 import jaxb.OutputRequests;
 import core.AbstractModel;
+import jaxb.Scenario;
 import models.vehicle.spatialq.EventTransitToWaiting;
 import models.vehicle.spatialq.MesoLaneGroup;
 import models.vehicle.spatialq.MesoVehicle;
@@ -92,13 +93,13 @@ public class OTM {
         output = new api.Output(this);
     }
 
-    public void load_from_jaxb(jaxb.Scenario jscn,boolean validate) throws OTMException {
-        this.scenario =  ScenarioFactory.create_scenario(jscn,validate,false);
-        output = new Output(this);
-    }
+//    public void load_from_jaxb(jaxb.Scenario jscn,boolean validate) throws OTMException {
+//        this.scenario =  ScenarioFactory.create_scenario(jscn,validate,false);
+//        output = new Output(this);
+//    }
 
-    public void load_test(String configname) throws OTMException  {
-        jaxb.Scenario jaxb_scenario =  JaxbLoader.load_test_scenario(configname+".xml",true);
+    public void load_test(String testname) throws OTMException  {
+        jaxb.Scenario jaxb_scenario =  JaxbLoader.load_test_scenario(testname);
         this.scenario =  ScenarioFactory.create_scenario(jaxb_scenario,true,false);
         output = new api.Output(this);
     }

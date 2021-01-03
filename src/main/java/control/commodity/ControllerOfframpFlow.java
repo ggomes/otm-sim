@@ -43,6 +43,12 @@ public class ControllerOfframpFlow extends AbstractController {
         this.ml_sensor = new FixedSensor(dt, act.linkMLup,1,act.linkMLup.get_num_dn_lanes(),act.linkMLup.get_full_length(),commids);
     }
 
+
+    @Override
+    public Class get_actuator_class() {
+        return ActuatorSplit.class;
+    }
+
     @Override
     public void validate(OTMErrorLog errorLog) {
         super.validate(errorLog);

@@ -60,6 +60,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     public Map<Long, InterfaceCommand> command;    // actuator id -> command
 
     abstract public void update_command(Dispatcher dispatcher) throws OTMException;
+    abstract public Class get_actuator_class();
 
     ///////////////////////////////////////////
     // construction and initialization
@@ -176,6 +177,10 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
             errorLog.addError("myType==null");
         if(actuators.isEmpty())
             errorLog.addError("actuators.isEmpty()");
+
+        for(AbstractActuator act : actuators.values())
+            if(act.getClass()!=this.get_actuator_class())
+                errorLog.addError("Bad actuator type in controller.");
 
     }
 

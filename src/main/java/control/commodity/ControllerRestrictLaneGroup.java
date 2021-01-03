@@ -1,5 +1,6 @@
 package control.commodity;
 
+import actuator.ActuatorLaneGroupAllowComm;
 import core.Scenario;
 import control.AbstractController;
 import control.command.CommandRestrictionMap;
@@ -42,9 +43,10 @@ public class ControllerRestrictLaneGroup extends AbstractController {
             }
     }
 
-    ///////////////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////////////
+    @Override
+    public Class get_actuator_class() {
+        return ActuatorLaneGroupAllowComm.class;
+    }
 
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {

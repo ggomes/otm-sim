@@ -1,6 +1,6 @@
 package control.commodity;
 
-import actuator.ActuatorOpenCloseLaneGroup;
+import actuator.ActuatorLaneGroupAllowComm;
 import core.*;
 import control.AbstractController;
 import control.command.CommandRestrictionMap;
@@ -9,7 +9,6 @@ import error.OTMException;
 import jaxb.Controller;
 import lanechange.InterfaceLaneSelector;
 import lanechange.TollLaneSelector;
-import models.Maneuver;
 import core.AbstractFluidModel;
 import models.fluid.FluidLaneGroup;
 import utils.OTMUtils;
@@ -69,7 +68,7 @@ public class ControllerTollLaneGroup extends AbstractController {
         super.initialize(scenario);
         this.firsttime=true;
 
-        ActuatorOpenCloseLaneGroup act = (ActuatorOpenCloseLaneGroup)actuators.values().iterator().next();
+        ActuatorLaneGroupAllowComm act = (ActuatorLaneGroupAllowComm)actuators.values().iterator().next();
         this.lginfos = new HashSet<>();
         for (AbstractLaneGroup hotlg : ((LaneGroupSet) act.target).lgs)
             lginfos.add(new LinkInfo(hotlg));
@@ -115,10 +114,11 @@ public class ControllerTollLaneGroup extends AbstractController {
             lginfos.forEach(l->l.restore());
         }
 
-        // register next poke
-//        if (timestamp<end_time)
-//            dispatcher.register_event(new EventPoke(dispatcher,19,this.end_time,this));
+    }
 
+    @Override
+    public Class get_actuator_class() {
+        return ControllerTollLaneGroup.class;
     }
 
     class LinkInfo {

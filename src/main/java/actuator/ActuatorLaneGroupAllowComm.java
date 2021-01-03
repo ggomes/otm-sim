@@ -2,34 +2,26 @@ package actuator;
 
 import core.AbstractLaneGroup;
 import core.LaneGroupSet;
-import core.Network;
 import core.Scenario;
 import control.command.CommandRestrictionMap;
 import control.command.InterfaceCommand;
 import control.commodity.ControllerRestrictLaneGroup;
+import core.ScenarioElementType;
 import error.OTMException;
 import jaxb.Actuator;
 
 import java.util.Map;
 
-public class ActuatorOpenCloseLaneGroup extends AbstractActuator {
+public class ActuatorLaneGroupAllowComm extends AbstractActuatorLaneGroup {
 
-    ///////////////////////////////////////////////////
-    // construction
-    ///////////////////////////////////////////////////
-
-    public ActuatorOpenCloseLaneGroup(Scenario scenario, Actuator jact) throws OTMException {
+    public ActuatorLaneGroupAllowComm(Scenario scenario, Actuator jact) throws OTMException {
         super(scenario, jact);
         this.dt=0f;
     }
 
-    ///////////////////////////////////////////////////
-    // AbstractActuator
-    ///////////////////////////////////////////////////
-
     @Override
     public Type getType() {
-        return Type.lg_restrict;
+        return Type.lg_allowcomm;
     }
 
     @Override
@@ -37,13 +29,14 @@ public class ActuatorOpenCloseLaneGroup extends AbstractActuator {
 
         if(command==null)
             return;
+        if(!(command instanceof CommandRestrictionMap))
+            throw new OTMException("Bad command type.");
 
         for(Map.Entry<Long, ControllerRestrictLaneGroup.Restriction> e : ((CommandRestrictionMap)command).values.entrySet()) {
             Long commid = e.getKey();
-            boolean isopen = e.getValue()== ControllerRestrictLaneGroup.Restriction.Open;
-            for (AbstractLaneGroup lg : ((LaneGroupSet) target).lgs) {
-                lg.set_actuator_isopen(isopen, commid);
-            }
+            boolean allow = e.getValue()== ControllerRestrictLaneGroup.Restriction.Open;
+            for (AbstractLaneGroup lg : lanegroups)
+                lg.set_actuator_allow_comm(allow, commid);
         }
     }
 

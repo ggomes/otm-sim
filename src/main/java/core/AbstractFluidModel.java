@@ -32,8 +32,8 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     }
 
     @Override
-    public void configure(Scenario scenario, Collection<core.RoadConnection> road_connections, Lanechanges lcs) throws OTMException {
-        super.configure(scenario, road_connections, lcs);
+    public void configure(Scenario scenario, Lanechanges lcs) throws OTMException {
+        super.configure(scenario, lcs);
 
         Set<Node> all_nodes = new HashSet<>();
 

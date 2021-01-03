@@ -89,7 +89,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     }
 
     @Override
-    public void set_actuator_isopen(boolean isopen,Long commid) {
+    public void set_actuator_allow_comm(boolean allow, Long commid) {
         System.out.println("NOT IMPLEMENTED!!");
     }
 

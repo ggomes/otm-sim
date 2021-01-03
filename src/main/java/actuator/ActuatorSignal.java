@@ -2,7 +2,7 @@ package actuator;
 
 import control.command.CommandSignal;
 import control.command.InterfaceCommand;
-import core.Network;
+import core.ScenarioElementType;
 import error.OTMErrorLog;
 import error.OTMException;
 import core.Scenario;
@@ -14,15 +14,11 @@ public class ActuatorSignal extends AbstractActuator {
 
     public Map<Long, SignalPhase> signal_phases;
 
-    ///////////////////////////////////////////////////
-    // construction
-    ///////////////////////////////////////////////////
-
     public ActuatorSignal(Scenario scenario, jaxb.Actuator jaxb_actuator) throws OTMException {
         super(scenario,jaxb_actuator);
 
         // must be on a node
-        if(target==null || !(target instanceof core.Node))
+        if(target==null)
             return;
 
         if(jaxb_actuator.getSignal()==null)
@@ -32,12 +28,17 @@ public class ActuatorSignal extends AbstractActuator {
         for(jaxb.Phase jaxb_phase : jaxb_actuator.getSignal().getPhase())
             signal_phases.put(jaxb_phase.getId(), new SignalPhase(scenario, this, jaxb_phase));
 
-//        this.lanegroups =
     }
 
-    ///////////////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////////////
+    @Override
+    public Type getType() {
+        return Type.signal;
+    }
+
+    @Override
+    protected ScenarioElementType get_target_class() {
+        return ScenarioElementType.node;
+    }
 
     @Override
     public void validate(OTMErrorLog errorLog) {
@@ -61,33 +62,28 @@ public class ActuatorSignal extends AbstractActuator {
         // set all bulb colors to dark
         for(SignalPhase p : signal_phases.values() )
             p.initialize();
-    }
 
-    ///////////////////////////////////////////////////
-    // AbstractActuator
-    ///////////////////////////////////////////////////
-
-    @Override
-    public Type getType() {
-        return Type.signal;
+        // register the actuator
+        target.register_actuator(commids,this);
     }
 
     @Override
-    public void process_controller_command(InterfaceCommand obj, float timestamp) throws OTMException {
+    public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException {
+        if(command==null)
+            return;
+        if(!(command instanceof CommandSignal))
+            throw new OTMException("Bad command type.");
+
         // The command is a map from signal phase to color.
         // anything not in the map should be set to red
-        Map<Long, SignalPhase.BulbColor> command = ((CommandSignal)obj).value;
+        Map<Long, SignalPhase.BulbColor> signalcommand = ((CommandSignal)command).value;
         for( Map.Entry<Long, SignalPhase> e : signal_phases.entrySet()){
             long phase_id = e.getKey();
             SignalPhase phase = e.getValue();
-            SignalPhase.BulbColor bulbcolor = command.containsKey(phase_id) ? command.get(phase_id) : SignalPhase.BulbColor.RED;
+            SignalPhase.BulbColor bulbcolor = signalcommand.containsKey(phase_id) ? signalcommand.get(phase_id) : SignalPhase.BulbColor.RED;
             phase.set_bulb_color(bulbcolor);
         }
     }
-
-    ///////////////////////////////////////////////////
-    // get
-    ///////////////////////////////////////////////////
 
     public SignalPhase get_phase(long phase_id){
         return signal_phases.get(phase_id);

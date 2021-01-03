@@ -5,6 +5,7 @@ import commodity.Commodity;
 import commodity.Subnetwork;
 import dispatch.EventInitializeController;
 import cmd.RunParameters;
+import models.none.ModelNone;
 import traveltime.LinkTravelTimeManager;
 import control.AbstractController;
 import error.OTMErrorLog;
@@ -22,6 +23,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -448,6 +450,15 @@ public class Scenario {
         return controllers.get(id);
     }
 
+    // model .................................
+
+    public void set_model(jaxb.Model jmodel) throws OTMException {
+
+        if( models.containsKey(jmodel.getName()) )
+            throw new OTMException("Duplicate model name in set_model");
+
+        models.put(jmodel.getName(), ScenarioFactory.create_model(this,jmodel) );
+    }
 
     // demands .................................
 

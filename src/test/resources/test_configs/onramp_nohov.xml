@@ -52,7 +52,7 @@
  	</demands>
 
  	<actuators>
- 		<actuator id="0" type="meter">
+ 		<actuator id="0" type="lg_capacity">
  			<actuator_target type="lanegroups" lanegroups="6(1#1)" />
  		</actuator>
  	</actuators>

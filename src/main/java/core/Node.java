@@ -23,7 +23,7 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
     protected Float xcoord;
     protected Float ycoord;
 
-    protected AbstractActuator actuator;
+    private AbstractActuator actuator;
 
     ///////////////////////////////////////////
     // construction

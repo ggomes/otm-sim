@@ -1,11 +1,12 @@
 package actuator;
 
 import commodity.Commodity;
+import control.command.CommandDoubleArray;
 import core.Link;
-import core.Network;
 import core.Node;
 import core.Scenario;
 import control.command.InterfaceCommand;
+import core.ScenarioElementType;
 import dispatch.EventSplitChange;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -115,13 +116,23 @@ public class ActuatorSplit extends AbstractActuator {
 
         // create the new split ratio matrix
         linkMLup.set_split_profile(commid, smp);
+
+        // register the actuator
+        target.register_actuator(commids,this);
     }
 
     @Override
     public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException {
-//        if(command==null)
-//            return;
+        if(command==null)
+            return;
+        if(!(command instanceof CommandDoubleArray))
+            throw new OTMException("Bad command type.");
+
 //        smp.set_and_rectify_splits(((CommandDoubleArray)command).values,linkMLdwn.getId());
     }
 
+    @Override
+    protected ScenarioElementType get_target_class() {
+        return null;
+    }
 }

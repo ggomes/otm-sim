@@ -8,7 +8,6 @@ import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
-import jaxb.Actuator;
 import utils.OTMUtils;
 
 import java.util.HashSet;
@@ -17,13 +16,12 @@ import java.util.Set;
 public abstract class AbstractActuator implements Pokable, InterfaceScenarioElement {
 
     public enum Type {
-        lg_restrict,
-        lg_speed,
+        flowtolink,
+        lg_allowcomm,
+        lg_capacity,
+        lg_speedlimit,
         signal,
-        meter,
-        stop,
         split,
-        flowtolink
     }
 
     public long id;
@@ -36,6 +34,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     public Set<Long> commids; // not always used
 
     abstract public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException;
+    abstract protected ScenarioElementType get_target_class();
 
     ///////////////////////////////////////////
     // construction
@@ -54,21 +53,16 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
                 // this will throw an exception if the type is not a ScenarioElementType
                 type = ScenarioElementType.valueOf(e.getType());
 
-                // otherwise we can find the element and register
+                if(type!=get_target_class())
+                    throw new OTMException("Wrong target type in actuator");
 
-                // if it is a lanegroup, then the id is for the link, and lanes must be used
-                if(type==ScenarioElementType.lanegroups)
-                    this.target = OTMUtils.read_lanegroups(e.getLanegroups(),scenario.network);
-                else
+                if(type!=null && type!=ScenarioElementType.lanegroups)
                     this.target = (InterfaceActuatorTarget) scenario.get_element(type,id);
 
                 if(e.getCommids()!=null) {
                     this.commids = new HashSet<>();
                     commids.addAll(OTMUtils.csv2longlist(e.getCommids()));
                 }
-
-                if(target!=null)
-                    target.register_actuator(commids,this);
 
             } catch (IllegalArgumentException illegalArgumentException) {
                 // if exception is thrown, set target to null.
@@ -130,38 +124,5 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         if(dt>0)
             dispatcher.register_event(new EventPoke(dispatcher,3,timestamp+dt,this));
     }
-
-    /////////////////////////////////////////////////////////////////////
-    // InterfaceEventWriter
-    /////////////////////////////////////////////////////////////////////
-
-//    @Override
-//    public void set_event_output(AbstractOutputEvent e) throws OTMException {
-//        if(event_output !=null)
-//            throw new OTMException("multiple listeners for actuator.");
-//        if(!(e instanceof OutputActuator))
-//            throw new OTMException("Wrong type of listener");
-//        event_output = (OutputActuator)e;
-//    }
-
-    /////////////////////////////////////////////////////////////////////
-    // AbstractActuatorLanegroup
-    /////////////////////////////////////////////////////////////////////
-
-    protected Set<AbstractLaneGroup> read_lanegroups(Network network, Actuator jact) throws OTMException {
-        if(jact.getActuatorTarget()==null || !jact.getActuatorTarget().getType().equalsIgnoreCase("lanegroups"))
-            return null;
-        jaxb.ActuatorTarget e = jact.getActuatorTarget();
-        LaneGroupSet lgs = OTMUtils.read_lanegroups(e.getLanegroups(),network);
-        return lgs.lgs;
-    }
-
-    /////////////////////////////////////////////////////////////////////
-    // get
-    /////////////////////////////////////////////////////////////////////
-
-//    public Type getType() {
-//        return type;
-//    }
 
 }

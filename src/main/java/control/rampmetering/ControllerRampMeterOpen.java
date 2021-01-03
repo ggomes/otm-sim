@@ -1,6 +1,6 @@
 package control.rampmetering;
 
-import actuator.ActuatorMeter;
+import actuator.ActuatorLaneGroupCapacity;
 import core.Scenario;
 import error.OTMException;
 import jaxb.Controller;
@@ -26,7 +26,7 @@ public class ControllerRampMeterOpen extends AbstractControllerRampMetering {
 //    }
 
     @Override
-    protected float compute_nooverride_rate_vps(ActuatorMeter act,float timestamp) {
+    protected float compute_nooverride_rate_vps(ActuatorLaneGroupCapacity act, float timestamp) {
         return Float.POSITIVE_INFINITY;
     }
 

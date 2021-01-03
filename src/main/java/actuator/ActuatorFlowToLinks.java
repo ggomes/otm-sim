@@ -1,16 +1,13 @@
 package actuator;
 
 import commodity.Commodity;
-import core.Link;
-import core.RoadConnection;
-import core.Scenario;
+import core.*;
 import control.command.CommandDoubleArray;
 import control.command.InterfaceCommand;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
 import jaxb.Parameter;
-import core.AbstractFluidModel;
 import core.packet.PacketLink;
 import utils.OTMUtils;
 
@@ -67,6 +64,11 @@ public class ActuatorFlowToLinks extends AbstractActuator {
     }
 
     @Override
+    protected ScenarioElementType get_target_class() {
+        return ScenarioElementType.link;
+    }
+
+    @Override
     public Type getType() {
         return Type.flowtolink;
     }
@@ -84,11 +86,6 @@ public class ActuatorFlowToLinks extends AbstractActuator {
             errorLog.addError("ActuatorFlowToLinks: comm==null");
         if (rc == null)
             errorLog.addError("ActuatorFlowToLinks: rc==null");
-
-//        // confirm they are connected
-//        if(linkFRs.stream().anyMatch(linkFR->linkMLup.end_node!=linkFR.start_node))
-//            errorLog.addError("ActuatorSplit: linkin.end_node!=linkout.start_node");
-
     }
 
     @Override
@@ -105,6 +102,9 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         outlink2portion= new HashMap<>();
         for(Long linkid : outlink_ids)
             outlink2portion.put(linkid, Double.NaN);
+
+        // register the actuator
+        target.register_actuator(commids,this);
     }
 
     @Override
@@ -112,6 +112,8 @@ public class ActuatorFlowToLinks extends AbstractActuator {
 
         if(command==null)
             return;
+        if(!(command instanceof CommandDoubleArray))
+            throw new OTMException("Bad command type.");
 
         CommandDoubleArray c = (CommandDoubleArray)command;
         double alpha = ((AbstractFluidModel)linkMLup.get_model()).dt_sec / 3600f;
@@ -139,5 +141,4 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         }
         return sumbetac;
     }
-
 }

@@ -1,5 +1,6 @@
 package control.sigint;
 
+import actuator.ActuatorLaneGroupCapacity;
 import actuator.ActuatorSignal;
 import actuator.SignalPhase;
 import control.AbstractController;
@@ -61,6 +62,11 @@ public class ControllerSignalPretimed extends AbstractController {
             relstarttime += stage.duration;
         }
 
+    }
+
+    @Override
+    public Class get_actuator_class() {
+        return ActuatorSignal.class;
     }
 
     ///////////////////////////////////////////////////

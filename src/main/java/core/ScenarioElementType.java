@@ -10,6 +10,6 @@ public enum ScenarioElementType {
     roadconnection,
     controller,
     actuator,
-    sensor,
-    lanegroups
+    lanegroups,
+    sensor
 }

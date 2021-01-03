@@ -1,9 +1,6 @@
 package core;
 
-import actuator.AbstractActuator;
-import actuator.AbstractActuatorLanegroupCapacity;
-import actuator.ActuatorOpenCloseLaneGroup;
-import actuator.InterfaceActuatorTarget;
+import actuator.*;
 import core.geometry.Side;
 import error.OTMException;
 import core.packet.StateContainer;
@@ -46,8 +43,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     protected double supply;       // [veh]
 
-    protected AbstractActuatorLanegroupCapacity actuator_capacity;
-    protected Map<Long, ActuatorOpenCloseLaneGroup> actuator_lgrestrict;   // commid->actuator
+    protected ActuatorLaneGroupCapacity actuator_capacity;
+    protected Map<Long, ActuatorLaneGroupAllowComm> actuator_lgrestrict;   // commid->actuator
 
     // flow accumulator
     protected FlowAccumulatorState flw_acc;
@@ -114,19 +111,19 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     @Override
     public void register_actuator(Set<Long> commids,AbstractActuator act) throws OTMException {
 
-        if(act instanceof AbstractActuatorLanegroupCapacity){
+        if(act instanceof ActuatorLaneGroupCapacity){
             if(this.actuator_capacity!=null)
                 throw new OTMException(String.format("Multiple capacity actuators on link %d, lanes %d through %d.",link.getId(),start_lane_dn,start_lane_dn+num_lanes-1));
-            this.actuator_capacity = (AbstractActuatorLanegroupCapacity) act;
+            this.actuator_capacity = (ActuatorLaneGroupCapacity) act;
         }
 
-        if(act.getType()== AbstractActuator.Type.lg_restrict){
+        if(act.getType()== AbstractActuator.Type.lg_allowcomm){
             if(this.actuator_lgrestrict ==null)
                 actuator_lgrestrict = new HashMap<>();
             for(Long commid : commids){
                 if (actuator_lgrestrict.containsKey(commid))
                     throw new OTMException(String.format("Lane group closure clash for commodity %d", commid));
-                this.actuator_lgrestrict.put(commid, (ActuatorOpenCloseLaneGroup) act);
+                this.actuator_lgrestrict.put(commid, (ActuatorLaneGroupAllowComm) act);
             }
         }
 
@@ -358,8 +355,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     ///////////////////////////////////////////////////
 
     @Override
-    public void set_actuator_isopen(boolean isopen,Long commid) throws OTMException {
-        if(isopen)
+    public void set_actuator_allow_comm(boolean allow, Long commid) throws OTMException {
+        if(allow)
             states.stream()
                     .filter(s->s.commodity_id==commid)
                     .forEach(s->reallow_state(s));

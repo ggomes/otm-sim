@@ -1,8 +1,7 @@
 package control.rampmetering;
 
 import actuator.AbstractActuator;
-import actuator.AbstractActuatorLanegroupCapacity;
-import actuator.ActuatorMeter;
+import actuator.ActuatorLaneGroupCapacity;
 import error.OTMException;
 import jaxb.Controller;
 import core.Scenario;
@@ -34,13 +33,13 @@ public class ControllerFixedRate extends AbstractControllerRampMetering {
         super.initialize(scenario);
         rate_vps = new HashMap<>();
         for(AbstractActuator abs_act : actuators.values()){
-            AbstractActuatorLanegroupCapacity act = (AbstractActuatorLanegroupCapacity) abs_act;
+            ActuatorLaneGroupCapacity act = (ActuatorLaneGroupCapacity) abs_act;
             rate_vps.put(act.id, act.total_lanes * rate_vpspl);
         }
     }
 
     @Override
-    protected float compute_nooverride_rate_vps(ActuatorMeter act,float timestamp) {
+    protected float compute_nooverride_rate_vps(ActuatorLaneGroupCapacity act, float timestamp) {
         return rate_vps.get(act.id);
     }
 

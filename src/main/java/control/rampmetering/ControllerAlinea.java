@@ -1,7 +1,7 @@
 package control.rampmetering;
 
 import actuator.AbstractActuator;
-import actuator.ActuatorMeter;
+import actuator.ActuatorLaneGroupCapacity;
 import core.LaneGroupSet;
 import control.command.CommandNumber;
 import error.OTMException;
@@ -39,7 +39,7 @@ public class ControllerAlinea extends AbstractControllerRampMetering {
 
         params = new HashMap<>();
         for(AbstractActuator abs_act : actuators.values()){
-            ActuatorMeter act = (ActuatorMeter) abs_act;
+            ActuatorLaneGroupCapacity act = (ActuatorLaneGroupCapacity) abs_act;
             AlineaParams param = new AlineaParams();
 
             FixedSensor ml_sensor = (FixedSensor) sensors.iterator().next();
@@ -67,7 +67,7 @@ public class ControllerAlinea extends AbstractControllerRampMetering {
     }
 
     @Override
-    protected float compute_nooverride_rate_vps(ActuatorMeter act,float timestamp) {
+    protected float compute_nooverride_rate_vps(ActuatorLaneGroupCapacity act, float timestamp) {
         AlineaParams p = params.get(act.id);
         float density_veh = (float) p.ref_link.get_veh();
         float previous_rate_vps = ((CommandNumber) command.get(act.id)).value;

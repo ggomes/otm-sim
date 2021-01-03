@@ -1,7 +1,7 @@
 package control.rampmetering;
 
 import actuator.AbstractActuator;
-import actuator.ActuatorMeter;
+import actuator.ActuatorLaneGroupCapacity;
 import core.AbstractLaneGroup;
 import core.LaneGroupSet;
 import core.Link;
@@ -28,7 +28,7 @@ public abstract class AbstractControllerRampMetering extends AbstractController 
 
     protected Map<Long,MeterParams> meterparams;
 
-    protected abstract float compute_nooverride_rate_vps(ActuatorMeter act,float timestamp);
+    protected abstract float compute_nooverride_rate_vps(ActuatorLaneGroupCapacity act, float timestamp);
 
     public AbstractControllerRampMetering(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
@@ -52,11 +52,16 @@ public abstract class AbstractControllerRampMetering extends AbstractController 
     }
 
     @Override
+    public Class get_actuator_class() {
+        return ActuatorLaneGroupCapacity.class;
+    }
+
+    @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
         meterparams = new HashMap<>();
         for (AbstractActuator abs_act : actuators.values()) {
-            ActuatorMeter act = (ActuatorMeter) abs_act;
+            ActuatorLaneGroupCapacity act = (ActuatorLaneGroupCapacity) abs_act;
             float min_rate_vps = min_rate_vpspl * act.total_lanes;
             float max_rate_vps = max_rate_vpspl * act.total_lanes;
             float thres = Float.NaN;
@@ -90,7 +95,7 @@ public abstract class AbstractControllerRampMetering extends AbstractController 
     public void update_command(Dispatcher dispatcher) throws OTMException {
         for(AbstractActuator abs_act : actuators.values()) {
             MeterParams params = meterparams.get(abs_act.id);
-            float rate_vps = compute_nooverride_rate_vps((ActuatorMeter) abs_act,dispatcher.current_time);
+            float rate_vps = compute_nooverride_rate_vps((ActuatorLaneGroupCapacity) abs_act,dispatcher.current_time);
             if(has_queue_control){
                 FluidLaneGroup orlg = (FluidLaneGroup) ((LaneGroupSet) abs_act.target).lgs.iterator().next();
                 double veh = orlg.cells.get(0).get_vehicles();

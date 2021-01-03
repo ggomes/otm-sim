@@ -95,7 +95,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     }
 
     @Override
-    public void set_actuator_isopen(boolean isopen,Long commid) throws OTMException {
+    public void set_actuator_allow_comm(boolean allow, Long commid) throws OTMException {
         System.out.println("NOT IMPLEMENTED!!");
     }
 
