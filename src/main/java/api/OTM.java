@@ -46,21 +46,16 @@ import static java.util.stream.Collectors.toSet;
  */
 public class OTM {
 
-    private core.Scenario scenario;
-    private api.Output output;
+    public core.Scenario scenario;
+    public api.Output output;
 
     ////////////////////////////////////////////////////////
     // construction
     ////////////////////////////////////////////////////////
 
-    public OTM(){}
-
-    public core.Scenario scenario(){
-        return scenario;
-    }
-
-    public api.Output output(){
-        return output;
+    public OTM(core.Scenario scenario,api.Output output) throws OTMException {
+        this.scenario = scenario;
+        this.output = output;
     }
 
     /**
@@ -90,18 +85,21 @@ public class OTM {
     public void load(String configfile, boolean validate, boolean jaxb_only) throws OTMException {
         jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,validate);
         this.scenario =  ScenarioFactory.create_scenario(jaxb_scenario,validate,jaxb_only);
-        output = new api.Output(this);
+        output = new api.Output();
+        OTM otm = new OTM(scenario,output);
+        output.set_api(otm);
     }
 
-//    public void load_from_jaxb(jaxb.Scenario jscn,boolean validate) throws OTMException {
-//        this.scenario =  ScenarioFactory.create_scenario(jscn,validate,false);
-//        output = new Output(this);
-//    }
+    public static OTM load_from_jaxb(jaxb.Scenario jscenario, boolean validate) throws OTMException {
+        core.Scenario scenario =  ScenarioFactory.create_scenario(jscenario,validate,false);
+        api.Output output = new api.Output();
+        OTM otm = new OTM(scenario,output);
+        output.set_api(otm);
+        return otm;
+    }
 
-    public void load_test(String testname) throws OTMException  {
-        jaxb.Scenario jaxb_scenario =  JaxbLoader.load_test_scenario(testname);
-        this.scenario =  ScenarioFactory.create_scenario(jaxb_scenario,true,false);
-        output = new api.Output(this);
+    public static OTM load_test(String testname) throws OTMException  {
+        return load_from_jaxb(JaxbLoader.load_test_scenario(testname),true);
     }
 
     public void save(String file)  {

@@ -22,8 +22,7 @@ public class TestApiOTM extends AbstractTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        otm = new OTM();
-        otm.load_test("line_ctm");
+        otm = OTM.load_test("line_ctm");
     }
 
     ////////////////////////////////////////////////////////
@@ -145,8 +144,7 @@ public class TestApiOTM extends AbstractTest {
     public void test_set_model(){
         try {
 
-            api.OTM otm = new api.OTM();
-            otm.load_test("line_ctm");
+            api.OTM otm = OTM.load_test("line_ctm");
 
             jaxb.Model model = new jaxb.Model();
             model.setIsDefault(true);
@@ -158,7 +156,7 @@ public class TestApiOTM extends AbstractTest {
             mp.setMaxCellLength(100f);
             model.setModelParams(mp);
 
-            otm.scenario().set_model(model);
+            otm.scenario.set_model(model);
 
         } catch (OTMException e) {
             e.printStackTrace();
@@ -202,10 +200,9 @@ public class TestApiOTM extends AbstractTest {
             float start_time = 0f;
             float duration = 100f;
 
-            api.OTM otm = new api.OTM();
-            otm.load_test("line_ctm");
+            api.OTM otm = OTM.load_test("line_ctm");
 
-            Set<Float> sim_dts = otm.scenario().models.values().stream()
+            Set<Float> sim_dts = otm.scenario.models.values().stream()
                     .filter(m->m.type== AbstractModel.Type.Fluid)
                     .map(m->((AbstractFluidModel)m).dt_sec)
                     .collect(toSet());

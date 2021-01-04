@@ -34,8 +34,7 @@ public class TestAllConfig extends AbstractTest {
     public void test_load() {
         try {
             System.out.println(testname + " load");
-            OTM otm = new OTM();
-            otm.load_test(testname);
+            OTM otm = OTM.load_test(testname);
         } catch (OTMException e) {
             System.err.print(e);
             fail();
@@ -48,22 +47,21 @@ public class TestAllConfig extends AbstractTest {
 
             System.out.println(testname + " run");
 
-            OTM otm = new OTM();
-            otm.load_test(testname);
+            OTM otm = OTM.load_test(testname);
 
             // request outputs
             String prefix = testname;
-            Set<Long> link_ids = otm.scenario().network.links.keySet();
-            for(Long comm : otm.scenario().commodities.keySet()) {
-                otm.output().request_links_flow(makeplots?null:prefix,makeplots?null:output_folder, comm, link_ids, outDt);
-                otm.output().request_links_veh(makeplots?null:prefix, makeplots?null:output_folder, comm, link_ids, outDt);
+            Set<Long> link_ids = otm.scenario.network.links.keySet();
+            for(Long comm : otm.scenario.commodities.keySet()) {
+                otm.output.request_links_flow(makeplots?null:prefix,makeplots?null:output_folder, comm, link_ids, outDt);
+                otm.output.request_links_veh(makeplots?null:prefix, makeplots?null:output_folder, comm, link_ids, outDt);
             }
 
             // run the simulation
             otm.run(start_time,duration);
 
             // plot
-            for(AbstractOutput output :  otm.output().get_data()) {
+            for(AbstractOutput output :  otm.output.get_data()) {
                 if (output instanceof OutputLinkFlow)
                     ((OutputLinkFlow) output).plot_for_links(null, String.format("%s/%s_link_flow.png", output_folder,prefix));
                 if (output instanceof OutputLinkVehicles)
@@ -71,7 +69,7 @@ public class TestAllConfig extends AbstractTest {
             }
 
             // check the output against expects
-            for(String output_path : otm.output().get_file_names())
+            for(String output_path : otm.output.get_file_names())
                 compare_files(output_path);
 
         }
