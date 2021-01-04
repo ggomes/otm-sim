@@ -57,8 +57,8 @@ public abstract class AbstractControllerRampMetering extends AbstractController 
     }
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
+    public void initialize(Scenario scenario,boolean override_targets) throws OTMException {
+        super.initialize(scenario,override_targets);
         meterparams = new HashMap<>();
         for (AbstractActuator abs_act : actuators.values()) {
             ActuatorLaneGroupCapacity act = (ActuatorLaneGroupCapacity) abs_act;

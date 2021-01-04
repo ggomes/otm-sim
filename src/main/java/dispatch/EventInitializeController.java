@@ -10,7 +10,7 @@ public class EventInitializeController extends AbstractEvent {
 
     @Override
     public void action() throws OTMException {
-        ((AbstractController) this.recipient).initialize(dispatcher.scenario);
+        ((AbstractController) this.recipient).initialize(dispatcher.scenario,false);
         ((Pokable) this.recipient).poke(dispatcher,dispatcher.current_time);
     }
 }

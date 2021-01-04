@@ -150,10 +150,10 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     }
 
-    public void initialize(Scenario scenario) throws OTMException {
+    public void initialize(Scenario scenario,boolean override_targets) throws OTMException {
         for(AbstractActuator x : actuators.values()) {
             x.myController = this;
-            x.initialize(scenario, start_time );
+            x.initialize(scenario, start_time ,override_targets);
         }
     }
 

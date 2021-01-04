@@ -1,6 +1,8 @@
 package core;
 
+import actuator.AbstractActuator;
 import actuator.ActuatorFlowToLinks;
+import actuator.InterfaceActuatorTarget;
 import error.OTMErrorLog;
 import error.OTMException;
 import core.geometry.RoadGeometry;
@@ -17,7 +19,8 @@ import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 
-public class Link implements InterfaceScenarioElement {
+public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
+
 
     public enum RoadType {none,offramp,onramp,freeway,connector,bridge,ghost}
 
@@ -128,6 +131,31 @@ public class Link implements InterfaceScenarioElement {
         for(Long c : pathless_comms) {
             split_profile.put(c, new SplitMatrixProfile(c,this));
         }
+    }
+
+    ///////////////////////////////////////////
+    // InterfaceActuatorTarget
+    ///////////////////////////////////////////
+
+    @Override
+    public String getTypeAsTarget() {
+        return "link";
+    }
+
+    @Override
+    public long getIdAsTarget() {
+        return id;
+    }
+
+    @Override
+    public void register_actuator(Set<Long> commids, AbstractActuator act,boolean override) throws OTMException {
+
+        if(act instanceof ActuatorFlowToLinks) {
+//            if(!override && act_flowToLinks!=null)
+//                throw new OTMException("Link already has a flow actuator.");
+            this.act_flowToLinks = (ActuatorFlowToLinks) act;
+        }
+
     }
 
     ///////////////////////////////////////////
@@ -253,9 +281,6 @@ public class Link implements InterfaceScenarioElement {
         return lgs.stream().mapToDouble(x->x.get_max_vehicles()).sum();
     }
 
-    public void set_actuator_flowToLinks(ActuatorFlowToLinks act){
-        this.act_flowToLinks = act;
-    }
 
     ////////////////////////////////////////////
     // inter-link dynamics

@@ -22,8 +22,8 @@ public class LaneGroupSet implements InterfaceActuatorTarget {
     }
 
     @Override
-    public void register_actuator(Set<Long> commids,AbstractActuator act) throws OTMException {
+    public void register_actuator(Set<Long> commids,AbstractActuator act,boolean override) throws OTMException {
         for(AbstractLaneGroup lg : lgs)
-            lg.register_actuator(commids,act);
+            lg.register_actuator(commids,act,override);
     }
 }

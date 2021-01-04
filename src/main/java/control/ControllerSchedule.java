@@ -75,8 +75,8 @@ public class ControllerSchedule extends AbstractController {
     }
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
+    public void initialize(Scenario scenario,boolean override_targets) throws OTMException {
+        super.initialize(scenario,override_targets);
 
         curr_entry_index = -1;
 
@@ -145,7 +145,7 @@ public class ControllerSchedule extends AbstractController {
             curr_entry = entries.get(curr_entry_index);
 
             // initialize
-            curr_entry.cntrl.initialize(scenario);
+            curr_entry.cntrl.initialize(scenario,true);
             curr_entry.cntrl.poke(scenario.dispatcher,now);
         }
     }
@@ -166,7 +166,7 @@ public class ControllerSchedule extends AbstractController {
         }
 
         public void initialize(Scenario scenario) throws OTMException {
-            cntrl.initialize(scenario);
+            cntrl.initialize(scenario,true);
         }
 
         public void validate(OTMErrorLog errorLog) {

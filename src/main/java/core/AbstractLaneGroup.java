@@ -109,19 +109,19 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     }
 
     @Override
-    public void register_actuator(Set<Long> commids,AbstractActuator act) throws OTMException {
+    public void register_actuator(Set<Long> commids,AbstractActuator act,boolean override) throws OTMException {
 
         if(act instanceof ActuatorLaneGroupCapacity){
-            if(this.actuator_capacity!=null)
+            if(!override && this.actuator_capacity!=null)
                 throw new OTMException(String.format("Multiple capacity actuators on link %d, lanes %d through %d.",link.getId(),start_lane_dn,start_lane_dn+num_lanes-1));
             this.actuator_capacity = (ActuatorLaneGroupCapacity) act;
         }
 
         if(act.getType()== AbstractActuator.Type.lg_allowcomm){
-            if(this.actuator_lgrestrict ==null)
+            if(actuator_lgrestrict==null)
                 actuator_lgrestrict = new HashMap<>();
             for(Long commid : commids){
-                if (actuator_lgrestrict.containsKey(commid))
+                if (!override && actuator_lgrestrict.containsKey(commid))
                     throw new OTMException(String.format("Lane group closure clash for commodity %d", commid));
                 this.actuator_lgrestrict.put(commid, (ActuatorLaneGroupAllowComm) act);
             }

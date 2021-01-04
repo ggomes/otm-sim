@@ -38,8 +38,8 @@ public class ActuatorLaneGroupCapacity extends AbstractActuatorLaneGroup  {
     }
 
     @Override
-    public void initialize(Scenario scenario, float start_time) throws OTMException {
-        super.initialize(scenario, start_time);
+    public void initialize(Scenario scenario, float start_time,boolean override_targets) throws OTMException {
+        super.initialize(scenario, start_time,override_targets);
 
         this.total_lanes = lanegroups==null || lanegroups.isEmpty() ? 0 : lanegroups.stream().mapToInt(x->x.get_num_lanes()).sum();
 

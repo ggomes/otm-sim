@@ -89,14 +89,12 @@ public class ActuatorFlowToLinks extends AbstractActuator {
     }
 
     @Override
-    public void initialize(Scenario scenario, float start_time) throws OTMException {
+    public void initialize(Scenario scenario, float start_time,boolean override_targets) throws OTMException {
 
         if (initialized)
             return;
 
-        super.initialize(scenario, start_time);
-
-        linkMLup.set_actuator_flowToLinks(this);
+        super.initialize(scenario, start_time,override_targets);
 
         outlink2flows = new double[outlink_ids.size()];
         outlink2portion= new HashMap<>();
@@ -104,7 +102,8 @@ public class ActuatorFlowToLinks extends AbstractActuator {
             outlink2portion.put(linkid, Double.NaN);
 
         // register the actuator
-        target.register_actuator(commids,this);
+        target = linkMLup;
+        target.register_actuator(commids,this,override_targets);
     }
 
     @Override

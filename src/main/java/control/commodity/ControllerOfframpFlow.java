@@ -65,8 +65,8 @@ public class ControllerOfframpFlow extends AbstractController {
     }
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
+    public void initialize(Scenario scenario,boolean override_targets) throws OTMException {
+        super.initialize(scenario,override_targets);
 //        ml_sensor.initialize(scenario);
 //
 //        Map<Long,Double> temp = new HashMap<>();

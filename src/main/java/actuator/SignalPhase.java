@@ -83,9 +83,9 @@ public class SignalPhase {
             errorLog.addError("lanegroups.isEmpty()");
     }
 
-    public void initialize() throws OTMException {
+    public void initialize(boolean override_targets) throws OTMException {
         for(AbstractLaneGroup lg : lanegroups)
-            lg.register_actuator(null,my_signal);
+            lg.register_actuator(null,my_signal,override_targets);
         set_bulb_color(BulbColor.DARK);
     }
 

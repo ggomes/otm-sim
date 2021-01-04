@@ -34,8 +34,8 @@ public class ControllerAlinea extends AbstractControllerRampMetering {
     ///////////////////////////////////////////////////
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
+    public void initialize(Scenario scenario,boolean override_targets) throws OTMException {
+        super.initialize(scenario,override_targets);
 
         params = new HashMap<>();
         for(AbstractActuator abs_act : actuators.values()){

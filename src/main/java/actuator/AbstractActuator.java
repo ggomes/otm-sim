@@ -86,7 +86,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         return ScenarioElementType.actuator;
     }
 
-    public void initialize(Scenario scenario, float start_time) throws OTMException {
+    public void initialize(Scenario scenario, float start_time, boolean override_targets) throws OTMException {
 
         if(initialized)
             return;

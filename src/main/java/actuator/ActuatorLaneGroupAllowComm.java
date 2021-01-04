@@ -1,12 +1,10 @@
 package actuator;
 
 import core.AbstractLaneGroup;
-import core.LaneGroupSet;
 import core.Scenario;
 import control.command.CommandRestrictionMap;
 import control.command.InterfaceCommand;
 import control.commodity.ControllerRestrictLaneGroup;
-import core.ScenarioElementType;
 import error.OTMException;
 import jaxb.Actuator;
 

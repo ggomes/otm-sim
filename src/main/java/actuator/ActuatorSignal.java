@@ -52,19 +52,19 @@ public class ActuatorSignal extends AbstractActuator {
     }
 
     @Override
-    public void initialize(Scenario scenario, float start_time) throws OTMException {
+    public void initialize(Scenario scenario, float start_time,boolean override_targets) throws OTMException {
 
         if(initialized)
             return;
 
-        super.initialize(scenario,start_time);
+        super.initialize(scenario,start_time,override_targets);
 
         // set all bulb colors to dark
         for(SignalPhase p : signal_phases.values() )
-            p.initialize();
+            p.initialize(override_targets);
 
         // register the actuator
-        target.register_actuator(commids,this);
+        target.register_actuator(commids,this,override_targets);
     }
 
     @Override

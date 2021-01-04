@@ -32,8 +32,8 @@ public abstract class AbstractActuatorLaneGroup extends AbstractActuator {
     }
 
     @Override
-    public void initialize(Scenario scenario, float start_time) throws OTMException {
-        super.initialize(scenario, start_time);
+    public void initialize(Scenario scenario, float start_time, boolean override_targets) throws OTMException {
+        super.initialize(scenario, start_time,override_targets);
 
         this.target = OTMUtils.read_lanegroups(lgstr,scenario.network);
         this.lanegroups  =  ((LaneGroupSet)target).lgs;
@@ -42,7 +42,7 @@ public abstract class AbstractActuatorLaneGroup extends AbstractActuator {
             throw new OTMException(String.format("Actuator %d has no lanegroups.",id));
 
         // register the actuator
-        target.register_actuator(commids,this);
+        target.register_actuator(commids,this,override_targets);
     }
 
 }
