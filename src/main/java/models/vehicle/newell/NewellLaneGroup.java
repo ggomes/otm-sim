@@ -1,19 +1,18 @@
 package models.vehicle.newell;
 
-import common.AbstractVehicle;
-import common.Link;
-import common.RoadConnection;
+import core.AbstractVehicle;
+import core.Link;
+import core.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.FlowPosition;
-import geometry.Side;
 import jaxb.Roadparam;
-import keys.State;
-import common.AbstractLaneGroup;
+import core.State;
+import core.AbstractLaneGroup;
+import models.vehicle.AbstractVehicleModel;
 import models.vehicle.VehicleLaneGroup;
-import packet.PacketLaneGroup;
-import packet.PacketLink;
-import common.Scenario;
+import core.packet.PacketLaneGroup;
+import core.packet.PacketLink;
+import core.Scenario;
 import traveltime.VehicleLaneGroupTimer;
 import utils.OTMUtils;
 
@@ -37,8 +36,8 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     // construction
     ///////////////////////////////////////////
 
-    public NewellLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
-        super(link, side, flwpos, length, num_lanes, start_lane, out_rcs, rp);
+    public NewellLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+        super(link, side, length, num_lanes, start_lane, out_rcs, rp);
         vehicles = new ArrayList<>();
     }
 
@@ -51,9 +50,8 @@ public class NewellLaneGroup extends VehicleLaneGroup {
 
     }
 
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
+    public void initialize(Scenario scenario, float start_time) throws OTMException {
+        super.initialize(scenario, start_time);
 
         update_supply();
     }
@@ -173,41 +171,18 @@ public class NewellLaneGroup extends VehicleLaneGroup {
 
     protected boolean release_vehicle(float timestamp, Iterator<NewellVehicle> it, NewellVehicle vehicle) throws OTMException {
 
-        boolean released = false;
+        double next_supply = Double.POSITIVE_INFINITY;
+        Link next_link = null;
+        RoadConnection rc = null;
 
-        if(link.is_sink) {
-
-            if(vehicle.follower!=null) {
-                vehicle.follower.leader = null;
-                vehicle.follower.headway = Double.POSITIVE_INFINITY;
-            }
-
-            // remove the vehicle from the lanegroup
-            it.remove();
-
-
-//            // inform vehicle listener
-//            if(vehicle.get_event_listeners()!=null)
-//                for(InterfaceVehicleListener ev : vehicle.get_event_listeners())
-//                    ev.move_from_to_queue(timestamp,vehicle,waiting_queue,null);
-
-            // inform the travel timers
-            if(travel_timer!=null)
-                ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),null);
-
-            released = true;
-        }
-        else{
+        if(!link.is_sink){
 
             // get next link
             State state = vehicle.get_state();
             Long next_link_id = state.isPath ? link.path2outlink.get(state.pathOrlink_id).getId() : state.pathOrlink_id;
 
-            // vehicle should be in a target lane group
-            assert(outlink2roadconnection.containsKey(next_link_id));
-
-            RoadConnection rc = outlink2roadconnection.get(next_link_id);
-            Link next_link = rc.end_link;
+            rc = outlink2roadconnection.get(next_link_id);
+            next_link = rc.end_link;
 
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
@@ -216,57 +191,39 @@ public class NewellLaneGroup extends VehicleLaneGroup {
                     .max();
 
             assert(next_supply_o.isPresent());
-//            if(!next_supply_o.isPresent())
-//                return false;
+            next_supply = next_supply_o.getAsDouble();
+        }
 
-            double next_supply = next_supply_o.getAsDouble();
+        if(next_supply > OTMUtils.epsilon){
 
-            // release the vehicle if
-            // a) connected to a vehicle model and space >= 1
-            // b) connected to a fluid model and space >= 0
+            // possibly disconnect from follower
+            if(next_link==null || !(next_link.model instanceof AbstractVehicleModel))
+                if(vehicle.follower!=null) {
+                    vehicle.follower.headway = Double.POSITIVE_INFINITY;
+                    vehicle.follower.leader = null;
+                }
 
-            if(next_supply > OTMUtils.epsilon){
+            // remove the vehicle from the lanegroup
+            it.remove();
+            vehicle.new_pos -= vehicle.lg.length;
 
-//                if(    ((next_link.model instanceof AbstractVehicleModel) && next_supply >= 1d)
-//                    || ((next_link.model instanceof AbstractFluidModel)   && next_supply > OTMUtils.epsilon ) ) {
+            // inform flow accumulators
+            update_flow_accummulators(vehicle.get_state(), 1f);
 
-                // remove the vehicle from the lanegroup
-                it.remove();
-                vehicle.new_pos -= vehicle.lg.length;
+            // inform the travel timers
+            if(travel_timer!=null)
+                ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),next_link);
 
-                // inform the travel timers
-                if(travel_timer!=null)
-                    ((VehicleLaneGroupTimer)travel_timer).vehicle_exit(timestamp,vehicle,link.getId(),next_link);
-
-                // send vehicle packet to next link
+            // send vehicle core.packet to next link
+            if(next_link!=null && rc!=null)
                 next_link.model.add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
 
-                // possibly disconnect from follower
-                if(!(next_link.model instanceof ModelNewell) && vehicle.follower!=null)
-                    vehicle.follower.leader = null;
-
-                released = true;
-            }
-
-        }
-
-        // tell the flow accumulators
-        if(released) {
-            update_flow_accummulators(vehicle.get_state(), 1f);
             update_supply();
+
+            return true;
         }
 
-        return released;
-
-        /** NOTE RESOLVE THIS. NEED TO CHECK
-         * a) WHETHER THE NEXT LANE GROUP IS MACRO OR MESO.
-         * b) IF MACRO, INCREMENT SOME DEMAND BUFFER
-         * c) IF MESO, CHECK IF THE NEXT LANE GROUP HAS SPACE. IF IT DOES NOT THEN
-         * WHAT TO DO?
-         * PERHAPS HAVE ANOTHER QUEUE WHERE VEHICLES WAIT FOR SPACE TO OPEN.
-         * HOW DOES THIS WORK WITH CAPACITY?
-         */
-
+        return false;
 
     }
 }

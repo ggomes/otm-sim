@@ -1,14 +1,14 @@
 package output;
 
-import common.Link;
-import common.Scenario;
+import core.Link;
+import core.Scenario;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import models.fluid.AbstractFluidModel;
 import models.fluid.EventUpdateTotalCellVehiclesDwn;
 import models.fluid.FluidLaneGroup;
-import runner.RunParameters;
+import cmd.RunParameters;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -82,12 +82,7 @@ public class OutputCellSumVehiclesDwn extends AbstractOutputTimedCell {
 
     @Override
     public String get_output_file() {
-        if(!write_to_file)
-            return null;
-        if(commodity==null)
-            return String.format("%s_cell_sumveh_dwn.txt",super.get_output_file());
-        else
-            return String.format("%s_cell_comm%d_sumveh_dwn.txt",super.get_output_file(),commodity.getId());
+        return write_to_file ? super.get_output_file() + "_sumvehdwn.txt" : null;
     }
 
     //////////////////////////////////////////////////////

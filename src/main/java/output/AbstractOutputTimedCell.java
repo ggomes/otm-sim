@@ -1,8 +1,8 @@
 package output;
 
-import common.AbstractLaneGroup;
-import common.Link;
-import common.Scenario;
+import core.AbstractLaneGroup;
+import core.Link;
+import core.Scenario;
 import error.OTMErrorLog;
 import error.OTMException;
 import models.fluid.AbstractFluidModel;
@@ -44,7 +44,7 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
             if(!(link.model instanceof AbstractFluidModel))
                 throw new OTMException("Cell output cannot be generated for links with non-fluid models");
 
-            for(AbstractLaneGroup lg : link.lanegroups_flwdn){
+            for(AbstractLaneGroup lg : link.lgs){
                 FluidLaneGroup flg = (FluidLaneGroup)lg;
                 ordered_lgs.add(flg);
                 List<CellProfile> profs = new ArrayList<>();
@@ -57,8 +57,13 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
     }
 
     //////////////////////////////////////////////////////
-    // AbstractOutputTimed
+    // InterfaceOutput
     //////////////////////////////////////////////////////
+
+    @Override
+    public String get_output_file() {
+        return super.get_output_file() + "_cell";
+    }
 
     @Override
     public final void write(float timestamp) throws OTMException {
@@ -70,7 +75,7 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
                     if(!isfirst)
                         writer.write(AbstractOutputTimed.delim);
                     isfirst = false;
-                    String str = OTMUtils.format_delim(get_value_for_lanegroup(lg)," ");
+                    String str = OTMUtils.format_delim(get_value_for_lanegroup(lg),",");
                     writer.write(str);  // TODO THIS WILL FAIL
                 }
                 writer.write("\n");
@@ -107,10 +112,10 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
                 String filename = get_output_file();
                 if(filename!=null) {
                     String subfilename = filename.substring(0,filename.length()-4);
-                    Writer cells_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_cells.txt"));
+                    Writer cells_writer = new OutputStreamWriter(new FileOutputStream(subfilename + "_cols.txt"));
                     for(FluidLaneGroup lg: ordered_lgs)
                         for(int i=0;i<lg.cells.size();i++)
-                            cells_writer.write(i+" "+lg.id+" "+lg.link.getId() + " " + lg.start_lane_dn+ " " + (lg.start_lane_dn+lg.num_lanes-1) +"\n"); // start/end dn lanes
+                            cells_writer.write(i+","+lg.id+","+lg.link.getId() + "," + lg.start_lane_dn+ "," + (lg.start_lane_dn+lg.num_lanes-1) +"\n"); // start/end dn lanes
                     cells_writer.close();
                 }
             } catch (FileNotFoundException exc) {

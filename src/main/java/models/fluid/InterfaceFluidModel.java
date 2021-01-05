@@ -1,6 +1,6 @@
 package models.fluid;
 
-import common.Link;
+import core.Link;
 import error.OTMException;
 import models.InterfaceModel;
 

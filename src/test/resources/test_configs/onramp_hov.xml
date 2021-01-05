@@ -3,13 +3,12 @@
 <scenario xmlns="opentrafficmodels">
 
   <commodities>
-    <commodity id="0" name="lov" pathfull="false"/>
-    <commodity id="1" name="hov" pathfull="false"/>
+    <commodity id="1" name="car" pathfull="false"/>
   </commodities>
 
 	<models>
 		<model type="ctm" name="myctm" links="" is_default="true">
-			<model_params sim_dt="1" max_cell_length="50"/>
+			<model_params sim_dt="2" max_cell_length="100"/>
 		</model>
 	</models>
 
@@ -27,37 +26,19 @@
 		</nodes>
 		
 		<links>
-			<link id="0" length="10"  start_node_id="0" end_node_id="1" roadparam="1" full_lanes="2"/>
-			<link id="5" length="10"  start_node_id="6" end_node_id="7" roadparam="1" full_lanes="2"/>
-
+			<link id="0" length="100" start_node_id="0" end_node_id="1" roadparam="1" full_lanes="2"/>
 			<link id="1" length="200" start_node_id="1" end_node_id="2" roadparam="1" full_lanes="1" roadgeom="0"/>
-			<link id="6" length="200" start_node_id="7" end_node_id="2" roadparam="1" full_lanes="1" roadgeom="0"/>
-
-
-			<link id="2" length="200" start_node_id="2" end_node_id="3" roadparam="1" full_lanes="2" roadgeom="1"/>
-
-			<link id="3" length="200" start_node_id="3" end_node_id="4" roadparam="1" full_lanes="1" roadgeom="2"/>
+			<link id="2" length="200" start_node_id="2" end_node_id="3" roadparam="1" full_lanes="2" roadgeom="0"/>
+			<link id="3" length="200" start_node_id="3" end_node_id="4" roadparam="1" full_lanes="1" roadgeom="0"/>
 			<link id="4" length="200" start_node_id="4" end_node_id="5" roadparam="1" full_lanes="2"/>
+			<link id="5" length="100" start_node_id="6" end_node_id="7" roadparam="1" full_lanes="2"/>
+			<link id="6" length="200" start_node_id="7" end_node_id="2" roadparam="1" full_lanes="1" roadgeom="0"/>
 		</links>
-
+		
 		<roadgeoms>
-
 			<roadgeom id="0">
-				<add_lanes side="in" pos="dn" lanes="1" isopen="true" />
+				<add_lanes isopen="true" side="in" lanes="1" roadparam="1" />
 			</roadgeom>
-
-			<roadgeom id="1">
-				<add_lanes side="in" pos="dn" lanes="1" isopen="false">
-					<gates>
-						<gate start_pos="100" end_pos="150" />
-					</gates>
-				</add_lanes>
-			</roadgeom>
-
-			<roadgeom id="2">
-				<add_lanes side="in" pos="dn" lanes="1" isopen="false"/>
-			</roadgeom>
-
 		</roadgeoms>
 		
 		<roadparams>
@@ -65,54 +46,41 @@
 		</roadparams>
 
 		<roadconnections>
-			<roadconnection id="0" in_link="1" in_link_lanes="1#1" out_link="2" out_link_lanes="1#1" />
-			<roadconnection id="1" in_link="1" in_link_lanes="2#2" out_link="2" out_link_lanes="2#2" />
-			<roadconnection id="2" in_link="6" in_link_lanes="1#1" out_link="2" out_link_lanes="3#3" />
-			<roadconnection id="3" in_link="6" in_link_lanes="2#2" out_link="2" out_link_lanes="3#3" />
-			<roadconnection id="4" in_link="2" in_link_lanes="1#1" out_link="3" out_link_lanes="1#1" />
-			<roadconnection id="5" in_link="2" in_link_lanes="2#3" out_link="3" out_link_lanes="2#2" />
-			<roadconnection id="6" in_link="3" in_link_lanes="1#1" out_link="4" out_link_lanes="1#1" />
-			<roadconnection id="7" in_link="3" in_link_lanes="2#2" out_link="4" out_link_lanes="2#2" />
+			<roadconnection id="0" in_link="1" in_link_lanes="1#1" out_link="2" out_link_lanes="1#1"/>
+			<roadconnection id="1" in_link="1" in_link_lanes="2#2" out_link="2" out_link_lanes="2#2"/>
+			<roadconnection id="2" in_link="6" in_link_lanes="1#1" out_link="2" out_link_lanes="3#3"/>
+			<roadconnection id="3" in_link="6" in_link_lanes="2#2" out_link="2" out_link_lanes="3#3"/>
+			<roadconnection id="4" in_link="2" in_link_lanes="1#1" out_link="3" out_link_lanes="1#1"/>
+			<roadconnection id="5" in_link="2" in_link_lanes="2#3" out_link="3" out_link_lanes="2#2"/>
+			<roadconnection id="6" in_link="3" in_link_lanes="1#1" out_link="4" out_link_lanes="1#1"/>
+			<roadconnection id="7" in_link="3" in_link_lanes="2#2" out_link="4" out_link_lanes="2#2"/>
 		</roadconnections>
 
 	</network>
 
 	<demands>
-		<demand commodity_id="0" link_id="0">500</demand>
-		<demand commodity_id="0" link_id="5">200</demand>
-		<demand commodity_id="1" link_id="0">500</demand>
-		<demand commodity_id="1" link_id="5">200</demand>
+		<demand commodity_id="1" link_id="0">1000</demand>
+		<demand commodity_id="1" link_id="5">500</demand>
  	</demands>
 
  	<actuators>
-<!--  		<actuator id="0" type="meter">
- 			<actuator_target type="link" id="6" lanes="1#1"/>
+ 		<actuator id="0" type="meter">
+ 			<actuator_target type="lanegroups" lanegroups="6(1#1)" />
  		</actuator>
-
  		<actuator id="1" type="meter">
- 			<actuator_target type="link" id="6" lanes="2#2"/>
- 		</actuator> -->
-
-
- 		<actuator id="1" type="laneclosure">
- 			<actuator_target type="commodity" id="0"/>
- 			<linklanes>
- 				<linklane link="1" lanes="1#1"/>
- 				<linklane link="2" lanes="1#1"/>
- 				<linklane link="3" lanes="1#1"/>
- 				<linklane link="6" lanes="1#1"/>
- 			</linklanes>
+ 			<actuator_target type="lanegroups" lanegroups="6(2#2)" />
  		</actuator>
-
  	</actuators>
 
-<!--  	<controllers>
- 		<controller id="0" type="maxrate" start_time="0" dt="100">
- 			<target_actuators>
- 				<target_actuator id="0">100,200,300</target_actuator>
- 				<target_actuator id="1">10,20,30</target_actuator>
- 			</target_actuators>
- 		</controller>
- 	</controllers> -->
+ 	<controllers>
+ 		 <controller id="1" dt="100" type="rm_fixed_rate">
+            <target_actuators ids="0,1"/>
+            <parameters>
+                <parameter name="rate_vphpl" value="200"/>
+                <parameter name="max_rate_vphpl" value="1200"/>
+                <parameter name="min_rate_vphpl" value="160"/>
+            </parameters>
+        </controller>
+ 	</controllers>
 
 </scenario>

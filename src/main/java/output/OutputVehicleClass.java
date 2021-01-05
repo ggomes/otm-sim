@@ -6,8 +6,8 @@ import dispatch.Dispatcher;
 import error.OTMException;
 import models.vehicle.spatialq.MesoVehicle;
 import models.vehicle.spatialq.Queue;
-import runner.RunParameters;
-import common.Scenario;
+import cmd.RunParameters;
+import core.Scenario;
 
 // TODO: THIS SHOULD NOT BE AN INTERFACEVEHICLELISTENER SINCE IT ONLY ACTS UPON VEHICLE CREATION
 public class OutputVehicleClass extends AbstractOutput implements InterfaceVehicleListener {

@@ -1,8 +1,8 @@
 package output;
 
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 import error.OTMException;
-import common.Scenario;
+import core.Scenario;
 
 import java.util.Collection;
 
@@ -23,12 +23,7 @@ public class OutputLaneGroupVehicles extends AbstractOutputTimedLanegroup {
 
     @Override
     public String get_output_file() {
-        if(!write_to_file)
-            return null;
-        if(commodity==null)
-            return String.format("%s_lanegroup_veh.txt",super.get_output_file());
-        else
-            return String.format("%s_lanegroup_comm%d_veh.txt",super.get_output_file(),commodity.getId());
+        return write_to_file ? super.get_output_file() + "_veh.txt" : null;
     }
 
     //////////////////////////////////////////////////////

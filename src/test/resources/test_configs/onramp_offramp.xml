@@ -30,51 +30,16 @@
 			<node id="8" x="3500" y="-500" />
 		</nodes>
 		<links>
-			<link id="1" length="1000" start_node_id="1" end_node_id="2" roadparam="1" full_lanes="5">
-		        <points>
-		          <point x="0" y="0"/>
-		          <point x="1000" y="0"/>
-		        </points>
-			</link>
-			<link id="2" length="1000" start_node_id="2" end_node_id="3" roadparam="1" full_lanes="5">
-		        <points>
-		          <point x="1000" y="0"/>
-		          <point x="2000" y="0"/>
-		        </points>
-			</link>
-			<link id="3" length="1000" start_node_id="3" end_node_id="4" roadparam="1" full_lanes="5">
-		        <points>
-		          <point x="2000" y="0"/>
-		          <point x="3000" y="0"/>
-		        </points>
-			</link>
-			<link id="4" length="1000" start_node_id="4" end_node_id="5" roadparam="1" full_lanes="4">
-		        <points>
-		          <point x="3000" y="0"/>
-		          <point x="4000" y="0"/>
-		        </points>
-			</link>
-			<link id="5" length="1000" start_node_id="5" end_node_id="6" roadparam="1" full_lanes="4">
-		        <points>
-		          <point x="4000" y="0"/>
-		          <point x="5000" y="0"/>
-		        </points>
-			</link>
-			<link id="6" length="1000" start_node_id="7" end_node_id="3" roadparam="1" full_lanes="1">
-		        <points>
-		          <point x="1500" y="-500"/>
-		          <point x="2000" y="-40"/>
-		        </points>
-			</link>
-			<link id="7" length="1000" start_node_id="4" end_node_id="8" roadparam="1" full_lanes="1">
-		        <points>
-		          <point x="3000" y="-40"/>
-		          <point x="3500" y="-500"/>
-		        </points>
-			</link>
+			<link id="1" length="1000" start_node_id="1" end_node_id="2" roadparam="1" full_lanes="5"/>
+			<link id="2" length="1000" start_node_id="2" end_node_id="3" roadparam="1" full_lanes="5"/>
+			<link id="3" length="1000" start_node_id="3" end_node_id="4" roadparam="1" full_lanes="5"/>
+			<link id="4" length="1000" start_node_id="4" end_node_id="5" roadparam="1" full_lanes="4"/>
+			<link id="5" length="1000" start_node_id="5" end_node_id="6" roadparam="1" full_lanes="4"/>
+			<link id="6" length="1000" start_node_id="7" end_node_id="3" roadparam="1" full_lanes="1"/>
+			<link id="7" length="1000" start_node_id="4" end_node_id="8" roadparam="1" full_lanes="1"/>
 		</links>
 		<roadconnections>
-			<roadconnection id="1" in_link="3" in_link_lanes="1#5" out_link="4" out_link_lanes="1#4" />
+			<roadconnection id="1" in_link="3" out_link="4" out_link_lanes="1#4" />
 			<roadconnection id="2" in_link="3" in_link_lanes="5#5" out_link="7" out_link_lanes="1#1" />
 		</roadconnections>
 		<roadparams>
@@ -83,15 +48,15 @@
 	</network>
 
 	<demands>
-		<demand commodity_id="1" subnetwork="1" dt="2000">3000,0</demand>
-		<demand commodity_id="1" subnetwork="2" dt="2000">500,0</demand>
-<!-- 		<demand commodity_id="2" link_id="1" dt="2000">2400,0</demand>
- -->	</demands>
+		<demand commodity_id="1" subnetwork="2" dt="2000">800,0</demand>
+		<demand commodity_id="1" subnetwork="1" dt="2000">300,0</demand>
+		<demand commodity_id="2" link_id="1" dt="2000">1000,0</demand>
+	</demands>
 
 	<splits>
-		<split_node commodity_id="2" node_id="4" link_in="3">
-			<split link_out="7">0.5</split>
-			<split link_out="4">0.5</split>
+		<split_node commodity_id="2" dt="1000" node_id="4" link_in="3">
+			<split link_out="7">0.0,0.3</split>
+			<split link_out="4">1.0,0.7</split>
 		</split_node>
 	</splits>
 

@@ -1,6 +1,6 @@
 package commodity;
 
-import common.*;
+import core.*;
 import error.OTMErrorLog;
 import error.OTMException;
 import utils.OTMUtils;

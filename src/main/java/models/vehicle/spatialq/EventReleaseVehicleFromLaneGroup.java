@@ -1,6 +1,6 @@
 package models.vehicle.spatialq;
 
-import common.InterfaceLaneGroup;
+import core.InterfaceLaneGroup;
 import dispatch.AbstractEvent;
 import dispatch.Dispatcher;
 import error.OTMException;
@@ -28,8 +28,7 @@ public class EventReleaseVehicleFromLaneGroup extends AbstractEvent {
     }
 
     @Override
-    public void action(boolean verbose) throws OTMException {
-        super.action(verbose);
+    public void action() throws OTMException {
         ((InterfaceLaneGroup) recipient).release_vehicle_packets(timestamp);
     }
 

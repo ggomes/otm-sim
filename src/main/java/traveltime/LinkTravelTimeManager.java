@@ -1,11 +1,11 @@
 package traveltime;
 
-import common.Link;
+import core.Link;
 import dispatch.Dispatcher;
 import dispatch.EventComputeTravelTime;
 import error.OTMException;
 import output.OutputPathTravelTime;
-import common.Scenario;
+import core.Scenario;
 
 import java.util.*;
 

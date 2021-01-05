@@ -1,7 +1,7 @@
 package output.animation.meso;
 
-import common.AbstractLaneGroup;
-import common.Link;
+import core.AbstractLaneGroup;
+import core.Link;
 import output.animation.AbstractLaneGroupInfo;
 import output.animation.AbstractLinkInfo;
 

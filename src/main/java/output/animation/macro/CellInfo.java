@@ -1,6 +1,6 @@
 package output.animation.macro;
 
-import keys.State;
+import core.State;
 import models.fluid.AbstractCell;
 
 import java.util.*;

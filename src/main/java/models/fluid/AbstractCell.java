@@ -1,8 +1,8 @@
 package models.fluid;
 
-import common.FlowAccumulatorState;
-import geometry.Side;
-import keys.State;
+import core.FlowAccumulatorState;
+import core.State;
+import models.Maneuver;
 
 import java.util.Map;
 
@@ -20,15 +20,17 @@ public abstract class AbstractCell {
     public FlowAccumulatorState flw_lcout_acc;
     public FlowAccumulatorState flw_lcin_acc;
 
-    public abstract void reset();
+    public abstract void set_state();
     public abstract void allocate_state();
     public abstract Map<State,Double> get_demand();
     public abstract void update_supply();
     public abstract void update_demand();
     public abstract void add_vehicles(Map<State, Double> dwn, Map<State, Double> in, Map<State, Double> out);
-    public abstract void add_vehicles(State state, Double value,Map<Side,Double> side2prob );
+    public abstract void add_vehicles(State state, Double value,Map<Maneuver,Double> maneuver2prob );
     public abstract void subtract_vehicles(Map<State, Double> dwn, Map<State, Double> in, Map<State, Double> out);
     public abstract double get_vehicles();
+
+
     public abstract double get_veh_dwn_for_commodity(Long comm_id);
     public abstract double get_veh_in_for_commodity(Long comm_id);
     public abstract double get_veh_out_for_commodity(Long comm_id);

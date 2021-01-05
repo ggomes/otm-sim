@@ -1,9 +1,9 @@
 package output;
 
-import common.Link;
+import core.Link;
 import error.OTMException;
 import profiles.Profile1D;
-import common.Scenario;
+import core.Scenario;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,12 +25,7 @@ public class OutputLinkVehicles extends AbstractOutputTimedLink {
 
     @Override
     public String get_output_file() {
-        if(!write_to_file)
-            return null;
-        if(commodity==null)
-            return String.format("%s_link_veh.txt",super.get_output_file());
-        else
-            return String.format("%s_link_comm%d_veh.txt",super.get_output_file(),commodity.getId());
+        return write_to_file ? super.get_output_file() + "_veh.txt" : null;
     }
 
     //////////////////////////////////////////////////////

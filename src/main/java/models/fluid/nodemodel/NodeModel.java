@@ -1,14 +1,14 @@
 package models.fluid.nodemodel;
 
-import common.Link;
-import common.Node;
+import core.Link;
+import core.Node;
 import error.OTMErrorLog;
 import error.OTMException;
-import keys.State;
-import common.AbstractLaneGroup;
+import core.State;
+import core.AbstractLaneGroup;
 import models.fluid.*;
 import models.fluid.FluidLaneGroup;
-import common.Scenario;
+import core.Scenario;
 import utils.OTMUtils;
 
 import java.util.HashMap;
@@ -57,12 +57,12 @@ public class NodeModel {
             Link dn_link = node.out_links.iterator().next();
 
             // there is only one upstream lanegroup
-            assert(up_link.lanegroups_flwdn.size()==1);
-            FluidLaneGroup up_lanegroup = (FluidLaneGroup) up_link.lanegroups_flwdn.iterator().next();
+            assert(up_link.lgs.size()==1);
+            FluidLaneGroup up_lanegroup = (FluidLaneGroup) up_link.lgs.iterator().next();
 
             // there is only one dnstream lanegroup
-            assert(dn_link.lanegroups_flwdn.size()==1);
-            FluidLaneGroup dn_lanegroup = (FluidLaneGroup) dn_link.lanegroups_flwdn.iterator().next();
+            assert(dn_link.lgs.size()==1);
+            FluidLaneGroup dn_lanegroup = (FluidLaneGroup) dn_link.lgs.iterator().next();
 
             // add a fictitious road connection with id 0
             RoadConnection rc = new RoadConnection(0L,null);
@@ -91,7 +91,7 @@ public class NodeModel {
         Map<Long,DnLaneGroup> dn_lgs_map = new HashMap<>();
 
         // iterate through the road connections
-        for (common.RoadConnection xrc : node.road_connections) {
+        for (core.RoadConnection xrc : node.road_connections) {
 
             // skip road connections starting in discrete event links
             if( xrc.get_start_link()==null )
@@ -352,52 +352,5 @@ public class NodeModel {
         }
 
     }
-
-
-
-//    private void update_flow_accumulators(){
-//        for(UpLaneGroup ulg : ulgs){
-//
-//            if(ulg.lg.commodity_flow_accumulators==null)
-//                continue;
-//
-//            Long lg_id = ulg.lg.id;
-//
-//            // iterate through the flow accumulators for this lanegroup
-//            for(Map.Entry<Long,FlowAccumulatorState> e : ulg.lg.commodity_flow_accumulators.entrySet()) {
-//
-//                // compute flow for this commodity
-//                Long comm_id = e.getKey();
-//
-//                double flow_comm = in_flows.containsKey(lg_id) ?
-//                        in_flows.get(lg_id).entrySet().stream()
-//                                .filter(k -> k.getKey().commodity_id == comm_id)
-//                                .mapToDouble(k -> k.getValue())
-//                                .sum()
-//                        : 0d;
-//
-//                // increment the accumulators
-//                FlowAccumulatorState fac = e.getValue();
-//                fac.increment(flow_comm);
-//                if (ulg.lg.global_flow_accumulator != null)
-//                    ulg.lg.global_flow_accumulator.increment(flow_comm);
-//            }
-//
-//        }
-//
-//        // update flow accumulators
-//        for(UpLaneGroup ulg : ulgs){
-//            if(ulg.lg.commodity_flow_accumulators==null)
-//                continue;
-//            for(Map.Entry<Long,FlowAccumulatorState> e : ulg.lg.commodity_flow_accumulators.entrySet()){
-//                Long comm_id = e.getKey();
-//                double flow = ulg.get_flow_for_commodity(comm_id);
-//                FlowAccumulatorState fac = e.getValue();
-//                fac.increment(flow);
-//                if(ulg.lg.global_flow_accumulator!=null)
-//                    ulg.lg.global_flow_accumulator.increment(flow);
-//            }
-//        }
-//    }
 
 }

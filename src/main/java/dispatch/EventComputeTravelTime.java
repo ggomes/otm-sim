@@ -13,8 +13,7 @@ public class EventComputeTravelTime extends AbstractEvent  {
     }
 
     @Override
-    public void action(boolean verbose) throws OTMException {
-        super.action(verbose);
+    public void action() throws OTMException {
         ((LinkTravelTimeManager) recipient).run(timestamp);
     }
 

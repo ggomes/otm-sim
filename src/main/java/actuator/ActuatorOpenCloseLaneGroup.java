@@ -1,8 +1,8 @@
 package actuator;
 
-import common.AbstractLaneGroup;
-import common.LaneGroupSet;
-import common.Scenario;
+import core.AbstractLaneGroup;
+import core.LaneGroupSet;
+import core.Scenario;
 import control.command.CommandRestrictionMap;
 import control.command.InterfaceCommand;
 import control.commodity.ControllerRestrictLaneGroup;

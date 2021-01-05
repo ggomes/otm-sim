@@ -6,16 +6,14 @@
  */
 package utils;
 
-import common.AbstractLaneGroup;
-import common.LaneGroupSet;
-import common.Link;
-import common.Scenario;
+import core.AbstractLaneGroup;
+import core.LaneGroupSet;
+import core.Link;
+import core.Scenario;
 import error.OTMException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 public class OTMUtils {

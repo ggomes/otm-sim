@@ -1,11 +1,11 @@
 package output;
 
-import common.FlowAccumulatorState;
-import common.AbstractLaneGroup;
+import core.FlowAccumulatorState;
+import core.AbstractLaneGroup;
 import error.OTMException;
 import org.jfree.data.xy.XYSeries;
 import profiles.Profile1D;
-import common.Scenario;
+import core.Scenario;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -29,7 +29,7 @@ public class OutputLinkFlow extends AbstractOutputTimedLink {
 
     @Override
     public String get_output_file() {
-        return write_to_file ? super.get_output_file() + "_link_flw_global.txt" : null;
+        return write_to_file ? super.get_output_file() + "_flw.txt" : null;
     }
 
     //////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ public class OutputLinkFlow extends AbstractOutputTimedLink {
         for(LinkProfile linkProfile : linkprofiles.values()) {
             Set<FlowAccumulatorState> flw_acc_set = new HashSet<>();
             flw_acc_sets.put(linkProfile.link.getId(),flw_acc_set);
-            for(AbstractLaneGroup lg : linkProfile.link.lanegroups_flwdn)
+            for(AbstractLaneGroup lg : linkProfile.link.lgs)
                 flw_acc_set.add(lg.request_flow_accumulator(commodity == null ? null : OTMUtils.hashset(commodity.getId())));
         }
     }
@@ -67,7 +67,7 @@ public class OutputLinkFlow extends AbstractOutputTimedLink {
         if(commodity==null)
             return fas.stream().mapToDouble(x->x.get_total_count()).sum();
         else
-            return fas.stream().mapToDouble(x->x.get_count_for_commodity(commodity.getId())).sum();
+            return fas.stream().mapToDouble(x -> x.get_count_for_commodity(commodity.getId())).sum();
     }
 
     @Override

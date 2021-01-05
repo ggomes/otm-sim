@@ -1,6 +1,6 @@
 package models.vehicle;
 
-import common.AbstractVehicle;
+import core.AbstractVehicle;
 import models.InterfaceModel;
 import output.InterfaceVehicleListener;
 

@@ -1,7 +1,7 @@
 package actuator;
 
-import common.AbstractLaneGroup;
-import common.Scenario;
+import core.AbstractLaneGroup;
+import core.Scenario;
 import control.command.CommandNumber;
 import control.command.InterfaceCommand;
 import error.OTMException;

@@ -1,17 +1,13 @@
 package output;
 
-import common.AbstractLaneGroup;
-import common.Link;
+import core.AbstractLaneGroup;
+import core.Link;
 import dispatch.Dispatcher;
 import error.OTMException;
-import runner.RunParameters;
-import common.Scenario;
-import utils.OTMUtils;
+import cmd.RunParameters;
+import core.Scenario;
 
 import java.io.IOException;
-import java.util.Set;
-
-import static java.util.stream.Collectors.toSet;
 
 public class OutputLaneGroups extends AbstractOutput {
 
@@ -42,17 +38,9 @@ public class OutputLaneGroups extends AbstractOutput {
             return;
         try {
 
-            for(Link link : scenario.network.links.values()){
-                for(AbstractLaneGroup lg : link.lanegroups_flwdn)
+            for(Link link : scenario.network.links.values())
+                for(AbstractLaneGroup lg : link.lgs)
                     writer.write(dnlgstring(lg));
-
-                if(link.lanegroup_up_in!=null)
-                    writer.write(uplgstring(link.lanegroup_up_in));
-
-                if(link.lanegroup_up_out!=null)
-                    writer.write(uplgstring(link.lanegroup_up_out));
-
-            }
 
             writer.close();
             writer = null;

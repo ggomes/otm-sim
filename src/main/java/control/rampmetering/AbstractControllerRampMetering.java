@@ -2,10 +2,10 @@ package control.rampmetering;
 
 import actuator.AbstractActuator;
 import actuator.ActuatorMeter;
-import common.AbstractLaneGroup;
-import common.LaneGroupSet;
-import common.Link;
-import common.Scenario;
+import core.AbstractLaneGroup;
+import core.LaneGroupSet;
+import core.Link;
+import core.Scenario;
 import control.AbstractController;
 import control.command.CommandNumber;
 import dispatch.Dispatcher;

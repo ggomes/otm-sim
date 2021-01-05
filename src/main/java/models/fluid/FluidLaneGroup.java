@@ -1,13 +1,12 @@
 package models.fluid;
 
-import common.*;
+import core.*;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.FlowPosition;
-import geometry.Side;
 import jaxb.Roadparam;
-import keys.State;
-import packet.PacketLaneGroup;
+import core.State;
+import core.packet.PacketLaneGroup;
+import models.Maneuver;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -36,8 +35,8 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     // construction
     ///////////////////////////////////////////
 
-    public FluidLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
-        super(link, side, flwpos,length, num_lanes, start_lane, out_rcs,rp);
+    public FluidLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+        super(link, side,length, num_lanes, start_lane, out_rcs,rp);
 
         if(link.is_source)
             this.source_flow = new HashMap<>();
@@ -66,8 +65,8 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
+    public void initialize(Scenario scenario, float start_time) throws OTMException {
+        super.initialize(scenario,start_time);
 
         if(!cells.isEmpty() && cells.get(0).flw_acc!=null)
             cells.forEach(c->c.flw_acc.reset());
@@ -165,17 +164,17 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
         AbstractCell cell = cells.get(0);
 
-        // When the link is a model source, then the packet first goes into a buffer.
+        // When the link is a model source, then the core.packet first goes into a buffer.
         // From there it is "processed", meaning that some part goes into the upstream cell.
         if(link.is_model_source_link) {
-            // add packet to buffer
+            // add core.packet to buffer
             assert(false); // DOES THIS EVER HAPPEN? PERHAPS SOURCE FLOWS ARE PROC ESSED IN UPDATE_FLOW_II AND
                             // VEHICLES ARE PLACED DIRECTLY INTO THE UPSTREAM CELL
             buffer.add_packet(vp);
             process_buffer(timestamp);
         }
 
-        // otherwise, this is an internal link, and the packet is guaranteed to be
+        // otherwise, this is an internal link, and the core.packet is guaranteed to be
         // purely fluid.
         else {
             for(Map.Entry<State,Double> e : vp.container.amount.entrySet()) {
@@ -196,8 +195,8 @@ public class FluidLaneGroup extends AbstractLaneGroup {
                     state = optstate.get();
                 }
 
-                Set<Side> lcoptions = state2lanechangedirections.get(state);
-                Map<Side,Double> side2prob = get_lc_probabilities(state,lcoptions);
+                Set<Maneuver> lcoptions = state2lanechangedirections.get(state);
+                Map<Maneuver,Double> side2prob = get_lc_probabilities(state,lcoptions);
                 cell.add_vehicles(state,e.getValue(),side2prob);
             }
         }
@@ -244,13 +243,12 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     // This is called when vehicles are added to the first cell in a lanegroup.
     // They decide which way to chenge lanes within the lanegroup.
-    public Map<Side,Double> get_lc_probabilities(State state,Set<Side> lcoptions) throws OTMException {
+    public Map<Maneuver,Double> get_lc_probabilities(State state,Set<Maneuver> lcoptions) throws OTMException {
 
         if(lcoptions==null) {
-            Map<Side,Double> x = new HashMap<>();
-            x.put(Side.middle,1d);
+            Map<Maneuver,Double> x = new HashMap<>();
+            x.put(Maneuver.stay,1d);
             return x;
-//            throw new OTMException(String.format("In link %d, commid=%d in lanegroup (%d#%d) has no way of getting to path/link %d.", link.getId(), state.commodity_id, start_lane_dn, start_lane_dn + num_lanes - 1, state.pathOrlink_id));
         }
 
         // otherwise use the lane selector, if it exists
@@ -259,9 +257,9 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
         // otherwise distribute equally
         double v = 1d/lcoptions.size();
-        Map<Side,Double> X = new HashMap<>();
-        for(Side s:lcoptions)
-            X.put(s,v);
+        Map<Maneuver,Double> X = new HashMap<>();
+        for(Maneuver m:lcoptions)
+            X.put(m,v);
         return X;
 
     }
@@ -377,9 +375,9 @@ public class FluidLaneGroup extends AbstractLaneGroup {
             State state = e.getKey();
             Double buffer_vehs = e.getValue() ;
 
-            Set<Side> lcoptions = state2lanechangedirections.get(state);
+            Set<Maneuver> lcoptions = state2lanechangedirections.get(state);
 
-            Map<Side,Double> side2prob = get_lc_probabilities(state,lcoptions);
+            Map<Maneuver,Double> side2prob = get_lc_probabilities(state,lcoptions);
 
             // add to cell
             cell.add_vehicles(state,buffer_vehs* factor,side2prob);

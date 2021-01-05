@@ -1,6 +1,6 @@
 package actuator;
 
-import common.Scenario;
+import core.Scenario;
 import error.OTMException;
 import jaxb.Actuator;
 

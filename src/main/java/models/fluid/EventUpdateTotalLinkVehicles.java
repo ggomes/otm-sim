@@ -12,8 +12,7 @@ public class EventUpdateTotalLinkVehicles extends AbstractEvent {
     }
 
     @Override
-    public void action(boolean verbose) throws OTMException {
-        super.action(verbose);
+    public void action() throws OTMException {
         OutputLinkSumVehicles obj = (OutputLinkSumVehicles)recipient;
         obj.update_total_vehicles(timestamp);
         dispatcher.register_event(new EventUpdateTotalLinkVehicles(dispatcher,timestamp + obj.simDt,recipient));

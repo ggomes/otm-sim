@@ -1,6 +1,6 @@
 package dispatch;
 
-import common.AbstractDemandGenerator;
+import core.AbstractDemandGenerator;
 import error.OTMException;
 import models.vehicle.VehicleDemandGenerator;
 
@@ -11,8 +11,7 @@ public class EventCreateVehicle extends AbstractEvent {
     }
 
     @Override
-    public void action(boolean verbose) throws OTMException {
-        super.action(verbose);
+    public void action() throws OTMException {
         VehicleDemandGenerator source = (VehicleDemandGenerator)recipient;
         source.insert_vehicle(timestamp);
         source.schedule_next_vehicle(dispatcher,timestamp);

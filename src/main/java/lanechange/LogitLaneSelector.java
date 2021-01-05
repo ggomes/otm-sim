@@ -1,7 +1,7 @@
 package lanechange;
 
-import common.AbstractLaneGroup;
-import geometry.Side;
+import core.AbstractLaneGroup;
+import models.Maneuver;
 import models.fluid.FluidLaneGroup;
 
 import java.util.Map;
@@ -9,27 +9,36 @@ import java.util.Set;
 
 public class LogitLaneSelector extends AbstractLaneSelector {
 
-    private double keep = 0.7;                  // [-] positive utility of keeping your lane
-    private double rho_vehperlane = 0.018504;   // [1/vehperlane] positive utility of changing lanes into a lane with lower density
-    private double add_in;  // additional terms used for setting toll on hot lane
-    private final double threshold = 1.05d;
+    public final double keep;             // [-] positive utility of keeping your lane
+    public final double rho_vehperlane;   // [1/vehperlane] positive utility of changing lanes into a lane with lower density
+    public double add_in;  // additional terms used for setting toll on hot lane
+//    public final double threshold = 0.95d;
 
     public LogitLaneSelector(AbstractLaneGroup lg, float dt,jaxb.Parameters params,Long commid) {
         super(lg,dt,commid);
+        double temp_keep = 0.7;
+        double temp_rho_vehperlane = 0.018504;
+        double temp_add_in = 0d;
         if(params!=null){
             for(jaxb.Parameter p : params.getParameter()){
                 switch(p.getName()){
                     case "keep":
-                        this.keep = Math.abs(Float.parseFloat(p.getValue()));
+                        temp_keep = Math.abs(Float.parseFloat(p.getValue()));
                         break;
                     case "rho_vpkmplane":
-                        this.rho_vehperlane = Math.abs(Float.parseFloat(p.getValue()))/(lg.length/1000.0);
+                        temp_rho_vehperlane = Math.abs(Float.parseFloat(p.getValue()))/(lg.length/1000.0);
+                        break;
+                    case "add_in":
+                        temp_rho_vehperlane = Math.abs(Float.parseFloat(p.getValue()))/(lg.length/1000.0);
                         break;
                 }
             }
         }
-        this.add_in = 0d;
+        this.keep = temp_keep;
+        this.rho_vehperlane = temp_rho_vehperlane;
+        this.add_in = temp_add_in;
     }
+
     public LogitLaneSelector(AbstractLaneGroup lg, float dt,float keep,float rho_vpkmplane,Long commid) {
         super(lg,dt,commid);
         this.keep = keep;
@@ -38,14 +47,14 @@ public class LogitLaneSelector extends AbstractLaneSelector {
     }
 
     @Override
-    public void update_lane_change_probabilities_with_options(Long pathorlinkid, Set<Side> lcoptions) {
+    public void update_lane_change_probabilities_with_options(Long pathorlinkid, Set<Maneuver> lcoptions) {
 
         assert(lcoptions.size()>0);
 
-        Map<Side,Double> myside2prob = side2prob.get(pathorlinkid);
+        Map<Maneuver,Double> myside2prob = side2prob.get(pathorlinkid);
 
         if(lcoptions.size()==1){
-            Side lcoption = lcoptions.iterator().next();
+            Maneuver lcoption = lcoptions.iterator().next();
             myside2prob.clear();
             myside2prob.put(lcoption,1d);
             return;
@@ -59,7 +68,7 @@ public class LogitLaneSelector extends AbstractLaneSelector {
         double em=0d;
         double eo=0d;
 
-        boolean has_in = lcoptions.contains(Side.in) && lg.neighbor_in!=null;
+        boolean has_in = lcoptions.contains(Maneuver.lcin) && lg.neighbor_in!=null;
         if(has_in) {
             if(Double.isInfinite(add_in))
                 ei = 0;
@@ -72,7 +81,7 @@ public class LogitLaneSelector extends AbstractLaneSelector {
             }
         }
 
-        boolean has_middle = lcoptions.contains(Side.middle);
+        boolean has_middle = lcoptions.contains(Maneuver.stay);
         if(has_middle) {
             FluidLaneGroup tlg = (FluidLaneGroup)lg;
             um = Math.min(0d,rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.num_lanes );
@@ -81,7 +90,7 @@ public class LogitLaneSelector extends AbstractLaneSelector {
             em = Math.exp( um );
         }
 
-        boolean has_out = lcoptions.contains(Side.out) && lg.neighbor_out!=null;
+        boolean has_out = lcoptions.contains(Maneuver.lcout) && lg.neighbor_out!=null;
         if(has_out) {
             FluidLaneGroup tlg = (FluidLaneGroup)lg.neighbor_out;
             uo = Math.min(0d,rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.num_lanes );
@@ -89,54 +98,36 @@ public class LogitLaneSelector extends AbstractLaneSelector {
             eo = Math.exp(uo);
         }
 
-        // thresholding
-        if(has_in && ui<threshold*um)
-            ei = 0d;
-        if(has_out && uo<threshold*um)
-            eo = 0d;
+//        // thresholding
+//        if(has_in && ui<threshold*um)
+//            ei = 0d;
+//        if(has_out && uo<threshold*um)
+//            eo = 0d;
 
         den = ei+em+eo;
 
         // clean side2prob
-        if(myside2prob.containsKey(Side.in) && !has_in)
-            myside2prob.remove(Side.in);
-        if(myside2prob.containsKey(Side.middle) && !has_middle)
-            myside2prob.remove(Side.middle);
-        if(myside2prob.containsKey(Side.out) && !has_out)
-            myside2prob.remove(Side.out);
+        if(myside2prob.containsKey(Maneuver.lcin) && !has_in)
+            myside2prob.remove(Maneuver.lcin);
+        if(myside2prob.containsKey(Maneuver.stay) && !has_middle)
+            myside2prob.remove(Maneuver.stay);
+        if(myside2prob.containsKey(Maneuver.lcout) && !has_out)
+            myside2prob.remove(Maneuver.lcout);
 
         if(has_in)
-            myside2prob.put(Side.in,ei/den);
+            myside2prob.put(Maneuver.lcin,ei/den);
 
         if(has_middle)
-            myside2prob.put(Side.middle,em/den);
+            myside2prob.put(Maneuver.stay,em/den);
 
         if(has_out)
-            myside2prob.put(Side.out,eo/den);
-    }
+            myside2prob.put(Maneuver.lcout,eo/den);
 
-    public double getKeep() {
-        return keep;
-    }
-
-    public void setKeep(double keep) {
-        this.keep = keep;
-    }
-
-    public double getRho_vehperlane() {
-        return rho_vehperlane;
-    }
-
-    public void setRho_vehperlane(double rho_vehperlane) {
-        this.rho_vehperlane = rho_vehperlane;
-    }
-
-    public double getAdd_in() {
-        return add_in;
-    }
-
-    public void setAdd_in(double add_in) {
-        this.add_in = add_in;
+//        if(this.lg.link.getId()==4l && this.lg.num_lanes==2 && this.commid==0){
+//            float timestamp = this.lg.link.network.scenario.dispatcher.current_time;
+//            if(timestamp % 300 ==0 )
+//                System.out.println(String.format("%.0f\t%.2f\t%.2f\t%.2f\t%.2f",timestamp,ui,um,uo,add_in));
+//        }
     }
 
 }

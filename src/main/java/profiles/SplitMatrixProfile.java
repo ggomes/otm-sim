@@ -2,13 +2,13 @@ package profiles;
 
 import commodity.Commodity;
 import commodity.Subnetwork;
-import common.Link;
+import core.Link;
 import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
 import dispatch.EventSplitChange;
-import common.Node;
-import common.Scenario;
+import core.Node;
+import core.Scenario;
 import utils.OTMUtils;
 
 import java.util.*;
@@ -18,10 +18,10 @@ public class SplitMatrixProfile {
 
     public long commodity_id;
     public Link link_in;
-    public Profile2D splits;   // link out id -> split profile
+    public Profile2D splits;                       // link out id -> split profile
 
     // current splits
-    public Map<Long,Double> outlink2split;        // output link id -> split
+    public Map<Long,Double> outlink2split;         // output link id -> split
     private List<LinkCumSplit> link_cumsplit;      // output link id -> cummulative split
 
     ////////////////////////////////////////////
@@ -35,10 +35,10 @@ public class SplitMatrixProfile {
 
     public void validate(Scenario scenario,OTMErrorLog errorLog) {
 
+        Node node = link_in.end_node;
+
         if(splits==null)
             return;
-
-        Node node = link_in.end_node;
 
         if( node==null )
             errorLog.addError("node==null");
@@ -57,19 +57,15 @@ public class SplitMatrixProfile {
         if(link_in==null)
             errorLog.addError("link_in==null");
 
-        // link_in_id is in a subnetwork
-        for(Subnetwork subnetwork : commodity.subnetworks){
-            if(!subnetwork.get_links().contains(link_in))
-                errorLog.addError("!commodity.subnetwork.links.contains(link_in)");
-        }
-
         Set<Long> reachable_outlinks = node.road_connections.stream()
                 .filter(rc->rc.start_link!=null && rc.end_link!=null && rc.start_link.getId().equals(link_in.getId()))
                 .map(z->z.end_link.getId())
                 .collect(Collectors.toSet());
 
+        Set<Long> nonzero_outlinks = splits.get_nonzero_outlinks();
+
         // check that there is a road connection for every split ratio
-        if(!reachable_outlinks.containsAll(splits.values.keySet())) {
+        if(!reachable_outlinks.containsAll(nonzero_outlinks)) {
             Set<Long> unreachable = new HashSet<>();
             unreachable.addAll(splits.values.keySet());
             unreachable.removeAll(reachable_outlinks);
@@ -166,7 +162,6 @@ public class SplitMatrixProfile {
         }
     }
 
-
     public void register_next_change(Dispatcher dispatcher,TimeMap time_map){
         if(time_map!=null)
             dispatcher.register_event(new EventSplitChange(dispatcher,time_map.time, this, time_map.value));
@@ -177,7 +172,7 @@ public class SplitMatrixProfile {
     ///////////////////////////////////////////
 
     public float get_dt(){
-        return splits.dt;
+        return splits.dt==null ? Float.NaN : splits.dt;
     }
 
     public float get_start_time(){

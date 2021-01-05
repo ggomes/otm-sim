@@ -1,14 +1,11 @@
 package models.vehicle;
 
-import common.AbstractVehicle;
-import common.Link;
-import common.RoadConnection;
-import geometry.FlowPosition;
-import geometry.Side;
-import common.AbstractLaneGroup;
+import core.AbstractVehicle;
+import core.Link;
+import core.RoadConnection;
+import core.AbstractLaneGroup;
 import jaxb.Roadparam;
-import models.vehicle.newell.ModelNewell;
-import packet.*;
+import core.packet.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,8 +18,8 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
     // construction
     ////////////////////////////////////////
 
-    public VehicleLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
-        super(link, side, flwpos, length, num_lanes, start_lane, out_rcs, rp);
+    public VehicleLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+        super(link, side, length, num_lanes, start_lane, out_rcs, rp);
     }
 
     ////////////////////////////////////////
@@ -60,10 +57,10 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
     ////////////////////////////////////////
 
     protected Set<AbstractVehicle> create_vehicles_from_packet(PacketLaneGroup vp,Long next_link_id) {
-        // + The packet received here can be fluid or vehicle based. It will not be both
+        // + The core.packet received here can be fluid or vehicle based. It will not be both
         // because LaneGroupPackets are already model specific, in the sense of either
         // fluid or vehicle based
-        // + All of the keys in the packet should be updated using next_link_id.
+        // + All of the keys in the core.packet should be updated using next_link_id.
 
         assert(vp.vehicles.size()<2);
         assert(vp.vehicles.isEmpty() || vp.container.isEmpty());

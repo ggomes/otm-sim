@@ -1,12 +1,12 @@
 package actuator;
 
-import common.Scenario;
+import core.Scenario;
 import control.command.CommandNumber;
 import control.command.InterfaceCommand;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 
 import java.util.Set;
 
@@ -35,6 +35,11 @@ public abstract class AbstractActuatorLanegroupCapacity extends AbstractActuator
 
     @Override
     public void validate(OTMErrorLog errorLog) {
+
+        if(lanegroups==null || lanegroups.isEmpty()){
+            errorLog.addWarning(String.format("Actuator %d has no lanegroups.",id));
+            return;
+        }
 
         // check that the lanes provided cover all lane, ie that total lanes
         // equals the sum of lanes in the lanegroups

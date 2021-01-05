@@ -1,16 +1,13 @@
 package models.vehicle.spatialq;
 
-import common.*;
+import core.*;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
-import geometry.FlowPosition;
-import geometry.Side;
 import jaxb.OutputRequest;
 import error.OTMException;
 import models.vehicle.AbstractVehicleModel;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
-import output.animation.AbstractLinkInfo;
 import utils.StochasticProcess;
 
 import java.util.*;
@@ -31,13 +28,13 @@ public class ModelSpatialQ extends AbstractVehicleModel {
     }
 
     @Override
-    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
+    public AbstractOutput create_output(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
         AbstractOutput output = null;
         switch (jaxb_or.getQuantity()) {
             case "queues":
                 Long commodity_id = jaxb_or.getCommodity();
                 Float outDt = jaxb_or.getDt();
-                output = new OutputQueues(scenario,prefix, output_folder, commodity_id, links.stream().map(x->x.getId()).collect(Collectors.toList()), outDt);
+                output = new OutputLinkQueues(scenario,prefix, output_folder, commodity_id, links.stream().map(x->x.getId()).collect(Collectors.toList()), outDt);
                 break;
             default:
                 throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
@@ -46,8 +43,8 @@ public class ModelSpatialQ extends AbstractVehicleModel {
     }
 
     @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs,jaxb.Roadparam rp) {
-        return new MesoLaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs,rp);
+    public AbstractLaneGroup create_lane_group(Link link, core.geometry.Side side, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs,jaxb.Roadparam rp) {
+        return new MesoLaneGroup(link,side,length,num_lanes,start_lane,out_rcs,rp);
     }
 
     @Override
@@ -55,18 +52,12 @@ public class ModelSpatialQ extends AbstractVehicleModel {
         return std_lanegroup_proportions(candidate_lanegroups);
     }
 
-    @Override
-    public AbstractLinkInfo get_link_info(Link link) {
-        return new output.animation.meso.LinkInfo(link);
-    }
-
     //////////////////////////////////////////////////////////////
     // Completions from AbstractModel
     //////////////////////////////////////////////////////////////
 
-
     @Override
-    public void reset(Link link) {
+    public void set_state_for_link(Link link) {
 
     }
 

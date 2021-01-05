@@ -1,22 +1,19 @@
 package models.vehicle.newell;
 
-import common.AbstractVehicle;
-import common.Link;
-import common.RoadConnection;
+import core.AbstractVehicle;
+import core.Link;
+import core.RoadConnection;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.FlowPosition;
-import geometry.Side;
 import jaxb.OutputRequest;
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 import models.vehicle.AbstractVehicleModel;
 import output.AbstractOutput;
 import output.InterfaceVehicleListener;
-import output.animation.AbstractLinkInfo;
-import common.Scenario;
+import core.Scenario;
 import utils.StochasticProcess;
 
 import java.util.*;
@@ -35,11 +32,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
     //////////////////////////////////////////////////////////////
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-    }
-
-    @Override
-    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
+    public AbstractOutput create_output(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
         AbstractOutput output = null;
 //        switch (jaxb_or.getQuantity()) {
 //            case "trajectories":
@@ -53,18 +46,13 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
     }
 
     @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs,jaxb.Roadparam rp) {
-        return new NewellLaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs,rp);
+    public AbstractLaneGroup create_lane_group(Link link, core.geometry.Side side, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs,jaxb.Roadparam rp) {
+        return new NewellLaneGroup(link,side,length,num_lanes,start_lane,out_rcs,rp);
     }
 
     @Override
     public Map<AbstractLaneGroup, Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
         return std_lanegroup_proportions(candidate_lanegroups);
-    }
-
-    @Override
-    public AbstractLinkInfo get_link_info(Link link) {
-        return null;
     }
 
     //////////////////////////////////////////////////////////////
@@ -89,7 +77,12 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
     //////////////////////////////////////////////////
 
     @Override
-    public void reset(Link link) {
+    public void set_state_for_link(Link link) {
+
+    }
+
+    @Override
+    public void validate(OTMErrorLog errorLog) {
 
     }
 
@@ -112,7 +105,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
         // apply Newell's update formula to all vehicles
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn) {
+            for (AbstractLaneGroup alg : link.lgs) {
                 NewellLaneGroup lg = (NewellLaneGroup) alg;
                 for( NewellVehicle vehicle : lg.vehicles ) {
                     double dx = Math.min(lg.dv, vehicle.headway - lg.dw);
@@ -125,7 +118,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
         // move vehicles to new link
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn) {
+            for (AbstractLaneGroup alg : link.lgs) {
                 NewellLaneGroup lg = (NewellLaneGroup) alg;
                 Iterator<NewellVehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
@@ -144,7 +137,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
         // update position
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn) {
+            for (AbstractLaneGroup alg : link.lgs) {
                 NewellLaneGroup lg = (NewellLaneGroup) alg;
                 Iterator<NewellVehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
@@ -156,7 +149,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
         // update headway
         for(Link link : links) {
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn) {
+            for (AbstractLaneGroup alg : link.lgs) {
                 NewellLaneGroup lg = (NewellLaneGroup) alg;
                 Iterator<NewellVehicle> it = lg.vehicles.iterator();
                 while (it.hasNext()) {
@@ -167,7 +160,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
                             vehicle.headway = Double.POSITIVE_INFINITY;
                         else{
 
-                            Collection<AbstractLaneGroup> next_lgs = link.network.links.get(vehicle.get_next_link_id()).lanegroups_flwdn;
+                            Collection<AbstractLaneGroup> next_lgs = link.network.links.get(vehicle.get_next_link_id()).lgs;
                             OptionalDouble next_vehicle_position = next_lgs.stream()
                                     .mapToDouble(x->x.get_upstream_vehicle_position())
                                     .min();

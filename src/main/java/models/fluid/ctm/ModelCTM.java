@@ -1,17 +1,18 @@
 package models.fluid.ctm;
 
-import common.FlowAccumulatorState;
-import common.Link;
+import core.FlowAccumulatorState;
+import core.Link;
 
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.Side;
 import jaxb.OutputRequest;
-import keys.State;
-import common.AbstractLaneGroup;
+import core.State;
+import core.AbstractLaneGroup;
+import models.Maneuver;
 import models.fluid.*;
 import output.AbstractOutput;
-import common.Scenario;
+import core.Scenario;
+import output.OutputCellVehicles;
 import traveltime.FluidLaneGroupTimer;
 import utils.OTMUtils;
 import utils.StochasticProcess;
@@ -37,17 +38,17 @@ public class ModelCTM extends AbstractFluidModel {
     }
 
     @Override
-    public AbstractOutput create_output_object(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
+    public AbstractOutput create_output(Scenario scenario, String prefix, String output_folder, OutputRequest jaxb_or)  throws OTMException {
         AbstractOutput output = null;
-        switch (jaxb_or.getQuantity()) {
-            case "cell_veh":
-                Long commodity_id = jaxb_or.getCommodity();
-                Float outDt = jaxb_or.getDt();
-                output = new OutputCellVehicles(scenario, this,prefix, output_folder, commodity_id, outDt);
-                break;
-            default:
-                throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
-        }
+//        switch (jaxb_or.getQuantity()) {
+//            case "cell_veh":
+//                Long commodity_id = jaxb_or.getCommodity();
+//                Float outDt = jaxb_or.getDt();
+//                output = new OutputCellVehicles(scenario,prefix, output_folder, commodity_id, link_ids, outDt);
+//                break;
+//            default:
+//                throw new OTMException("Bad output identifier : " + jaxb_or.getQuantity());
+//        }
         return output;
     }
 
@@ -82,7 +83,7 @@ public class ModelCTM extends AbstractFluidModel {
     @Override
     public void update_link_state(Link link,float timestamp) throws OTMException {
 
-        for(AbstractLaneGroup alg : link.lanegroups_flwdn) {
+        for(AbstractLaneGroup alg : link.lgs) {
 
             FluidLaneGroup lg = (FluidLaneGroup) alg;
 
@@ -163,21 +164,21 @@ public class ModelCTM extends AbstractFluidModel {
 
     private void perform_lane_changes(Link link,float timestamp) {
 
-        if(link.lanegroups_flwdn.size()<2)
+        if(link.lgs.size()<2)
             return;
 
             // WARNING: THIS ASSUMES ONLY FULL LENGTH ADDLANES
 
 //        REWRITE THIS !!!!!
 
-        int cells_in_full_lg = ((FluidLaneGroup)link.lanegroups_flwdn.iterator().next()).cells.size();
+        int cells_in_full_lg = ((FluidLaneGroup)link.lgs.iterator().next()).cells.size();
 
         // scan cross section from upstream to downstream
         for (int i = 0; i < cells_in_full_lg; i++) {
 
             // compute total flows reduction for each lane group
             Map<Long, Double> gamma = new HashMap<>();
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn) {
+            for (AbstractLaneGroup alg : link.lgs) {
                 FluidLaneGroup lg = (FluidLaneGroup) alg;
                 CTMCell cell = (CTMCell) lg.cells.get(i);
                 double demand_to_me = 0d;
@@ -201,7 +202,7 @@ public class ModelCTM extends AbstractFluidModel {
             // WARNING: This assumes that no state has vehicles going in both directions.
             // ie a flow that goes left does not also go right. Otherwise I think there may
             // be "data races", where the result depends on the order of lgs.
-            for (AbstractLaneGroup alg : link.lanegroups_flwdn) {
+            for (AbstractLaneGroup alg : link.lgs) {
                 FluidLaneGroup to_lg = (FluidLaneGroup) alg;
                 CTMCell to_cell = (CTMCell) to_lg.cells.get(i);
                 double my_gamma = gamma.get(to_lg.id);
@@ -254,7 +255,7 @@ public class ModelCTM extends AbstractFluidModel {
 
     // call update_supply_demand on each cell
     private void update_supply_for_all_cells(Link link,float timestamp) {
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn) {
+        for(AbstractLaneGroup lg : link.lgs) {
             FluidLaneGroup ctmlg = (FluidLaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell->cell.update_supply());
@@ -262,7 +263,7 @@ public class ModelCTM extends AbstractFluidModel {
     }
 
     private void update_demand(Link link,float timestamp) {
-        for(AbstractLaneGroup lg : link.lanegroups_flwdn) {
+        for(AbstractLaneGroup lg : link.lgs) {
             FluidLaneGroup ctmlg = (FluidLaneGroup) lg;
             if(!ctmlg.states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_demand());
@@ -289,18 +290,18 @@ public class ModelCTM extends AbstractFluidModel {
 
                 // choose lane change direction in destination cell
                 // prefer middle
-                Set<Side> new_lcs = to_lg.state2lanechangedirections.get(state);
-                Side newside = new_lcs.contains(Side.middle) ?  Side.middle : new_lcs.iterator().next();
-                switch (newside) {
-                    case in:
+                Set<Maneuver> new_lcs = to_lg.state2lanechangedirections.get(state);
+                Maneuver newmaneuver = new_lcs.contains(Maneuver.stay) ?  Maneuver.stay : new_lcs.iterator().next();
+                switch (newmaneuver) {
+                    case lcin:
                         to_cell.veh_in.put(state, to_cell.veh_in.get(state) + flw);
                         to_cell.total_vehs_in += flw;
                         break;
-                    case middle:
+                    case stay:
                         to_cell.veh_dwn.put(state, to_cell.veh_dwn.get(state) + flw);
                         to_cell.total_vehs_dwn += flw;
                         break;
-                    case out:
+                    case lcout:
                         to_cell.veh_out.put(state, to_cell.veh_out.get(state) + flw);
                         to_cell.total_vehs_out += flw;
                         break;

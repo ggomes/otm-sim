@@ -1,10 +1,10 @@
 package control.commodity;
 
 import actuator.ActuatorOpenCloseLaneGroup;
-import common.AbstractLaneGroup;
-import common.FlowAccumulatorState;
-import common.LaneGroupSet;
-import common.Scenario;
+import core.AbstractLaneGroup;
+import core.FlowAccumulatorState;
+import core.LaneGroupSet;
+import core.Scenario;
 import control.AbstractController;
 import control.command.CommandRestrictionMap;
 import dispatch.Dispatcher;
@@ -119,8 +119,8 @@ public class ControllerTollLaneGroup extends AbstractController {
         }
 
         // register next poke
-        if (timestamp<end_time)
-            dispatcher.register_event(new EventPoke(dispatcher,19,this.end_time,this));
+//        if (timestamp<end_time)
+//            dispatcher.register_event(new EventPoke(dispatcher,19,this.end_time,this));
 
     }
 
@@ -160,7 +160,7 @@ public class ControllerTollLaneGroup extends AbstractController {
                     nom_ls.put(commid,oldls);
                     if(oldls instanceof LogitLaneSelector) {
                         LogitLaneSelector oldlogit = (LogitLaneSelector) oldls;
-                        newls = new LogitLaneSelector(gplg,0,(float)oldlogit.getKeep(),(float)oldlogit.getRho_vehperlane(), commid);
+                        newls = new LogitLaneSelector(gplg,0,(float)oldlogit.keep,(float)oldlogit.rho_vehperlane, commid);
                     }
                     else
                         newls = new LogitLaneSelector(gplg,0,def_keep,def_rho_vpkmplane, commid);
@@ -168,7 +168,7 @@ public class ControllerTollLaneGroup extends AbstractController {
                 else
                     newls = new LogitLaneSelector(gplg,0,def_keep,def_rho_vpkmplane, commid);
                 try {
-                    newls.initialize(scenario);
+                    newls.initialize(scenario,start_time);
                 } catch (OTMException e) {
                     e.printStackTrace();
                 }
@@ -182,7 +182,7 @@ public class ControllerTollLaneGroup extends AbstractController {
                 for(Long commid : tolled_comms) {
                     if (nom_ls.containsKey(commid)) {
                         AbstractLaneSelector old_ls = nom_ls.get(commid);
-                        old_ls.initialize(scenario);
+                        old_ls.initialize(scenario,scenario.dispatcher.current_time);
                         gplg.lane_selector.put(commid, old_ls);
                     }
 
@@ -213,7 +213,7 @@ public class ControllerTollLaneGroup extends AbstractController {
                 add_term = toll_coef*toll;
             }
             for(Long commid : tolled_comms)
-                toll_ls.get(commid).setAdd_in(add_term);
+                toll_ls.get(commid).add_in = add_term;
         }
 
     }

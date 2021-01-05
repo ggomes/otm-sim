@@ -1,6 +1,6 @@
 package dispatch;
 
-import common.AbstractDemandGenerator;
+import core.AbstractDemandGenerator;
 import error.OTMException;
 
 public class EventDemandChange extends AbstractEvent {
@@ -13,8 +13,7 @@ public class EventDemandChange extends AbstractEvent {
     }
 
     @Override
-    public void action(boolean verbose) throws OTMException {
-        super.action(verbose);
+    public void action() throws OTMException {
         AbstractDemandGenerator demand_gen= (AbstractDemandGenerator) recipient;
         demand_gen.set_demand_vps(dispatcher,timestamp,demand_vps);
         demand_gen.register_next_change(dispatcher,timestamp);

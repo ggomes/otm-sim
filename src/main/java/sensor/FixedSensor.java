@@ -1,13 +1,13 @@
 package sensor;
 
-import common.FlowAccumulatorState;
+import core.FlowAccumulatorState;
 import error.OTMErrorLog;
-import common.AbstractLaneGroup;
-import common.Link;
+import core.AbstractLaneGroup;
+import core.Link;
 import dispatch.Dispatcher;
 import error.OTMException;
 import jaxb.Sensor;
-import common.Scenario;
+import core.Scenario;
 import models.AbstractModel;
 import models.fluid.FluidLaneGroup;
 import utils.OTMUtils;
@@ -19,7 +19,7 @@ public class FixedSensor extends AbstractSensor {
     private Link link;
     public int start_lane;
     public int end_lane;
-    private float position;
+    private float position;     // measured in meters from the downstream edge (0 is downstream sensor)
     private Set<Long> commids;
     private Map<AbstractLaneGroup,SubSensor> subsensors;  // because a fixed sensor may span several lanegroups
 
@@ -165,8 +165,13 @@ public class FixedSensor extends AbstractSensor {
                 flow_accumulator = lg.request_flow_accumulator(commids);
             else{
                 FluidLaneGroup flg = (FluidLaneGroup) lg;
-                float cell_length = flg.length / flg.cells.size();
-                int cell_index = Math.min(flg.cells.size()-1,  (int) (position / cell_length));
+                int n = flg.cells.size();
+                float cell_length = flg.length / n;
+                int cell_index = n - ((int) (position/cell_length)) - 1;
+                if(cell_index<0)
+                    cell_index=0;
+                if(cell_index>=n)
+                    cell_index=n-1;
                 flow_accumulator = flg.request_flow_accumulators_for_cell(commids,cell_index);
             }
         }

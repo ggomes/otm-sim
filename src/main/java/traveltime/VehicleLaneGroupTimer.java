@@ -1,8 +1,8 @@
 package traveltime;
 
-import common.AbstractVehicle;
-import common.Link;
-import common.AbstractLaneGroup;
+import core.AbstractVehicle;
+import core.Link;
+import core.AbstractLaneGroup;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,6 +1,6 @@
 package models.vehicle.newell;
 
-import common.AbstractVehicle;
+import core.AbstractVehicle;
 import output.InterfaceVehicleListener;
 
 import java.util.Set;

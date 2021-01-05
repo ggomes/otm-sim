@@ -10,7 +10,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeriesCollection;
-import common.Scenario;
+import core.Scenario;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -115,7 +115,7 @@ public abstract class AbstractOutput implements InterfaceOutput {
     }
 
     public String get_output_file() {
-        return write_to_file ? output_folder + File.separator + prefix : null;
+        return output_folder + File.separator + prefix;
     }
 
     //////////////////////////////////////////////////////

@@ -1,25 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <scenario xmlns="opentrafficmodels">
-
 	<commodities>
 		<commodity id="1" name="Pathless" pathfull="false" />
 		<commodity id="2" name="Pathfull" pathfull="true" subnetworks="1,2"/>
 	</commodities>
-
-	<subnetworks>
-		<subnetwork id="1">8,7,11,10,3</subnetwork>
-		<subnetwork id="2">8,7,11,12</subnetwork>
-	</subnetworks>
-
-	<models>
-		<model type="ctm" name="myctm" links="" is_default="true">
-			<model_params sim_dt="2" max_cell_length="100"/>
-		</model>
-	</models>
-
 	<network>
-
 		<nodes>
 			<node id="0" x="-1000" y="0"/>
 			<node id="1" x="-500" y="0"/>
@@ -34,7 +19,6 @@
 			<node id="10" x="500" y="-500"/>
 			<node id="11" x="1000" y="-500"/>
 		</nodes>
-
 		<links>
 			<link id="0"  length="500" start_node_id="0"  end_node_id="1" roadparam="0" full_lanes="3"/>
 			<link id="1"  length="500" start_node_id="1"  end_node_id="2" roadparam="0" full_lanes="3"/>
@@ -50,11 +34,6 @@
 			<link id="11" length="500" start_node_id="7"  end_node_id="10" roadparam="0" full_lanes="2"/>
 			<link id="12" length="500" start_node_id="10"  end_node_id="11" roadparam="0" full_lanes="2"/>
 		</links>
-
-		<roadparams>
-			<roadparam id="0" capacity="1800" speed="100" jam_density="100" />
-		</roadparams>
-
 		<roadconnections>
 			<roadconnection id="20" in_link="1" in_link_lanes="1#1" out_link="5" />
 			<roadconnection id="21" in_link="1" out_link="2"/>
@@ -70,9 +49,20 @@
 			<roadconnection id="101" in_link="9" out_link="12" out_link_lanes="1#1" />
 			<roadconnection id="102" in_link="11" in_link_lanes="1#1" out_link="10" />
 		</roadconnections>
-
+		<roadparams>
+			<roadparam id="0" capacity="1800" speed="100" jam_density="100" />
+		</roadparams>
 	</network>
-
+	<subnetworks>
+		<subnetwork id="1">8,7,11,10,3</subnetwork>
+		<subnetwork id="2">8,7,11,12</subnetwork>
+	</subnetworks>
+	<demands>
+		<demand link_id="0" commodity_id="1" dt="500">100,200,300,0</demand>
+		<demand link_id="4" commodity_id="1" dt="500">100,200,300,0</demand>
+		<demand subnetwork="2" commodity_id="2" dt="500">100,200,300,0</demand>
+		<demand subnetwork="1" commodity_id="2" dt="500">100,200,300,0</demand>
+	</demands>
 	<splits>
 		<split_node node_id="2" commodity_id="1" link_in="1">
 			<split link_out="5">0.3</split>
@@ -92,12 +82,9 @@
 			<split link_out="12">0.5</split>
 		</split_node>
 	</splits>
-
-	<demands>
-		<demand link_id="0" commodity_id="1" dt="300">100,200,300,200,100,0</demand>
-		<demand link_id="4" commodity_id="1" dt="300">100,200,300,200,100,0</demand>
-		<demand subnetwork="1" commodity_id="2" dt="300">100,200,300,200,100,0</demand>
-		<demand subnetwork="2" commodity_id="2" dt="300">100,200,300,200,100,0</demand>
-	</demands>
-
+	<models>
+		<model type="ctm" name="myctm" links="" is_default="true">
+			<model_params sim_dt="2" max_cell_length="100"/>
+		</model>
+	</models>
 </scenario>

@@ -1,12 +1,12 @@
 package output;
 
-import common.Scenario;
+import core.Scenario;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import models.fluid.AbstractFluidModel;
 import models.fluid.EventUpdateTotalLinkVehicles;
-import runner.RunParameters;
+import cmd.RunParameters;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -80,10 +80,7 @@ public class OutputLinkSumVehicles  extends AbstractOutputTimedLink {
     public String get_output_file() {
         if(!write_to_file)
             return null;
-        if(commodity==null)
-            return String.format("%s_link_sumveh.txt",super.get_output_file());
-        else
-            return String.format("%s_link_comm%d_sumveh.txt",super.get_output_file(),commodity.getId());
+        return super.get_output_file() + "_sumveh.txt";
     }
 
     //////////////////////////////////////////////////////

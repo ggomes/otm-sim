@@ -1,6 +1,6 @@
 package actuator;
 
-import common.*;
+import core.*;
 import control.AbstractController;
 import control.command.InterfaceCommand;
 import dispatch.Dispatcher;
@@ -22,7 +22,8 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         signal,
         meter,
         stop,
-        split
+        split,
+        flowtolink
     }
 
     public long id;
@@ -91,17 +92,14 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         return ScenarioElementType.actuator;
     }
 
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
+    public void initialize(Scenario scenario, float start_time) throws OTMException {
 
         if(initialized)
             return;
 
-
         if(dt>0f) {
             Dispatcher dispatcher = scenario.dispatcher;
-            float now = dispatcher.current_time;
-            dispatcher.register_event(new EventPoke(dispatcher, 30, now, this));
+            dispatcher.register_event(new EventPoke(dispatcher, 30, start_time, this));
         }
         initialized=true;
     }
@@ -123,7 +121,6 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     @Override
     public void poke(Dispatcher dispatcher, float timestamp) throws OTMException {
-        System.out.println(String.format("%.1f\tAbstractActuator poke",timestamp));
 
         // process the command
         if(myController!=null)

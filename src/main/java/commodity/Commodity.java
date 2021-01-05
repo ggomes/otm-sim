@@ -1,7 +1,6 @@
 package commodity;
 
-import common.*;
-import keys.DemandType;
+import core.*;
 import error.OTMErrorLog;
 import error.OTMException;
 import output.InterfaceVehicleListener;
@@ -81,11 +80,6 @@ public class Commodity implements InterfaceScenarioElement {
     @Override
     public void validate(OTMErrorLog errorLog) {
 
-    }
-
-    @Override
-    public void initialize(Scenario scenario){
-        System.err.println("NOT USED");
     }
 
 //    @Override
@@ -174,7 +168,7 @@ public class Commodity implements InterfaceScenarioElement {
         if(comm.pathfull) {
             Link next_link = ((Path) subnet).get_link_following(link);
             Long next_link_id = next_link==null ? null : next_link.getId();
-            for (AbstractLaneGroup lg : link.lanegroups_flwdn)
+            for (AbstractLaneGroup lg : link.lgs)
                 lg.add_state(comm.getId(), subnet.getId(),next_link_id, true);
         }
 
@@ -182,14 +176,14 @@ public class Commodity implements InterfaceScenarioElement {
 
             // for pathless/sink, next link id is same as this id
             if (link.is_sink) {
-                for (AbstractLaneGroup lg : link.lanegroups_flwdn)
+                for (AbstractLaneGroup lg : link.lgs)
                     lg.add_state(comm.getId(), null,link.getId(), false);
 
             } else {
 
                 // for pathless non-sink, add a state for each next link
                 for( Long next_link_id : link.outlink2lanegroups.keySet()  ){
-                    for (AbstractLaneGroup lg : link.lanegroups_flwdn)
+                    for (AbstractLaneGroup lg : link.lgs)
                         lg.add_state(comm.getId(), null,next_link_id, false);
                 }
             }

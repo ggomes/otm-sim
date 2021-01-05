@@ -1,14 +1,12 @@
 package models.none;
 
-import common.Link;
-import common.RoadConnection;
+import core.Link;
+import core.RoadConnection;
 import error.OTMErrorLog;
 import error.OTMException;
-import geometry.FlowPosition;
-import geometry.Side;
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 import jaxb.Roadparam;
-import packet.PacketLaneGroup;
+import core.packet.PacketLaneGroup;
 
 import java.util.Set;
 
@@ -85,7 +83,7 @@ public class NoneLaneGroup extends AbstractLaneGroup {
 
     }
 
-    public NoneLaneGroup(Link link, Side side, FlowPosition flwpos, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
-        super(link, side, flwpos, length, num_lanes, start_lane, out_rcs, rp);
+    public NoneLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+        super(link, side, length, num_lanes, start_lane, out_rcs, rp);
     }
 }

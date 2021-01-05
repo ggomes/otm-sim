@@ -12,6 +12,8 @@
     <url>http://maven.apache.org</url>
 
     <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -75,12 +77,12 @@
                 <version>3.1.1</version>
                 <configuration>
                     <show>public</show>
-                    <excludePackageNames>actuator:actuator.sigint:commodity:common:control:control.sigint:dispatch:geometry:jaxb:keys:models:models.*:output.animation:output.animation.*:packet:plugin:profiles:runner:sensor:tools.splitter:traveltime:
+                    <excludePackageNames>actuator:actuator.sigint:commodity:core:control:control.sigint:dispatch:core.geometry:jaxb:keys:models:models.*:output.animation:output.animation.*:core.packet:plugin:profiles:cmd:sensor:tools.splitter:traveltime:
                     </excludePackageNames>
                     <reportOutputDirectory>docs</reportOutputDirectory>
                     <destDir>apidocs</destDir>
+                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
                 </configuration>
-
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -107,7 +109,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>runner.OTM</mainClass>
+                            <mainClass>cmd.OTM</mainClass>
                         </manifest>
                         <manifestEntries>
                             <git-SHA-1>${buildNumber}</git-SHA-1>
@@ -178,13 +180,6 @@
             <version>1.2.1</version>
             <scope>runtime</scope>
         </dependency>
-
-        <!-- OTM BASE
-        <dependency>
-            <groupId>edu.berkeley.ucbtrans</groupId>
-            <artifactId>otm-base</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency> -->
 
         <!-- JUNIT -->
         <dependency>

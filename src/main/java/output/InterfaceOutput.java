@@ -2,7 +2,7 @@ package output;
 
 import error.OTMException;
 import dispatch.Dispatcher;
-import runner.RunParameters;
+import cmd.RunParameters;
 
 public interface InterfaceOutput {
     String get_output_file();

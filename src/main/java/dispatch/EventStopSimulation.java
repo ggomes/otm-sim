@@ -1,7 +1,7 @@
 package dispatch;
 
 import error.OTMException;
-import common.Scenario;
+import core.Scenario;
 
 public class EventStopSimulation extends AbstractEvent {
 
@@ -10,9 +10,7 @@ public class EventStopSimulation extends AbstractEvent {
     }
 
     @Override
-    public void action(boolean verbose) throws OTMException {
-        super.action(verbose);
-        ((Scenario)recipient).end_run();
+    public void action() throws OTMException {
         dispatcher.stop();
     }
 

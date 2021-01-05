@@ -2,10 +2,10 @@ package models.vehicle;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.AbstractDemandGenerator;
-import common.Link;
+import core.AbstractDemandGenerator;
+import core.Link;
 import error.OTMException;
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 import models.AbstractModel;
 import profiles.Profile1D;
 import utils.OTMUtils;
@@ -17,14 +17,6 @@ public abstract class AbstractVehicleModel extends AbstractModel implements Inte
 
     public AbstractVehicleModel(String name, boolean is_default, StochasticProcess process) {
         super(AbstractModel.Type.Vehicle,name, is_default,process);
-    }
-
-    @Override
-    public final void build() throws OTMException { }
-
-    @Override
-    public final void set_links(Set<Link> links) {
-        super.set_links(links);
     }
 
     //////////////////////////////////////////////////////////////
@@ -42,7 +34,7 @@ public abstract class AbstractVehicleModel extends AbstractModel implements Inte
 
     protected Map<AbstractLaneGroup,Double> std_lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
 
-        // put the whole packet i the lanegroup with the most space.
+        // put the whole core.packet i the lanegroup with the most space.
         Optional<? extends AbstractLaneGroup> best_lanegroup = candidate_lanegroups.stream()
                 .max(Comparator.comparing(AbstractLaneGroup::get_supply_per_lane));
 

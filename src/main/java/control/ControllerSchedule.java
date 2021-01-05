@@ -1,13 +1,13 @@
 package control;
 
 import actuator.AbstractActuator;
-import common.Scenario;
+import core.Scenario;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Controller;
-import runner.ScenarioFactory;
+import core.ScenarioFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class ControllerSchedule extends AbstractController {
         entries = new ArrayList<>();
 
         for(jaxb.Entry e : jaxb_controller.getSchedule().getEntry()){
-            float start_time = e.getStartTime();
+            float start_time = e.getStartTime()==null ? 0f : e.getStartTime();
             float end_time = e.getEndTime()==null ? Float.POSITIVE_INFINITY : e.getEndTime();
             jaxb.Controller jcntrl = new jaxb.Controller();
             if(e.getDt()!=null)
@@ -141,7 +141,7 @@ public class ControllerSchedule extends AbstractController {
 
             // initialize
             curr_entry.cntrl.initialize(scenario);
-            curr_entry.cntrl.poke(scenario.dispatcher,scenario.dispatcher.current_time);
+            curr_entry.cntrl.poke(scenario.dispatcher,now);
         }
     }
 

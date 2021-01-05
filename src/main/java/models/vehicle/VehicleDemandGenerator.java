@@ -2,15 +2,15 @@ package models.vehicle;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.AbstractDemandGenerator;
-import common.AbstractVehicle;
-import common.Link;
+import core.AbstractDemandGenerator;
+import core.AbstractVehicle;
+import core.Link;
 import dispatch.Dispatcher;
 import dispatch.EventCreateVehicle;
 import error.OTMException;
-import keys.State;
-import common.AbstractLaneGroup;
-import packet.PacketLaneGroup;
+import core.State;
+import core.AbstractLaneGroup;
+import core.packet.PacketLaneGroup;
 import profiles.Profile1D;
 import utils.OTMUtils;
 
@@ -37,9 +37,8 @@ public class VehicleDemandGenerator extends AbstractDemandGenerator {
             return;
 
         Float wait_time = OTMUtils.get_waiting_time(source_demand_vps,link.model.stochastic_process);
-        if(wait_time!=null) {
-            EventCreateVehicle new_event = new EventCreateVehicle(dispatcher, timestamp + wait_time, this);
-            dispatcher.register_event(new_event);
+        if(wait_time!=null) {             ;
+            dispatcher.register_event(new EventCreateVehicle(dispatcher, timestamp + wait_time, this));
             vehicle_scheduled = true;
         }
     }
@@ -52,14 +51,14 @@ public class VehicleDemandGenerator extends AbstractDemandGenerator {
         AbstractVehicle vehicle = model.create_vehicle(commodity.getId(),commodity.vehicle_event_listeners);
 
         // sample key
-        State key = sample_key();
-        vehicle.set_state(key);
+        State state = sample_state();
+        vehicle.set_state(state);
 
         if(commodity.pathfull)
             vehicle.path = path;
 
         // extract next link
-        Long next_link = commodity.pathfull ? link.path2outlink.get(path.getId()).getId() : key.pathOrlink_id;
+        Long next_link = commodity.pathfull ? link.path2outlink.get(path.getId()).getId() : state.pathOrlink_id;
 
         // candidate lane groups
         Set<AbstractLaneGroup> candidate_lane_groups = link.outlink2lanegroups.get(next_link);

@@ -1,12 +1,11 @@
 package models.vehicle.newell;
 
-import common.Link;
+import core.Link;
 import error.OTMException;
-import common.AbstractLaneGroup;
+import core.AbstractLaneGroup;
 import output.AbstractOutputTimed;
-import common.Scenario;
+import core.Scenario;
 
-import java.io.File;
 import java.io.IOException;
 
 public class OutputMicroTrajectory extends AbstractOutputTimed {
@@ -35,9 +34,7 @@ public class OutputMicroTrajectory extends AbstractOutputTimed {
     public String get_output_file() {
         if(!write_to_file)
             return null;
-        return  output_folder + File.separator + prefix + "_" +
-                String.format("%.0f", outDt) + "_" +
-                model.name + "_traj.txt";
+        return super.get_output_file() + "_traj.txt";
     }
 
     //////////////////////////////////////////////////////
@@ -50,7 +47,7 @@ public class OutputMicroTrajectory extends AbstractOutputTimed {
         if(write_to_file){
             try {
                 for(Link link : model.links){
-                    for(AbstractLaneGroup alg : link.lanegroups_flwdn){
+                    for(AbstractLaneGroup alg : link.lgs){
                         NewellLaneGroup lg = (NewellLaneGroup) alg;
                         for(NewellVehicle vehicle : lg.vehicles)
                             writer.write(String.format("%.2f\t%d\t%d\t%.2f\n",timestamp,vehicle.getId(), lg.id,vehicle.pos));

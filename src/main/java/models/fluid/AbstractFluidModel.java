@@ -2,34 +2,28 @@ package models.fluid;
 
 import commodity.Commodity;
 import commodity.Path;
-import common.*;
+import core.*;
+import core.geometry.Side;
 import dispatch.Dispatcher;
 import error.OTMException;
-import geometry.FlowPosition;
-import geometry.Side;
-import keys.State;
+import core.State;
 import models.AbstractModel;
 import models.fluid.nodemodel.NodeModel;
 import models.fluid.nodemodel.RoadConnection;
 import models.fluid.nodemodel.UpLaneGroup;
-import output.animation.AbstractLinkInfo;
-import packet.PacketLink;
+import core.packet.PacketLink;
 import profiles.Profile1D;
 import utils.OTMUtils;
 import utils.StochasticProcess;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import static java.util.stream.Collectors.toSet;
+import java.util.*;
 
 public abstract class AbstractFluidModel extends AbstractModel implements InterfaceFluidModel {
 
     public final float max_cell_length;
     public final float dt_sec;
-    protected Set<Link> source_links;
-    protected Set<Link> sink_links;
+    protected Set<Link> source_links = new HashSet<>();
+    protected Set<Link> sink_links = new HashSet<>();
     protected Map<Long, NodeModel> node_models;
 
     public AbstractFluidModel(String name, boolean is_default, float dt_sec, StochasticProcess process, Float max_cell_length) {
@@ -42,15 +36,26 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     // final for fluid models
     //////////////////////////////////////////////////////////////
 
-    public final void build() throws OTMException {
+    @Override
+    public void set_links(Set<Link> links, Collection<core.RoadConnection> road_connections) throws OTMException {
+        super.set_links(links,road_connections);
 
-        if(Float.isNaN(dt_sec))
-            return;
+        Set<Node> all_nodes = new HashSet<>();
 
-        // normalize
-        float dt_hr = dt_sec /3600f;
-
+        // create cells
         for(Link link : links) {
+
+            if(link.is_source)
+                source_links.add(link);
+
+            if(link.is_sink)
+                sink_links.add(link);
+
+            if(!link.start_node.is_source)
+                all_nodes.add(link.start_node);
+
+            if(!link.end_node.is_sink)
+                all_nodes.add(link.end_node);
 
             // compute cell length .............
             float r = link.length/max_cell_length;
@@ -63,7 +68,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
             float cell_length_meters = link.length/num_cells;
 
             // create cells ....................
-            for (AbstractLaneGroup lg : link.lanegroups_flwdn) {
+            for (AbstractLaneGroup lg : link.lgs) {
 
                 FluidLaneGroup flg = (FluidLaneGroup) lg;
                 flg.create_cells(this, cell_length_meters);
@@ -86,33 +91,14 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
             barriers_to_cells(link,link.out_barriers,cell_length_meters,link.get_num_dn_in_lanes()+link.get_num_full_lanes());
 
         }
-        for(NodeModel nm : node_models.values())
-            nm.build();
-    }
-
-    @Override
-    public final void set_links(Set<Link> links) {
-        super.set_links(links);
-
-        source_links = links.stream().filter(link->link.is_source).collect(toSet());
-        sink_links = links.stream().filter(link->link.is_sink).collect(toSet());
-
-        // create node models for all nodes in this model, except terminal nodes
-        Set<Node> all_nodes = links.stream()
-                .map(link->link.start_node)
-                .filter(node->!node.is_source)
-                .collect(toSet());
-
-        all_nodes.addAll(links.stream()
-                .map(link->link.end_node)
-                .filter(node->!node.is_sink)
-                .collect(toSet()));
 
         node_models = new HashMap<>();
         for(Node node : all_nodes) {
             NodeModel nm = new NodeModel(node);
             node_models.put(node.getId(),nm);
+            nm.build();
         }
+
     }
 
     //////////////////////////////////////////////////////////////
@@ -120,10 +106,10 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     //////////////////////////////////////////////////////////////
 
     @Override
-    public void reset(Link link) {
-        for(AbstractLaneGroup alg : link.lanegroups_flwdn){
+    public void set_state_for_link(Link link) {
+        for(AbstractLaneGroup alg : link.lgs){
             FluidLaneGroup lg = (FluidLaneGroup) alg;
-            lg.cells.forEach(x->x.reset());
+            lg.cells.forEach(x->x.set_state());
         }
     }
 
@@ -134,25 +120,14 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     }
 
     @Override
-    public AbstractLaneGroup create_lane_group(Link link, Side side, FlowPosition flwpos, Float length, int num_lanes, int start_lane, Set<common.RoadConnection> out_rcs,jaxb.Roadparam rp) {
-        return new FluidLaneGroup(link,side,flwpos,length,num_lanes,start_lane,out_rcs,rp);
+    public AbstractLaneGroup create_lane_group(Link link, Side side, Float length, int num_lanes, int start_lane, Set<core.RoadConnection> out_rcs, jaxb.Roadparam rp) {
+        return new FluidLaneGroup(link,side,length,num_lanes,start_lane,out_rcs,rp);
     }
 
     @Override
     public final AbstractDemandGenerator create_source(Link origin, Profile1D profile, Commodity commodity, Path path) {
         return new FluidDemandGenerator(origin,profile,commodity,path);
     }
-
-    @Override
-    public AbstractLinkInfo get_link_info(Link link) {
-        return new output.animation.macro.LinkInfo(link);
-    }
-
-    //////////////////////////////////////////////////////////////
-    // extendable
-    //////////////////////////////////////////////////////////////
-
-    // MOVE THIS TO MODEL CTM
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {
@@ -167,7 +142,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     //////////////////////////////////////////////////////////////
 
     // called by EventFluidModelUpdate
-    public void update_flow(float timestamp) throws OTMException {
+    public final void update_flow(float timestamp) throws OTMException {
 
         update_flow_I(timestamp);
 
@@ -178,7 +153,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     }
 
     // update supplies and demands, then run node model to obtain inter-link flows
-    public void update_flow_I(float timestamp) throws OTMException {
+    public final void update_flow_I(float timestamp) throws OTMException {
 
         // lane changes and compute demand and supply
         for(Link link : links)
@@ -191,11 +166,11 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
     // compute source and source flows
     // node model exchange packets
-    public void update_flow_II(float timestamp) throws OTMException {
+    public final void update_flow_II(float timestamp) throws OTMException {
 
         // add to source links
         for(Link link : source_links){
-            for(AbstractLaneGroup alg : link.lanegroups_flwdn){
+            for(AbstractLaneGroup alg : link.lgs){
                 FluidLaneGroup lg = (FluidLaneGroup)alg;
                 lg.cells.get(0).add_vehicles(lg.source_flow,null,null);
             }
@@ -203,8 +178,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
         // release from sink links
         for(Link link : sink_links){
-
-            for(AbstractLaneGroup alg : link.lanegroups_flwdn) {
+            for(AbstractLaneGroup alg : link.lgs) {
                 FluidLaneGroup lg = (FluidLaneGroup) alg;
                 Map<State,Double> flow_dwn = lg.get_demand();
 
@@ -214,7 +188,6 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
                     if(e.getValue()>0)
                         lg.update_flow_accummulators(e.getKey(),e.getValue());
             }
-
         }
 
         // node models exchange packets
@@ -242,7 +215,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
 
     // called by EventFluidStateUpdate
     // intra link flows and states
-    protected void update_fluid_state(float timestamp) throws OTMException {
+    protected final void update_fluid_state(float timestamp) throws OTMException {
         for(Link link : links)
             update_link_state(link,timestamp);
     }
@@ -251,7 +224,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
     // getters
     //////////////////////////////////////////////////////////////
 
-    public NodeModel get_node_model_for_node(Long node_id){
+    public final NodeModel get_node_model_for_node(Long node_id){
         return node_models.get(node_id);
     }
 
@@ -263,12 +236,12 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
             return;
 
         // inner lane group
-        FluidLaneGroup inlg = (FluidLaneGroup) link.lanegroups_flwdn.stream()
+        FluidLaneGroup inlg = (FluidLaneGroup) link.lgs.stream()
                 .filter(lg->lg.start_lane_dn+lg.num_lanes-1==in_lane)
                 .findFirst().get();
 
         // outer full lane
-        FluidLaneGroup outlg = (FluidLaneGroup) link.lanegroups_flwdn.stream()
+        FluidLaneGroup outlg = (FluidLaneGroup) link.lgs.stream()
                 .filter(lg->lg.start_lane_dn==in_lane+1)
                 .findFirst().get();
 

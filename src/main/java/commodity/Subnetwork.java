@@ -1,6 +1,6 @@
 package commodity;
 
-import common.*;
+import core.*;
 import error.OTMErrorLog;
 import error.OTMException;
 import utils.OTMUtils;
@@ -83,10 +83,6 @@ public class Subnetwork implements InterfaceScenarioElement {
     }
 
     @Override
-    public void initialize(Scenario scenario) throws OTMException {
-    }
-
-    @Override
     public jaxb.Subnetwork to_jaxb(){
         jaxb.Subnetwork jsub = new jaxb.Subnetwork();
         jsub.setId(this.getId());
@@ -128,14 +124,14 @@ public class Subnetwork implements InterfaceScenarioElement {
         used_by_comm.add(c);
     }
 
-    public void add_links(Collection<common.Link> links) throws OTMException {
+    public void add_links(Collection<core.Link> links) throws OTMException {
         if(links.contains(null))
             throw new OTMException("Attempted to add null link");
         this.links.addAll(links);
         this.is_path = check_is_path();
     }
 
-    public void remove_links(Collection<common.Link> rlinks) {
+    public void remove_links(Collection<core.Link> rlinks) {
         if(!Collections.disjoint(this.links,rlinks)){
             links.removeAll(rlinks);
             this.is_path = check_is_path();
