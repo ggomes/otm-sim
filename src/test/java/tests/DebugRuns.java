@@ -34,14 +34,14 @@ public class DebugRuns extends AbstractTest {
             boolean do_controllers  = false;
 
             boolean sysout2file = false;
-            String configfile = "/home/gomes/Desktop/juliette/intersection.xml";
+            String configfile = "/home/gomes/Desktop/opttest_1.xml";
             float start_time = 0f;
             float duration = 300f;
-            float outdt = 2f;
+            float outdt = 5f;
             String prefix = makeplots?null:"x";
-            String output_folder = makeplots?null:"/home/gomes/Desktop/juliette";
-            String png_folder = "/home/gomes/Desktop/juliette";
-            Set<Long> link_ids =  null; //Set.of(3l,4l,7l);
+            String output_folder = makeplots?null:"/home/gomes/Desktop/x";
+            String png_folder = "/home/gomes/Desktop/x";
+            Set<Long> link_ids =  Set.of(1l,7l);
 
             Long subnetid = null;
             Long cntrl_id = null;

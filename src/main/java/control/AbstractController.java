@@ -179,7 +179,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
             errorLog.addError("actuators.isEmpty()");
 
         for(AbstractActuator act : actuators.values())
-            if(act.getClass()!=this.get_actuator_class())
+            if( ! this.get_actuator_class().isAssignableFrom( act.getClass()) )
                 errorLog.addError("Bad actuator type in controller.");
 
     }
