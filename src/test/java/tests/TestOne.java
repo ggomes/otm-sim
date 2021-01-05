@@ -155,12 +155,12 @@ public class TestOne extends AbstractTest {
 
 //            System.out.println("t\tlg\tc\tflwin\tflwdwn\tflwout");
 
-            String configfile = "/home/gomes/Downloads/235_0.xml";
+            String configfile = "/home/gomes/Desktop/x/opttest_alpha.xml";
 
-            float duration = 300f;
-            float outdt = 1f;
+            float duration = 1000f;
+            float outdt = 5f;
             String prefix = "x";
-            String output_folder = "/home/gomes/Downloads";
+            String output_folder = "/home/gomes/Desktop/x/alpha";
 
             // Load ..............................
             api.OTM otm = new api.OTM(configfile,true,false);
@@ -170,8 +170,8 @@ public class TestOne extends AbstractTest {
 //            link_ids.add(1l);
 //            link_ids.add(2l);
 //            link_ids.add(7l);
-            link_ids.add(2l);
-//            link_ids.add(0l);
+            link_ids.add(6l);
+            link_ids.add(8l);
 
             Long comm_id=null;
 
@@ -197,7 +197,7 @@ public class TestOne extends AbstractTest {
 
             // cells
 
-//            otm.output.request_cell_flw(comm_id, link_ids, outdt);
+            otm.output.request_cell_flw(comm_id, link_ids, outdt);
 //            otm.output.request_cell_veh(comm_id,link_ids, outdt);
             otm.output.request_cell_lanechange_out(comm_id, link_ids, outdt);
             otm.output.request_cell_lanechange_in(comm_id, link_ids, outdt);
