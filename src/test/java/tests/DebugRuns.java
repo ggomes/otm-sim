@@ -26,7 +26,7 @@ public class DebugRuns extends AbstractTest {
 
             boolean makeplots = true;
 
-            boolean do_links        = true;
+            boolean do_links        = false;
             boolean do_lanegroups   = true;
             boolean do_cells        = true;
             boolean do_subnetworks  = false;
@@ -34,13 +34,13 @@ public class DebugRuns extends AbstractTest {
             boolean do_controllers  = false;
 
             boolean sysout2file = false;
-            String configfile = "/home/gomes/Desktop/opttest_1.xml";
+            String configfile = "/home/gomes/Desktop/x/opttest_models.xml";
             float start_time = 0f;
             float duration = 1000f;
             float outdt = 5f;
             String prefix = makeplots?null:"x";
-            String output_folder = makeplots?null:"/home/gomes/Desktop/x";
-            String png_folder = "/home/gomes/Desktop/x";
+            String output_folder = makeplots?null:"/home/gomes/Desktop/x/models";
+            String png_folder = "/home/gomes/Desktop/x/models";
             Set<Long> link_ids =  Set.of(6l,8l);
 
             Long subnetid = null;
