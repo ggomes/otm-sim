@@ -55,7 +55,6 @@ public class ActuatorSplit extends AbstractActuator {
         linkMLdwn = node.get_out_links().stream()
                 .filter(link->link.get_road_type()== Link.RoadType.freeway)
                 .findFirst().get();
-        System.out.println(linkMLdwn);
     }
 
     @Override

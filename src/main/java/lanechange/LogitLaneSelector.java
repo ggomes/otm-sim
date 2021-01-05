@@ -65,7 +65,7 @@ public class LogitLaneSelector implements InterfaceLaneSelector {
         double em=0d;
         double eo=0d;
 
-        boolean has_in = mnv2prob.containsKey(Maneuver.lcin) && lg.get_neighbor_in()!=null && mnv2prob.get(Maneuver.lcin)>0;
+        boolean has_in = mnv2prob.containsKey(Maneuver.lcin) && lg.get_neighbor_in()!=null;
         if(has_in) {
             if(Double.isInfinite(add_in))
                 ei = 0;
@@ -87,7 +87,7 @@ public class LogitLaneSelector implements InterfaceLaneSelector {
             em = Math.exp( um );
         }
 
-        boolean has_out = mnv2prob.containsKey(Maneuver.lcout) && lg.get_neighbor_out()!=null && mnv2prob.get(Maneuver.lcout)>0;
+        boolean has_out = mnv2prob.containsKey(Maneuver.lcout) && lg.get_neighbor_out()!=null;
         if(has_out) {
             FluidLaneGroup tlg = (FluidLaneGroup)lg.get_neighbor_out();
             uo = Math.min(0d,rho_vehperlane * (tlg.critical_density_veh-tlg.get_total_vehicles()) / tlg.get_num_lanes() );
@@ -103,16 +103,13 @@ public class LogitLaneSelector implements InterfaceLaneSelector {
 
         den = ei+em+eo;
 
-        if(lg.get_link().getId()==6l && lg.get_start_lane_dn()==1)
-            System.out.println(String.format("%.2f\t%.2f\t%.2f",ei,em,eo));
-
         // clean side2prob
-        if(mnv2prob.containsKey(Maneuver.lcin) && !has_in)
-            mnv2prob.remove(Maneuver.lcin);
-        if(mnv2prob.containsKey(Maneuver.stay) && !has_middle)
-            mnv2prob.remove(Maneuver.stay);
-        if(mnv2prob.containsKey(Maneuver.lcout) && !has_out)
-            mnv2prob.remove(Maneuver.lcout);
+//        if(mnv2prob.containsKey(Maneuver.lcin) && !has_in)
+//            mnv2prob.remove(Maneuver.lcin);
+//        if(mnv2prob.containsKey(Maneuver.stay) && !has_middle)
+//            mnv2prob.remove(Maneuver.stay);
+//        if(mnv2prob.containsKey(Maneuver.lcout) && !has_out)
+//            mnv2prob.remove(Maneuver.lcout);
 
         if(has_in)
             mnv2prob.put(Maneuver.lcin,ei/den);

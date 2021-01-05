@@ -665,7 +665,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
     }
 
     public Map<State, InterfaceLaneSelector> get_lane_selector_for_lane_group(long lgid){
-        return lane_selector.lcs.get(lgid);
+        return lane_selector.get_laneselector_for_lanegroup(lgid);
     }
 
     public List<AbstractLaneGroup> get_lgs(){
