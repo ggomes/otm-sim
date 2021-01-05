@@ -36,12 +36,12 @@ public class DebugRuns extends AbstractTest {
             boolean sysout2file = false;
             String configfile = "/home/gomes/Desktop/opttest_1.xml";
             float start_time = 0f;
-            float duration = 300f;
+            float duration = 1000f;
             float outdt = 5f;
             String prefix = makeplots?null:"x";
             String output_folder = makeplots?null:"/home/gomes/Desktop/x";
             String png_folder = "/home/gomes/Desktop/x";
-            Set<Long> link_ids =  Set.of(1l,7l);
+            Set<Long> link_ids =  Set.of(6l,8l);
 
             Long subnetid = null;
             Long cntrl_id = null;

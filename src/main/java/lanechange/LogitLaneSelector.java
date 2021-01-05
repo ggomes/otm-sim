@@ -12,7 +12,7 @@ public class LogitLaneSelector implements InterfaceLaneSelector {
     public final double keep;             // [-] positive utility of keeping your lane
     public final double rho_vehperlane;   // [1/vehperlane] positive utility of changing lanes into a lane with lower density
     public double add_in;  // additional terms used for setting toll on hot lane
-//    public final double threshold = 0.95d;
+    public final double threshold = 1.05d;
 
     public LogitLaneSelector(AbstractLaneGroup lg,jaxb.Parameters params) {
 
@@ -29,7 +29,7 @@ public class LogitLaneSelector implements InterfaceLaneSelector {
                         temp_rho_vehperlane = Math.abs(Float.parseFloat(p.getValue()))/(lg.get_length()/1000.0);
                         break;
                     case "add_in":
-                        temp_rho_vehperlane = Math.abs(Float.parseFloat(p.getValue()))/(lg.get_length()/1000.0);
+                        temp_add_in = Math.abs(Float.parseFloat(p.getValue()))/(lg.get_length()/1000.0);
                         break;
                 }
             }
@@ -95,13 +95,16 @@ public class LogitLaneSelector implements InterfaceLaneSelector {
             eo = Math.exp(uo);
         }
 
-//        // thresholding
-//        if(has_in && ui<threshold*um)
-//            ei = 0d;
-//        if(has_out && uo<threshold*um)
-//            eo = 0d;
+        // thresholding
+        if(has_in && ui<threshold*um)
+            ei = 0d;
+        if(has_out && uo<threshold*um)
+            eo = 0d;
 
         den = ei+em+eo;
+
+        if(lg.get_link().getId()==6l && lg.get_start_lane_dn()==1)
+            System.out.println(String.format("%.2f\t%.2f\t%.2f",ei,em,eo));
 
         // clean side2prob
         if(mnv2prob.containsKey(Maneuver.lcin) && !has_in)
@@ -120,11 +123,6 @@ public class LogitLaneSelector implements InterfaceLaneSelector {
         if(has_out)
             mnv2prob.put(Maneuver.lcout,eo/den);
 
-//        if(this.lg.link.getId()==4l && this.lg.num_lanes==2 && this.commid==0){
-//            float timestamp = this.lg.link.network.scenario.dispatcher.current_time;
-//            if(timestamp % 300 ==0 )
-//                System.out.println(String.format("%.0f\t%.2f\t%.2f\t%.2f\t%.2f",timestamp,ui,um,uo,add_in));
-//        }
     }
 
 }
