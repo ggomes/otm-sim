@@ -2,9 +2,7 @@ package control.rampmetering;
 
 import actuator.AbstractActuator;
 import actuator.ActuatorLaneGroupCapacity;
-import core.AbstractLaneGroup;
 import core.LaneGroupSet;
-import core.Link;
 import core.Scenario;
 import control.AbstractController;
 import control.command.CommandNumber;
@@ -12,12 +10,10 @@ import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Controller;
-import core.AbstractModel;
 import models.fluid.FluidLaneGroup;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public abstract class AbstractControllerRampMetering extends AbstractController {
 
@@ -75,8 +71,8 @@ public abstract class AbstractControllerRampMetering extends AbstractController 
     }
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
+    public void validate_pre_init(OTMErrorLog errorLog) {
+        super.validate_pre_init(errorLog);
 //        if(has_queue_control){
 //            for(AbstractActuator abs_act : actuators.values()) {
 //                Set<AbstractLaneGroup> lgs =  ((LaneGroupSet) abs_act.target).lgs;

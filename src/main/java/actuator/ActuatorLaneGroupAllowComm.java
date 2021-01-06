@@ -14,7 +14,7 @@ public class ActuatorLaneGroupAllowComm extends AbstractActuatorLaneGroup {
 
     public ActuatorLaneGroupAllowComm(Scenario scenario, Actuator jact) throws OTMException {
         super(scenario, jact);
-        this.dt=0f;
+        this.dt=0f; // this is changed to simdt or null at by AbstractActuator.initialize.
     }
 
     @Override

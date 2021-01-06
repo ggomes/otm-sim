@@ -35,12 +35,6 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         linkflow,
         plugin
     }
-//    public static final Map<Algorithm, AbstractActuator.Type> map_algorithm_actuator = new HashMap<>();
-//    static {
-//        map_algorithm_actuator.put( Algorithm.sig_pretimed  , AbstractActuator.Type.signal );
-//        map_algorithm_actuator.put( Algorithm.alinea  , AbstractActuator.Type.capacity );
-//        map_algorithm_actuator.put( Algorithm.fixed_rate  , AbstractActuator.Type.capacity );
-//    }
 
     public final Scenario scenario;
     public final long id;
@@ -171,17 +165,18 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         return ScenarioElementType.controller;
     }
 
-    @Override
-    public void validate(OTMErrorLog errorLog) {
+    public void validate_pre_init(OTMErrorLog errorLog) {
         if(type==null)
             errorLog.addError("myType==null");
         if(actuators.isEmpty())
             errorLog.addError("actuators.isEmpty()");
-
+        if(actuators.values().contains(null))
+            errorLog.addError("Controller has a null actuator");
+        if(sensors.contains(null))
+            errorLog.addError("Controller has a null sensor");
         for(AbstractActuator act : actuators.values())
             if( ! this.get_actuator_class().isAssignableFrom( act.getClass()) )
                 errorLog.addError("Bad actuator type in controller.");
-
     }
 
     @Override
@@ -200,7 +195,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
         // send immediately to actuators that lack a dt
         for(AbstractActuator act : actuators.values())
-            if(act.dt<=0 && act.myController==this)
+            if(act.dt==null && act.myController==this)
                 act.process_controller_command(command.get(act.id),timestamp);
 
         // write to output

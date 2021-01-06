@@ -44,7 +44,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     ///////////////////////////////////////////
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
+    public void validate_post_init(OTMErrorLog errorLog) {
         transit_queue.validate(errorLog);
         waiting_queue.validate(errorLog);
     }

@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
 
-public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>, InterfaceLaneGroup, InterfaceActuatorTarget {
+public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>, InterfaceLaneGroup, InterfaceTarget {
 
     public static Map<Side,Maneuver> side2maneuver;
 
@@ -106,6 +106,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     @Override
     public long getIdAsTarget() {
         return id;
+    }
+
+    @Override
+    public AbstractModel get_model() {
+        return link.model;
     }
 
     @Override

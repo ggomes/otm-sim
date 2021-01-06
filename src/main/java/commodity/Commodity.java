@@ -49,12 +49,14 @@ public class Commodity implements InterfaceScenarioElement {
         return ScenarioElementType.commodity;
     }
 
-    @Override
-    public void validate(OTMErrorLog errorLog) {
-
+    public void validate_pre_init(OTMErrorLog errorLog) {
+        if(pathfull && subnetworks.isEmpty())
+            errorLog.addError("Pathfull commodity lacks routes");
+        if(subnetworks!=null && subnetworks.contains(null))
+            errorLog.addError("Bad subnetwork id in commodity");
     }
 
-//    @Override
+    @Override
     public jaxb.Commodity to_jaxb(){
         jaxb.Commodity jcomm = new jaxb.Commodity();
         jcomm.setId(getId());
@@ -88,7 +90,6 @@ public class Commodity implements InterfaceScenarioElement {
     public void add_vehicle_event_listener(InterfaceVehicleListener ev) {
         vehicle_event_listeners.add(ev);
     }
-
 
     public List<Long> get_subnetwork_ids(){
         return pathfull ? this.subnetworks.stream().map(x->x.id).collect(toList()) : new ArrayList<>();

@@ -79,10 +79,7 @@ public class FixedSensor extends AbstractSensor {
     // InterfaceScenarioElement
     ////////////////////////////////////////
 
-    @Override
-    public void validate(OTMErrorLog errorLog) {
 
-    }
 
     @Override
     public void initialize(Scenario scenario) throws OTMException {

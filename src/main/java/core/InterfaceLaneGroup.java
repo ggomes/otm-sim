@@ -6,7 +6,7 @@ import core.packet.PacketLaneGroup;
 
 public interface InterfaceLaneGroup {
 
-    void validate(OTMErrorLog errorLog);
+    void validate_post_init(OTMErrorLog errorLog);
     void allocate_state();
 
     Double get_upstream_vehicle_position();

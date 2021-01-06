@@ -44,7 +44,7 @@ public class Profile1D {
         this.values = new ArrayList<>();
     }
 
-    public void validate(OTMErrorLog errorLog){
+    public void validate_pre_init(OTMErrorLog errorLog){
 
         // start_time >= 0
         if(start_time<0)

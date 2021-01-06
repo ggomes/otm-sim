@@ -2,7 +2,7 @@ package core;
 
 import actuator.AbstractActuator;
 import actuator.ActuatorFlowToLinks;
-import actuator.InterfaceActuatorTarget;
+import actuator.InterfaceTarget;
 import error.OTMErrorLog;
 import error.OTMException;
 import core.geometry.RoadGeometry;
@@ -19,7 +19,7 @@ import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 
-public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
+public class Link implements InterfaceScenarioElement, InterfaceTarget {
 
 
     public enum RoadType {none,offramp,onramp,freeway,connector,bridge,ghost}
@@ -172,8 +172,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         return ScenarioElementType.link;
     }
 
-    @Override
-    public void validate(OTMErrorLog errorLog) {
+    public void validate_pre_init(OTMErrorLog errorLog) {
 
         if( length<=0 )
             errorLog.addError("link " + id + ": length<=0");
@@ -187,18 +186,6 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
             errorLog.addError("link " + id + ": dnlane2lanegroup==null");
         if( lgs ==null )
             errorLog.addError("link " + id + ": lanegroups==null");
-
-        // all lanegroups are represented in dnlane2lanegroup
-        if(lgs !=null && dnlane2lanegroup !=null) {
-            Set<Long> A = dnlane2lanegroup.values().stream().map(x->x.id).collect(toSet());
-            Set<Long> B = lgs.stream().map(x->x.id).collect(toSet());
-            if (!A.equals(B))
-                errorLog.addError("link " + id + ": not all lanegroups are represented in dnlane2lanegroup");
-        }
-
-        // lanegroups
-        if(lgs !=null)
-            lgs.forEach(x->x.validate(errorLog));
 
         // out_road_connections all lead to links that are immediately downstream
         Set<Link> dwn_links = this.get_roadconnections_leaving().stream()
@@ -223,10 +210,26 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
 //        }
 
         if(split_profile!=null)
-            split_profile.values().stream().forEach(x -> x.validate(network.scenario,errorLog));
+            split_profile.values().stream().forEach(x -> x.validate_pre_init(network.scenario,errorLog));
 
         if(this.demandGenerators !=null)
-            demandGenerators.stream().forEach(x->x.profile.validate(errorLog));
+            demandGenerators.stream().forEach(x->x.profile.validate_pre_init(errorLog));
+    }
+
+    public void validate_post_init(OTMErrorLog errorLog) {
+
+        // all lanegroups are represented in dnlane2lanegroup
+        if(lgs !=null && dnlane2lanegroup !=null) {
+            Set<Long> A = dnlane2lanegroup.values().stream().map(x->x.id).collect(toSet());
+            Set<Long> B = lgs.stream().map(x->x.id).collect(toSet());
+            if (!A.equals(B))
+                errorLog.addError("link " + id + ": not all lanegroups are represented in dnlane2lanegroup");
+        }
+
+        // lanegroups
+        if(lgs !=null)
+            lgs.forEach(x->x.validate_post_init(errorLog));
+
     }
 
     public void initialize(Scenario scenario, float start_time) throws OTMException {
@@ -551,6 +554,7 @@ public class Link implements InterfaceScenarioElement, InterfaceActuatorTarget {
         return is_model_source_link;
     }
 
+    @Override
     public AbstractModel get_model(){
         return model;
     }

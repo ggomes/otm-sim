@@ -60,7 +60,7 @@ public class OTM {
                 int duration = Integer.parseInt(arguments[5]);
 
                 api.OTM otm = new api.OTM(configfile);
-                otm.run(prefix, output_requests_file, output_folder,start_time,duration);
+                otm.run(prefix, output_requests_file, output_folder,start_time,duration,true);
 
             } catch (OTMException e) {
                 e.printStackTrace();

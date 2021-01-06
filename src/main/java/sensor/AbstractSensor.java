@@ -1,12 +1,11 @@
 package sensor;
 
+import actuator.InterfaceTarget;
+import core.*;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMErrorLog;
-import core.InterfaceScenarioElement;
-import core.Scenario;
-import core.ScenarioElementType;
 import error.OTMException;
 
 public abstract class AbstractSensor implements Pokable, InterfaceScenarioElement {
@@ -17,21 +16,19 @@ public abstract class AbstractSensor implements Pokable, InterfaceScenarioElemen
 
     public Long id;
     public Type type;
-    public float dt;
+    public Float dt;
     public double dt_inv;
 
-    public Object target;
+    public InterfaceTarget target;
 
     /////////////////////////////////////////////////////////////////////
     // construction
     /////////////////////////////////////////////////////////////////////
 
-
     public AbstractSensor(Long id, Type type, float dt) {
         this.id = id;
         this.type = type;
         this.dt = dt;
-        this.dt_inv = 3600d/dt;
     }
 
     public AbstractSensor(jaxb.Sensor jaxb_sensor) {
@@ -43,8 +40,29 @@ public abstract class AbstractSensor implements Pokable, InterfaceScenarioElemen
     ///////////////////////////////////////////
 
     public void initialize(Scenario scenario) throws OTMException {
+
+        if(dt==null || dt<=0){
+            AbstractModel model = this.target.get_model();
+            if(model==null) {
+                dt = null;
+            }
+            else {
+                if (model instanceof AbstractFluidModel)
+                    dt = ((AbstractFluidModel) model).dt_sec;
+                if (model instanceof AbstractVehicleModel)
+                    dt = null;
+            }
+        }
+
+        dt_inv = dt==null ? null : 3600d/dt;
+
         Dispatcher dispatcher = scenario.dispatcher;
         dispatcher.register_event(new EventPoke(dispatcher,10,dispatcher.current_time,this));
+    }
+
+    public void validate_post_init(OTMErrorLog errorLog){
+        if(target==null)
+            errorLog.addError("Sensor has null target.");
     }
 
     @Override

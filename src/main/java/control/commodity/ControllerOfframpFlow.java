@@ -50,13 +50,13 @@ public class ControllerOfframpFlow extends AbstractController {
     }
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
+    public void validate_pre_init(OTMErrorLog errorLog) {
+        super.validate_pre_init(errorLog);
 
         if(actuators.size()!=1)
             errorLog.addError("Offramp flow controller must have exactly one actuator.");
 
-        this.fr_ref.values().stream().filter(x->x!=null).forEach(p->p.validate(errorLog));
+        this.fr_ref.values().stream().filter(x->x!=null).forEach(p->p.validate_pre_init(errorLog));
 
         ActuatorSplit act = (ActuatorSplit) actuators.values().iterator().next();
         Set<Long> act_linkids = act.linkFRs.stream().map(l->l.getId()).collect(Collectors.toSet());

@@ -5,7 +5,6 @@ import commodity.Commodity;
 import commodity.Subnetwork;
 import dispatch.EventInitializeController;
 import cmd.RunParameters;
-import models.none.ModelNone;
 import traveltime.LinkTravelTimeManager;
 import control.AbstractController;
 import error.OTMErrorLog;
@@ -23,7 +22,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -48,21 +46,23 @@ public class Scenario {
     // construction
     ///////////////////////////////////////////////////
 
-    public OTMErrorLog validate(){
+    public OTMErrorLog validate_pre_init(){
 
         OTMErrorLog errorLog =  new OTMErrorLog();
 
-        network.validate(errorLog);
+        commodities.values().forEach(x->x.validate_pre_init(errorLog));
+        network.links.values().forEach(x->x.validate_pre_init(errorLog));
+        network.road_geoms.values().forEach(x->x.validate_pre_init(errorLog));
+        network.road_connections.values().forEach(x->x.validate_pre_init(errorLog));
+
         if(models!=null)
-            models.values().stream().forEach(x -> x.validate(errorLog));
+            models.values().stream().forEach(x -> x.validate_pre_init(errorLog));
         if( subnetworks!=null )
-            subnetworks.values().forEach(x -> x.validate(errorLog));
-        if( sensors!=null )
-            sensors.values().stream().forEach(x -> x.validate(errorLog));
+            subnetworks.values().forEach(x -> x.validate_pre_init(errorLog));
         if( controllers!=null )
-            controllers.values().stream().forEach(x -> x.validate(errorLog));
+            controllers.values().stream().forEach(x -> x.validate_pre_init(errorLog));
         if( actuators!=null )
-            actuators.values().stream().forEach(x -> x.validate(errorLog));
+            actuators.values().stream().forEach(x -> x.validate_pre_init(errorLog));
 
         // check if there are CFL violations, and if so report the max step time
         if(errorLog.haserror()){
@@ -88,12 +88,12 @@ public class Scenario {
     }
 
     public void initialize(Dispatcher dispatcher) throws OTMException {
-        this.initialize(dispatcher,new RunParameters(0f));
+        this.initialize(dispatcher,new RunParameters(0f),true);
     }
 
     // Use to initialize all of the components of the scenario
     // Use to initialize a scenario that has already been run
-    public void initialize(Dispatcher dispatcher,RunParameters runParams) throws OTMException {
+    public void initialize(Dispatcher dispatcher,RunParameters runParams,boolean validate_post_init) throws OTMException {
 
         // attach dispatcher ...............
         this.dispatcher = dispatcher;
@@ -101,14 +101,14 @@ public class Scenario {
             dispatcher.set_scenario(this);
 
         // validate the run parameters and outputs
-        OTMErrorLog errorLog = new OTMErrorLog();
-        runParams.validate(errorLog);
+        OTMErrorLog errorLog1 = new OTMErrorLog();
+        runParams.validate(errorLog1);
 
         // validate the outputs
-        outputs.stream().forEach(x->x.validate(errorLog));
+        outputs.stream().forEach(x->x.validate(errorLog1));
 
         // check validation
-        errorLog.check();
+        errorLog1.check();
 
         // initialize components ..................................
         if(dispatcher!=null)
@@ -137,6 +137,53 @@ public class Scenario {
 
         if(path_tt_manager!=null)
             path_tt_manager.initialize(dispatcher);
+
+        // validate
+        if(validate_post_init) {
+            OTMErrorLog errorLog2 = validate_post_init();
+            errorLog2.check();
+        }
+
+    }
+
+    private OTMErrorLog validate_post_init(){
+
+        OTMErrorLog errorLog =  new OTMErrorLog();
+
+        network.links.values().forEach(x->x.validate_post_init(errorLog));
+        network.road_geoms.values().forEach(x->x.validate_post_init(errorLog));
+        network.road_connections.values().forEach(x->x.validate_post_init(errorLog));
+
+        if(models!=null)
+            models.values().stream().forEach(x -> x.validate_post_init(errorLog));
+        if( subnetworks!=null )
+            subnetworks.values().forEach(x -> x.validate_post_init(errorLog));
+        if( sensors!=null )
+            sensors.values().stream().forEach(x -> x.validate_post_init(errorLog));
+        if( actuators!=null )
+            actuators.values().stream().forEach(x -> x.validate_post_init(errorLog));
+
+        // check if there are CFL violations, and if so report the max step time
+        if(errorLog.haserror()){
+
+            if( errorLog.getErrors().stream().anyMatch(e->e.description.contains("CFL")) ){
+                Map<String,Double> maxdt = new HashMap<>();
+                for(AbstractModel model : models.values())
+                    maxdt.put(model.name,Double.POSITIVE_INFINITY);
+                for(String str : errorLog.getErrors().stream().filter(e->e.description.contains("CFL")).map(e->e.description).collect(toSet())) {
+                    String[] tokens = str.split(" ");
+                    long linkid = Long.parseLong(tokens[3]);
+                    AbstractFluidModel model = (AbstractFluidModel) network.links.get(linkid).model;
+                    double cfl = Double.parseDouble(tokens[6]);
+                    maxdt.put(model.name,Math.min(maxdt.get(model.name),model.dt_sec /cfl));
+                }
+                for(Map.Entry<String,Double> e : maxdt.entrySet())
+                    errorLog.addError(String.format("The maximum step size for model `%s' is %f",e.getKey(),e.getValue()));
+            }
+
+        }
+
+        return errorLog;
     }
 
     ///////////////////////////////////////////////////

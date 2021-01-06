@@ -58,12 +58,15 @@ public class RoadGeometry implements InterfaceScenarioElement {
         return ScenarioElementType.roadgeom;
     }
 
-    @Override
-    public void validate(OTMErrorLog errorLog) {
+    public void validate_pre_init(OTMErrorLog errorLog) {
         if( in !=null )
-            in.validate(errorLog);
+            in.validate_pre_init(errorLog);
         if( out !=null )
-            out.validate(errorLog);
+            out.validate_pre_init(errorLog);
+    }
+
+    public void validate_post_init(OTMErrorLog errorLog){
+
     }
 
     @Override

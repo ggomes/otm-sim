@@ -70,21 +70,21 @@ public class OTM {
     /**
      * Constructor.
      * @param configfile Configuration file.
-     * @param validate Validate if true.
+     * @param validate_pre_init Validate if true.
      * @param jaxb_only Load raw jaxb only if true (ie don't build OTM objects).
      * @throws OTMException Undocumented
      */
-    public OTM(String configfile, boolean validate, boolean jaxb_only) throws OTMException {
-        load(configfile,validate,jaxb_only);
+    public OTM(String configfile, boolean validate_pre_init, boolean jaxb_only) throws OTMException {
+        load(configfile,validate_pre_init,jaxb_only);
     }
 
     ////////////////////////////////////////////////////////
     // load / save
     ////////////////////////////////////////////////////////
 
-    public void load(String configfile, boolean validate, boolean jaxb_only) throws OTMException {
-        jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,validate);
-        this.scenario =  ScenarioFactory.create_scenario(jaxb_scenario,validate,jaxb_only);
+    public void load(String configfile, boolean validate_pre_init, boolean jaxb_only) throws OTMException {
+        jaxb.Scenario jaxb_scenario = JaxbLoader.load_scenario(configfile,validate_pre_init);
+        this.scenario =  ScenarioFactory.create_scenario(jaxb_scenario,validate_pre_init,jaxb_only);
         output = new api.Output();
         OTM otm = new OTM(scenario,output);
         output.set_api(otm);
@@ -122,7 +122,7 @@ public class OTM {
      * @throws OTMException Undocumented
      */
     public void initialize(float start_time) throws OTMException {
-        initialize(start_time,null,null,null);
+        initialize(start_time,null,null,null,false);
     }
 
     /**
@@ -133,7 +133,7 @@ public class OTM {
      * @param output_folder Folder for the output.
      * @throws OTMException Undocumented
      */
-    public void initialize(float start_time,String output_requests_file,String prefix,String output_folder) throws OTMException {
+    public void initialize(float start_time,String output_requests_file,String prefix,String output_folder,boolean validate_post_init) throws OTMException {
 
         // build and attach dispatcher
         Dispatcher dispatcher = new Dispatcher();
@@ -146,7 +146,7 @@ public class OTM {
 
         // initialize
         RunParameters runParams = new RunParameters(prefix,output_requests_file,output_folder,start_time);
-        scenario.initialize(dispatcher,runParams);
+        scenario.initialize(dispatcher,runParams,validate_post_init);
     }
 
     ////////////////////////////////////////////////////////
@@ -174,8 +174,8 @@ public class OTM {
      * @param duration Duration of the simulation in seconds.
      * @throws OTMException Undocumented
      */
-    public void run(String prefix,String output_requests_file,String output_folder,float start_time,float duration) throws OTMException {
-        initialize(start_time,output_requests_file,prefix,output_folder);
+    public void run(String prefix,String output_requests_file,String output_folder,float start_time,float duration,boolean validate_post_init) throws OTMException {
+        initialize(start_time,output_requests_file,prefix,output_folder,validate_post_init);
         advance(duration);
         terminate();
     }

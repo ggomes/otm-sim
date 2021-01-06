@@ -72,8 +72,11 @@ public class Subnetwork implements InterfaceScenarioElement {
         return ScenarioElementType.subnetwork;
     }
 
-    @Override
-    public void validate(OTMErrorLog errorLog) {
+    public void validate_pre_init(OTMErrorLog errorLog) {
+    }
+
+    public void validate_post_init(OTMErrorLog errorLog){
+
     }
 
     @Override

@@ -46,15 +46,15 @@ public class ControllerFlowToLinks extends AbstractController  {
     }
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
+    public void validate_pre_init(OTMErrorLog errorLog) {
+        super.validate_pre_init(errorLog);
 
         if(actuators.size()!=1)
             errorLog.addError("Offramp flow controller must have exactly one actuator.");
 
         for(int i=0;i<fr_prof.length;i++)
             if(fr_prof[i]!=null)
-                fr_prof[i].validate(errorLog);
+                fr_prof[i].validate_pre_init(errorLog);
     }
 
     @Override

@@ -81,8 +81,7 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         return ScenarioElementType.roadconnection;
     }
 
-    @Override
-    public void validate(OTMErrorLog errorLog) {
+    public void validate_pre_init(OTMErrorLog errorLog) {
 
         if (start_link!=null && end_link!=null && start_link.end_node!=end_link.start_node ) {
             System.err.println("bad road connection: id=" + id
@@ -130,6 +129,10 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
             if(all_outlink.iterator().next().id!=end_link.id)
                 errorLog.addError("all_outlink.iterator().next().id!=end_link.id");
         }
+
+    }
+
+    public void validate_post_init(OTMErrorLog errorLog){
 
     }
 

@@ -1,6 +1,5 @@
 package control.sigint;
 
-import actuator.ActuatorLaneGroupCapacity;
 import actuator.ActuatorSignal;
 import actuator.SignalPhase;
 import control.AbstractController;
@@ -74,8 +73,8 @@ public class ControllerSignalPretimed extends AbstractController {
     ///////////////////////////////////////////////////
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
+    public void validate_pre_init(OTMErrorLog errorLog) {
+        super.validate_pre_init(errorLog);
 
         // positivity
         if(cycle<=0)

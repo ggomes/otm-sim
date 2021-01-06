@@ -47,7 +47,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     ///////////////////////////////////////////
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
+    public void validate_post_init(OTMErrorLog errorLog) {
 
         if (jam_density_veh_per_cell < 0)
             errorLog.addError("non-negativity");

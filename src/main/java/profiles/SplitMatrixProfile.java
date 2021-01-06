@@ -33,7 +33,7 @@ public class SplitMatrixProfile {
         this.link_in = link_in;
     }
 
-    public void validate(Scenario scenario,OTMErrorLog errorLog) {
+    public void validate_pre_init(Scenario scenario, OTMErrorLog errorLog) {
 
         Node node = link_in.get_end_node();
 

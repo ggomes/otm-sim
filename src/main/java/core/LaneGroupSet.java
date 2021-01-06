@@ -1,13 +1,14 @@
 package core;
 
 import actuator.AbstractActuator;
-import actuator.InterfaceActuatorTarget;
+import actuator.InterfaceTarget;
 import error.OTMException;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class LaneGroupSet implements InterfaceActuatorTarget {
+public class LaneGroupSet implements InterfaceTarget {
 
     public Set<AbstractLaneGroup> lgs = new HashSet<>();
 
@@ -19,6 +20,12 @@ public class LaneGroupSet implements InterfaceActuatorTarget {
     @Override
     public long getIdAsTarget() {
         return 0;
+    }
+
+    @Override
+    public AbstractModel get_model() {
+        Set<AbstractModel> models = lgs.stream().map(lg->lg.get_link().get_model()).collect(Collectors.toSet());
+        return models.size()==1 ? models.iterator().next() : null;
     }
 
     @Override

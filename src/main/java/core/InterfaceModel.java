@@ -23,7 +23,8 @@ public interface InterfaceModel {
 
     // initialization
     void set_state_for_link(Link link);
-    void validate(OTMErrorLog errorLog);
+    void validate_pre_init(OTMErrorLog errorLog);
+    void validate_post_init(OTMErrorLog errorLog);
     void register_with_dispatcher(Scenario scenario, Dispatcher dispatcher, float start_time);
 
     //

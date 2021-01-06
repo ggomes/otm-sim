@@ -26,11 +26,11 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     public long id;
     public abstract Type getType();
-    public float dt;
+    public Float dt;            // dt<=0 means event based (vehicle model) or dt=sim dt (fluid model)
     public boolean initialized;
 
     public AbstractController myController;
-    public InterfaceActuatorTarget target;
+    public InterfaceTarget target;
     public Set<Long> commids; // not always used
 
     abstract public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException;
@@ -42,7 +42,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     public AbstractActuator(Scenario scenario, jaxb.Actuator jaxb_actuator) throws OTMException {
         this.id = jaxb_actuator.getId();
-        this.dt = jaxb_actuator.getDt();
+        this.dt = Math.max(0f,jaxb_actuator.getDt());
         this.initialized = false;
         if(jaxb_actuator.getActuatorTarget()!=null){
             jaxb.ActuatorTarget e = jaxb_actuator.getActuatorTarget();
@@ -57,7 +57,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
                     throw new OTMException("Wrong target type in actuator");
 
                 if(type!=null && type!=ScenarioElementType.lanegroups)
-                    this.target = (InterfaceActuatorTarget) scenario.get_element(type,id);
+                    this.target = (InterfaceTarget) scenario.get_element(type,id);
 
                 if(e.getCommids()!=null) {
                     this.commids = new HashSet<>();
@@ -86,20 +86,30 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         return ScenarioElementType.actuator;
     }
 
+    public void validate_pre_init(OTMErrorLog errorLog) {
+    }
+
     public void initialize(Scenario scenario, float start_time, boolean override_targets) throws OTMException {
 
         if(initialized)
             return;
 
-        if(dt>0f) {
-            Dispatcher dispatcher = scenario.dispatcher;
-            dispatcher.register_event(new EventPoke(dispatcher, 30, start_time, this));
+        if(target!=null && (dt==null || dt<=0)){
+            AbstractModel model = this.target.get_model();
+            if(model==null)
+                dt=null;
+            else {
+                if (model instanceof AbstractFluidModel)
+                    dt = ((AbstractFluidModel) model).dt_sec;
+                if (model instanceof AbstractVehicleModel)
+                    dt = null;
+            }
         }
+
         initialized=true;
     }
 
-    @Override
-    public void validate(OTMErrorLog errorLog) {
+    public void validate_post_init(OTMErrorLog errorLog){
         if(target==null)
             errorLog.addWarning("Actuator has no target");
     }
@@ -121,7 +131,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
             process_controller_command(myController.get_command_for_actuator_id(id),timestamp);
 
         // wake up in dt, if dt is defined
-        if(dt>0)
+        if(dt!=null)
             dispatcher.register_event(new EventPoke(dispatcher,3,timestamp+dt,this));
     }
 

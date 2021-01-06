@@ -1,6 +1,5 @@
 package core;
 
-import error.OTMErrorLog;
 import error.OTMException;
 import core.geometry.*;
 
@@ -76,13 +75,6 @@ public class Network {
     /////////////////////////////////////////////////
     // InterfaceScenarioElement-like
     /////////////////////////////////////////////////
-
-    public void validate(OTMErrorLog errorLog){
-        nodes.values().forEach(x->x.validate(errorLog));
-        links.values().forEach(x->x.validate(errorLog));
-        road_geoms.values().forEach(x->x.validate(errorLog));
-        road_connections.values().forEach(x->x.validate(errorLog));
-    }
 
     public void initialize(Scenario scenario,float start_time) throws OTMException {
         for(Link link : links.values())

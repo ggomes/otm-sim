@@ -1,13 +1,13 @@
 package core;
 
 import actuator.AbstractActuator;
-import error.OTMErrorLog;
 import error.OTMException;
-import actuator.InterfaceActuatorTarget;
+import actuator.InterfaceTarget;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
+public class Node implements InterfaceScenarioElement, InterfaceTarget {
 
     public Network network;
     protected final long id;
@@ -29,7 +29,7 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
     // construction
     ///////////////////////////////////////////
 
-    public Node(Network network,Long id,Float xcoord, Float ycoord, boolean is_vsource){
+    public Node(Network network,Long id,Float xcoord, Float ycoord){
         this.network = network;
         this.id = id;
         this.xcoord = xcoord;
@@ -45,7 +45,7 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
     }
 
     public Node(Network network,jaxb.Node jn){
-        this(network,jn.getId(),jn.getX(),jn.getY(),jn.isVsource());
+        this(network,jn.getId(),jn.getX(),jn.getY());
     }
 
     ///////////////////////////////////////////
@@ -60,10 +60,6 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
     @Override
     public final ScenarioElementType getSEType() {
         return ScenarioElementType.node;
-    }
-
-    @Override
-    public void validate(OTMErrorLog errorLog) {
     }
 
     @Override
@@ -101,6 +97,14 @@ public class Node implements InterfaceScenarioElement, InterfaceActuatorTarget {
     @Override
     public long getIdAsTarget() {
         return id;
+    }
+
+    @Override
+    public AbstractModel get_model() {
+        Set<AbstractModel> models = new HashSet<>();
+        models.addAll(in_links.values().stream().map(link->link.get_model()).collect(Collectors.toSet()));
+        models.addAll(out_links.stream().map(link->link.get_model()).collect(Collectors.toSet()));
+        return models.size()==1 ? models.iterator().next() : null;
     }
 
     @Override

@@ -59,7 +59,7 @@ public class Path extends Subnetwork {
     ///////////////////////////////////////////////////
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
+    public void validate_pre_init(OTMErrorLog errorLog) {
 
         // must have at least two links
         if(ordered_links.size()<2)

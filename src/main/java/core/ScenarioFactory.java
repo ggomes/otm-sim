@@ -37,7 +37,7 @@ public class ScenarioFactory {
     // public
     ///////////////////////////////////////////
 
-    public static Scenario create_scenario(jaxb.Scenario js, boolean validate,boolean jaxb_only) throws OTMException {
+    public static Scenario create_scenario(jaxb.Scenario js, boolean validate_pre_init,boolean jaxb_only) throws OTMException {
 
         OTMUtils.reset_counters();
 
@@ -100,8 +100,8 @@ public class ScenarioFactory {
         ScenarioFactory.create_demands_from_jaxb(scenario.network, js.getDemands());
 
         // validate
-        if(validate) {
-            OTMErrorLog errorLog = scenario.validate();
+        if(validate_pre_init) {
+            OTMErrorLog errorLog = scenario.validate_pre_init();
             errorLog.check();
         }
 

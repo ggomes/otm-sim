@@ -63,8 +63,8 @@ public class ActuatorSplit extends AbstractActuator {
     }
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
+    public void validate_pre_init(OTMErrorLog errorLog) {
+        super.validate_pre_init(errorLog);
         if(linkMLup ==null)
             errorLog.addError("ActuatorSplit: linkin==null");
         if(linkFRs.isEmpty())

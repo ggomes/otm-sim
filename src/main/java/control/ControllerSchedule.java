@@ -68,8 +68,8 @@ public class ControllerSchedule extends AbstractController {
     ///////////////////////////////////////////////////
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
+    public void validate_pre_init(OTMErrorLog errorLog) {
+        super.validate_pre_init(errorLog);
         for(ScheduleEntry entry : entries)
             entry.validate(errorLog);
     }
@@ -170,7 +170,7 @@ public class ControllerSchedule extends AbstractController {
         }
 
         public void validate(OTMErrorLog errorLog) {
-            cntrl.validate(errorLog);
+            cntrl.validate_pre_init(errorLog);
         }
     }
 }

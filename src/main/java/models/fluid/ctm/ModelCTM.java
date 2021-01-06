@@ -25,7 +25,13 @@ public class ModelCTM extends AbstractFluidModel {
     //////////////////////////////////////////////////////////////
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
+    public void validate_pre_init(OTMErrorLog errorLog) {
+
+    }
+
+
+    @Override
+    public void validate_post_init(OTMErrorLog errorLog) {
 
     }
 

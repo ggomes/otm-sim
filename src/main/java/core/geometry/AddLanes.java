@@ -52,7 +52,7 @@ public class AddLanes {
         return this.side.equals(Side.in);
     }
 
-    public void validate(OTMErrorLog errorLog){
+    public void validate_pre_init(OTMErrorLog errorLog){
         if(side==null)
             errorLog.addError("No side specified");
 //        if(lanes<=0)

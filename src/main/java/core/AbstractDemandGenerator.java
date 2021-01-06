@@ -53,7 +53,6 @@ public abstract class AbstractDemandGenerator {
                 * profile.dt;
     }
 
-
     public void validate(OTMErrorLog errorLog) {
 
         if( (link==null && path==null) || (link!=null && path!=null) )
@@ -99,7 +98,7 @@ public abstract class AbstractDemandGenerator {
             errorLog.addError("bad commodity in demand");
 
         // profile
-        profile.validate(errorLog);
+        profile.validate_pre_init(errorLog);
 
     }
 
