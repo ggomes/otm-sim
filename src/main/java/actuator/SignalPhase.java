@@ -66,28 +66,17 @@ public class SignalPhase {
     // InterfaceScenarioElement-like
     ///////////////////////////////////////////////////
 
-    public void validate(OTMErrorLog errorLog) {
-
-//        // positivity
-//        if(yellow_time<0)
-//            errorLog.addError("yellow_time<0");
-//
-//        if(red_clear_time<0)
-//            errorLog.addError("red_clear_time<0");
-//
-//        if(min_green_time<0)
-//            errorLog.addError("min_green_time<0");
-
-        // valid road connections
-        if(lanegroups.isEmpty())
-            errorLog.addError("lanegroups.isEmpty()");
-    }
-
     public void initialize(boolean override_targets) throws OTMException {
         for(AbstractLaneGroup lg : lanegroups)
             lg.register_actuator(null,my_signal,override_targets);
         set_bulb_color(BulbColor.DARK);
     }
+
+    public void validate_post_init(OTMErrorLog errorLog) {
+        if(lanegroups.isEmpty())
+            errorLog.addError("lanegroups.isEmpty()");
+    }
+
 
     ///////////////////////////////////////////////////
     // ActuatorSignal.process_controller_command

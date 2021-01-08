@@ -46,9 +46,15 @@ public class ActuatorSignal extends AbstractActuator {
 
         if(signal_phases==null)
             errorLog.addError("ActuatorSignal ID=" + id + " contains no valid phases.");
-        else
+    }
+
+
+    @Override
+    public void validate_post_init(OTMErrorLog errorLog) {
+        super.validate_post_init(errorLog);
+        if(signal_phases!=null)
             for(SignalPhase p : signal_phases.values())
-                p.validate(errorLog);
+                p.validate_post_init(errorLog);
     }
 
     @Override

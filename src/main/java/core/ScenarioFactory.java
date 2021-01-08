@@ -59,13 +59,13 @@ public class ScenarioFactory {
         // demands
         ScenarioFactory.create_demands_from_jaxb(scenario, js.getDemands());
 
-        // generate models
-        scenario.models = create_models_from_jaxb(scenario,js.getModels().getModel());
-        
         // control
         scenario.sensors = ScenarioFactory.create_sensors_from_jaxb(scenario, js.getSensors() );
         scenario.actuators = ScenarioFactory.create_actuators_from_jaxb(scenario, js.getActuators() );
         scenario.controllers = ScenarioFactory.create_controllers_from_jaxb(scenario,js.getControllers() );
+
+        // generate models
+        scenario.models = create_models_from_jaxb(scenario,js.getModels().getModel());
 
         // validate
         if(validate_pre_init) {
@@ -311,7 +311,6 @@ public class ScenarioFactory {
             AbstractActuator actuator;
             if(actuators.containsKey(jaxb_actuator.getId()))
                 throw new OTMException("Duplicate actuator id found: " + jaxb_actuator.getId());
-
 
             AbstractActuator.Type type = AbstractActuator.Type.valueOf(jaxb_actuator.getType());
             switch(type){

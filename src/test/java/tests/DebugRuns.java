@@ -304,14 +304,13 @@ public class DebugRuns extends AbstractTest {
             model.setName("new ctm");
 
             jaxb.ModelParams mp = new jaxb.ModelParams();
-            mp.setSimDt(.2f);
-            mp.setMaxCellLength(10f);
+            mp.setSimDt(2f);
+            mp.setMaxCellLength(100f);
             model.setModelParams(mp);
 
             otm.scenario.set_model(model);
 
             otm.run(0f,3600f);
-
 
         } catch (OTMException e) {
             e.printStackTrace();

@@ -21,7 +21,8 @@ public class FixedSensor extends AbstractSensor {
     public int end_lane;
     private float position;     // measured in meters from the downstream edge (0 is downstream sensor)
     private Set<Long> commids;
-    private Map<AbstractLaneGroup,SubSensor> subsensors;  // because a fixed sensor may span several lanegroups
+
+    private Map<Long,SubSensor> subsensors;  // lgid->subsensor. because a fixed sensor may span several lanegroups
 
     private Map<Long,Measurement> measurements; // comm_id -> measurement
 
@@ -41,6 +42,7 @@ public class FixedSensor extends AbstractSensor {
     public FixedSensor(Scenario scenario, Sensor jaxb_sensor)  throws OTMException {
         super(jaxb_sensor);
 
+        this.position = jaxb_sensor.getPosition();
         this.link = scenario.network.links.containsKey((jaxb_sensor.getLinkId())) ?
                 scenario.network.links.get(jaxb_sensor.getLinkId()) : null;
 
@@ -49,42 +51,36 @@ public class FixedSensor extends AbstractSensor {
         start_lane = x[0];
         end_lane = x[1];
 
-        // create subsensors
-        this.position = jaxb_sensor.getPosition();
         this.commids = jaxb_sensor.getCommids()==null || jaxb_sensor.getCommids().isEmpty() ?
                         scenario.commodities.keySet() :
                         new HashSet<>(OTMUtils.csv2longlist(jaxb_sensor.getCommids()));
-    }
-
-    private void create_subsensors(float position,Set<Long> commids) throws OTMException {
-
-        if(link.get_model().type!= AbstractModel.Type.Fluid && position!=0f)
-            throw new OTMException("Currently only downstream fixed sensors are allowed for non-fluid models.");
-
-        subsensors = new HashMap<>();
-        for(int lane=start_lane;lane<=end_lane;lane++){
-            AbstractLaneGroup lg = link.get_lanegroup_for_dn_lane(lane);
-            SubSensor subsensor;
-            if(subsensors.containsKey(lg)){
-                subsensor = subsensors.get(lg);
-            } else {
-                subsensor = new SubSensor(lg,position,commids);
-                subsensors.put(lg,subsensor);
-            }
-            subsensor.lanes.add(lane);
-        }
     }
 
     ////////////////////////////////////////
     // InterfaceScenarioElement
     ////////////////////////////////////////
 
-
-
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
-        create_subsensors( position,commids);
+
+        if(link.get_model().type!= AbstractModel.Type.Fluid && position!=0f)
+            throw new OTMException("Currently only downstream fixed sensors are allowed for non-fluid models.");
+
+        // create subsensors
+        subsensors = new HashMap<>();
+        for(int lane=start_lane;lane<=end_lane;lane++){
+            AbstractLaneGroup lg = link.get_lanegroup_for_dn_lane(lane);
+            SubSensor subsensor;
+            if(subsensors.containsKey(lg.getId())){
+                subsensor = subsensors.get(lg.getId());
+            } else {
+                subsensor = new SubSensor(lg,position,commids);
+                subsensors.put(lg.getId(),subsensor);
+            }
+            subsensor.lanes.add(lane);
+        }
+
         measurements = new HashMap<>();
         for(Long c : commids)
             measurements.put(c,new Measurement());
@@ -103,11 +99,9 @@ public class FixedSensor extends AbstractSensor {
 
             double total_count = 0d;
             double total_vehicles = 0d;
-            for(Map.Entry<AbstractLaneGroup, SubSensor> e2 :  subsensors.entrySet()){
-                AbstractLaneGroup lg = e2.getKey();
-                SubSensor subsensor = e2.getValue();
+            for(SubSensor subsensor:  subsensors.values()){
                 total_count += subsensor.flow_accumulator.get_count_for_commodity(comm_id);
-                total_vehicles += lg.get_total_vehicles_for_commodity(comm_id);
+                total_vehicles += subsensor.lg.get_total_vehicles_for_commodity(comm_id);
             }
 
             m.flow_vph = (total_count-m.prev_count)*dt_inv;
@@ -154,9 +148,11 @@ public class FixedSensor extends AbstractSensor {
     /////////////////////////////////////////////////////////////////
 
     public class SubSensor {
+        public AbstractLaneGroup lg;
         public Set<Integer> lanes;
         public FlowAccumulatorState flow_accumulator; // commodity->fa
         public SubSensor(AbstractLaneGroup lg,float position,Set<Long> commids){
+            this.lg = lg;
             lanes = new HashSet<>();
             if(position==0f)
                 flow_accumulator = lg.request_flow_accumulator(commids);
