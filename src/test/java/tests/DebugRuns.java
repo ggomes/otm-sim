@@ -36,7 +36,7 @@ public class DebugRuns extends AbstractTest {
             boolean sysout2file = false;
             String configfile = "/home/gomes/Desktop/x/opttest_models.xml";
             float start_time = 0f;
-            float duration = 1000f;
+            float duration = 100f;
             float outdt = 5f;
             String prefix = makeplots?null:"x";
             String output_folder = makeplots?null:"/home/gomes/Desktop/x/models";
@@ -293,65 +293,30 @@ public class DebugRuns extends AbstractTest {
 
     @Ignore
     @Test
-    public void xxx() {
-
+    public void test_set_model(){
         try {
 
-            String configfile = "/home/gomes/Desktop/test/intersection.xml";
-            float start_time = 0f;
-            float duration = 300f;
-            float outdt = 2f;
-            String prefix = null; // "javaapi";
-            String output_folder = null; // "/home/gomes/Desktop/test/output";
-            Long comm_id=null;
+            api.OTM otm = new api.OTM("/home/gomes/Desktop/x/opttest/on_ramp_fixed_meter_queue_override.xml");
 
-            // Load ..............................
-            api.OTM otm = new api.OTM(configfile,true,false);
+            jaxb.Model model = new jaxb.Model();
+            model.setIsDefault(true);
+            model.setType("ctm");
+            model.setName("new ctm");
 
-            // links
-            Set<Long> link_ids = otm.scenario.network.links.keySet();
-            otm.output.request_links_flow(prefix,output_folder,comm_id,link_ids,outdt);
-            otm.output.request_links_veh(prefix,output_folder,comm_id,link_ids,outdt);
+            jaxb.ModelParams mp = new jaxb.ModelParams();
+            mp.setSimDt(.2f);
+            mp.setMaxCellLength(10f);
+            model.setModelParams(mp);
 
-            // lane groups
-            otm.output.request_lanegroups(prefix,output_folder);
-            otm.output.request_lanegroup_flw(prefix,output_folder,comm_id,link_ids,outdt);
-            otm.output.request_lanegroup_veh(prefix,output_folder,comm_id,link_ids,outdt);
+            otm.scenario.set_model(model);
 
-            // controllers
-            otm.output.request_controller(prefix,output_folder,0l);
+            otm.run(0f,3600f);
 
-            // Run .................................
-            otm.run(start_time,duration);
-
-
-
-
-
-
-            String png_folder = "/home/gomes/Desktop/test/output";
-            for(AbstractOutput output :  otm.output.get_data()){
-
-                // links
-                if (output instanceof OutputLinkFlow)
-                    ((OutputLinkFlow) output).plot_for_links(null, String.format("%s/link_flow.png", png_folder));
-
-                if (output instanceof OutputLinkVehicles)
-                    ((OutputLinkVehicles) output).plot_for_links(null, String.format("%s/link_veh.png", png_folder));
-
-                // lane groups
-                if (output instanceof OutputLaneGroupFlow)
-                    ((OutputLaneGroupFlow) output).plot_for_links(null,"flows",  String.format("%s/lg_flow.png", png_folder));
-
-                if (output instanceof OutputLaneGroupVehicles)
-                    ((OutputLaneGroupVehicles) output).plot_for_links(null, "veh",String.format("%s/lg_veh.png", png_folder));
-
-            }
 
         } catch (OTMException e) {
-            System.out.print(e);
-            fail();
+            e.printStackTrace();
         }
+
     }
 
 }

@@ -45,7 +45,7 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
     protected boolean is_model_source_link;
 
     // lane selection model
-    protected LinkLaneSelector lane_selector;  // comm->lane selector
+    protected LinkLaneSelector lane_selector;
 
     // lanegroups ......................................
 
@@ -272,10 +272,17 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
         return jlink;
     }
 
-    public void set_lanegroups(List<AbstractLaneGroup> lgs) {
-        this.lgs = lgs;
+    public void set_lanegroups(List<AbstractLaneGroup> newlgs) {
+
+        // delete existing lane groups (this is to cause obvious problems if there are
+        // lingering reference to stale lane groups
+        if(this.lgs!=null && !this.lgs.isEmpty())
+            for (AbstractLaneGroup lg : this.lgs)
+                lg.delete();
+
+        this.lgs = newlgs;
         dnlane2lanegroup = new HashMap<>();
-        for (AbstractLaneGroup lg : lgs)
+        for (AbstractLaneGroup lg : this.lgs)
             for (int lane=lg.start_lane_dn;lane<lg.start_lane_dn+lg.num_lanes;lane++)                       // iterate through dn lanes
                 dnlane2lanegroup.put(lane, lg);
     }

@@ -22,6 +22,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -38,7 +39,7 @@ public class Scenario {
     public Map<Long, AbstractController> controllers = new HashMap<>();
     public Map<Long, AbstractActuator> actuators = new HashMap<>();
     public Map<Long, AbstractSensor> sensors = new HashMap<>();
-
+    public Map<Long, Set<DemandInfo>> demands = new HashMap<>(); // link id -> DemandInfo
     // travel time computation
     public LinkTravelTimeManager path_tt_manager;
 
@@ -504,7 +505,17 @@ public class Scenario {
         if( models.containsKey(jmodel.getName()) )
             throw new OTMException("Duplicate model name in set_model");
 
-        models.put(jmodel.getName(), ScenarioFactory.create_model(this,jmodel) );
+        AbstractModel newmodel = ScenarioFactory.create_model(this,jmodel);
+
+        // remove links in newmodel from other models
+        for(AbstractModel oldmodel : models.values())
+            oldmodel.links.removeIf(link->newmodel.links.contains(link));
+
+        // remove any empty oldmodels
+        models.values().removeIf(model -> model.links.isEmpty());
+
+        // store the new models
+        models.put(jmodel.getName(), newmodel);
     }
 
     // demands .................................

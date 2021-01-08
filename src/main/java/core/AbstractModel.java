@@ -1,5 +1,8 @@
 package core;
 
+import commodity.Commodity;
+import commodity.Path;
+import commodity.Subnetwork;
 import core.geometry.AddLanes;
 import core.geometry.Gate;
 import core.geometry.RoadGeometry;
@@ -7,6 +10,9 @@ import core.geometry.Side;
 import error.OTMException;
 import core.packet.PacketLaneGroup;
 import core.packet.PacketLink;
+import lanechange.LinkLaneSelector;
+import profiles.Profile1D;
+import utils.OTMUtils;
 import utils.StochasticProcess;
 
 import java.util.*;
@@ -45,6 +51,20 @@ public abstract class AbstractModel implements InterfaceModel {
 
         if(links==null || links.isEmpty())
             return;
+
+        // create map from pathfull commodities to paths that intersect this model
+        Set<Long> linkids = links.stream().map(link->link.getId()).collect(Collectors.toUnmodifiableSet());
+        Map<Long,Set<Path>> commpaths = new HashMap<>();
+        for(Commodity commodity : scenario.commodities.values()) {
+            if (commodity.pathfull) {
+                Set<Path> paths = new HashSet<>();
+                for(Subnetwork subnet : commodity.subnetworks)
+                    if(subnet.get_link_ids().stream().anyMatch(linkid->linkids.contains(linkid)))
+                        paths.add((Path)subnet);
+                if(!paths.isEmpty())
+                    commpaths.put(commodity.getId(),paths);
+            }
+        }
 
         // set link models (links will choose new over default, so this determines the link list for each model)
         for (Link link : links) {
@@ -91,6 +111,69 @@ public abstract class AbstractModel implements InterfaceModel {
                 }
             }
 
+            // lane change models
+            if (lcs == null) {
+                link.lane_selector = new LinkLaneSelector(link,null);
+                link.lane_selector.add_type("keep",null, scenario.commodities.keySet());
+            } else {
+                Float dt = lcs.getDt();
+                if(dt==0f && (this instanceof AbstractVehicleModel))
+                    dt = null;
+                if(dt==0f && (this instanceof AbstractFluidModel))
+                    dt = ((AbstractFluidModel)this).dt_sec;
+                link.lane_selector = new LinkLaneSelector(link,dt);
+                for (jaxb.Lanechange lc : lcs.getLanechange()) {
+                    Collection<Long> commids = lc.getComms() == null ?
+                            scenario.commodities.keySet() :
+                            OTMUtils.csv2longlist(lc.getComms());
+                    link.lane_selector.add_type(lc.getType(), lc.getParameters(), commids);
+                }
+            }
+
+            // create vehicle sources
+            if(scenario.demands.containsKey(link.getId())){
+                link.demandGenerators = new HashSet<>();
+                for(DemandInfo demandinfo : scenario.demands.get(link.getId())){
+                    AbstractDemandGenerator source = create_source(
+                            link,
+                            demandinfo.profile,
+                            scenario.commodities.get(demandinfo.commid),
+                            demandinfo.pathid==null?null : (Path)scenario.subnetworks.get(demandinfo.pathid));
+                    link.demandGenerators.add(source);
+                }
+            }
+
+        }
+
+        // allocate the state
+        for(Commodity commodity : scenario.commodities.values()) {
+            if (commodity.pathfull && commpaths.containsKey(commodity.getId())) {
+                for(Path path : commpaths.get(commodity.getId())){
+                    for(Link link : path.ordered_links){
+                        if(links.contains(link)){
+                            Link next_link = path.get_link_following(link);
+                            Long next_link_id = next_link==null ? null : next_link.getId();
+                            for (AbstractLaneGroup lg : link.get_lgs())
+                                lg.add_state(commodity.getId(), path.getId(),next_link_id, true);
+                        }
+                    }
+                }
+            }
+
+            else{
+                for(Link link : links){
+                    // for pathless/sink, next link id is same as this id
+                    if (link.is_sink()) {
+                        for (AbstractLaneGroup lg : link.get_lgs())
+                            lg.add_state(commodity.getId(), null,link.getId(), false);
+                    } else {
+                        // for pathless non-sink, add a state for each next link
+                        for( Long next_link_id : link.get_outlink_ids() )
+                            for (AbstractLaneGroup lg : link.get_lgs())
+                                lg.add_state(commodity.getId(), null,next_link_id, false);
+                    }
+                }
+            }
         }
 
     }

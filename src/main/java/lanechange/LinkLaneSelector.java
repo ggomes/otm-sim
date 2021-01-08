@@ -14,22 +14,22 @@ import java.util.*;
 
 public class LinkLaneSelector implements Pokable {
 
-    protected float dt;
+    protected Float dt;
     protected Link  link;
     protected List<LaneGroupData> lgdatas;
 
-    public LinkLaneSelector(String type, float dt, jaxb.Parameters params, Link link, Collection<Long> commids) throws OTMException {
-        this.dt = dt;
+    public LinkLaneSelector(Link link, Float dt){
         this.link = link;
-
+        this.dt = dt;
         lgdatas = new ArrayList<>();
-        for(AbstractLaneGroup lg : link.get_lgs() )
-            lgdatas.add( new LaneGroupData(lg,commids,type,params) );
 
-        // dt==0 means update every time step
-        // dt<0 means update only once upon initialization
-        if(this.dt==0 && (link.get_model() instanceof AbstractFluidModel))
-            this.dt = ((AbstractFluidModel)link.get_model()).dt_sec;
+        for(AbstractLaneGroup lg : link.get_lgs() )
+            lgdatas.add( new LaneGroupData(lg) );
+    }
+
+    public void add_type(String type, jaxb.Parameters params, Collection<Long> commids) throws OTMException {
+        for(LaneGroupData lgdata : lgdatas)
+            lgdata.add_type(type,params,commids);
     }
 
     public void initialize(Scenario scenario, float start_time) throws OTMException {
@@ -43,7 +43,7 @@ public class LinkLaneSelector implements Pokable {
             for(Map.Entry<State, InterfaceLaneSelector> e2 : lgdata.lcs.entrySet())
                 e2.getValue().update_lane_change_probabilities_with_options(lgdata.lg,e2.getKey());
 
-        if(dt>0)
+        if(dt!=null)
             dispatcher.register_event(new EventPoke(dispatcher,5,timestamp+dt,this));
     }
 
@@ -71,14 +71,16 @@ public class LinkLaneSelector implements Pokable {
     protected class LaneGroupData {
         public AbstractLaneGroup lg;
         public Map<State, InterfaceLaneSelector> lcs;     // state -> algorithm
-        public LaneGroupData(AbstractLaneGroup lg,Collection<Long> commids,String type, jaxb.Parameters params) throws OTMException {
+        public LaneGroupData(AbstractLaneGroup lg) {
             this.lg = lg;
             lcs = new HashMap<>();
-            for (State state : lg.get_states()) {
+        }
+        public void add_type(String type, jaxb.Parameters params, Collection<Long> commids) throws OTMException {
+            for (State state : lg.get_states())
                 if (commids.contains(state.commodity_id))
                     lcs.put(state, create_lane_selector(lg, type, params));
-            }
         }
+
     }
 
     private InterfaceLaneSelector create_lane_selector(AbstractLaneGroup lg,String type,jaxb.Parameters params) throws OTMException {

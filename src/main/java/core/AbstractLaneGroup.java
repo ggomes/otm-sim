@@ -37,7 +37,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     protected AbstractLaneGroup neighbor_out;      // lanegroup down and out
 
     // set of keys for states in this lanegroup
-    protected Set<State> states;   // TODO MOVE THIS TO DISCRETE TIME ONLY?
+    protected Set<State> states;
 
     public StateContainer buffer;
 
@@ -67,7 +67,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public AbstractLaneGroupTimer travel_timer;
 
     ///////////////////////////////////////////////////
-    // construction
+    // construction / destruction
     ///////////////////////////////////////////////////
 
     public AbstractLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp){
@@ -92,6 +92,37 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
         set_road_params(rp);
 
+    }
+
+    public void delete(){
+
+        for(RoadConnection rc : link.end_node.road_connections)
+            if(rc.start_link==link && rc.in_lanegroups.contains(this))
+                rc.in_lanegroups.remove(this);
+
+        for(RoadConnection rc : link.start_node.road_connections)
+            if(rc.end_link==link && rc.out_lanegroups.contains(this))
+                rc.out_lanegroups.remove(this);
+
+
+        link = null;
+        start_lane_up = Integer.MIN_VALUE;
+        start_lane_dn = Integer.MIN_VALUE;
+        length = Float.NaN;
+        neighbor_in = null;
+        neighbor_out = null;
+        states = null;
+        buffer = null;
+        supply = Double.NaN;
+        actuator_capacity = null;
+        actuator_lgrestrict = null;
+        flw_acc = null;
+        state2roadconnection = null;
+        state2lanechangedirections  = null;
+        disallowed_state2lanechangedirections = null;
+        state2lanechangeprob = null;
+        travel_timer = null;
+        outlink2roadconnection = null;
     }
 
     ///////////////////////////////////////////////////

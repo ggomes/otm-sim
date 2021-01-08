@@ -99,36 +99,5 @@ public class Commodity implements InterfaceScenarioElement {
         return name;
     }
 
-    ////////////////////////////////////////////
-    // private
-    ///////////////////////////////////////////
-
-    public static void register_commodity(Link link, Commodity comm, Subnetwork subnet) throws OTMException {
-
-        if(comm.pathfull) {
-            Link next_link = ((Path) subnet).get_link_following(link);
-            Long next_link_id = next_link==null ? null : next_link.getId();
-            for (AbstractLaneGroup lg : link.get_lgs())
-                lg.add_state(comm.getId(), subnet.getId(),next_link_id, true);
-        }
-
-        else {
-
-            // for pathless/sink, next link id is same as this id
-            if (link.is_sink()) {
-                for (AbstractLaneGroup lg : link.get_lgs())
-                    lg.add_state(comm.getId(), null,link.getId(), false);
-
-            } else {
-
-                // for pathless non-sink, add a state for each next link
-                for( Long next_link_id : link.get_outlink_ids()  ){
-                    for (AbstractLaneGroup lg : link.get_lgs())
-                        lg.add_state(comm.getId(), null,next_link_id, false);
-                }
-            }
-        }
-
-    }
 
 }

@@ -144,8 +144,6 @@ public class TestApiOTM extends AbstractTest {
     public void test_set_model(){
         try {
 
-            api.OTM otm = OTM.load_test("line_ctm");
-
             jaxb.Model model = new jaxb.Model();
             model.setIsDefault(true);
             model.setType("ctm");
