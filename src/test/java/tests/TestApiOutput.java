@@ -1,9 +1,8 @@
 package tests;
 
-import api.OTM;
+import core.OTM;
 import error.OTMException;
 import org.junit.Test;
-import output.*;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,7 +21,7 @@ public class TestApiOutput extends AbstractTest {
             float duration = 3600f;
             float outDt = 10f;
 
-            api.OTM otm = OTM.load_test("output_test");
+            OTM otm = OTM.load_test("output_test");
 
             Set<Long> link_ids = otm.scenario.network.links.keySet();
             Long commid = null;

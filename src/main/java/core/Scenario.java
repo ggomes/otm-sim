@@ -2,9 +2,11 @@ package core;
 
 import actuator.AbstractActuator;
 import commodity.Commodity;
+import commodity.Path;
 import commodity.Subnetwork;
 import dispatch.EventInitializeController;
 import cmd.RunParameters;
+import output.animation.AnimationInfo;
 import traveltime.LinkTravelTimeManager;
 import control.AbstractController;
 import error.OTMErrorLog;
@@ -22,7 +24,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -40,14 +41,15 @@ public class Scenario {
     public Map<Long, AbstractActuator> actuators = new HashMap<>();
     public Map<Long, AbstractSensor> sensors = new HashMap<>();
     public Map<Long, Set<DemandInfo>> demands = new HashMap<>(); // link id -> DemandInfo
+
     // travel time computation
     public LinkTravelTimeManager path_tt_manager;
 
     ///////////////////////////////////////////////////
-    // construction
+    // validate / initialize
     ///////////////////////////////////////////////////
 
-    public OTMErrorLog validate_pre_init(){
+    protected OTMErrorLog validate_pre_init(){
 
         OTMErrorLog errorLog =  new OTMErrorLog();
 
@@ -88,12 +90,10 @@ public class Scenario {
         return errorLog;
     }
 
-    public void initialize(Dispatcher dispatcher) throws OTMException {
+    protected void initialize(Dispatcher dispatcher) throws OTMException {
         this.initialize(dispatcher,new RunParameters(0f),true);
     }
 
-    // Use to initialize all of the components of the scenario
-    // Use to initialize a scenario that has already been run
     public void initialize(Dispatcher dispatcher,RunParameters runParams,boolean validate_post_init) throws OTMException {
 
         // attach dispatcher ...............
@@ -104,9 +104,6 @@ public class Scenario {
         // validate the run parameters and outputs
         OTMErrorLog errorLog1 = new OTMErrorLog();
         runParams.validate(errorLog1);
-
-        // validate the outputs
-        outputs.stream().forEach(x->x.validate(errorLog1));
 
         // check validation
         errorLog1.check();
@@ -151,6 +148,8 @@ public class Scenario {
 
         OTMErrorLog errorLog =  new OTMErrorLog();
 
+        outputs.stream().forEach(x->x.validate_post_init(errorLog));
+
         network.links.values().forEach(x->x.validate_post_init(errorLog));
         network.road_geoms.values().forEach(x->x.validate_post_init(errorLog));
         network.road_connections.values().forEach(x->x.validate_post_init(errorLog));
@@ -161,8 +160,6 @@ public class Scenario {
             subnetworks.values().forEach(x -> x.validate_post_init(errorLog));
         if( sensors!=null )
             sensors.values().stream().forEach(x -> x.validate_post_init(errorLog));
-        if( actuators!=null )
-            actuators.values().stream().forEach(x -> x.validate_post_init(errorLog));
 
         // check if there are CFL violations, and if so report the max step time
         if(errorLog.haserror()){
@@ -340,7 +337,7 @@ public class Scenario {
     }
 
     ///////////////////////////////////////////////////
-    // run
+    // teminate
     ///////////////////////////////////////////////////
 
     public void terminate() {
@@ -390,6 +387,9 @@ public class Scenario {
     // API
     ///////////////////////////////////////////////////
 
+
+
+
     public float get_current_time(){
         return dispatcher.current_time;
     }
@@ -426,20 +426,34 @@ public class Scenario {
 
     // id sets .......................................
 
-    public Collection<Long> node_ids(){
+    public Set<Long> node_ids(){
         return network.nodes.keySet();
     }
 
-    public Collection<Long> link_ids(){
+    public Set<Long> link_ids(){
         return network.links.keySet();
     }
 
-    public Collection<Long> commodity_ids(){
+    public Set<Long> source_link_ids(){
+        return network.links.values().stream()
+                .filter(x->x.is_source())
+                .map(x->x.getId())
+                .collect(toSet());
+    }
+
+    public Set<Long> commodity_ids(){
         return commodities.keySet();
     }
 
-    public Collection<Long> subnetwork_ids(){
+    public Set<Long> subnetwork_ids(){
         return subnetworks.keySet();
+    }
+
+    public Set<Long> path_ids(){
+        return subnetworks.values().stream()
+                .filter(x->x instanceof Path)
+                .map(x->x.getId())
+                .collect(toSet());
     }
 
     public Collection<Long> actuator_ids(){
@@ -505,16 +519,13 @@ public class Scenario {
         if( models.containsKey(jmodel.getName()) )
             throw new OTMException("Duplicate model name in set_model");
 
+        // create the new model. This will remove each link of the new model from its old model
         AbstractModel newmodel = ScenarioFactory.create_model(this,jmodel);
 
-        // remove links in newmodel from other models
-        for(AbstractModel oldmodel : models.values())
-            oldmodel.links.removeIf(link->newmodel.links.contains(link));
-
-        // remove any empty oldmodels
+        // remove any orphan models
         models.values().removeIf(model -> model.links.isEmpty());
 
-        // store the new models
+        // store the new model
         models.put(jmodel.getName(), newmodel);
     }
 
@@ -534,6 +545,82 @@ public class Scenario {
         if(link==null)
             return null;
         return link.demandGenerators.stream().map(z->z.profile).collect(toSet());
+    }
+
+    // other .................................
+
+    public Set<List<Long>> get_link_connectivity(){
+        Set<List<Long>> X = new HashSet<>();
+        for(Link link : network.links.values()){
+            List<Long> A = new ArrayList<>();
+            A.add(link.getId());
+            A.add(link.get_start_node().getId());
+            A.add(link.get_end_node().getId());
+            X.add(A);
+        }
+        return X;
+    }
+
+    public long add_subnetwork(String name, Set<Long> linkids,Set<Long> comm_ids) throws OTMException {
+        Long subnetid = subnetworks.keySet().stream().max(Long::compare).get() + 1;
+        Subnetwork newsubnet = new Subnetwork(subnetid,name,linkids,comm_ids,this);
+        subnetworks.put(subnetid,newsubnet);
+        return subnetid;
+    }
+
+    ////////////////////////////////////////////////////////
+    // STATE getters and setters -- may be model specific
+    ////////////////////////////////////////////////////////
+
+//    public static class Queues {
+//        int waiting, transit;
+//        public Queues(int waiting, int transit){
+//            this.waiting = waiting;
+//            this.transit = transit;
+//        }
+//        public int waiting(){ return waiting ;}
+//        public int transit(){ return transit ;}
+//    }
+//
+//    public Queues get_link_queues(long link_id) throws Exception {
+//        Link link = network.links.get(link_id);
+//        MesoLaneGroup lg = (MesoLaneGroup) link.get_lgs().iterator().next();
+//        return new Queues(lg.waiting_queue.num_vehicles(),lg.transit_queue.num_vehicles());
+//    }
+
+    /**
+     * Integrate the demands to obtain the total number of trips that will take place.
+     * @return The number of trips.
+     */
+    public double get_total_trips() {
+        return network.links.values().stream()
+                .filter(link->link.has_demands())
+                .flatMap(link->link.get_demandGenerators().stream())
+                .map(gen->gen.get_total_trips())
+                .reduce(0.0,Double::sum);
+    }
+
+    ////////////////////////////////////////////////////////
+    // animation info
+    ////////////////////////////////////////////////////////
+
+    /**
+     *
+     * @param link_ids Undocumented
+     * @return Undocumented
+     * @throws OTMException Undocumented
+     */
+    public AnimationInfo get_animation_info(List<Long> link_ids) throws OTMException {
+        return new AnimationInfo(this,link_ids);
+    }
+
+    /**
+     * Undocumented
+     * @return Undocumented
+     * @throws OTMException Undocumented
+     */
+    public AnimationInfo get_animation_info() throws OTMException {
+        return new AnimationInfo(this);
     }
 
 }

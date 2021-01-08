@@ -3,6 +3,7 @@ package core;
 import actuator.AbstractActuator;
 import actuator.ActuatorFlowToLinks;
 import actuator.InterfaceTarget;
+import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import core.geometry.RoadGeometry;
@@ -14,6 +15,7 @@ import profiles.SplitMatrixProfile;
 import traveltime.LinkTravelTimer;
 import core.packet.PacketLaneGroup;
 import core.packet.PacketLink;
+import utils.OTMUtils;
 
 import java.util.*;
 
@@ -180,13 +182,8 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
             errorLog.addError("link " + id + ": start_node==null");
         if( end_node==null )
             errorLog.addError("link " + id + ": end_node==null");
-        if( model ==null )
-            errorLog.addError("link " + id + ": model==null");
         if( dnlane2lanegroup ==null )
             errorLog.addError("link " + id + ": dnlane2lanegroup==null");
-        if( lgs ==null )
-            errorLog.addError("link " + id + ": lanegroups==null");
-
         // out_road_connections all lead to links that are immediately downstream
         Set<Link> dwn_links = this.get_roadconnections_leaving().stream()
                 .map(rc->rc.end_link)
@@ -218,8 +215,13 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
 
     public void validate_post_init(OTMErrorLog errorLog) {
 
+        if( model ==null )
+            errorLog.addError("link " + id + ": model==null");
+        if( lgs ==null )
+            errorLog.addError("link " + id + ": lanegroups==null");
+
         // all lanegroups are represented in dnlane2lanegroup
-        if(lgs !=null && dnlane2lanegroup !=null) {
+        if(lgs!=null && dnlane2lanegroup !=null) {
             Set<Long> A = dnlane2lanegroup.values().stream().map(x->x.id).collect(toSet());
             Set<Long> B = lgs.stream().map(x->x.id).collect(toSet());
             if (!A.equals(B))
@@ -710,5 +712,90 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
     public Set<AbstractDemandGenerator> get_demandGenerators(){
         return demandGenerators;
     }
+
+
+
+//    /** Set the number of vehicles in a link
+//     * This only works for a single commodity scenarios, and single lane group links.
+//     * @param link_id
+//     * @param numvehs_waiting
+//     * @param numvehs_transit
+//     */
+//    public void set_link_vehicles(long link_id, int numvehs_waiting,int numvehs_transit) throws Exception {
+//
+//        if(link.get_lgs().size()>1)
+//            throw new Exception("Cannot call set_link_vehicles on multi-lane group links");
+//
+////        if(link.model.type!= ModelType.VehicleMeso)
+////            throw new Exception("Cannot call set_link_vehicles on non-meso models");
+//
+//        long comm_id = commodities.keySet().iterator().next();
+//        MesoLaneGroup lg = (MesoLaneGroup) link.get_lgs().iterator().next();
+//        SplitMatrixProfile smp = lg.get_link().get_split_profile(comm_id);
+//
+//        // transit queue ................
+//        models.vehicle.spatialq.Queue tq = lg.transit_queue;
+//        tq.clear();
+//        for(int i=0;i<numvehs_transit;i++) {
+//            MesoVehicle vehicle = new MesoVehicle(comm_id, null);
+//
+//            // sample the split ratio to decide where the vehicle will go
+//            Long next_link_id = smp.sample_output_link();
+//            vehicle.set_next_link_id(next_link_id);
+//
+//            // set the vehicle's lane group and state
+//            vehicle.lg = lg;
+//            vehicle.my_queue = tq;
+//
+//            // add to lane group (as in lg.add_vehicle_packet)
+//            tq.add_vehicle(vehicle);
+//
+//            // register_with_dispatcher dispatch to go to waiting queue
+//            Dispatcher dispatcher = scenario.dispatcher;
+//            float timestamp = scenario.get_current_time();
+//            float transit_time_sec = (float) OTMUtils.random_zero_to_one()*lg.transit_time_sec;
+//            dispatcher.register_event(new EventTransitToWaiting(dispatcher,timestamp + transit_time_sec,vehicle));
+//        }
+//
+//        // waiting queue .................
+//        models.vehicle.spatialq.Queue wq = lg.waiting_queue;
+//        wq.clear();
+//        for(int i=0;i<numvehs_waiting;i++) {
+//            MesoVehicle vehicle = new MesoVehicle(comm_id, null);
+//
+//            // sample the split ratio to decide where the vehicle will go
+//            Long next_link_id = smp.sample_output_link();
+//            vehicle.set_next_link_id(next_link_id);
+//
+//            // set the vehicle's lane group and key
+//            vehicle.lg = lg;
+//            vehicle.my_queue = wq;
+//
+//            // add to lane group (as in lg.add_vehicle_packet)
+//            wq.add_vehicle(vehicle);
+//        }
+//
+//    }
+
+
+//    /**
+//     *  Clear all demands in the scenario.
+//     */
+//    public void clear_all_demands(){
+//
+//        // delete sources from links
+//        for(Link link : network.links.values()) {
+//            if(!link.has_demands())
+//                continue;
+//            link.get_demandGenerators().clear();
+//        }
+//
+//        // delete all EventCreateVehicle and EventDemandChange from dispatcher
+//        if(dispatcher!=null) {
+//            dispatcher.remove_events_of_type(EventCreateVehicle.class);
+//            dispatcher.remove_events_of_type(EventDemandChange.class);
+//        }
+//
+//    }
 
 }

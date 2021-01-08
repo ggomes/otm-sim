@@ -149,6 +149,10 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
             x.myController = this;
             x.initialize(scenario, start_time ,override_targets);
         }
+
+        // validate
+        OTMErrorLog errorLog = validate_post_init();
+        errorLog.check();
     }
 
     ///////////////////////////////////////////
@@ -177,6 +181,13 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         for(AbstractActuator act : actuators.values())
             if( ! this.get_actuator_class().isAssignableFrom( act.getClass()) )
                 errorLog.addError("Bad actuator type in controller.");
+    }
+
+    public OTMErrorLog validate_post_init() {
+        OTMErrorLog errorLog = new OTMErrorLog();
+        if (actuators != null)
+            actuators.values().stream().forEach(x -> x.validate_post_init(errorLog));
+        return errorLog;
     }
 
     @Override

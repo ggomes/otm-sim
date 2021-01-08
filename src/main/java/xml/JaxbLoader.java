@@ -39,9 +39,9 @@ public class JaxbLoader {
         test_configs.put("output_test","output_test.xml");
     }
 
-    public static jaxb.Scenario load_scenario(String filename, boolean validate) throws OTMException {
+    public static jaxb.Scenario load_scenario(String filename) throws OTMException {
         try {
-            return (Scenario) create_unmarshaller(validate).unmarshal(new File(filename));
+            return (Scenario) create_unmarshaller().unmarshal(new File(filename));
         } catch(org.xml.sax.SAXException e){
             throw new OTMException(e);
         }  catch (JAXBException e) {
@@ -49,9 +49,9 @@ public class JaxbLoader {
         }
     }
 
-    public static jaxb.Scenario load_scenario(InputStream stream, boolean validate) throws OTMException {
+    public static jaxb.Scenario load_scenario(InputStream stream) throws OTMException {
         try {
-            return (Scenario) create_unmarshaller(validate).unmarshal(stream);
+            return (Scenario) create_unmarshaller().unmarshal(stream);
         } catch(org.xml.sax.SAXException e){
             throw new OTMException(e);
         }  catch (JAXBException e) {
@@ -61,13 +61,14 @@ public class JaxbLoader {
 
     public static jaxb.Scenario load_test_scenario(String testname) throws OTMException {
         InputStream stream = JaxbLoader.class.getClassLoader().getResourceAsStream("test_configs/" + test_configs.get(testname) );
-        jaxb.Scenario jscenario = load_scenario(stream,true);
+        jaxb.Scenario jscenario = load_scenario(stream);
         return jscenario;
     }
 
-    private static Unmarshaller create_unmarshaller(boolean validate) throws JAXBException, SAXException {
+    private static Unmarshaller create_unmarshaller() throws JAXBException, SAXException {
         JAXBContext jaxbContext = JAXBContext.newInstance(Scenario.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+        boolean validate = true;
         if(validate){
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             InputStream resourceAsStream = JaxbLoader.class.getResourceAsStream("/otm.xsd");

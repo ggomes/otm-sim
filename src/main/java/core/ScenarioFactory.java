@@ -37,18 +37,17 @@ public class ScenarioFactory {
     // public
     ///////////////////////////////////////////
 
-    public static Scenario create_scenario(jaxb.Scenario js, boolean validate_pre_init,boolean jaxb_only) throws OTMException {
+    public static Scenario create_scenario(jaxb.Scenario js, boolean validate_pre_init) throws OTMException {
 
         OTMUtils.reset_counters();
 
         Scenario scenario = new Scenario();
 
         // plugins
-        if(!jaxb_only)
-            PluginLoader.load_plugins( js.getPlugins() );
+        PluginLoader.load_plugins( js.getPlugins() );
 
         // network and subnetworks
-        ScenarioFactory.create_network_and_subnetworks_from_jaxb(scenario, js.getNetwork(), js.getSubnetworks(), jaxb_only);
+        ScenarioFactory.create_network_and_subnetworks_from_jaxb(scenario, js.getNetwork(), js.getSubnetworks());
 
         // commodities
         scenario.commodities = ScenarioFactory.create_commodities_from_jaxb(scenario.subnetworks, js.getCommodities());
@@ -65,7 +64,7 @@ public class ScenarioFactory {
         scenario.controllers = ScenarioFactory.create_controllers_from_jaxb(scenario,js.getControllers() );
 
         // generate models
-        scenario.models = create_models_from_jaxb(scenario,js.getModels().getModel());
+        scenario.models = create_models_from_jaxb(scenario,js.getModels());
 
         // validate
         if(validate_pre_init) {
@@ -127,7 +126,7 @@ public class ScenarioFactory {
     // private
     ///////////////////////////////////////////
 
-    private static void create_network_and_subnetworks_from_jaxb(Scenario scenario, jaxb.Network jaxb_network, jaxb.Subnetworks jaxb_subnetworks, boolean jaxb_only) throws OTMException {
+    private static void create_network_and_subnetworks_from_jaxb(Scenario scenario, jaxb.Network jaxb_network, jaxb.Subnetworks jaxb_subnetworks) throws OTMException {
 
         if(jaxb_subnetworks!=null && jaxb_subnetworks.getSubnetwork().stream().anyMatch(x->x.getId()==0L))
             throw new OTMException("Subnetwork id '0' is not allowed.");
@@ -147,8 +146,7 @@ public class ScenarioFactory {
                 jaxb_network.getLinks().getLink(),
                 jaxb_network.getRoadgeoms() ,
                 jaxb_network.getRoadconnections() ,
-                jaxb_network.getRoadparams() ,
-                jaxb_only);
+                jaxb_network.getRoadparams() );
 
         for(Subnetwork subnetwork : scenario.subnetworks.values()) {
             if (subnetwork instanceof Path) {
@@ -169,18 +167,14 @@ public class ScenarioFactory {
 
     }
 
-    private static Map<String, AbstractModel> create_models_from_jaxb(Scenario scenario,List<jaxb.Model> jms) throws OTMException {
+    private static Map<String, AbstractModel> create_models_from_jaxb(Scenario scenario,jaxb.Models jMs) throws OTMException {
 
         Map<String, AbstractModel> models = new HashMap<>();
 
-        if(jms==null) {
-            jms = new ArrayList<>();
-            jaxb.Model jaxb_model = new jaxb.Model();
-            jms.add(jaxb_model);
-            jaxb_model.setType("none");
-            jaxb_model.setName("default none");
-            jaxb_model.setIsDefault(true);
-        }
+        if(jMs==null)
+            return models;
+
+        List<jaxb.Model> jms = jMs.getModel();
 
         // throw jmodels into a set
         Set<jaxb.Model> jmodels = new HashSet<>(jms);

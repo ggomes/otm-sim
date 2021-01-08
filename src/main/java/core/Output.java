@@ -1,4 +1,4 @@
-package api;
+package core;
 
 import error.OTMException;
 import models.vehicle.spatialq.OutputLinkQueues;
@@ -15,9 +15,9 @@ import static java.util.stream.Collectors.toSet;
  */
 public class Output {
 
-    private api.OTM myapi;
+    private OTM myapi;
 
-    protected void set_api(api.OTM myapi){
+    protected void set_api(OTM myapi){
         this.myapi = myapi;
     }
 

@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
 
+    public Collection<Long> link_ids;
     public ArrayList<AbstractLaneGroup> ordered_lgs;
     public Map<Long, LaneGroupProfile> lgprofiles;
     abstract protected double get_value_for_lanegroup(AbstractLaneGroup lg);
@@ -23,23 +24,18 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
     // construction
     //////////////////////////////////////////////////////
 
-    public AbstractOutputTimedLanegroup(Scenario scenario,String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt) throws OTMException {
+    public AbstractOutputTimedLanegroup(Scenario scenario,String prefix,String output_folder,Long commodity_id,Collection<Long> inlink_ids,Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,outDt);
 
         // get lanegroup list
-        if(link_ids==null)
-            link_ids = new ArrayList<>(scenario.network.links.keySet());
+        if(inlink_ids==null)
+            this.link_ids = new ArrayList<>(scenario.network.links.keySet());
+        else {
 
-        ordered_lgs = new ArrayList<>();
-        lgprofiles = new HashMap<>();
-        for(Long link_id : link_ids){
-            if(!scenario.network.links.containsKey(link_id))
-                continue;
-            Link link = scenario.network.links.get(link_id);
-            for(AbstractLaneGroup lg : link.get_lgs()){
-                ordered_lgs.add(lg);
-                lgprofiles.put(lg.getId(), new LaneGroupProfile(lg));
-            }
+            if(inlink_ids.stream().anyMatch(linkid->!scenario.network.links.containsKey(linkid)))
+                throw new OTMException("Bad link id in lanegroup output request.");
+
+            this.link_ids = inlink_ids;
         }
 
     }
@@ -82,8 +78,8 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
     //////////////////////////////////////////////////////
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
+    public void validate_post_init(OTMErrorLog errorLog) {
+        super.validate_post_init(errorLog);
 
         if(lgprofiles.isEmpty())
             errorLog.addError("no lanegroups in output request");
@@ -92,6 +88,16 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
+
+        ordered_lgs = new ArrayList<>();
+        lgprofiles = new HashMap<>();
+        for(Long link_id : link_ids){
+            Link link = scenario.network.links.get(link_id);
+            for(AbstractLaneGroup lg : link.get_lgs()){
+                ordered_lgs.add(lg);
+                lgprofiles.put(lg.getId(), new LaneGroupProfile(lg));
+            }
+        }
 
         if(write_to_file){
             try {

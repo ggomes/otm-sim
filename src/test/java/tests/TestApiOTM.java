@@ -1,6 +1,6 @@
 package tests;
 
-import api.OTM;
+import core.OTM;
 import error.OTMException;
 import core.AbstractModel;
 import core.AbstractFluidModel;
@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 
 public class TestApiOTM extends AbstractTest {
 
-    public static api.OTM otm;
+    public static OTM otm;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -116,7 +116,7 @@ public class TestApiOTM extends AbstractTest {
 
     @Test
     public void test_get_source_link_ids(){
-        Set<Long> source_ids = otm.get_source_link_ids();
+        Set<Long> source_ids = otm.scenario.source_link_ids();
         assertEquals((long)source_ids.iterator().next(),0l);
     }
 
@@ -182,7 +182,7 @@ public class TestApiOTM extends AbstractTest {
 
     @Test
     public void test_get_total_trips() {
-        assertEquals(otm.get_total_trips(),583.3333333333334,0.0001);
+        assertEquals(otm.scenario.get_total_trips(),583.3333333333334,0.0001);
     }
 
     ////////////////////////////////////////////////////////
@@ -198,7 +198,7 @@ public class TestApiOTM extends AbstractTest {
             float start_time = 0f;
             float duration = 100f;
 
-            api.OTM otm = OTM.load_test("line_ctm");
+            OTM otm = OTM.load_test("line_ctm");
 
             Set<Float> sim_dts = otm.scenario.models.values().stream()
                     .filter(m->m.type== AbstractModel.Type.Fluid)
@@ -215,7 +215,7 @@ public class TestApiOTM extends AbstractTest {
             float end_time = start_time+duration;
             while(time<end_time){
                 otm.advance(sim_dt);
-                AnimationInfo info = otm.get_animation_info();
+                AnimationInfo info = otm.scenario.get_animation_info();
                 AbstractLinkInfo link_info = info.link_info.get(3L);
                 LaneGroupInfo lg_info2 = (output.animation.macro.LaneGroupInfo) link_info.lanegroup_info.get(2L);
                 assertNotNull(lg_info2);
@@ -243,7 +243,7 @@ public class TestApiOTM extends AbstractTest {
 
     @Test
     public void test_get_version(){
-        assertTrue(!api.OTM.get_version().isEmpty());
+        assertTrue(!OTM.get_version().isEmpty());
     }
 
     @Test

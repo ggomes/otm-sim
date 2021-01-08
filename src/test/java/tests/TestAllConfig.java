@@ -1,6 +1,6 @@
 package tests;
 
-import api.OTM;
+import core.OTM;
 import error.OTMException;
 import org.junit.Test;
 import org.junit.runner.RunWith;

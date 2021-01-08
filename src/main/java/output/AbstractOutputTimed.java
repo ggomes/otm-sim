@@ -81,7 +81,7 @@ public abstract class AbstractOutputTimed extends AbstractOutput implements Inte
     // incomplete implementation
     //////////////////////////////////////////////////////
 
-    public void validate(OTMErrorLog errorLog) {
+    public void validate_post_init(OTMErrorLog errorLog) {
         if(Float.isNaN(outDt) || outDt<=0f)
             errorLog.addError("outDt is not defined");
     }

@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
 
+    public List<Long> link_ids;
     public ArrayList<FluidLaneGroup> ordered_lgs;
     public Map<Long, List<CellProfile>> lgprofiles;  // lgid -> list<profiles>
     abstract protected double[] get_value_for_lanegroup(FluidLaneGroup lg);
@@ -27,32 +28,14 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
     // construction
     //////////////////////////////////////////////////////
 
-    public AbstractOutputTimedCell(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
+    public AbstractOutputTimedCell(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> inlink_ids, Float outDt) throws OTMException {
         super(scenario,prefix,output_folder,commodity_id,outDt);
 
         // get lanegroup list
-        if(link_ids==null)
-            link_ids = new ArrayList<>(scenario.network.links.keySet());
-
-        ordered_lgs = new ArrayList<>();
-        lgprofiles = new HashMap<>();
-        for(Long link_id : link_ids){
-            if(!scenario.network.links.containsKey(link_id))
-                continue;
-            Link link = scenario.network.links.get(link_id);
-
-            if(!(link.get_model() instanceof AbstractFluidModel))
-                throw new OTMException("Cell output cannot be generated for links with non-fluid models");
-
-            for(AbstractLaneGroup lg : link.get_lgs()){
-                FluidLaneGroup flg = (FluidLaneGroup)lg;
-                ordered_lgs.add(flg);
-                List<CellProfile> profs = new ArrayList<>();
-                lgprofiles.put(lg.getId(),profs);
-                for(int i=0;i<flg.cells.size();i++)
-                    profs.add(new CellProfile());
-            }
-        }
+        if(inlink_ids==null)
+            this.link_ids = new ArrayList<>(scenario.network.links.keySet());
+        else
+            this.link_ids = new ArrayList<>(inlink_ids);
 
     }
 
@@ -97,8 +80,8 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
     /////////////////////avail/////////////////////////////////
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
+    public void validate_post_init(OTMErrorLog errorLog) {
+        super.validate_post_init(errorLog);
         if(lgprofiles.isEmpty())
             errorLog.addError("no lanegroups in output request");
     }
@@ -106,6 +89,27 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
     @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
+
+
+        ordered_lgs = new ArrayList<>();
+        lgprofiles = new HashMap<>();
+        for(Long link_id : link_ids){
+            if(!scenario.network.links.containsKey(link_id))
+                continue;
+            Link link = scenario.network.links.get(link_id);
+
+            if(!(link.get_model() instanceof AbstractFluidModel))
+                throw new OTMException("Cell output cannot be generated for links with non-fluid models");
+
+            for(AbstractLaneGroup lg : link.get_lgs()){
+                FluidLaneGroup flg = (FluidLaneGroup)lg;
+                ordered_lgs.add(flg);
+                List<CellProfile> profs = new ArrayList<>();
+                lgprofiles.put(lg.getId(),profs);
+                for(int i=0;i<flg.cells.size();i++)
+                    profs.add(new CellProfile());
+            }
+        }
 
         if(write_to_file){
             try {

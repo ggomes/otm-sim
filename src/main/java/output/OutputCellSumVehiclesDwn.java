@@ -26,21 +26,10 @@ public class OutputCellSumVehiclesDwn extends AbstractOutputTimedCell {
     // construction
     //////////////////////////////////////////////////////
 
+
     public OutputCellSumVehiclesDwn(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
         super(scenario, prefix, output_folder, commodity_id, link_ids, outDt);
-
         this.type = Type.cell_sumvehdwn;
-
-        // get the dt
-        Set<Link> links = ordered_lgs.stream().map(lg->lg.get_link()).collect(toSet());
-        Set<Float> dts = links.stream().map(link->((AbstractFluidModel)link.get_model()).dt_sec).collect(toSet());
-        simDt = null;
-        if(dts.size()==1)
-            this.simDt = dts.iterator().next();
-
-        lg2totals = new HashMap<>();
-        for(FluidLaneGroup lg : ordered_lgs)
-            lg2totals.put(lg.getId(),new double[lg.get_num_cells()]);
     }
 
     @Override
@@ -52,8 +41,8 @@ public class OutputCellSumVehiclesDwn extends AbstractOutputTimedCell {
     }
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
+    public void validate_post_init(OTMErrorLog errorLog) {
+        super.validate_post_init(errorLog);
 
         Set<Link> links = ordered_lgs.stream().map(lg->lg.get_link()).collect(toSet());
 
@@ -65,6 +54,23 @@ public class OutputCellSumVehiclesDwn extends AbstractOutputTimedCell {
 
         if(simDt==null)
             errorLog.addError("All links in a OutputCellSumVehiclesDwn must have the same simulation dt.");
+    }
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+
+
+        // get the dt
+        Set<Link> links = ordered_lgs.stream().map(lg->lg.get_link()).collect(toSet());
+        Set<Float> dts = links.stream().map(link->((AbstractFluidModel)link.get_model()).dt_sec).collect(toSet());
+        simDt = null;
+        if(dts.size()==1)
+            this.simDt = dts.iterator().next();
+
+        lg2totals = new HashMap<>();
+        for(FluidLaneGroup lg : ordered_lgs)
+            lg2totals.put(lg.getId(),new double[lg.get_num_cells()]);
     }
 
     public void update_total_vehicles(float timestamp){

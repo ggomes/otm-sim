@@ -31,6 +31,17 @@ public class OutputLaneGroupSumVehicles extends AbstractOutputTimedLanegroup {
         super(scenario,prefix,output_folder,commodity_id,link_ids,outDt);
         this.type = Type.lanegroup_sumveh;
 
+    }
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+
+
+        lg2total = new HashMap<>();
+        for(Long lgid : lgprofiles.keySet())
+            lg2total.put(lgid,0f);
+
         // get the dt
         Set<Link> links = lgprofiles.values().stream().map(lgp->lgp.lg.get_link()).collect(toSet());
         Set<Float> dts = links.stream().map(link->((AbstractFluidModel)link.get_model()).dt_sec).collect(toSet());
@@ -38,9 +49,6 @@ public class OutputLaneGroupSumVehicles extends AbstractOutputTimedLanegroup {
         if(dts.size()==1)
             this.simDt = dts.iterator().next();
 
-        lg2total = new HashMap<>();
-        for(Long lgid : lgprofiles.keySet())
-            lg2total.put(lgid,0f);
     }
 
     @Override
@@ -52,8 +60,8 @@ public class OutputLaneGroupSumVehicles extends AbstractOutputTimedLanegroup {
     }
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
+    public void validate_post_init(OTMErrorLog errorLog) {
+        super.validate_post_init(errorLog);
 
         Set<Link> links = lgprofiles.values().stream().map(lgp->lgp.lg.get_link()).collect(toSet());
 

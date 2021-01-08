@@ -28,7 +28,7 @@ public class OTM {
         // load and validate
         if (cmd.equals("-load")){
             try {
-                api.OTM otm = new api.OTM(arguments[0]); // config
+                core.OTM otm = new core.OTM(arguments[0],true); // config
             } catch (OTMException e) {
                 e.printStackTrace();
                 return;
@@ -59,7 +59,7 @@ public class OTM {
                 int start_time = Integer.parseInt(arguments[4]);
                 int duration = Integer.parseInt(arguments[5]);
 
-                api.OTM otm = new api.OTM(configfile);
+                core.OTM otm = new core.OTM(configfile,true);
                 otm.run(prefix, output_requests_file, output_folder,start_time,duration,true);
 
             } catch (OTMException e) {
@@ -69,7 +69,7 @@ public class OTM {
 
          // version
         else if (cmd.equals("-version")){
-            System.out.println("otm-sim: " + api.OTM.get_version());
+            System.out.println("otm-sim: " + core.OTM.get_version());
         }
 
         // help

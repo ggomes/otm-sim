@@ -34,6 +34,8 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
         linkprofiles = new HashMap<>();
         int i = 0;
         for(Long link_id : link_ids){
+            if(!scenario.network.links.containsKey(link_id))
+                throw new OTMException("Bad link id in output request");
             Link link = scenario.network.links.get(link_id);
             if(link!=null) {
                 ordered_ids[i++] = link.getId();
@@ -117,8 +119,8 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
     //////////////////////////////////////////////////////
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
+    public void validate_post_init(OTMErrorLog errorLog) {
+        super.validate_post_init(errorLog);
 
         if(linkprofiles.isEmpty())
             errorLog.addError("no links in output request");

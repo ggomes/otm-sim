@@ -69,6 +69,10 @@ public abstract class AbstractModel implements InterfaceModel {
         // set link models (links will choose new over default, so this determines the link list for each model)
         for (Link link : links) {
 
+            // remove this link from its current model
+            if(link.model!=null)
+                link.model.links.remove(link);
+
             link.model = this;
 
             // determine whether link is a relative source link

@@ -99,7 +99,7 @@ public abstract class AbstractOutput implements InterfaceOutput {
     // incomplete implementation
     //////////////////////////////////////////////////////
 
-    public void validate(OTMErrorLog errorLog){
+    public void validate_post_init(OTMErrorLog errorLog){
         if(write_to_file){
             File path = new File(output_folder);
             if(!path.exists())

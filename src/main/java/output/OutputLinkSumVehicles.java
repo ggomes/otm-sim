@@ -28,6 +28,16 @@ public class OutputLinkSumVehicles  extends AbstractOutputTimedLink {
         super(scenario, prefix, output_folder, commodity_id, link_ids, outDt);
         this.type = Type.link_sumveh;
 
+        totals = new HashMap<>();
+        for(Long linkid : ordered_ids)
+            totals.put(linkid,0d);
+
+    }
+
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+
         // get the dt
         try {
             Set<Float> dts = linkprofiles.values().stream().map(x -> ((AbstractFluidModel) x.link.get_model()).dt_sec).collect(toSet());
@@ -37,10 +47,6 @@ public class OutputLinkSumVehicles  extends AbstractOutputTimedLink {
         } catch (Exception e){
             throw new OTMException("Could not assign dt for sum vehicles output");
         }
-
-        totals = new HashMap<>();
-        for(Long linkid : ordered_ids)
-            totals.put(linkid,0d);
 
     }
 
@@ -53,8 +59,8 @@ public class OutputLinkSumVehicles  extends AbstractOutputTimedLink {
     }
 
     @Override
-    public void validate(OTMErrorLog errorLog) {
-        super.validate(errorLog);
+    public void validate_post_init(OTMErrorLog errorLog) {
+        super.validate_post_init(errorLog);
 
         // all links must have fluid models
         if(!linkprofiles.values().stream().allMatch(x->x.link.get_model() instanceof AbstractFluidModel)) {
