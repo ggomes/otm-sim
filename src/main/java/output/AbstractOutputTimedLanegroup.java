@@ -152,7 +152,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
         return profiles;
     }
 
-    public final void plot_for_links(Set<Long> link_ids,String title,String filename) throws OTMException {
+    public final void plot_for_links(Set<Long> link_ids,String filename) throws OTMException {
 
         Set<AbstractLaneGroup> lgs = new HashSet<>();
         if(link_ids==null)
@@ -165,6 +165,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
         for(AbstractLaneGroup lg : lgs)
             dataset.addSeries(get_series_for_lg(lg));
 
+        String title = "comm : " + (commodity==null ? "all" : commodity.name);
         make_time_chart(dataset,title,get_yaxis_label(),filename);
     }
 

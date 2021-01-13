@@ -14,7 +14,6 @@ import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
-import lanechange.LinkLaneSelector;
 import models.fluid.ctm.ModelCTM;
 import models.none.ModelNone;
 import models.vehicle.newell.ModelNewell;
@@ -128,8 +127,8 @@ public class ScenarioFactory {
 
     private static void create_network_and_subnetworks_from_jaxb(Scenario scenario, jaxb.Network jaxb_network, jaxb.Subnetworks jaxb_subnetworks) throws OTMException {
 
-        if(jaxb_subnetworks!=null && jaxb_subnetworks.getSubnetwork().stream().anyMatch(x->x.getId()==0L))
-            throw new OTMException("Subnetwork id '0' is not allowed.");
+//        if(jaxb_subnetworks!=null && jaxb_subnetworks.getSubnetwork().stream().anyMatch(x->x.getId()==0L))
+//            throw new OTMException("Subnetwork id '0' is not allowed.");
 
         scenario.subnetworks = new HashMap<>();
         if ( jaxb_subnetworks != null ){
@@ -389,9 +388,21 @@ public class ScenarioFactory {
             Path path = null;
             Long linkid;
             if(comm.pathfull){
-                if(jd.getSubnetwork()==null || !scenario.subnetworks.containsKey(jd.getSubnetwork()))
-                    throw new OTMException("Bad subnetwork id (" + jd.getSubnetwork() + ") in demand for commodity " + comm.getId());
-                Subnetwork subnetwork = scenario.subnetworks.get(jd.getSubnetwork());
+
+                Subnetwork subnetwork;
+                if(jd.getSubnetwork()==null){
+                    if(comm.subnetworks.size()!=1)
+                        throw new OTMException("Missing subnetwork id in demand for commodity " + comm.getId());
+                    subnetwork = comm.subnetworks.iterator().next();
+
+                }
+                else {
+
+                    if(!scenario.subnetworks.containsKey(jd.getSubnetwork()))
+                        throw new OTMException("Bad subnetwork id (" + jd.getSubnetwork() + ") in demand for commodity " + comm.getId());
+
+                    subnetwork = scenario.subnetworks.get(jd.getSubnetwork());
+                }
                 if(!(subnetwork instanceof Path))
                     throw new OTMException("Subnetwork is not a path: id " + jd.getSubnetwork() + ", in demand for commodity " + comm.getId());
                 path = (Path)subnetwork;
@@ -413,7 +424,6 @@ public class ScenarioFactory {
             else
                 demandinfos = scenario.demands.get(linkid);
             demandinfos.add(new DemandInfo(comm.getId(),path==null?null:path.getId(),profile));
-
         }
     }
 

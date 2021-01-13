@@ -187,7 +187,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
                     }
                 }
 
-                lg.update_supply();
+                lg.update_long_supply();
             }
         }
 

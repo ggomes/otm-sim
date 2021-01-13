@@ -28,7 +28,7 @@ public class DebugRuns extends AbstractTest {
 
             boolean makeplots = true;
 
-            boolean do_links        = false;
+            boolean do_links        = true;
             boolean do_lanegroups   = true;
             boolean do_cells        = true;
             boolean do_subnetworks  = false;
@@ -36,19 +36,19 @@ public class DebugRuns extends AbstractTest {
             boolean do_controllers  = false;
 
             boolean sysout2file = false;
-            String configfile = "/home/gomes/Desktop/x/opttest_models.xml";
+            String configfile = "/home/gomes/Desktop/x/test_1.xml";
             float start_time = 0f;
             float duration = 100f;
-            float outdt = 5f;
+            float outdt = 2f;
             String prefix = makeplots?null:"x";
-            String outfolder = makeplots?null:"/home/gomes/Desktop/x/models";
-            String png_folder = "/home/gomes/Desktop/x/models";
-            Set<Long> link_ids =  Set.of(6l,8l);
+            String outfolder = makeplots?null:"/home/gomes/Desktop/x/output";
+            String png_folder = "/home/gomes/Desktop/x/output";
+            Set<Long> link_ids = Set.of(2l);
 
             Long subnetid = null;
             Long cntrl_id = null;
 
-            Long comm_id=null;
+            Long comm_id=0l;
 
             // ..........................................
 
@@ -121,64 +121,69 @@ public class DebugRuns extends AbstractTest {
             // Print output .........................
             for(AbstractOutput output :  otm.output.get_data()){
 
+                String commid;
+
+                if(output instanceof AbstractOutputTimed){
+                    AbstractOutputTimed x = (AbstractOutputTimed)output;
+                    commid = x.commodity==null ? "all" : String.format("%d",x.commodity.getId());
+                } else {
+                    commid = "";
+                }
+
                 // links
                 if (output instanceof OutputLinkFlow)
-                    ((OutputLinkFlow) output).plot_for_links(null, String.format("%s/link_flow.png", png_folder));
+                    ((OutputLinkFlow) output).plot_for_links(null, String.format("%s/%s_link_flow.png", png_folder, commid));
 
                 if (output instanceof OutputLinkVehicles)
-                    ((OutputLinkVehicles) output).plot_for_links(null, String.format("%s/link_veh.png", png_folder));
+                    ((OutputLinkVehicles) output).plot_for_links(null, String.format("%s/%s_link_veh.png", png_folder, commid));
 
                 if (output instanceof OutputLinkSumVehicles)
-                    ((OutputLinkSumVehicles) output).plot_for_links(null, String.format("%s/link_sumveh.png", png_folder));
+                    ((OutputLinkSumVehicles) output).plot_for_links(null, String.format("%s/%s_link_sumveh.png", png_folder, commid));
 
                 if (output instanceof OutputLinkQueues)
-                    ((OutputLinkQueues) output).plot(String.format("%s/link_sumqueues.png", png_folder));
+                    ((OutputLinkQueues) output).plot(String.format("%s/%s_link_sumqueues.png", png_folder,comm_id));
 
                 // lane groups
 
                 if (output instanceof OutputLaneGroupFlow) {
                     OutputLaneGroupFlow x = (OutputLaneGroupFlow) output;
-                    String commid = x.commodity==null ? "all" : String.format("%d",x.commodity.getId());
-                    String title = "Commodity " + (x.commodity==null ? "all" : x.commodity.name);
-                    x.plot_for_links(null,title,  String.format("%s/lg_flow_%s.png", png_folder, commid));
+                    x.plot_for_links(null,  String.format("%s/%s_lg_flow.png", png_folder, commid));
                 }
 
                 if (output instanceof OutputLaneGroupVehicles) {
-                    String title = "";
-                    ((OutputLaneGroupVehicles) output).plot_for_links(null, title,String.format("%s/lg_veh.png", png_folder));
+                    ((OutputLaneGroupVehicles) output).plot_for_links(null,String.format("%s/%s_lg_veh.png", png_folder, commid));
                 }
 
                 if (output instanceof OutputLaneGroupSumVehicles) {
-                    String title = "";
-                    ((OutputLaneGroupSumVehicles) output).plot_for_links(null, title,String.format("%s/lg_sumveh.png", png_folder));
+                    ((OutputLaneGroupSumVehicles) output).plot_for_links(null,String.format("%s/%s_lg_sumveh.png", png_folder, commid));
                 }
 
                 // cells
 
                 if (output instanceof OutputCellFlow)
-                    ((OutputCellFlow) output).plot_for_links(null, String.format("%s/cell_flow.png", png_folder));
+                    ((OutputCellFlow) output).plot_for_links(null, String.format("%s/%s_cell_flow.png", png_folder, commid));
 
                 if (output instanceof OutputCellVehicles)
-                    ((OutputCellVehicles) output).plot_for_links(null, String.format("%s/cell_veh.png", png_folder));
+                    ((OutputCellVehicles) output).plot_for_links(null, String.format("%s/%s_cell_veh.png", png_folder, commid));
 
                 if (output instanceof OutputCellSumVehicles)
-                    ((OutputCellSumVehicles) output).plot_for_links(null, String.format("%s/cell_sumveh.png", png_folder));
+                    ((OutputCellSumVehicles) output).plot_for_links(null, String.format("%s/%s_cell_sumveh.png", png_folder, commid));
 
                 if (output instanceof OutputCellSumVehiclesDwn)
-                    ((OutputCellSumVehiclesDwn) output).plot_for_links(null, String.format("%s/cell_sumvehdwn.png", png_folder));
+                    ((OutputCellSumVehiclesDwn) output).plot_for_links(null, String.format("%s/%s_cell_sumvehdwn.png", png_folder, commid));
 
                 if (output instanceof OutputCellLanechangeOut)
-                    ((OutputCellLanechangeOut) output).plot_for_links(null, String.format("%s/cell_lc_out.png", png_folder));
+                    ((OutputCellLanechangeOut) output).plot_for_links(null, String.format("%s/%s_cell_lc_out.png", png_folder, commid));
 
                 if (output instanceof OutputCellLanechangeIn)
-                    ((OutputCellLanechangeIn) output).plot_for_links(null, String.format("%s/cell_lc_in.png", png_folder));
+                    ((OutputCellLanechangeIn) output).plot_for_links(null, String.format("%s/%s_cell_lc_in.png", png_folder, commid));
 
                 // subnetworks
                 if (output instanceof OutputPathTravelTime)
-                    ((OutputPathTravelTime) output).plot(String.format("%s/path_tt.png", png_folder));
+                    ((OutputPathTravelTime) output).plot(String.format("%s/%s_path_tt.png", png_folder, commid));
 
                 if (output instanceof OutputSubnetworkVHT)
-                    ((OutputSubnetworkVHT) output).plot_for_links(null, String.format("%s/vht.png", png_folder));
+                    ((OutputSubnetworkVHT) output).plot_for_links(null, String.format("%s/%s_vht.png", png_folder, commid));
 
                 // vehicle events
 
@@ -249,13 +254,11 @@ public class DebugRuns extends AbstractTest {
                 if (output instanceof OutputLaneGroupFlow) {
                     OutputLaneGroupFlow x = (OutputLaneGroupFlow) output;
                     String commid = x.commodity==null ? "all" : String.format("%d",x.commodity.getId());
-                    String title = "Commodity " + (x.commodity==null ? "all" : x.commodity.name);
-                    x.plot_for_links(null,title,  String.format("%s/lg_flow_%s.png", outfolder, commid));
+                    x.plot_for_links(null,  String.format("%s/%s_lg_flow.png", outfolder, commid));
                 }
 
                 if (output instanceof OutputLaneGroupVehicles) {
-                    String title = "";
-                    ((OutputLaneGroupVehicles) output).plot_for_links(null, title,String.format("%s/lg_veh.png", outfolder));
+                    ((OutputLaneGroupVehicles) output).plot_for_links(null,String.format("%s/lg_veh.png", outfolder));
                 }
 
             }
@@ -291,7 +294,6 @@ public class DebugRuns extends AbstractTest {
             fail(e.getMessage());
         }
     }
-
 
     @Ignore
     @Test

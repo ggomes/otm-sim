@@ -1,38 +1,47 @@
 package lanechange;
 
 import core.AbstractLaneGroup;
+import core.Link;
 import core.State;
 import models.Maneuver;
 
+import java.util.List;
 import java.util.Map;
 
-public class KeepLaneSelector implements InterfaceLaneSelector {
+public class KeepLaneSelector extends AbstractLaneSelector {
+
+    public KeepLaneSelector(Link link) {
+        super(link, null);
+    }
 
     @Override
-    public void update_lane_change_probabilities_with_options(AbstractLaneGroup lg, State state) {
+    protected void update() {
+        for(AbstractLaneGroup lg : link.get_lgs()){
+            for(State state : lg.get_states() ){
+                Map<Maneuver,Double> x = lg.get_maneuvprob_for_state(state);
+                double d = 1d/x.size();
 
-        Map<Maneuver,Double> mnv2prob = lg.get_maneuvprob_for_state(state);
+                // non discretionary
+                if(x.size()==1){
+                    x.put(x.keySet().iterator().next(),1d);
+                    continue;
+                }
 
-        if(mnv2prob.size()==1){
-            Maneuver m = mnv2prob.keySet().iterator().next();
-            mnv2prob.clear();
-            mnv2prob.put(m,1d);
-            return;
+                // discretionary stay
+                if(x.keySet().contains(Maneuver.stay))
+                    for(Maneuver m : x.keySet())
+                        x.put(m, m==Maneuver.stay?1d:0d);
+                else {
+                    if(x.size()==2)
+                        for(Maneuver m : x.keySet())
+                            x.put(m, 0.5d);
+                    else
+                        x.put(x.keySet().iterator().next(),1d);
+                }
+
+
+            }
         }
-
-        boolean has_in = mnv2prob.containsKey(Maneuver.lcin) && lg.get_neighbor_in()!=null;
-        boolean has_stay = mnv2prob.containsKey(Maneuver.stay);
-        boolean has_out = mnv2prob.containsKey(Maneuver.lcout) && lg.get_neighbor_out()!=null;
-
-        if(has_in)
-            mnv2prob.put(Maneuver.lcin,0d);
-
-        if(has_stay)
-            mnv2prob.put(Maneuver.stay,1d);
-
-        if(has_out)
-            mnv2prob.put(Maneuver.lcout,0d);
-
     }
 
 }

@@ -3,19 +3,16 @@ package core;
 import actuator.AbstractActuator;
 import actuator.ActuatorFlowToLinks;
 import actuator.InterfaceTarget;
-import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
 import core.geometry.RoadGeometry;
 import jaxb.Points;
 import jaxb.Roadparam;
-import lanechange.InterfaceLaneSelector;
-import lanechange.LinkLaneSelector;
+import lanechange.AbstractLaneSelector;
 import profiles.SplitMatrixProfile;
 import traveltime.LinkTravelTimer;
 import core.packet.PacketLaneGroup;
 import core.packet.PacketLink;
-import utils.OTMUtils;
 
 import java.util.*;
 
@@ -47,7 +44,7 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
     protected boolean is_model_source_link;
 
     // lane selection model
-    protected LinkLaneSelector lane_selector;
+    protected AbstractLaneSelector lane_selector;
 
     // lanegroups ......................................
 
@@ -677,9 +674,9 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
         return road_type;
     }
 
-    public Map<State, InterfaceLaneSelector> get_lane_selector_for_lane_group(long lgid){
-        return lane_selector.get_laneselector_for_lanegroup(lgid);
-    }
+//    public Map<State, InterfaceLaneSelector> get_lane_selector_for_lane_group(long lgid){
+//        return lane_selector.get_laneselector_for_lanegroup(lgid);
+//    }
 
     public List<AbstractLaneGroup> get_lgs(){
         return lgs;

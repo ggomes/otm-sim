@@ -58,7 +58,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
         // register first vehicle exit
         schedule_release_vehicle(start_time);
 
-        update_supply();
+        update_long_supply();
     }
 
     ////////////////////////////////////////////
@@ -104,13 +104,13 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     }
 
     @Override
-    public void update_supply() {
-        supply =  max_vehicles - get_total_vehicles();
+    public void update_long_supply() {
+        long_supply =  max_vehicles - get_total_vehicles();
     }
 
     @Override
     public Double get_upstream_vehicle_position(){
-        return supply * length / max_vehicles;
+        return long_supply * length / max_vehicles;
     }
 
     /**
@@ -146,7 +146,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
 
         }
 
-        update_supply();
+        update_long_supply();
 
     }
 
@@ -217,7 +217,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
             OptionalDouble next_supply_o = rc.get_out_lanegroups().stream()
-                    .mapToDouble(AbstractLaneGroup::get_supply)
+                    .mapToDouble(AbstractLaneGroup::get_long_supply)
                     .max();
 
             if(!next_supply_o.isPresent())
@@ -252,7 +252,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
                     ev.move_from_to_queue(timestamp, vehicle, waiting_queue, null);
             }
 
-            update_supply();
+            update_long_supply();
 
         }
 

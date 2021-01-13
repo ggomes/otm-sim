@@ -11,13 +11,14 @@ public interface InterfaceLaneGroup {
 
     Double get_upstream_vehicle_position();
     double get_max_vehicles();
+    double get_long_supply();
+    double get_lat_supply();
 
-    void update_supply();
+    void update_long_supply();
     void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) throws OTMException;
     void set_actuator_capacity_vps(double rate_vps);
     void set_actuator_speed_mps(double speed_mps);
     void set_actuator_allow_comm(boolean allow, Long commid)  throws OTMException ;
-
     void set_road_params(jaxb.Roadparam r);
 
     // Return the total number of vehicles in this lane group with the given commodity id.

@@ -77,6 +77,11 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     }
 
+    @Override
+    public double get_lat_supply(){
+        return cells.stream().mapToDouble(cell->cell.supply).sum();
+    }
+
     ////////////////////////////////////////////
     // InterfaceLaneGroup
     ///////////////////////////////////////////
@@ -162,8 +167,6 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     @Override
     public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long nextlink_id) throws OTMException {
 
-        AbstractCell cell = cells.get(0);
-
         // When the link is a model source, then the core.packet first goes into a buffer.
         // From there it is "processed", meaning that some part goes into the upstream cell.
         if(link.is_model_source_link()) {
@@ -177,6 +180,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         // otherwise, this is an internal link, and the core.packet is guaranteed to be
         // purely fluid.
         else {
+            AbstractCell cell = cells.get(0);
             for(Map.Entry<State,Double> e : vp.container.amount.entrySet()) {
                 State state = e.getKey();
                 final long mycomm = state.commodity_id;
@@ -200,7 +204,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
                 cell.add_vehicles(state,e.getValue(),side2prob);
             }
         }
-        update_supply();
+        update_long_supply();
     }
 
     @Override
@@ -209,15 +213,15 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public void update_supply(){
+    public void update_long_supply(){
 
         // shut off if buffer is full
         if(link.is_model_source_link() && buffer.get_total_veh()>=1d)
-            supply = 0d;
+            long_supply = 0d;
         else {
             AbstractCell upcell = get_upstream_cell();
             upcell.update_supply();
-            supply = upcell.supply;
+            long_supply = upcell.supply;
         }
 
     }
@@ -356,7 +360,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
         // if this is a single cell lane group, then releasing a vehicle will affect the supply
         if(cells.size()==1)
-            update_supply();
+            update_long_supply();
     }
 
     public void process_buffer(float timestamp) throws OTMException {

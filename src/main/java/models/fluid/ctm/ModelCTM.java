@@ -53,9 +53,9 @@ public class ModelCTM extends AbstractFluidModel {
     @Override
     public Map<AbstractLaneGroup,Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
         Map<AbstractLaneGroup,Double> A = new HashMap<>();
-        double total_supply = candidate_lanegroups.stream().mapToDouble(x->x.get_supply()).sum();
+        double total_supply = candidate_lanegroups.stream().mapToDouble(x->x.get_long_supply()).sum();
         for(AbstractLaneGroup laneGroup : candidate_lanegroups)
-            A.put(laneGroup , laneGroup.get_supply() / total_supply);
+            A.put(laneGroup , laneGroup.get_long_supply() / total_supply);
         return A;
     }
 
@@ -140,12 +140,12 @@ public class ModelCTM extends AbstractFluidModel {
             if(lg.travel_timer!=null)
                 ((FluidLaneGroupTimer)lg.travel_timer).add_sample(total_travel_time);
 
-            lg.update_supply();
+            lg.update_long_supply();
 
             // process buffer
             if(link.is_model_source_link()) {
                 lg.process_buffer(timestamp);
-                lg.update_supply();
+                lg.update_long_supply();
             }
 
         }

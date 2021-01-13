@@ -44,7 +44,12 @@ public class NoneLaneGroup extends AbstractLaneGroup {
     }
 
     @Override
-    public void update_supply() {
+    public double get_lat_supply(){
+        return 0d;
+    }
+
+    @Override
+    public void update_long_supply() {
 
     }
 

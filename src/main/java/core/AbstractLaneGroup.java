@@ -41,7 +41,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public StateContainer buffer;
 
-    protected double supply;       // [veh]
+    protected double long_supply;       // [veh]
 
     protected ActuatorLaneGroupCapacity actuator_capacity;
     protected Map<Long, ActuatorLaneGroupAllowComm> actuator_lgrestrict;   // commid->actuator
@@ -113,7 +113,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         neighbor_out = null;
         states = null;
         buffer = null;
-        supply = Double.NaN;
+        long_supply = Double.NaN;
         actuator_capacity = null;
         actuator_lgrestrict = null;
         flw_acc = null;
@@ -316,13 +316,15 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return get_total_vehicles_for_commodity(null);
     }
 
-    public final double get_supply(){
-        return supply;
+    @Override
+    public double get_long_supply(){
+        return long_supply;
     }
 
-    public final double get_supply_per_lane() {
-        return supply/num_lanes;
+    public final double get_supply_per_lane(){
+        return long_supply/num_lanes;
     }
+
 
     public final List<Integer> get_dn_lanes(){
         return IntStream.range(start_lane_dn,start_lane_dn+num_lanes).boxed().collect(toList());

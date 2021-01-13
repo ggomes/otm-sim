@@ -49,7 +49,7 @@ public class DnLaneGroup {
 
     public void reset(){
         this.is_blocked = false;
-        this.s_h = lg.get_supply();
+        this.s_h = lg.get_long_supply();
 
 //        This should be multiplied by lg.() -> wnorm
 //                Problem is if dnLaneGroup is a different model,

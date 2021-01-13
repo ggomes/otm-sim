@@ -7,10 +7,6 @@ import control.command.CommandRestrictionMap;
 import dispatch.Dispatcher;
 import error.OTMException;
 import jaxb.Controller;
-import lanechange.InterfaceLaneSelector;
-import lanechange.TollLaneSelector;
-import core.AbstractFluidModel;
-import models.fluid.FluidLaneGroup;
 import utils.OTMUtils;
 import utils.LookupTable;
 
@@ -124,93 +120,93 @@ public class ControllerTollLaneGroup extends AbstractController {
     class LinkInfo {
         FlowAccumulatorState fa;
         double ffspeed_meterperdt;
-        NomAndToll gp;
-        NomAndToll hot;
+//        NomAndToll gp;
+//        NomAndToll hot;
         double prev_count;
 
         public LinkInfo(AbstractLaneGroup hotlg){
-            this.fa = hotlg.request_flow_accumulator(null);
-            prev_count = fa.get_total_count();
-            hot = create_lane_selectors(hotlg);
-            gp = create_lane_selectors(hotlg.get_neighbor_out());
+//            this.fa = hotlg.request_flow_accumulator(null);
+//            prev_count = fa.get_total_count();
+//            hot = create_lane_selectors(hotlg);
+//            gp = create_lane_selectors(hotlg.get_neighbor_out());
         }
 
         public void initialize(Dispatcher dispatcher){
-            int numcells =  ((FluidLaneGroup)hot.lg).cells.size();
-            double celllength_meter = hot.lg.get_length() / numcells;
-            ffspeed_meterperdt = ((FluidLaneGroup)hot.lg).ffspeed_cell_per_dt * celllength_meter;
-            ffspeed_meterperdt *= dt/((AbstractFluidModel)hot.lg.get_link().get_model()).dt_sec;
+//            int numcells =  ((FluidLaneGroup)hot.lg).cells.size();
+//            double celllength_meter = hot.lg.get_length() / numcells;
+//            ffspeed_meterperdt = ((FluidLaneGroup)hot.lg).ffspeed_cell_per_dt * celllength_meter;
+//            ffspeed_meterperdt *= dt/((AbstractFluidModel)hot.lg.get_link().get_model()).dt_sec;
         }
 
         public void restore(){
-            gp.restore();
-            hot.restore();
+//            gp.restore();
+//            hot.restore();
         }
 
         public void update(){
-            double count = fa.get_total_count();
-            double flow_vpdt = count-prev_count;
-            prev_count = count;
-
-            double hot_veh = hot.lg.get_total_vehicles();
-
-            double hot_speed_meterperdt = hot_veh<1 ? ffspeed_meterperdt : hot.lg.get_length()*flow_vpdt/hot_veh;
-            if(hot_speed_meterperdt>ffspeed_meterperdt)
-                hot_speed_meterperdt = ffspeed_meterperdt;
-
-            double add_term;
-            if(hot_speed_meterperdt > speed_threshold_meterpdt)
-                add_term = Double.POSITIVE_INFINITY;
-            else {
-                double toll = vplpdt_to_cents_table.get_value_for((float)flow_vpdt/hot.lg.get_num_lanes());
-                add_term = toll_coef*toll;
-            }
-
-            for(InterfaceLaneSelector ls : hot.toll.values())
-                ((TollLaneSelector)ls).add_in = add_term;
+//            double count = fa.get_total_count();
+//            double flow_vpdt = count-prev_count;
+//            prev_count = count;
+//
+//            double hot_veh = hot.lg.get_total_vehicles();
+//
+//            double hot_speed_meterperdt = hot_veh<1 ? ffspeed_meterperdt : hot.lg.get_length()*flow_vpdt/hot_veh;
+//            if(hot_speed_meterperdt>ffspeed_meterperdt)
+//                hot_speed_meterperdt = ffspeed_meterperdt;
+//
+//            double add_term;
+//            if(hot_speed_meterperdt > speed_threshold_meterpdt)
+//                add_term = Double.POSITIVE_INFINITY;
+//            else {
+//                double toll = vplpdt_to_cents_table.get_value_for((float)flow_vpdt/hot.lg.get_num_lanes());
+//                add_term = toll_coef*toll;
+//            }
+//
+//            for(InterfaceLaneSelector ls : hot.toll.values())
+//                ((TollLaneSelector)ls).add_in = add_term;
 
         }
 
     }
 
-    class NomAndToll {
-        AbstractLaneGroup lg;
-        Map<State,InterfaceLaneSelector> nom;
-        Map<State,InterfaceLaneSelector> toll;
+//    class NomAndToll {
+//        AbstractLaneGroup lg;
+//        Map<State,InterfaceLaneSelector> nom;
+//        Map<State,InterfaceLaneSelector> toll;
+//
+//        public NomAndToll(AbstractLaneGroup lg){
+//            this.lg = lg;
+//        }
+//
+//        public void restore(){
+//            for(Map.Entry<State,InterfaceLaneSelector> e : nom.entrySet())
+//                lg.get_link().get_lane_selector_for_lane_group(lg.getId()).put(e.getKey(),e.getValue());
+//        }
+//    }
 
-        public NomAndToll(AbstractLaneGroup lg){
-            this.lg = lg;
-        }
-
-        public void restore(){
-            for(Map.Entry<State,InterfaceLaneSelector> e : nom.entrySet())
-                lg.get_link().get_lane_selector_for_lane_group(lg.getId()).put(e.getKey(),e.getValue());
-        }
-    }
-
-    private NomAndToll create_lane_selectors(AbstractLaneGroup lg){
-        NomAndToll X = new NomAndToll(lg);
-
-        for(State state : lg.get_states()){
-
-            TollLaneSelector newls;
-            if(tolled_comms.contains(state.commodity_id)){
-                InterfaceLaneSelector oldls =  lg.get_link().get_lane_selector_for_lane_group(lg.getId()).get(state);
-                // store
-                X.nom.put(state,oldls);
-                // create a new lane selector
-                if(oldls instanceof TollLaneSelector) {
-                    TollLaneSelector oldlogit = (TollLaneSelector) oldls;
-                    newls = new TollLaneSelector(lg,0,(float)oldlogit.keep,(float)oldlogit.rho_vehperlane, state.commodity_id);
-                }
-                else
-                    newls = new TollLaneSelector(lg,0,def_keep,def_rho_vpkmplane, state.commodity_id);
-                X.toll.put(state,newls);
-                lg.get_link().get_lane_selector_for_lane_group(lg.getId()).put(state,newls);
-            }
-        }
-        return X;
-    }
+//    private NomAndToll create_lane_selectors(AbstractLaneGroup lg){
+//        NomAndToll X = new NomAndToll(lg);
+//
+//        for(State state : lg.get_states()){
+//
+//            TollLaneSelector newls;
+//            if(tolled_comms.contains(state.commodity_id)){
+//                InterfaceLaneSelector oldls =  lg.get_link().get_lane_selector_for_lane_group(lg.getId()).get(state);
+//                // store
+//                X.nom.put(state,oldls);
+//                // create a new lane selector
+//                if(oldls instanceof TollLaneSelector) {
+//                    TollLaneSelector oldlogit = (TollLaneSelector) oldls;
+//                    newls = new TollLaneSelector(lg,0,(float)oldlogit.keep,(float)oldlogit.rho_vehperlane, state.commodity_id);
+//                }
+//                else
+//                    newls = new TollLaneSelector(lg,0,def_keep,def_rho_vpkmplane, state.commodity_id);
+//                X.toll.put(state,newls);
+//                lg.get_link().get_lane_selector_for_lane_group(lg.getId()).put(state,newls);
+//            }
+//        }
+//        return X;
+//    }
 
 
 }

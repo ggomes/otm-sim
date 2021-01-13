@@ -49,6 +49,12 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
         return 0f;
     }
 
+
+    @Override
+    public double get_lat_supply(){
+        return get_long_supply();
+    }
+
     ////////////////////////////////////////
     // helper methods
     ////////////////////////////////////////

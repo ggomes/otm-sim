@@ -388,6 +388,7 @@
 				<xs:element ref="otm:lanechange" minOccurs="0" maxOccurs="unbounded" />
 			</xs:sequence>
 			<xs:attribute name="dt" type="xs:float" default="0"/>
+			<xs:attribute name="type" type="xs:string" use="required" />
 		</xs:complexType>
 	</xs:element>
 
@@ -396,7 +397,6 @@
 			<xs:all>
 				<xs:element ref="otm:parameters" minOccurs="0" maxOccurs="1" />
 			</xs:all>
-			<xs:attribute name="type" type="xs:string" use="required" />
 			<xs:attribute name="comms" type="xs:string" />
 		</xs:complexType>
 	</xs:element>

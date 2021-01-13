@@ -53,7 +53,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     public void initialize(Scenario scenario, float start_time) throws OTMException {
         super.initialize(scenario, start_time);
 
-        update_supply();
+        update_long_supply();
     }
 
     ////////////////////////////////////////////
@@ -99,11 +99,11 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     }
 
     @Override
-    public void update_supply() {
+    public void update_long_supply() {
 //        supply =  max_vehicles - vehicles.size();
 
         Double up_veh_pos = get_upstream_vehicle_position();
-        supply =  up_veh_pos.isNaN() ? max_vehicles : up_veh_pos * max_vehicles / length;
+        long_supply =  up_veh_pos.isNaN() ? max_vehicles : up_veh_pos * max_vehicles / length;
 
 //        if(link.is_model_source_link)
 //            supply = Math.max(0d,supply + 1d - buffer.get_total_veh());
@@ -149,7 +149,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
 
         }
 
-        update_supply();
+        update_long_supply();
 
     }
 
@@ -187,7 +187,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
             // at least one candidate lanegroup must have space for one vehicle.
             // Otherwise the road connection is blocked.
             OptionalDouble next_supply_o = rc.get_out_lanegroups().stream()
-                    .mapToDouble(AbstractLaneGroup::get_supply)
+                    .mapToDouble(AbstractLaneGroup::get_long_supply)
                     .max();
 
             assert(next_supply_o.isPresent());
@@ -218,7 +218,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
             if(next_link!=null && rc!=null)
                 next_link.get_model().add_vehicle_packet(next_link,timestamp,new PacketLink(vehicle,rc));
 
-            update_supply();
+            update_long_supply();
 
             return true;
         }

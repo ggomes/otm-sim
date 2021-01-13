@@ -10,9 +10,7 @@ import core.geometry.Side;
 import error.OTMException;
 import core.packet.PacketLaneGroup;
 import core.packet.PacketLink;
-import lanechange.LinkLaneSelector;
-import profiles.Profile1D;
-import utils.OTMUtils;
+import lanechange.*;
 import utils.StochasticProcess;
 
 import java.util.*;
@@ -116,23 +114,7 @@ public abstract class AbstractModel implements InterfaceModel {
             }
 
             // lane change models
-            if (lcs == null) {
-                link.lane_selector = new LinkLaneSelector(link,null);
-                link.lane_selector.add_type("keep",null, scenario.commodities.keySet());
-            } else {
-                Float dt = lcs.getDt();
-                if(dt==0f && (this instanceof AbstractVehicleModel))
-                    dt = null;
-                if(dt==0f && (this instanceof AbstractFluidModel))
-                    dt = ((AbstractFluidModel)this).dt_sec;
-                link.lane_selector = new LinkLaneSelector(link,dt);
-                for (jaxb.Lanechange lc : lcs.getLanechange()) {
-                    Collection<Long> commids = lc.getComms() == null ?
-                            scenario.commodities.keySet() :
-                            OTMUtils.csv2longlist(lc.getComms());
-                    link.lane_selector.add_type(lc.getType(), lc.getParameters(), commids);
-                }
-            }
+            link.lane_selector = create_lane_selector(scenario,link,lcs);
 
             // create vehicle sources
             if(scenario.demands.containsKey(link.getId())){
@@ -241,6 +223,32 @@ public abstract class AbstractModel implements InterfaceModel {
     //////////////////////////////////////////////////
     // private
     //////////////////////////////////////////////////
+
+    private AbstractLaneSelector create_lane_selector(Scenario scenario,Link link,jaxb.Lanechanges lcs) throws OTMException {
+
+        if (lcs == null)
+            return new KeepLaneSelector(link);
+
+        Float dt = lcs.getDt();
+        if(dt==0f && (this instanceof AbstractVehicleModel))
+            dt = null;
+        if(dt==0f && (this instanceof AbstractFluidModel))
+            dt = ((AbstractFluidModel)this).dt_sec;
+
+        switch(lcs.getType()) {
+            case "lglogit":
+                return new LanegroupLogitLaneSelector(scenario,link,dt,lcs.getLanechange());
+            case "linklogit":
+                return new LinkLogitLaneSelector(scenario,link,dt,lcs.getLanechange());
+            case "uniform":
+                return new UniformLaneSelector(link);
+            case "keep":
+                return new KeepLaneSelector(link);
+            default:
+                throw new OTMException("Unknown lane change type: " + type);
+        }
+
+    }
 
     private static List<AbstractLaneGroup> create_lanegroups(Link link, Set<RoadConnection> out_rcs) throws OTMException {
         // Find unique subsets of road connections, and create a lane group for each one.

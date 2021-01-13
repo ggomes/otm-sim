@@ -51,9 +51,13 @@ public class FluidDemandGenerator extends AbstractDemandGenerator {
 
         if(commodity.pathfull){
             final State state = new State(comm_id,path.getId(),true);
-            double demand_for_each_lg = flow_veh_per_timestep / pathfull_lgs.size();
-            for(AbstractLaneGroup lg : pathfull_lgs)
-                ((FluidLaneGroup)lg).source_flow.put(state,demand_for_each_lg);
+            double sum = link.get_lgs().stream()
+                    .mapToDouble(lg->((FluidLaneGroup)lg).capacity_veh_per_dt)
+                    .sum();
+            for(AbstractLaneGroup lg : link.get_lgs()) {
+                double capacity  = ((FluidLaneGroup)lg).capacity_veh_per_dt;
+                ((FluidLaneGroup) lg).source_flow.put(state, flow_veh_per_timestep*capacity/sum);
+            }
         }
 
         // source of pathless commodity

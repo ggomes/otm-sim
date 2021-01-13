@@ -183,7 +183,8 @@ public abstract class AbstractOutputTimedCell extends AbstractOutputTimed {
             for(XYSeries series : get_series_for_lg(lg))
                 dataset.addSeries(series);
 
-        make_time_chart(dataset,"",get_yaxis_label(),filename);
+        String title = "comm : " + (commodity==null ? "all" : commodity.name);
+        make_time_chart(dataset,title,get_yaxis_label(),filename);
     }
 
     //////////////////////////////////////////////////////
