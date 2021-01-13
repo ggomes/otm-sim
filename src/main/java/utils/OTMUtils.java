@@ -277,7 +277,7 @@ public class OTMUtils {
         return x;
     }
 
-    public static LaneGroupSet read_lanegroups(String str, Network network) throws OTMException {
+    public static LaneGroupSet read_lanegroups(String str, Map<Long,Link> links) throws OTMException {
 
         LaneGroupSet X = new LaneGroupSet();
 
@@ -292,7 +292,7 @@ public class OTMUtils {
                 throw new OTMException("Poorly formatted string. (90hm*@$80)");
 
             Long linkid = Long.parseLong(a1[0]);
-            Link link = network.links.get(linkid);
+            Link link = links.get(linkid);
 
             if(link==null)
                 throw new OTMException("Poorly formatted string. (24n2349))");

@@ -94,12 +94,12 @@ public class ActuatorSplit extends AbstractActuator {
     }
 
     @Override
-    public void initialize(Scenario scenario, float start_time,boolean override_targets) throws OTMException {
+    public void initialize(Scenario scenario, float timestamp,boolean override_targets) throws OTMException {
 
         if(initialized)
             return;
 
-        super.initialize(scenario,start_time,override_targets);
+        super.initialize(scenario,timestamp,override_targets);
 
         long commid = comm.getId();
 

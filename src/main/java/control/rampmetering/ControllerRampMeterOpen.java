@@ -20,11 +20,6 @@ public class ControllerRampMeterOpen extends AbstractControllerRampMetering {
     // InterfaceScenarioElement
     ///////////////////////////////////////////////////
 
-//    @Override
-//    public void initialize(Scenario scenario) throws OTMException {
-//        super.initialize(scenario);
-//    }
-
     @Override
     protected float compute_nooverride_rate_vps(ActuatorLaneGroupCapacity act, float timestamp) {
         return Float.POSITIVE_INFINITY;

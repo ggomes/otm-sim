@@ -67,7 +67,6 @@ public abstract class AbstractControllerRampMetering extends AbstractController 
             }
             meterparams.put(abs_act.id,new MeterParams(thres,min_rate_vps,max_rate_vps));
         }
-
     }
 
     @Override

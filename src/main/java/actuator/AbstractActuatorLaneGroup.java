@@ -4,6 +4,7 @@ import core.AbstractLaneGroup;
 import core.LaneGroupSet;
 import core.Scenario;
 import core.ScenarioElementType;
+import dispatch.EventPoke;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
@@ -32,14 +33,23 @@ public abstract class AbstractActuatorLaneGroup extends AbstractActuator {
     }
 
     @Override
-    public void initialize(Scenario scenario, float start_time, boolean override_targets) throws OTMException {
-        super.initialize(scenario, start_time,override_targets);
+    public void initialize(Scenario scenario, float timestamp, boolean override_targets) throws OTMException {
 
-        this.target = OTMUtils.read_lanegroups(lgstr,scenario.network);
+        if(initialized)
+            return;
+
+        super.initialize(scenario, timestamp,override_targets);
+
+        this.target = OTMUtils.read_lanegroups(lgstr,scenario.network.links);
         this.lanegroups  =  ((LaneGroupSet)target).lgs;
 
         if(lanegroups==null || lanegroups.isEmpty())
             throw new OTMException(String.format("Actuator %d has no lanegroups.",id));
+
+        set_dt_for_target();
+
+        if(dt!=null)
+            scenario.dispatcher.register_event(new EventPoke(scenario.dispatcher,3,timestamp,this));
 
         // register the actuator
         target.register_actuator(commids,this,override_targets);

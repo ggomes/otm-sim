@@ -39,7 +39,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     public final Scenario scenario;
     public final long id;
     public final Algorithm type;
-    public float dt;
+    public Float dt;
     public float start_time;
     public float end_time;
 
@@ -55,6 +55,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     abstract public void update_command(Dispatcher dispatcher) throws OTMException;
     abstract public Class get_actuator_class();
+    abstract protected void configure();
 
     ///////////////////////////////////////////
     // construction and initialization
@@ -90,7 +91,6 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
                     if(act.myController!=null)
                         throw new OTMException("Multiple controllers assigned to single actuator");
                     actuators.put(act.id,act);
-//                    act.myController=this;
                 }
             }
 
@@ -107,7 +107,6 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
                         throw new OTMException("Repeated value in actuator usage for controller " +this.id);
                     actuator_by_usage.put(jaxb_act.getUsage(),act);
                 }
-//                act.myController=this;
             }
         }
 
@@ -145,14 +144,20 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     }
 
     public void initialize(Scenario scenario,boolean override_targets) throws OTMException {
+
+        float now = scenario.dispatcher.current_time;
+
         for(AbstractActuator x : actuators.values()) {
             x.myController = this;
-            x.initialize(scenario, start_time ,override_targets);
+            x.initialize(scenario, now ,override_targets);
         }
 
         // validate
         OTMErrorLog errorLog = validate_post_init();
         errorLog.check();
+
+        // poke
+        poke(scenario.dispatcher,scenario.dispatcher.current_time);
     }
 
     ///////////////////////////////////////////
@@ -214,7 +219,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
             event_output.write(new EventWrapperController(timestamp,command));
 
         // wake up in dt, if dt is defined
-        if(dt>0)
+        if(dt!=null && dt>0)
             dispatcher.register_event(new EventPoke(dispatcher,20,timestamp+dt,this));
     }
 

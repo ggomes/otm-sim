@@ -134,6 +134,7 @@
 				<xs:element ref="otm:controllers" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:actuators" minOccurs="0" maxOccurs="1" />
 				<xs:element ref="otm:sensors" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="otm:events" minOccurs="0" maxOccurs="1" />
 			</xs:all>
 		</xs:complexType>
 	</xs:element>
@@ -387,7 +388,7 @@
 			<xs:sequence>
 				<xs:element ref="otm:lanechange" minOccurs="0" maxOccurs="unbounded" />
 			</xs:sequence>
-			<xs:attribute name="dt" type="xs:float" default="0"/>
+			<xs:attribute name="dt" type="xs:float" />
 			<xs:attribute name="type" type="xs:string" use="required" />
 		</xs:complexType>
 	</xs:element>
@@ -543,20 +544,17 @@
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
 						<xs:pattern value="flowtolink|lg_allowcomm|lg_capacity|lg_speedlimit|signal|split"/>
-
-
-
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
 			<!-- dt: in seconds.
 			When not specified, the controller will depend on events it creates on its own.
 			When provided, the update method will be automatically called every dt -->
-			<xs:attribute name="dt" type="xs:float"  default="-1"/>
+			<xs:attribute name="dt" type="xs:float"/>
 
 			<!-- saturation bounds for the actuator. Interpretation is actuator specific -->
-			<xs:attribute name="min_value" type="xs:float" default="-1"/>
-			<xs:attribute name="max_value" type="xs:float" default="-1"/>
+			<xs:attribute name="min_value" type="xs:float" />
+			<xs:attribute name="max_value" type="xs:float" />
 
 		</xs:complexType>
 	</xs:element>
@@ -674,7 +672,7 @@
 			<!-- dt: in seconds.
 			When not specified, the controller will depend on events it creates on its own.
 			When provided, the update method will be automatically called every dt -->
-			<xs:attribute name="dt" type="xs:float"  default="-1"/>
+			<xs:attribute name="dt" type="xs:float" />
 			<xs:attribute name="start_time" type="xs:float"  default="0"/>
 			<xs:attribute name="end_time" type="xs:float" />
 		</xs:complexType>
@@ -785,6 +783,41 @@
 	</xs:element>
 
 	<!-- events ................................................................... -->
+
+	<xs:element name="events">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="otm:event" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="event">
+		<xs:complexType>
+			<xs:all>
+				<xs:element ref="otm:event_target" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="otm:parameters" minOccurs="0" maxOccurs="1" />
+			</xs:all>
+			<xs:attribute name="id" type="xs:long" use="required" />
+			<xs:attribute name="timestamp" type="xs:float" use="required" />
+			<xs:attribute name="type" type="xs:string" use="required" />
+			<xs:attribute name="name" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="event_target">
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:string" />
+			<xs:attribute name="type" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:pattern value="lanegroups|controller"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="lanegroups" type="xs:string" />
+		</xs:complexType>
+	</xs:element>
 
 	<!-- output ................................................................... -->
 
