@@ -389,9 +389,16 @@ public class ScenarioFactory {
             Path path = null;
             Long linkid;
             if(comm.pathfull){
-                if(jd.getSubnetwork()==null || !scenario.subnetworks.containsKey(jd.getSubnetwork()))
+                if(jd.getSubnetwork()==null)
+                    throw new OTMException("Subnetwork id not provided in demand for commodity " + comm.getId());
+                if(!scenario.subnetworks.containsKey(jd.getSubnetwork()))
                     throw new OTMException("Bad subnetwork id (" + jd.getSubnetwork() + ") in demand for commodity " + comm.getId());
+
                 Subnetwork subnetwork = scenario.subnetworks.get(jd.getSubnetwork());
+
+                if(!comm.subnetworks.contains(subnetwork))
+                    throw new OTMException(String.format("Error in demand: Commodity %d does not use subnetwork %d",comm.getId(),subnetwork.getId()));
+
                 if(!(subnetwork instanceof Path))
                     throw new OTMException("Subnetwork is not a path: id " + jd.getSubnetwork() + ", in demand for commodity " + comm.getId());
                 path = (Path)subnetwork;

@@ -42,7 +42,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
 
     public AbstractActuator(Scenario scenario, jaxb.Actuator jaxb_actuator) throws OTMException {
         this.id = jaxb_actuator.getId();
-        this.dt = Math.max(0f,jaxb_actuator.getDt());
+        this.dt = jaxb_actuator.getDt();
         this.initialized = false;
         if(jaxb_actuator.getActuatorTarget()!=null){
             jaxb.ActuatorTarget e = jaxb_actuator.getActuatorTarget();
@@ -89,11 +89,21 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     public void validate_pre_init(OTMErrorLog errorLog) {
     }
 
-    public void initialize(Scenario scenario, float start_time, boolean override_targets) throws OTMException {
+    public void initialize(Scenario scenario, float timestamp, boolean override_targets) throws OTMException {
 
         if(initialized)
             return;
 
+        // assign dt according to target model if dt==null
+        set_dt_for_target();
+
+        if(dt!=null)
+            scenario.dispatcher.register_event(new EventPoke(scenario.dispatcher,3,timestamp,this));
+
+        initialized=true;
+    }
+
+    protected void set_dt_for_target(){
         if(target!=null && (dt==null || dt<=0)){
             AbstractModel model = this.target.get_model();
             if(model==null)
@@ -105,8 +115,6 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
                     dt = null;
             }
         }
-
-        initialized=true;
     }
 
     public void validate_post_init(OTMErrorLog errorLog){

@@ -89,12 +89,12 @@ public class ActuatorFlowToLinks extends AbstractActuator {
     }
 
     @Override
-    public void initialize(Scenario scenario, float start_time,boolean override_targets) throws OTMException {
+    public void initialize(Scenario scenario, float timestamp,boolean override_targets) throws OTMException {
 
         if (initialized)
             return;
 
-        super.initialize(scenario, start_time,override_targets);
+        super.initialize(scenario, timestamp,override_targets);
 
         outlink2flows = new double[outlink_ids.size()];
         outlink2portion= new HashMap<>();

@@ -28,8 +28,8 @@ public class ActuatorLaneGroupCapacity extends AbstractActuatorLaneGroup  {
 
     public ActuatorLaneGroupCapacity(Scenario scenario, Actuator jact) throws OTMException {
         super(scenario, jact);
-        jmax_rate = jact.getMaxValue();
-        jmin_rate = jact.getMinValue();
+        jmax_rate = jact.getMaxValue()==null ? jmax_rate=Float.POSITIVE_INFINITY : jact.getMaxValue();
+        jmin_rate = jact.getMinValue()==null ? jmin_rate=Float.NEGATIVE_INFINITY : jact.getMinValue();
     }
 
     @Override
@@ -39,6 +39,10 @@ public class ActuatorLaneGroupCapacity extends AbstractActuatorLaneGroup  {
 
     @Override
     public void initialize(Scenario scenario, float start_time,boolean override_targets) throws OTMException {
+
+        if(initialized)
+            return;
+
         super.initialize(scenario, start_time,override_targets);
 
         this.total_lanes = lanegroups==null || lanegroups.isEmpty() ? 0 : lanegroups.stream().mapToInt(x->x.get_num_lanes()).sum();

@@ -37,7 +37,7 @@ public class ControllerFlowToLinks extends AbstractController  {
 
         act = (ActuatorFlowToLinks) actuators.values().iterator().next();
 
-        this.dt = -1;
+        this.dt = -1f;
     }
 
     @Override

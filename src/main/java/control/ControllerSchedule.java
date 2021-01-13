@@ -10,6 +10,7 @@ import jaxb.Controller;
 import core.ScenarioFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ControllerSchedule extends AbstractController {
@@ -23,13 +24,14 @@ public class ControllerSchedule extends AbstractController {
     // construction
     ///////////////////////////////////////////////////
 
+
     public ControllerSchedule(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
 
-        AbstractActuator act = this.actuators.values().iterator().next();
+        this.curr_entry_index = -1;
 
-        // make sure this is not a periodic controller
-        this.dt = 0;
+        // this is never a periodic controller
+        this.dt = null;
 
         if(jaxb_controller.getSchedule()==null)
             return;
@@ -49,13 +51,19 @@ public class ControllerSchedule extends AbstractController {
             jcntrl.setFeedbackSensors(e.getFeedbackSensors());
             AbstractController cntrl = ScenarioFactory.create_controller_from_jaxb(scenario,jcntrl);
 
+            for(AbstractActuator act : actuators.values())
+                cntrl.actuators.put(act.id,act);
 
             ScheduleEntry entry = new ScheduleEntry(start_time,end_time,cntrl);
             entries.add(entry);
-
-            cntrl.actuators.put(act.id,act);
         }
 
+        Collections.sort(entries);
+
+        if(!entries.isEmpty()) {
+            this.start_time = entries.get(0).start_time;
+            this.next_entry_start = this.start_time;
+        }
     }
 
     @Override
@@ -70,25 +78,12 @@ public class ControllerSchedule extends AbstractController {
     @Override
     public void validate_pre_init(OTMErrorLog errorLog) {
         super.validate_pre_init(errorLog);
+
+        if(entries.isEmpty())
+            errorLog.addError("Controller schedule has no entries");
+
         for(ScheduleEntry entry : entries)
             entry.validate(errorLog);
-    }
-
-    @Override
-    public void initialize(Scenario scenario,boolean override_targets) throws OTMException {
-        super.initialize(scenario,override_targets);
-
-        curr_entry_index = -1;
-
-        // disconnect actuators
-        for(AbstractActuator act : actuators.values())
-            act.myController = null;
-
-        // assign actuator to entry controllers
-        for (ScheduleEntry entry : entries)
-            for(AbstractActuator act : actuators.values())
-                entry.cntrl.actuators.put(act.id,act);
-
     }
 
     @Override
@@ -154,7 +149,7 @@ public class ControllerSchedule extends AbstractController {
     // class
     ///////////////////////////////////////////////////
 
-    public class ScheduleEntry {
+    public class ScheduleEntry implements Comparable<ScheduleEntry> {
         public float start_time;
         public float end_time;
         public AbstractController cntrl;
@@ -172,5 +167,11 @@ public class ControllerSchedule extends AbstractController {
         public void validate(OTMErrorLog errorLog) {
             cntrl.validate_pre_init(errorLog);
         }
+
+        @Override
+        public int compareTo(ScheduleEntry that) {
+            return Float.compare(this.start_time,that.start_time);
+        }
+
     }
 }

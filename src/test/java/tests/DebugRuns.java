@@ -30,20 +30,20 @@ public class DebugRuns extends AbstractTest {
 
             boolean do_links        = false;
             boolean do_lanegroups   = true;
-            boolean do_cells        = true;
+            boolean do_cells        = false;
             boolean do_subnetworks  = false;
             boolean do_vehicles     = false;
             boolean do_controllers  = false;
 
             boolean sysout2file = false;
-            String configfile = "/home/gomes/Desktop/x/opttest_models.xml";
+            String configfile = "/home/gomes/Desktop/x/test_events.xml";
             float start_time = 0f;
             float duration = 100f;
-            float outdt = 5f;
+            float outdt = 2f;
             String prefix = makeplots?null:"x";
-            String outfolder = makeplots?null:"/home/gomes/Desktop/x/models";
-            String png_folder = "/home/gomes/Desktop/x/models";
-            Set<Long> link_ids =  Set.of(6l,8l);
+            String outfolder = makeplots?null:"/home/gomes/Desktop/x/output";
+            String png_folder = "/home/gomes/Desktop/x/output";
+            Set<Long> link_ids =  Set.of(5l);
 
             Long subnetid = null;
             Long cntrl_id = null;
