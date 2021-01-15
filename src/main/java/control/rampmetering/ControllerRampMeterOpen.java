@@ -7,18 +7,10 @@ import jaxb.Controller;
 
 public class ControllerRampMeterOpen extends AbstractControllerRampMetering {
 
-    ///////////////////////////////////////////////////
-    // construction
-    ///////////////////////////////////////////////////
-
     public ControllerRampMeterOpen(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
         this.has_queue_control = false;
     }
-
-    ///////////////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////////////
 
     @Override
     protected float compute_nooverride_rate_vps(ActuatorLaneGroupCapacity act, float timestamp) {

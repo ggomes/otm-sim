@@ -14,10 +14,6 @@ public class ControllerFixedRate extends AbstractControllerRampMetering {
     private float rate_vpspl;
     private Map<Long,Float> rate_vps;
 
-    ///////////////////////////////////////////////////
-    // construction
-    ///////////////////////////////////////////////////
-
     public ControllerFixedRate(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
         if(jaxb_controller.getParameters()!=null){
@@ -29,8 +25,9 @@ public class ControllerFixedRate extends AbstractControllerRampMetering {
     }
 
     @Override
-    public void initialize(Scenario scenario,boolean override_targets) throws OTMException {
-        super.initialize(scenario,override_targets);
+    public void configure() throws OTMException{
+        super.configure();
+
         rate_vps = new HashMap<>();
         for(AbstractActuator abs_act : actuators.values()){
             ActuatorLaneGroupCapacity act = (ActuatorLaneGroupCapacity) abs_act;

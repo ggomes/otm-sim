@@ -13,7 +13,7 @@ import java.io.*;
 public abstract class AbstractOutputTimed extends AbstractOutput implements InterfacePlottable {
 
     // timed output
-    public float outDt;			// output frequency in seconds
+    public Float outDt;			// output frequency in seconds
     public Commodity commodity;
     public Writer time_writer;
     public static String delim = ",";
@@ -26,7 +26,7 @@ public abstract class AbstractOutputTimed extends AbstractOutput implements Inte
 
         super(scenario,prefix,output_folder);
 
-        this.outDt = outDt==null ? -1 : outDt;
+        this.outDt = outDt;
 
         // get commodity
         if(commodity_id==null)
@@ -82,7 +82,7 @@ public abstract class AbstractOutputTimed extends AbstractOutput implements Inte
     //////////////////////////////////////////////////////
 
     public void validate_post_init(OTMErrorLog errorLog) {
-        if(Float.isNaN(outDt) || outDt<=0f)
+        if(outDt==null || Float.isNaN(outDt) || outDt<=0f)
             errorLog.addError("outDt is not defined");
     }
 

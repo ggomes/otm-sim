@@ -807,11 +807,11 @@
 
 	<xs:element name="event_target">
 		<xs:complexType>
-			<xs:attribute name="id" type="xs:string" />
+			<xs:attribute name="ids" type="xs:string" />
 			<xs:attribute name="type" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="lanegroups|controller"/>
+						<xs:pattern value="lanegroups|controllers|links"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>

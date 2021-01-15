@@ -6,6 +6,7 @@ import commodity.Path;
 import commodity.Subnetwork;
 import dispatch.EventInitializeController;
 import cmd.RunParameters;
+import events.AbstractEvent;
 import output.animation.AnimationInfo;
 import traveltime.LinkTravelTimeManager;
 import control.AbstractController;
@@ -41,6 +42,7 @@ public class Scenario {
     public Map<Long, AbstractActuator> actuators = new HashMap<>();
     public Map<Long, AbstractSensor> sensors = new HashMap<>();
     public Map<Long, Set<DemandInfo>> demands = new HashMap<>(); // link id -> DemandInfo
+    public Map<Long, AbstractEvent> events = new HashMap<>(); // event id -> AbstractEvent
 
     // travel time computation
     public LinkTravelTimeManager path_tt_manager;

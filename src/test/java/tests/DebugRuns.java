@@ -26,29 +26,29 @@ public class DebugRuns extends AbstractTest {
 
             // ..........................................
 
-            boolean makeplots = true;
+            boolean makeplots = false;
 
-            boolean do_links        = true;
+            boolean do_links        = false;
             boolean do_lanegroups   = true;
-            boolean do_cells        = true;
+            boolean do_cells        = false;
             boolean do_subnetworks  = false;
             boolean do_vehicles     = false;
             boolean do_controllers  = false;
 
             boolean sysout2file = false;
-            String configfile = "/home/gomes/Desktop/x/test_1.xml";
+            String configfile = "/home/gomes/Desktop/x/test_events.xml";
             float start_time = 0f;
             float duration = 100f;
-            float outdt = 2f;
+            float outdt = 3f;
             String prefix = makeplots?null:"x";
             String outfolder = makeplots?null:"/home/gomes/Desktop/x/output";
             String png_folder = "/home/gomes/Desktop/x/output";
-            Set<Long> link_ids = Set.of(2l);
+            Set<Long> link_ids = null;//Set.of(5l);
 
             Long subnetid = null;
             Long cntrl_id = null;
 
-            Long comm_id=0l;
+            Long comm_id=null;
 
             // ..........................................
 
@@ -65,8 +65,16 @@ public class DebugRuns extends AbstractTest {
                 }
             }
 
+            // Timer ..............................
+            long startTime = System.nanoTime();
+
             // Load ..............................
             OTM otm = new OTM(configfile,true);
+
+            long endTime = System.nanoTime();
+            double seconds = (endTime - startTime)/1e9;
+            System.out.println("Load time: " + seconds);
+            startTime = endTime;
 
             if(link_ids==null)
                 link_ids = otm.scenario.network.links.keySet();
@@ -115,8 +123,21 @@ public class DebugRuns extends AbstractTest {
                 otm.output.request_controller(prefix,outfolder,cntrl_id);
             }
 
+            // Timer
+            endTime = System.nanoTime();
+            seconds = (endTime - startTime)/1e9;
+            System.out.println("Requests time: " + seconds);
+            startTime = endTime;
+
             // Run .................................
             otm.run(start_time,duration);
+
+
+            // Timer
+            endTime = System.nanoTime();
+            seconds = (endTime - startTime)/1e9;
+            System.out.println("Run time: " + seconds);
+            startTime = endTime;
 
             // Print output .........................
             for(AbstractOutput output :  otm.output.get_data()){

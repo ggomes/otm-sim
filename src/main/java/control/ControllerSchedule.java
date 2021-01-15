@@ -1,6 +1,7 @@
 package control;
 
 import actuator.AbstractActuator;
+import control.command.CommandDoubleArray;
 import core.Scenario;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
@@ -19,11 +20,6 @@ public class ControllerSchedule extends AbstractController {
     private ScheduleEntry curr_entry;
     private int curr_entry_index;
     private float next_entry_start;
-
-    ///////////////////////////////////////////////////
-    // construction
-    ///////////////////////////////////////////////////
-
 
     public ControllerSchedule(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
@@ -71,10 +67,6 @@ public class ControllerSchedule extends AbstractController {
         return AbstractActuator.class;
     }
 
-    ///////////////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////////////
-
     @Override
     public void validate_pre_init(OTMErrorLog errorLog) {
         super.validate_pre_init(errorLog);
@@ -84,6 +76,10 @@ public class ControllerSchedule extends AbstractController {
 
         for(ScheduleEntry entry : entries)
             entry.validate(errorLog);
+    }
+
+    @Override
+    public void configure() throws OTMException {
     }
 
     @Override

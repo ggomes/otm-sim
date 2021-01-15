@@ -20,23 +20,14 @@ public class ControllerAlinea extends AbstractControllerRampMetering {
 
     public Map<Long,AlineaParams> params;  // parameters per actuator
 
-    ///////////////////////////////////////////////////
-    // construction
-    ///////////////////////////////////////////////////
-
     public ControllerAlinea(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
         params = new HashMap<>();
     }
 
-    ///////////////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////////////
-
     @Override
-    public void initialize(Scenario scenario,boolean override_targets) throws OTMException {
-        super.initialize(scenario,override_targets);
-
+    public void configure() throws OTMException {
+        super.configure();
         params = new HashMap<>();
         for(AbstractActuator abs_act : actuators.values()){
             ActuatorLaneGroupCapacity act = (ActuatorLaneGroupCapacity) abs_act;

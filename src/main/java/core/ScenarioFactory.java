@@ -14,6 +14,7 @@ import control.rampmetering.*;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
+import events.*;
 import models.fluid.ctm.ModelCTM;
 import models.none.ModelNone;
 import models.vehicle.newell.ModelNewell;
@@ -61,6 +62,9 @@ public class ScenarioFactory {
         scenario.sensors = ScenarioFactory.create_sensors_from_jaxb(scenario, js.getSensors() );
         scenario.actuators = ScenarioFactory.create_actuators_from_jaxb(scenario, js.getActuators() );
         scenario.controllers = ScenarioFactory.create_controllers_from_jaxb(scenario,js.getControllers() );
+
+        // events
+        scenario.events = ScenarioFactory.create_events_from_jaxb(scenario,js.getEvents());
 
         // generate models
         scenario.models = create_models_from_jaxb(scenario,js.getModels());
@@ -468,4 +472,34 @@ public class ScenarioFactory {
         }
     }
 
+    private static Map<Long, AbstractEvent> create_events_from_jaxb(Scenario scenario, jaxb.Events jaxb_events) throws OTMException {
+        HashMap<Long, AbstractEvent> events = new HashMap<>();
+        if(jaxb_events==null)
+            return events;
+        for(jaxb.Event jaxb_event : jaxb_events.getEvent())
+            events.put(jaxb_event.getId(),create_event_from_jaxb(scenario,jaxb_event));
+        return events;
+    }
+
+    private static AbstractEvent create_event_from_jaxb(Scenario scenario, jaxb.Event jaxb_event) throws OTMException {
+        AbstractEvent event;
+        AbstractEvent.EventType type = AbstractEvent.EventType.valueOf(jaxb_event.getType());
+        switch(type){
+            case linktgl:
+                event = new EventLinksToggle(scenario,jaxb_event);
+                break;
+            case cntrltgl:
+                event = new EventControllerToggle(scenario,jaxb_event);
+                break;
+            case lgfd:
+                event = new EventLanegroupFD(scenario,jaxb_event);
+                break;
+            case lglanes:
+                event = new EventLanegroupLanes(scenario,jaxb_event);
+                break;
+            default:
+                throw new OTMException("Bad event type: " + jaxb_event.getType());
+        }
+        return event;
+    }
 }

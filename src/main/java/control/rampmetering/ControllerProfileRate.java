@@ -16,10 +16,6 @@ public class ControllerProfileRate extends AbstractControllerRampMetering {
 
     public Map<Long, Profile1D> actuator_rate_vph;
 
-    ///////////////////////////////////////////////////
-    // construction
-    ///////////////////////////////////////////////////
-
     public ControllerProfileRate(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
         actuator_rate_vph = new HashMap<>();
@@ -32,10 +28,6 @@ public class ControllerProfileRate extends AbstractControllerRampMetering {
             }
         }
     }
-
-    ///////////////////////////////////////////////////
-    // InterfaceScenarioElement
-    ///////////////////////////////////////////////////
 
     @Override
     protected float compute_nooverride_rate_vps(ActuatorLaneGroupCapacity act, float timestamp) {

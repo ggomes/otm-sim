@@ -68,6 +68,11 @@ public class ControllerSignalPretimed extends AbstractController {
         return ActuatorSignal.class;
     }
 
+    @Override
+    protected void configure() throws OTMException {
+
+    }
+
     ///////////////////////////////////////////////////
     // InterfaceScenarioElement
     ///////////////////////////////////////////////////

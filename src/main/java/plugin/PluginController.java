@@ -12,7 +12,6 @@ public abstract class PluginController extends AbstractController {
         super(scenario, jaxb_controller);
     }
 
-
     @Override
     public Class get_actuator_class() {
         return AbstractActuator.class;

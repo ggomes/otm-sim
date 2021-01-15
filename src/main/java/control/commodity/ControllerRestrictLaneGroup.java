@@ -22,10 +22,6 @@ public class ControllerRestrictLaneGroup extends AbstractController {
     public Set<Long> free_comms = new HashSet<>();
     public Set<Long> banned_comms = new HashSet<>();
 
-    ///////////////////////////////////////////////////
-    // construction
-    ///////////////////////////////////////////////////
-
     public ControllerRestrictLaneGroup(Scenario scenario, Controller jcnt) throws OTMException {
         super(scenario, jcnt);
         this.dt=0f;
@@ -46,6 +42,11 @@ public class ControllerRestrictLaneGroup extends AbstractController {
     @Override
     public Class get_actuator_class() {
         return ActuatorLaneGroupAllowComm.class;
+    }
+
+    @Override
+    protected void configure() throws OTMException {
+
     }
 
     @Override

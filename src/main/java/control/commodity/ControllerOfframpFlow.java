@@ -43,7 +43,6 @@ public class ControllerOfframpFlow extends AbstractController {
         this.ml_sensor = new FixedSensor(dt, act.linkMLup,1,act.linkMLup.get_num_dn_lanes(),act.linkMLup.get_full_length(),commids);
     }
 
-
     @Override
     public Class get_actuator_class() {
         return ActuatorSplit.class;
@@ -65,19 +64,17 @@ public class ControllerOfframpFlow extends AbstractController {
     }
 
     @Override
-    public void initialize(Scenario scenario,boolean override_targets) throws OTMException {
-        super.initialize(scenario,override_targets);
-//        ml_sensor.initialize(scenario);
-//
+    public void configure() throws OTMException {
+        ml_sensor.initialize(scenario);
+
 //        Map<Long,Double> temp = new HashMap<>();
 //        for(Long id : fr_ref.keySet())
 //            if(fr_ref.get(id)!=null)
 //                temp.put(id,0d);
 //        this.splitmap = new CommandDoubleArray(temp);
-//
-//        this.command = new HashMap<>();
-//        command.put(act.id,splitmap);
 
+        this.command = new HashMap<>();
+        command.put(act.id,splitmap);
     }
 
     @Override

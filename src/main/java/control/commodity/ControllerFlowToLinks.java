@@ -58,8 +58,7 @@ public class ControllerFlowToLinks extends AbstractController  {
     }
 
     @Override
-    public void initialize(Scenario scenario,boolean override_targets) throws OTMException {
-        super.initialize(scenario,override_targets);
+    public void configure() throws OTMException {
         fr_command = new CommandDoubleArray(fr_ids);
         command.put(act.id,fr_command);
     }

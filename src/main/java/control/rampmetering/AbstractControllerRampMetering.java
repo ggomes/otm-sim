@@ -1,7 +1,10 @@
 package control.rampmetering;
 
 import actuator.AbstractActuator;
+import actuator.ActuatorLaneGroupAllowComm;
 import actuator.ActuatorLaneGroupCapacity;
+import control.commodity.ControllerTollLaneGroup;
+import core.AbstractLaneGroup;
 import core.LaneGroupSet;
 import core.Scenario;
 import control.AbstractController;
@@ -13,6 +16,7 @@ import jaxb.Controller;
 import models.fluid.FluidLaneGroup;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public abstract class AbstractControllerRampMetering extends AbstractController {
@@ -53,8 +57,7 @@ public abstract class AbstractControllerRampMetering extends AbstractController 
     }
 
     @Override
-    public void initialize(Scenario scenario,boolean override_targets) throws OTMException {
-        super.initialize(scenario,override_targets);
+    public void configure() throws OTMException {
         meterparams = new HashMap<>();
         for (AbstractActuator abs_act : actuators.values()) {
             ActuatorLaneGroupCapacity act = (ActuatorLaneGroupCapacity) abs_act;

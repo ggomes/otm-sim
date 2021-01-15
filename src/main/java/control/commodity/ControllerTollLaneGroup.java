@@ -60,8 +60,7 @@ public class ControllerTollLaneGroup extends AbstractController {
     }
 
     @Override
-    public void initialize(Scenario scenario,boolean override_targets) throws OTMException {
-        super.initialize(scenario,override_targets);
+    public void configure() throws OTMException {
         this.firsttime=true;
 
         ActuatorLaneGroupAllowComm act = (ActuatorLaneGroupAllowComm)actuators.values().iterator().next();

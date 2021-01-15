@@ -230,15 +230,13 @@ public abstract class AbstractModel implements InterfaceModel {
             return new KeepLaneSelector(link);
 
         Float dt = lcs.getDt();
-        if(dt==0f && (this instanceof AbstractVehicleModel))
-            dt = null;
-        if(dt==0f && (this instanceof AbstractFluidModel))
+        if(dt==null && (this instanceof AbstractFluidModel))
             dt = ((AbstractFluidModel)this).dt_sec;
 
         switch(lcs.getType()) {
             case "lglogit":
                 return new LanegroupLogitLaneSelector(scenario,link,dt,lcs.getLanechange());
-            case "linklogit":
+            case "linklinear":
                 return new LinkLogitLaneSelector(scenario,link,dt,lcs.getLanechange());
             case "uniform":
                 return new UniformLaneSelector(link);

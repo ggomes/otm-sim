@@ -4,6 +4,7 @@ import core.AbstractLaneGroup;
 import core.Link;
 import core.Scenario;
 import core.State;
+import error.OTMException;
 import jaxb.Lanechange;
 import models.Maneuver;
 import utils.OTMUtils;
@@ -16,7 +17,7 @@ public class LinkLogitLaneSelector extends AbstractLaneSelector {
     double [] lgsupplies;
     double threshold = 0f;
 
-    public LinkLogitLaneSelector(Scenario scenario, Link link, Float dt, List<Lanechange> lcs) {
+    public LinkLogitLaneSelector(Scenario scenario, Link link, Float dt, List<Lanechange> lcs) throws OTMException {
         super(link,dt);
 
         lgsupplies = new double[link.get_lgs().size()];
@@ -46,6 +47,8 @@ public class LinkLogitLaneSelector extends AbstractLaneSelector {
                             alpha = Math.abs(Double.parseDouble(p.getValue()));
                             alpha = Math.max(0d, alpha);
                             break;
+                        default:
+                            throw new OTMException("Unknown parameter name in LinkLogitLaneSelector");
                     }
                 }
             }

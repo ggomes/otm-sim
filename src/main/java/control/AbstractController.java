@@ -55,7 +55,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     abstract public void update_command(Dispatcher dispatcher) throws OTMException;
     abstract public Class get_actuator_class();
-    abstract protected void configure();
+    abstract protected void configure() throws OTMException;
 
     ///////////////////////////////////////////
     // construction and initialization
@@ -143,7 +143,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     }
 
-    public void initialize(Scenario scenario,boolean override_targets) throws OTMException {
+    public final void initialize(Scenario scenario,boolean override_targets) throws OTMException {
 
         float now = scenario.dispatcher.current_time;
 
@@ -155,6 +155,9 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         // validate
         OTMErrorLog errorLog = validate_post_init();
         errorLog.check();
+
+        // configure
+        configure();
 
         // poke
         poke(scenario.dispatcher,scenario.dispatcher.current_time);
