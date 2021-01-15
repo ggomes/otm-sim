@@ -1,6 +1,7 @@
 package events;
 
 import core.Scenario;
+import error.OTMException;
 
 public class EventLanegroupFD extends AbstractLanegroupEvent {
 
@@ -8,7 +9,7 @@ public class EventLanegroupFD extends AbstractLanegroupEvent {
         super(id, type, timestamp);
     }
 
-    public EventLanegroupFD(Scenario scenario, jaxb.Event jev){
+    public EventLanegroupFD(Scenario scenario, jaxb.Event jev) throws OTMException {
         super(scenario,jev);
     }
 }
