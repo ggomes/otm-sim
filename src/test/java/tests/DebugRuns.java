@@ -38,7 +38,7 @@ public class DebugRuns extends AbstractTest {
             boolean sysout2file = false;
             String configfile = "/home/gomes/Desktop/x/test_events.xml";
             float start_time = 0f;
-            float duration = 100f;
+            float duration = 1000f;
             float outdt = 3f;
             String prefix = makeplots?null:"x";
             String outfolder = makeplots?null:"/home/gomes/Desktop/x/output";

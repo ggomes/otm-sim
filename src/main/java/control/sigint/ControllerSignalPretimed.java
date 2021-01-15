@@ -163,7 +163,7 @@ public class ControllerSignalPretimed extends AbstractController {
         command.put(signal.id , c);
 
         // send command to actuator
-        get_signal().process_controller_command(c,timestamp);
+        get_signal().process_command(c,timestamp);
 
     }
 

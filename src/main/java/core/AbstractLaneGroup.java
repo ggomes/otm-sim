@@ -33,6 +33,8 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     protected final int num_lanes;
     protected float length;        // [m]
 
+    protected jaxb.Roadparam roadparam;
+
     protected AbstractLaneGroup neighbor_in;       // lanegroup down and in
     protected AbstractLaneGroup neighbor_out;      // lanegroup down and out
 
@@ -91,6 +93,27 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         }
 
         set_road_params(rp);
+
+
+//        nom_capacity_veh_per_dt = capacity_vehperlane * num_lanes;
+//        if (link.is_source()) {
+//            nom_ffspeed_cell_per_dt = Double.NaN;
+//            ffspeed_cell_per_dt = Double.NaN;
+//            jam_density_veh_per_cell = Double.NaN;
+//            critical_density_veh = Double.NaN;
+//            wspeed_cell_per_dt = Double.NaN;
+//            lc_w = Double.NaN;
+//            capacity_veh_per_dt = nom_capacity_veh_per_dt;
+//        } else {
+//            nom_ffspeed_cell_per_dt = ffspeed_veh;                                  // /cell_length in build
+//            ffspeed_cell_per_dt = ffspeed_veh;                                      // /cell_length in build
+//            jam_density_veh_per_cell = jam_density_vehperkmperlane * num_lanes;     // *cell_length in build
+//            double critical_vehperlane = capacity_vehperlane / nom_ffspeed_cell_per_dt;
+//            critical_density_veh = critical_vehperlane * num_lanes;          // *lg_length in build
+//            wspeed_cell_per_dt = capacity_vehperlane / (jam_density_vehperkmperlane - critical_vehperlane);// /cell_length in build
+//            compute_lcw();
+//            capacity_veh_per_dt = nom_capacity_veh_per_dt;
+//        }
 
     }
 
@@ -194,6 +217,10 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // overridable
     ///////////////////////////////////////////////////
 
+    public void set_road_params(jaxb.Roadparam r){
+        this.roadparam = r;
+    }
+
     public void initialize(Scenario scenario, float start_time) throws OTMException {
         if(link.is_model_source_link)
             this.buffer = new StateContainer();
@@ -284,6 +311,10 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return id;
     }
 
+    public jaxb.Roadparam get_road_params(){
+        return roadparam;
+    }
+
     public final Link get_link(){
         return link;
     }
@@ -324,7 +355,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public final double get_supply_per_lane(){
         return long_supply/num_lanes;
     }
-
 
     public final List<Integer> get_dn_lanes(){
         return IntStream.range(start_lane_dn,start_lane_dn+num_lanes).boxed().collect(toList());

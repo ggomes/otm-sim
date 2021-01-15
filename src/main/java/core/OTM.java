@@ -3,6 +3,7 @@ package core;
 import dispatch.Dispatcher;
 import dispatch.EventStopSimulation;
 import error.OTMException;
+import events.AbstractScenarioEvent;
 import jaxb.OutputRequests;
 import output.*;
 import cmd.RunParameters;
@@ -21,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Public API. The methods in the API are of three types. Basic scenario loading and running
@@ -161,6 +164,11 @@ public class OTM {
         float now = dispatcher.current_time;
         dispatcher.set_stop_time(now+duration);
         dispatcher.register_event(new EventStopSimulation(scenario,dispatcher,now+duration));
+
+        // register scenario events
+        scenario.events.values().stream()
+                .filter(e->e.timestamp>=now && e.timestamp<now+duration)
+                .forEach(e->dispatcher.register_event(e));
 
         // process all events
         dispatcher.dispatch_events_to_stop();

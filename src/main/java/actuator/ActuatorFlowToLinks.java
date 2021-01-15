@@ -107,7 +107,7 @@ public class ActuatorFlowToLinks extends AbstractActuator {
     }
 
     @Override
-    public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException {
+    public void process_command(InterfaceCommand command, float timestamp) throws OTMException {
 
         if(command==null)
             return;
@@ -140,4 +140,10 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         }
         return sumbetac;
     }
+
+    @Override
+    protected InterfaceCommand command_off() {
+        return null;
+    }
+
 }

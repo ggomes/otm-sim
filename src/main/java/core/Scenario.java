@@ -6,7 +6,7 @@ import commodity.Path;
 import commodity.Subnetwork;
 import dispatch.EventInitializeController;
 import cmd.RunParameters;
-import events.AbstractEvent;
+import events.AbstractScenarioEvent;
 import output.animation.AnimationInfo;
 import traveltime.LinkTravelTimeManager;
 import control.AbstractController;
@@ -42,7 +42,7 @@ public class Scenario {
     public Map<Long, AbstractActuator> actuators = new HashMap<>();
     public Map<Long, AbstractSensor> sensors = new HashMap<>();
     public Map<Long, Set<DemandInfo>> demands = new HashMap<>(); // link id -> DemandInfo
-    public Map<Long, AbstractEvent> events = new HashMap<>(); // event id -> AbstractEvent
+    public Map<Long, AbstractScenarioEvent> events = new HashMap<>(); // event id -> AbstractEvent
 
     // travel time computation
     public LinkTravelTimeManager path_tt_manager;
@@ -68,6 +68,8 @@ public class Scenario {
             controllers.values().stream().forEach(x -> x.validate_pre_init(errorLog));
         if( actuators!=null )
             actuators.values().stream().forEach(x -> x.validate_pre_init(errorLog));
+        if(events!=null)
+            events.values().stream().forEach(x->x.validate_pre_init(errorLog));
 
         // check if there are CFL violations, and if so report the max step time
         if(errorLog.haserror()){
@@ -135,6 +137,9 @@ public class Scenario {
             dispatcher.register_event(new EventInitializeController(dispatcher, start_time, x));
         }
 
+        for(AbstractScenarioEvent event: events.values())
+            event.initialize(this);
+
         if(path_tt_manager!=null)
             path_tt_manager.initialize(dispatcher);
 
@@ -162,6 +167,9 @@ public class Scenario {
             subnetworks.values().forEach(x -> x.validate_post_init(errorLog));
         if( sensors!=null )
             sensors.values().stream().forEach(x -> x.validate_post_init(errorLog));
+
+        if(events!=null)
+            events.values().stream().forEach(x->x.validate_post_init(errorLog));
 
         // check if there are CFL violations, and if so report the max step time
         if(errorLog.haserror()){

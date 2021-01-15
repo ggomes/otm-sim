@@ -24,7 +24,7 @@ public class ActuatorLaneGroupSpeedLimit extends AbstractActuatorLaneGroup {
     }
 
     @Override
-    public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException {
+    public void process_command(InterfaceCommand command, float timestamp) throws OTMException {
         if(command==null)
             return;
         if(!(command instanceof CommandNumber))
@@ -33,5 +33,11 @@ public class ActuatorLaneGroupSpeedLimit extends AbstractActuatorLaneGroup {
         for(AbstractLaneGroup lg : lanegroups)
             lg.set_actuator_speed_mps(value);
     }
+
+    @Override
+    protected InterfaceCommand command_off() {
+        return new CommandNumber(Float.POSITIVE_INFINITY);
+    }
+
 
 }

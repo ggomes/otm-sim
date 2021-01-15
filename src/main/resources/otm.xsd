@@ -811,7 +811,7 @@
 			<xs:attribute name="type" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="lanegroups|controllers|links"/>
+						<xs:pattern value="lanegroups|actuators|links"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>

@@ -472,8 +472,8 @@ public class ScenarioFactory {
         }
     }
 
-    private static Map<Long, AbstractEvent> create_events_from_jaxb(Scenario scenario, jaxb.Events jaxb_events) throws OTMException {
-        HashMap<Long, AbstractEvent> events = new HashMap<>();
+    private static Map<Long, AbstractScenarioEvent> create_events_from_jaxb(Scenario scenario, jaxb.Events jaxb_events) throws OTMException {
+        HashMap<Long, AbstractScenarioEvent> events = new HashMap<>();
         if(jaxb_events==null)
             return events;
         for(jaxb.Event jaxb_event : jaxb_events.getEvent())
@@ -481,15 +481,15 @@ public class ScenarioFactory {
         return events;
     }
 
-    private static AbstractEvent create_event_from_jaxb(Scenario scenario, jaxb.Event jaxb_event) throws OTMException {
-        AbstractEvent event;
-        AbstractEvent.EventType type = AbstractEvent.EventType.valueOf(jaxb_event.getType());
+    private static AbstractScenarioEvent create_event_from_jaxb(Scenario scenario, jaxb.Event jaxb_event) throws OTMException {
+        AbstractScenarioEvent event;
+        AbstractScenarioEvent.EventType type = AbstractScenarioEvent.EventType.valueOf(jaxb_event.getType());
         switch(type){
             case linktgl:
                 event = new EventLinksToggle(scenario,jaxb_event);
                 break;
-            case cntrltgl:
-                event = new EventControllerToggle(scenario,jaxb_event);
+            case acttgl:
+                event = new EventActuatorToggle(scenario,jaxb_event);
                 break;
             case lgfd:
                 event = new EventLanegroupFD(scenario,jaxb_event);

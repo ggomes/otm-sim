@@ -23,9 +23,9 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
     // InterfaceLaneGroup
     ////////////////////////////////////////
 
-
     @Override
     public void set_road_params(Roadparam r) {
+        super.set_road_params(r);
         this.max_vehicles =  r.getJamDensity() * (length/1000.0) * num_lanes;
     }
 

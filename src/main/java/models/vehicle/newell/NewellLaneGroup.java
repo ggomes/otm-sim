@@ -83,6 +83,12 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     }
 
     @Override
+    public void set_to_nominal_capacity() {
+        dc = nom_dc;
+    }
+
+
+    @Override
     public void set_actuator_speed_mps(double speed_mps) {
         dv = Math.min( nom_dv, speed_mps * ((ModelNewell)link.get_model()).dt );
         dw = dc / (jam_vehpermeter - dc/dv); // [m]

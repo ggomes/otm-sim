@@ -28,13 +28,15 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     public abstract Type getType();
     public Float dt;            // dt<=0 means event based (vehicle model) or dt=sim dt (fluid model)
     public boolean initialized;
+    private boolean ison;
 
     public AbstractController myController;
     public InterfaceTarget target;
     public Set<Long> commids; // not always used
 
-    abstract public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException;
+    abstract public void process_command(InterfaceCommand command, float timestamp) throws OTMException;
     abstract protected ScenarioElementType get_target_class();
+    abstract protected InterfaceCommand command_off();
 
     ///////////////////////////////////////////
     // construction
@@ -44,6 +46,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         this.id = jaxb_actuator.getId();
         this.dt = jaxb_actuator.getDt();
         this.initialized = false;
+        this.ison = false;
         if(jaxb_actuator.getActuatorTarget()!=null){
             jaxb.ActuatorTarget e = jaxb_actuator.getActuatorTarget();
             Long id = e.getId()==null ? null : Long.parseLong(e.getId());
@@ -101,6 +104,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
             scenario.dispatcher.register_event(new EventPoke(scenario.dispatcher,3,timestamp,this));
 
         initialized=true;
+        ison = true;
     }
 
     protected void set_dt_for_target(){
@@ -134,13 +138,46 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     @Override
     public void poke(Dispatcher dispatcher, float timestamp) throws OTMException {
 
+        if(!ison)
+            return;
+
         // process the command
         if(myController!=null)
-            process_controller_command(myController.get_command_for_actuator_id(id),timestamp);
+            process_command(myController.get_command_for_actuator_id(id),timestamp);
 
         // wake up in dt, if dt is defined
         if(dt!=null)
             dispatcher.register_event(new EventPoke(dispatcher,3,timestamp+dt,this));
+    }
+
+
+    public final void turn_on() throws OTMException {
+        if(!initialized || ison || myController==null)
+            return;
+
+        Dispatcher dispatcher = myController.scenario.dispatcher;
+        float now = dispatcher.current_time;
+
+        ison=true;
+        process_command(myController.get_command_for_actuator_id(id),now);
+
+        if(dt!=null)
+            dispatcher.register_event(new EventPoke(dispatcher,3,now+dt,this));
+    }
+
+    public final void turn_off() throws OTMException {
+        if(!initialized || !ison || myController==null)
+            return;
+
+        Dispatcher dispatcher = myController.scenario.dispatcher;
+        float now = dispatcher.current_time;
+
+        ison=false;
+        process_command(command_off(),now);
+
+        // remove future events from dispatcher
+        dispatcher.events.removeIf(e->e.timestamp>=now && e.recipient==this);
+
     }
 
 }

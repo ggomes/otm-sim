@@ -53,9 +53,9 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     public Map<Long, InterfaceCommand> command;    // actuator id -> command
 
-    abstract public void update_command(Dispatcher dispatcher) throws OTMException;
-    abstract public Class get_actuator_class();
-    abstract protected void configure() throws OTMException;
+    public abstract void update_command(Dispatcher dispatcher) throws OTMException;
+    public abstract Class get_actuator_class();
+    protected abstract void configure() throws OTMException;
 
     ///////////////////////////////////////////
     // construction and initialization
@@ -180,8 +180,6 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     public void validate_pre_init(OTMErrorLog errorLog) {
         if(type==null)
             errorLog.addError("myType==null");
-        if(actuators.isEmpty())
-            errorLog.addError("actuators.isEmpty()");
         if(actuators.values().contains(null))
             errorLog.addError("Controller has a null actuator");
         if(sensors.contains(null))
@@ -215,7 +213,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         // send immediately to actuators that lack a dt
         for(AbstractActuator act : actuators.values())
             if(act.dt==null && act.myController==this)
-                act.process_controller_command(command.get(act.id),timestamp);
+                act.process_command(command.get(act.id),timestamp);
 
         // write to output
         if(event_output!=null)

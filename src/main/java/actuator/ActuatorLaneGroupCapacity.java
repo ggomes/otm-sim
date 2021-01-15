@@ -60,7 +60,7 @@ public class ActuatorLaneGroupCapacity extends AbstractActuatorLaneGroup  {
     }
 
     @Override
-    public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException {
+    public void process_command(InterfaceCommand command, float timestamp) throws OTMException {
         if(command==null)
             return;
         if(!(command instanceof CommandNumber))
@@ -72,5 +72,9 @@ public class ActuatorLaneGroupCapacity extends AbstractActuatorLaneGroup  {
             lg.set_actuator_capacity_vps(rate_vps * lg.get_num_lanes() / total_lanes);
     }
 
+    @Override
+    protected InterfaceCommand command_off() {
+        return new CommandNumber(Float.POSITIVE_INFINITY);
+    }
 
 }

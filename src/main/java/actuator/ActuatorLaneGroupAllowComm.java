@@ -23,7 +23,7 @@ public class ActuatorLaneGroupAllowComm extends AbstractActuatorLaneGroup {
     }
 
     @Override
-    public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException {
+    public void process_command(InterfaceCommand command, float timestamp) throws OTMException {
 
         if(command==null)
             return;
@@ -36,6 +36,11 @@ public class ActuatorLaneGroupAllowComm extends AbstractActuatorLaneGroup {
             for (AbstractLaneGroup lg : lanegroups)
                 lg.set_actuator_allow_comm(allow, commid);
         }
+    }
+
+    @Override
+    protected InterfaceCommand command_off() {
+        return null;
     }
 
 }

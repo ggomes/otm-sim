@@ -43,7 +43,7 @@ public abstract class AbstractEvent implements InterfaceEvent, Comparable<Abstra
 
     @Override
     public String toString() {
-        return timestamp + " , " + dispatch_order + " , "+ this.getClass().getName() + " , " + this.recipient.getClass().getName();
+        return timestamp + " , " + dispatch_order + " , "+ this.getClass().getName() + " , " + recipient==null?"null":this.recipient.getClass().getName();
     }
 
     @Override

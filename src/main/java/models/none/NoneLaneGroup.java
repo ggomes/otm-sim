@@ -23,6 +23,11 @@ public class NoneLaneGroup extends AbstractLaneGroup {
     }
 
     @Override
+    public void set_to_nominal_capacity() {
+
+    }
+
+    @Override
     public void set_actuator_allow_comm(boolean allow, Long commid) {
         System.out.println("NOT IMPLEMENTED!!");
     }
@@ -61,11 +66,6 @@ public class NoneLaneGroup extends AbstractLaneGroup {
 
     @Override
     public void set_actuator_speed_mps(double speed_mps) {
-    }
-
-    @Override
-    public void set_road_params(Roadparam r) {
-
     }
 
     @Override

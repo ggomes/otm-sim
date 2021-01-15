@@ -74,7 +74,7 @@ public class ActuatorSignal extends AbstractActuator {
     }
 
     @Override
-    public void process_controller_command(InterfaceCommand command, float timestamp) throws OTMException {
+    public void process_command(InterfaceCommand command, float timestamp) throws OTMException {
         if(command==null)
             return;
         if(!(command instanceof CommandSignal))
@@ -94,5 +94,11 @@ public class ActuatorSignal extends AbstractActuator {
     public SignalPhase get_phase(long phase_id){
         return signal_phases.get(phase_id);
     }
+
+    @Override
+    protected InterfaceCommand command_off() {
+        return null;
+    }
+
 
 }

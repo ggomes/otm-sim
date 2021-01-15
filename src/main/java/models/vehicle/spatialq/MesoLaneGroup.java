@@ -88,6 +88,12 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     }
 
     @Override
+    public void set_to_nominal_capacity() {
+        this.saturation_flow_rate_vps = nom_saturation_flow_rate_vps;
+    }
+
+
+    @Override
     public void set_actuator_speed_mps(double speed_mps) {
         if(speed_mps<OTMUtils.epsilon)
             return;
