@@ -27,6 +27,7 @@ public abstract class AbstractOutput implements InterfaceOutput {
         lanegroup_flw,
         lanegroup_veh,
         lanegroup_sumveh,
+        lanegroup_sumvehdwn,
         cell_flw,
         cell_veh,
         cell_sumveh,

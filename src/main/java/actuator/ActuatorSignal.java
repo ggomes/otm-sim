@@ -67,7 +67,7 @@ public class ActuatorSignal extends AbstractActuator {
 
         // set all bulb colors to dark
         for(SignalPhase p : signal_phases.values() )
-            p.initialize(override_targets);
+            p.initialize(scenario, override_targets);
 
         // register the actuator
         target.register_actuator(commids,this,override_targets);

@@ -19,7 +19,8 @@ public class SignalPhase {
 
     public final long id;
     public ActuatorSignal my_signal;
-//    public CircularList<PhaseTransition> transitions;
+
+    //    public CircularList<PhaseTransition> transitions;
 //    public float yellow_time;
 //    public float red_clear_time;
 //    public float min_green_time;
@@ -66,7 +67,16 @@ public class SignalPhase {
     // InterfaceScenarioElement-like
     ///////////////////////////////////////////////////
 
-    public void initialize(boolean override_targets) throws OTMException {
+    public void initialize(Scenario scenario, boolean override_targets) throws OTMException {
+
+        lanegroups = new HashSet<>();
+        for(Long rcid : rc_ids) {
+            RoadConnection rc = scenario.network.road_connections.get(rcid);
+            if(rc==null)
+                throw new OTMException("bad road connection id in actuator id=" + this.id);
+            lanegroups.addAll(rc.get_in_lanegroups());
+        }
+
         for(AbstractLaneGroup lg : lanegroups)
             lg.register_actuator(null,my_signal,override_targets);
         set_bulb_color(BulbColor.DARK);

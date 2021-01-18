@@ -44,8 +44,8 @@ public class LinkLogitLaneSelector extends AbstractLaneSelector {
                             alpha = Math.max(0d, alpha);
                             break;
                         case "gamma":
-                            alpha = Math.abs(Double.parseDouble(p.getValue()));
-                            alpha = Math.max(0d, alpha);
+                            gamma = Math.abs(Double.parseDouble(p.getValue()));
+                            gamma = Math.max(0d, gamma);
                             break;
                         default:
                             throw new OTMException("Unknown parameter name in LinkLogitLaneSelector");

@@ -78,14 +78,6 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
     //////////////////////////////////////////////////////
 
     @Override
-    public void validate_post_init(OTMErrorLog errorLog) {
-        super.validate_post_init(errorLog);
-
-        if(lgprofiles.isEmpty())
-            errorLog.addError("no lanegroups in output request");
-    }
-
-    @Override
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
 
@@ -121,6 +113,15 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
                 lgProfile.initialize(outDt);
         }
 
+    }
+
+
+    @Override
+    public void validate_post_init(OTMErrorLog errorLog) {
+        super.validate_post_init(errorLog);
+
+        if(lgprofiles.isEmpty())
+            errorLog.addError("no lanegroups in output request");
     }
 
     //////////////////////////////////////////////////////

@@ -39,7 +39,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         super(link, side,length, num_lanes, start_lane, out_rcs,rp);
 
         nom_capacity_veh_per_dt = capacity_veh_per_dt;
-        nom_capacity_veh_per_dt = ffspeed_cell_per_dt;
+        nom_ffspeed_cell_per_dt = ffspeed_cell_per_dt;
 
         if(link.is_source())
             this.source_flow = new HashMap<>();
@@ -102,14 +102,14 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         if(Float.isNaN(dt_sec))
             return;
 
-        if (link.is_source()) {
-            ffspeed_cell_per_dt = Double.NaN;
-            jam_density_veh_per_cell = Double.NaN;
-            critical_density_veh = Double.NaN;
-            wspeed_cell_per_dt = Double.NaN;
-            lc_w = Double.NaN;
-            capacity_veh_per_dt = Double.NaN;
-        } else {
+//        if (link.is_source()) {
+//            ffspeed_cell_per_dt = Double.NaN;
+//            jam_density_veh_per_cell = Double.NaN;
+//            critical_density_veh = Double.NaN;
+//            wspeed_cell_per_dt = Double.NaN;
+//            lc_w = Double.NaN;
+//            capacity_veh_per_dt = Double.NaN;
+//        } else {
 
             // normalize
             float dt_hr = dt_sec /3600f;
@@ -124,7 +124,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
             wspeed_cell_per_dt = capacity_vehperlane / (jam_density_vehperkmperlane - critical_vehperlane);// /cell_length in build
             compute_lcw();
             capacity_veh_per_dt = capacity_vehperlane * num_lanes;
-        }
+//        }
     }
 
     @Override

@@ -51,16 +51,6 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         this.linkMLup = temp_linkMLup;
         this.comm = temp_comm;
         this.outlink_ids = temp_outlinkids;
-
-        Optional<RoadConnection> orc = linkMLup.get_start_node().get_in_links().stream()
-                .filter(inlink->inlink.get_road_type()==Link.RoadType.freeway)
-                .flatMap(inlink->inlink.get_lgs().stream())
-                .map(lg->lg.get_rc_for_outlink(linkMLup.getId()))
-                .filter(rc->rc!=null)
-                .findFirst();
-
-        this.rc = orc.isPresent() ? orc.get() : null;
-
     }
 
     @Override
@@ -84,8 +74,6 @@ public class ActuatorFlowToLinks extends AbstractActuator {
             errorLog.addError("ActuatorFlowToLinks: linkFRs.contains(null)");
         if (comm == null)
             errorLog.addError("ActuatorFlowToLinks: comm==null");
-        if (rc == null)
-            errorLog.addError("ActuatorFlowToLinks: rc==null");
     }
 
     @Override
@@ -96,6 +84,15 @@ public class ActuatorFlowToLinks extends AbstractActuator {
 
         super.initialize(scenario, timestamp,override_targets);
 
+        Optional<RoadConnection> orc = linkMLup.get_start_node().get_in_links().stream()
+                .filter(inlink->inlink.get_road_type()==Link.RoadType.freeway)
+                .flatMap(inlink->inlink.get_lgs().stream())
+                .map(lg->lg.get_rc_for_outlink(linkMLup.getId()))
+                .filter(rc->rc!=null)
+                .findFirst();
+
+        this.rc = orc.isPresent() ? orc.get() : null;
+
         outlink2flows = new double[outlink_ids.size()];
         outlink2portion= new HashMap<>();
         for(Long linkid : outlink_ids)
@@ -104,6 +101,13 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         // register the actuator
         target = linkMLup;
         target.register_actuator(commids,this,override_targets);
+    }
+
+    @Override
+    public void validate_post_init(OTMErrorLog errorLog) {
+        super.validate_post_init(errorLog);
+        if (rc == null)
+            errorLog.addError("ActuatorFlowToLinks: rc==null");
     }
 
     @Override

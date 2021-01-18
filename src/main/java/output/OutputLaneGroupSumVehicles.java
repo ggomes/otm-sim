@@ -37,7 +37,6 @@ public class OutputLaneGroupSumVehicles extends AbstractOutputTimedLanegroup {
     public void initialize(Scenario scenario) throws OTMException {
         super.initialize(scenario);
 
-
         lg2total = new HashMap<>();
         for(Long lgid : lgprofiles.keySet())
             lg2total.put(lgid,0f);

@@ -1,14 +1,14 @@
 package output;
 
+import cmd.RunParameters;
+import core.AbstractFluidModel;
+import core.AbstractLaneGroup;
 import core.Link;
 import core.Scenario;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import core.AbstractFluidModel;
-import models.fluid.EventUpdateTotalCellVehiclesDwn;
-import models.fluid.FluidLaneGroup;
-import cmd.RunParameters;
+import models.fluid.EventUpdateTotalLanegroupVehicles;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,19 +17,35 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public class OutputCellSumVehiclesDwn extends AbstractOutputTimedCell {
+public class OutputLaneGroupSumVehiclesDwn  extends AbstractOutputTimedLanegroup  {
 
     public Float simDt;
-    public Map<Long, double[] > lg2totals;  // lgid -> cell array of totals
+    public Map<Long,Float> lg2total;
 
     //////////////////////////////////////////////////////
     // construction
     //////////////////////////////////////////////////////
 
+    public OutputLaneGroupSumVehiclesDwn(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> inlink_ids, Float outDt) throws OTMException {
+        super(scenario, prefix, output_folder, commodity_id, inlink_ids, outDt);
+        this.type = Type.lanegroup_sumvehdwn;
+    }
 
-    public OutputCellSumVehiclesDwn(Scenario scenario, String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt) throws OTMException {
-        super(scenario, prefix, output_folder, commodity_id, link_ids, outDt);
-        this.type = Type.cell_sumvehdwn;
+    @Override
+    public void initialize(Scenario scenario) throws OTMException {
+        super.initialize(scenario);
+
+        lg2total = new HashMap<>();
+        for(Long lgid : lgprofiles.keySet())
+            lg2total.put(lgid,0f);
+
+        // get the dt
+        Set<Link> links = lgprofiles.values().stream().map(lgp->lgp.lg.get_link()).collect(toSet());
+        Set<Float> dts = links.stream().map(link->((AbstractFluidModel)link.get_model()).dt_sec).collect(toSet());
+        simDt = null;
+        if(dts.size()==1)
+            this.simDt = dts.iterator().next();
+
     }
 
     @Override
@@ -37,31 +53,14 @@ public class OutputCellSumVehiclesDwn extends AbstractOutputTimedCell {
         super.register(props, dispatcher); // registers write to files
 
         // regsister read vehicles event
-        dispatcher.register_event(new EventUpdateTotalCellVehiclesDwn(dispatcher,props.start_time,this));
-    }
-
-    @Override
-    public void initialize(Scenario scenario) throws OTMException {
-        super.initialize(scenario);
-
-
-        // get the dt
-        Set<Link> links = ordered_lgs.stream().map(lg->lg.get_link()).collect(toSet());
-        Set<Float> dts = links.stream().map(link->((AbstractFluidModel)link.get_model()).dt_sec).collect(toSet());
-        simDt = null;
-        if(dts.size()==1)
-            this.simDt = dts.iterator().next();
-
-        lg2totals = new HashMap<>();
-        for(FluidLaneGroup lg : ordered_lgs)
-            lg2totals.put(lg.getId(),new double[lg.get_num_cells()]);
+        dispatcher.register_event(new EventUpdateTotalLanegroupVehicles(dispatcher,props.start_time,this));
     }
 
     @Override
     public void validate_post_init(OTMErrorLog errorLog) {
         super.validate_post_init(errorLog);
 
-        Set<Link> links = ordered_lgs.stream().map(lg->lg.get_link()).collect(toSet());
+        Set<Link> links = lgprofiles.values().stream().map(lgp->lgp.lg.get_link()).collect(toSet());
 
         // all links must have fluid models
         if(!links.stream().allMatch(link->link.get_model() instanceof AbstractFluidModel)) {
@@ -70,15 +69,14 @@ public class OutputCellSumVehiclesDwn extends AbstractOutputTimedCell {
         }
 
         if(simDt==null)
-            errorLog.addError("All links in a OutputCellSumVehiclesDwn must have the same simulation dt.");
+            errorLog.addError("All links  in a OutputLaneGroupAvgVehicles must have the same simulation dt.");
     }
 
     public void update_total_vehicles(float timestamp){
         Long commid = commodity==null ? null : commodity.getId();
-        for(FluidLaneGroup lg : ordered_lgs){
-            double[] current_values = lg2totals.get(lg.getId());
-            for(int i=0;i<lg.cells.size();i++)
-                current_values[i] += lg.cells.get(i).get_veh_dwn_for_commodity(commid);
+        for(AbstractLaneGroup lg : ordered_lgs){
+            float current_value = lg2total.get(lg.getId());
+            lg2total.put(lg.getId(),current_value + lg.vehs_dwn_for_comm(commid));
         }
     }
 
@@ -110,11 +108,10 @@ public class OutputCellSumVehiclesDwn extends AbstractOutputTimedCell {
     //////////////////////////////////////////////////////
 
     @Override
-    protected double[] get_value_for_lanegroup(FluidLaneGroup lg) {
-        double [] values = lg2totals.get(lg.getId());
-        lg2totals.put(lg.getId(),new double[lg.get_num_cells()]);
-        return values;
+    protected double get_value_for_lanegroup(AbstractLaneGroup lg) {
+        double value = lg2total.get(lg.getId());
+        lg2total.put(lg.getId(),0f);
+        return value;
     }
-
 
 }
