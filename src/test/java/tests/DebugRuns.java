@@ -43,7 +43,7 @@ public class DebugRuns extends AbstractTest {
             String prefix = makeplots?null:"x";
             String outfolder = makeplots?null:"/home/gomes/Desktop/x/output";
             String png_folder = "/home/gomes/Desktop/x/output";
-            Set<Long> link_ids = Set.of(2l,3l,4l);
+            Set<Long> link_ids = Set.of(2l);
 
             Long subnetid = null;
             Long cntrl_id = null;

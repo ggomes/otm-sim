@@ -8,6 +8,7 @@ import utils.OTMUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class CTMCell extends AbstractCell {
 
@@ -38,10 +39,12 @@ public class CTMCell extends AbstractCell {
     @Override
     public void allocate_state() {
 
+        Set<State> states = laneGroup.get_link().states;
+
         // downstream flow
         veh_dwn = new HashMap<>();
         demand_dwn = new HashMap<>();
-        for (State k : laneGroup.get_states()) {
+        for (State k : states) {
             veh_dwn.put(k, 0d);
             demand_dwn.put(k, 0d);
         }
@@ -51,7 +54,7 @@ public class CTMCell extends AbstractCell {
         if (laneGroup.get_neighbor_out() != null) {
             veh_out = new HashMap<>();
             demand_out = new HashMap<>();
-            for (State k : laneGroup.get_neighbor_out().get_states()) {
+            for (State k : states) {
                 veh_out.put(k, 0d);
                 demand_out.put(k, 0d);
             }
@@ -62,7 +65,7 @@ public class CTMCell extends AbstractCell {
         if (laneGroup.get_neighbor_in() != null) {
             veh_in = new HashMap<>();
             demand_in = new HashMap<>();
-            for (State k : laneGroup.get_neighbor_in().get_states()) {
+            for (State k : states) {
                 veh_in.put(k, 0d);
                 demand_in.put(k, 0d);
             }
@@ -109,10 +112,6 @@ public class CTMCell extends AbstractCell {
 
         double total_vehicles = total_vehs_dwn + total_vehs_out + total_vehs_in;
 
-        double total_demand;
-
-        // update demand ...................................................
-
         // case empty link
         if (total_vehicles < OTMUtils.epsilon) {
             demand_dwn.keySet().stream().forEach(k -> demand_dwn.put(k, 0d));
@@ -120,43 +119,62 @@ public class CTMCell extends AbstractCell {
                 demand_out.keySet().stream().forEach(k -> demand_out.put(k, 0d));
             if(demand_in!=null)
                 demand_in.keySet().stream().forEach(k -> demand_in.put(k, 0d));
+            return;
+        }
+
+        // compute total demand
+        double total_demand;
+        if (laneGroup.get_link().is_source())
+            // sources discharge at capacity
+            total_demand = Math.min(total_vehicles, laneGroup.capacity_veh_per_dt);
+        else {
+            if(am_dnstrm)
+                total_demand = Math.min(laneGroup.ffspeed_cell_per_dt * total_vehicles, laneGroup.capacity_veh_per_dt);
+            else
+                total_demand = laneGroup.ffspeed_cell_per_dt * total_vehicles;
+        }
+
+        // downstream cell: lane change blocking
+        if (am_dnstrm) {
+
+            // Use this if desired behavior is for lane changing vehicles to block the lane
+            if( ((ModelCTM)laneGroup.get_link().get_model()).block ){
+                if(total_vehs_out+total_vehs_in>OTMUtils.epsilon)
+                    total_demand = 0d;
+            }
+
+            else{
+
+                // Use this if the desired behavior is for lane changing vehicles to give up
+                // lane changing and proceed to the next link
+                double alpha = total_demand / total_vehicles;
+                double val;
+                for (State state : laneGroup.get_link().states) {
+                    val = veh_dwn.get(state);
+                    if(veh_out!=null)
+                        val += veh_out.get(state);
+                    if(veh_in !=null)
+                        val += veh_in.get(state);
+                    demand_dwn.put(state, val * alpha);
+                }
+            }
+
         }
 
         else {
 
-            // compute total flow leaving the cell in the absence of flow control
-            if (laneGroup.get_link().is_source())
-                // sources discharge at capacity
-                total_demand = Math.min(total_vehicles, laneGroup.capacity_veh_per_dt);
-            else {
-                if(am_dnstrm)
-                    total_demand = Math.min(laneGroup.ffspeed_cell_per_dt * total_vehicles, laneGroup.capacity_veh_per_dt);
-                else
-                    total_demand = laneGroup.ffspeed_cell_per_dt * total_vehicles;
-            }
-
-            // downstream cell: lane change blocking
-            if (am_dnstrm) {
-
-//                if(total_vehs_out+total_vehs_in>OTMUtils.epsilon) {
-//                    total_demand = 0d;
-//                }
-
-            }
-
             // split among states
             double alpha = total_demand / total_vehicles;
-            for (State state : demand_dwn.keySet())
+            for (State state : laneGroup.get_link().states) {
                 demand_dwn.put(state, veh_dwn.get(state) * alpha);
+                if(veh_out !=null)
+                    demand_out.put(state, veh_out.get(state) * alpha);
+                if(veh_in !=null)
+                    demand_in.put(state, veh_in.get(state) * alpha);
+            }
 
-            if(demand_out !=null)
-                for (State key : demand_out.keySet())
-                    demand_out.put(key, veh_out.get(key) * alpha);
-
-            if(demand_in !=null)
-                for (State key : demand_in.keySet())
-                    demand_in.put(key, veh_in.get(key) * alpha);
         }
+
     }
 
     @Override

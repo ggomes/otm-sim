@@ -284,7 +284,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         for(AbstractCell cell : cells){
             if(cell.flw_acc==null)
                 cell.flw_acc = new FlowAccumulatorState();
-            for(State state : states)
+            for(State state : link.states)
                 if(comm_id==null || state.commodity_id==comm_id)
                     cell.flw_acc.add_state(state);
             X.add(cell.flw_acc);
@@ -296,7 +296,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         AbstractCell cell = cells.get(cell_index);
         if(cell.flw_acc==null)
             cell.flw_acc = new FlowAccumulatorState();
-        for(State state : states)
+        for(State state : link.states)
             if(comm_ids==null || comm_ids.contains(state.commodity_id))
                 cell.flw_acc.add_state(state);
         return cell.flw_acc;
@@ -307,7 +307,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         for(AbstractCell cell : cells) {
             if (cell.flw_lcout_acc == null)
                 cell.flw_lcout_acc = new FlowAccumulatorState();
-            for (State state : states)
+            for (State state : link.states)
                 if(comm_id==null || state.commodity_id==comm_id)
                     cell.flw_lcout_acc.add_state(state);
             X.add(cell.flw_lcout_acc);
@@ -320,7 +320,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         for(AbstractCell cell : cells){
             if(cell.flw_lcin_acc==null)
                 cell.flw_lcin_acc = new FlowAccumulatorState();
-            for(State state : states)
+            for(State state : link.states)
                 if(comm_id==null || state.commodity_id==comm_id)
                     cell.flw_lcin_acc.add_state(state);
             X.add(cell.flw_lcin_acc);
@@ -353,10 +353,6 @@ public class FluidLaneGroup extends AbstractLaneGroup {
         this.cells.get(0).am_upstrm = true;
         this.cells.get(num_cells-1).am_dnstrm = true;
     }
-
-    //////////////////////////////////////////
-    // SHOULD THESE BE MOVED TO CTM?
-    ///////////////////////////////////////////
 
     public void release_vehicles(Map<State,Double> X){
         cells.get(cells.size()-1).subtract_vehicles(X,null,null);

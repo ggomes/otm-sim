@@ -43,6 +43,9 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
     protected AbstractModel model;
     protected boolean is_model_source_link;
 
+    // set of keys for states in this link
+    public Set<State> states;
+
     // lane selection model
     protected AbstractLaneSelector lane_selector;
 
@@ -103,6 +106,7 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
         this.road_geom = rg;
         this.is_source = true;
         this.is_sink = true;
+        this.states = new HashSet<>();
 
         lgs = new ArrayList<>();
         dnlane2lanegroup = new HashMap<>();
@@ -130,6 +134,18 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
         for(Long c : pathless_comms) {
             split_profile.put(c, new SplitMatrixProfile(c,this));
         }
+    }
+
+    public void add_state(long comm_id, Long path_id,Long next_link_id, boolean ispathfull){
+
+        State state = ispathfull ?
+            new State(comm_id, path_id, true) :
+            new State(comm_id, next_link_id, false);
+
+        states.add(state);
+
+        for (AbstractLaneGroup lg : lgs)
+            lg.add_stateXX(state,next_link_id);
     }
 
     ///////////////////////////////////////////

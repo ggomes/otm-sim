@@ -137,7 +137,7 @@ public class NodeModel {
 
     public void initialize(Scenario scenario) {
         // allocate states in ulgs
-        ulgs.values().forEach( ulg -> ulg.lg.get_states().forEach( state -> ulg.add_state(state)));
+        ulgs.values().forEach( ulg -> ulg.lg.get_link().states.forEach( state -> ulg.add_state(state)));
     }
 
     public Set<State> get_states_for_road_connection(long rc_id){
@@ -287,7 +287,7 @@ public class NodeModel {
                     ulg.f_gs.put(state,ulg.f_gs.get(state)+stateInfo.delta_gs);
 
                     // reduce d_gr
-                    if(ulg.lg.has_state(state) ){
+                    if(ulg.lg.get_link().states.contains(state) ){
                         Long rc_id = ulg.lg.get_rc_for_state(state);
                         if(ulg.rc_infos.containsKey(rc_id))
                             ulg.rc_infos.get(rc_id).d_gr -= stateInfo.delta_gs;

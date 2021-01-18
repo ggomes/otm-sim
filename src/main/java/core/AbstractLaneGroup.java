@@ -38,9 +38,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     protected AbstractLaneGroup neighbor_in;       // lanegroup down and in
     protected AbstractLaneGroup neighbor_out;      // lanegroup down and out
 
-    // set of keys for states in this lanegroup
-    protected Set<State> states;
-
     public StateContainer buffer;
 
     protected double long_supply;       // [veh]
@@ -78,7 +75,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         this.length = length;
         this.num_lanes = num_lanes;
         this.id = OTMUtils.get_lanegroup_id();
-        this.states = new HashSet<>();
         this.start_lane_dn = start_lane;
         this.state2roadconnection = new HashMap<>();
         this.state2lanechangeprob = new HashMap<>();
@@ -134,7 +130,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         length = Float.NaN;
         neighbor_in = null;
         neighbor_out = null;
-        states = null;
         buffer = null;
         long_supply = Double.NaN;
         actuator_capacity = null;
@@ -232,19 +227,13 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     public final FlowAccumulatorState request_flow_accumulator(Set<Long> comm_ids){
         if(flw_acc==null)
             flw_acc = new FlowAccumulatorState();
-        for(State state : states)
+        for(State state : link.states)
             if(comm_ids==null || comm_ids.contains(state.commodity_id))
                 flw_acc.add_state(state);
         return flw_acc;
     }
 
-    public final void add_state(long comm_id, Long path_id,Long next_link_id, boolean ispathfull) {
-
-        State state = ispathfull ?
-                new State(comm_id, path_id, true) :
-                new State(comm_id, next_link_id, false);
-
-        states.add(state);
+    protected final void add_stateXX(State state,Long next_link_id) {
 
         Set<Maneuver> maneuvers;
 
@@ -390,18 +379,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return neighbor_out;
     }
 
-    public final Set<State> get_states(){
-        return states;
-    }
-
-    public boolean has_state(State state){
-        return states.contains(state);
-    }
-
-    public final boolean has_states(){
-        return !states.isEmpty();
-    }
-
     public RoadConnection get_rc_for_outlink(long linkid){
         return outlink2roadconnection.get(linkid);
     }
@@ -425,12 +402,12 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     @Override
     public void set_actuator_allow_comm(boolean allow, Long commid) throws OTMException {
         if(allow)
-            states.stream()
+            link.states.stream()
                     .filter(s->s.commodity_id==commid)
                     .forEach(s->reallow_state(s));
 
         else{
-            for(State s : states)
+            for(State s : link.states)
                 if(s.commodity_id==commid)
                     disallow_state(s);
         }

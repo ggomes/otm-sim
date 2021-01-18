@@ -133,31 +133,28 @@ public abstract class AbstractModel implements InterfaceModel {
 
         // allocate the state
         for(Commodity commodity : scenario.commodities.values()) {
-            if (commodity.pathfull && commpaths.containsKey(commodity.getId())) {
-                for(Path path : commpaths.get(commodity.getId())){
-                    for(Link link : path.ordered_links){
-                        if(links.contains(link)){
-                            Link next_link = path.get_link_following(link);
-                            Long next_link_id = next_link==null ? null : next_link.getId();
-                            for (AbstractLaneGroup lg : link.get_lgs())
-                                lg.add_state(commodity.getId(), path.getId(),next_link_id, true);
+            if (commodity.pathfull) {
+                if(commpaths.containsKey(commodity.getId()))
+                    for(Path path : commpaths.get(commodity.getId())){
+                        for(Link link : path.ordered_links){
+                            if(links.contains(link)){
+                                Link next_link = path.get_link_following(link);
+                                Long next_link_id = next_link==null ? null : next_link.getId();
+                                link.add_state(commodity.getId(), path.getId(),next_link_id, true);
+                            }
                         }
                     }
-                }
             }
 
             else{
                 for(Link link : links){
                     // for pathless/sink, next link id is same as this id
-                    if (link.is_sink()) {
-                        for (AbstractLaneGroup lg : link.get_lgs())
-                            lg.add_state(commodity.getId(), null,link.getId(), false);
-                    } else {
+                    if (link.is_sink())
+                        link.add_state(commodity.getId(), null,link.getId(), false);
+                    else
                         // for pathless non-sink, add a state for each next link
                         for( Long next_link_id : link.get_outlink_ids() )
-                            for (AbstractLaneGroup lg : link.get_lgs())
-                                lg.add_state(commodity.getId(), null,next_link_id, false);
-                    }
+                            link.add_state(commodity.getId(), null,next_link_id, false);
                 }
             }
         }

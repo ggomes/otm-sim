@@ -112,7 +112,7 @@ public class LinkLogitLaneSelector extends AbstractLaneSelector {
 
             AbstractLaneGroup lg = lgs.get(i);
 
-            for(State state : lg.get_states() ){
+            for(State state : lg.get_link().states ){
 
                 Map<Maneuver,Double> lg_mnv2prob = lg.get_maneuvprob_for_state(state);
 

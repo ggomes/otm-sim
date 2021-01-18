@@ -16,6 +16,9 @@ import java.util.*;
 
 public class ModelCTM extends AbstractFluidModel {
 
+    public boolean block = false;   // determines behavior of lane changing vehicles
+                                    // that reach the end of the lanegroup before completing
+                                    // their lane change maneuvers.
     public ModelCTM(String name, Set<Link> links, StochasticProcess process, jaxb.ModelParams param) throws OTMException     {
         super(name,links,param.getSimDt()==null ? -1 : param.getSimDt(),process,param);
     }
@@ -85,7 +88,7 @@ public class ModelCTM extends AbstractFluidModel {
 
             FluidLaneGroup lg = (FluidLaneGroup) alg;
 
-            if(!lg.has_states())
+            if(lg.get_link().states.isEmpty())
                 continue;
 
             double total_travel_time = 0d;
@@ -255,7 +258,7 @@ public class ModelCTM extends AbstractFluidModel {
     private void update_supply_for_all_cells(Link link,float timestamp) {
         for(AbstractLaneGroup lg : link.get_lgs()) {
             FluidLaneGroup ctmlg = (FluidLaneGroup) lg;
-            if(ctmlg.has_states())
+            if(!ctmlg.get_link().states.isEmpty())
                 ctmlg.cells.forEach(cell->cell.update_supply());
         }
     }
@@ -263,7 +266,7 @@ public class ModelCTM extends AbstractFluidModel {
     private void update_demand(Link link,float timestamp) {
         for(AbstractLaneGroup lg : link.get_lgs()) {
             FluidLaneGroup ctmlg = (FluidLaneGroup) lg;
-            if(ctmlg.has_states())
+            if(!ctmlg.get_link().states.isEmpty())
                 ctmlg.cells.forEach(cell -> cell.update_demand());
         }
     }
