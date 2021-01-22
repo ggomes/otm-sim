@@ -124,10 +124,6 @@ public class Profile1D {
     // get
     ////////////////////////////////
 
-    public Float get_dt(){
-        return dt;
-    }
-
     public List<Float> get_times(){
         List<Float> times = new ArrayList<>();
         float currtime = start_time;
@@ -147,12 +143,16 @@ public class Profile1D {
         return values.size();
     }
 
+    public int get_index_for_time(float time){
+        return (int)((time-start_time)/dt);
+    }
+
     public double get_value_for_time(float time){
         if(time<start_time)
             return 0d;
         if(dt==null || dt==0)
             return get_ith_value(0);
-        return get_ith_value((int)((time-start_time)/dt));
+        return get_ith_value(get_index_for_time(time));
     }
 
     // returns values corresponding to the next change after "now"
@@ -175,7 +175,9 @@ public class Profile1D {
     }
 
     public float get_next_update_time(float now){
-        return  start_time + dt + dt*((float)Math.floor((now-start_time)/dt));
+        return  dt==null ?
+                Float.POSITIVE_INFINITY :
+                start_time + dt + dt*((float)Math.floor((now-start_time)/dt)) ;
     }
 
     ///////////////////////////////////////

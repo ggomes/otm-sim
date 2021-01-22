@@ -77,7 +77,7 @@
 			<xs:attribute name="type" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:pattern value="lanegroups|node|commodity|split"/>
+						<xs:pattern value="lanegroups|node|commodity|split|roadconnection|link"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
@@ -540,6 +540,10 @@
 				<xs:element ref="otm:parameters" minOccurs="0" maxOccurs="1" />
 			</xs:all>
 			<xs:attribute name="id" type="xs:long" use="required"/>
+
+			<!-- passive=true means that the actuator is updated whenever the controller is
+			updated, and so dt is ignored -->
+			<xs:attribute name="passive" type="xs:string" default="false"/>
 			<xs:attribute name="type" use="required">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
@@ -547,9 +551,9 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
-			<!-- dt: in seconds.
-			When not specified, the controller will depend on events it creates on its own.
-			When provided, the update method will be automatically called every dt -->
+			<!-- dt: in seconds. update period for the actuator. If not specified (and passive=false)
+			then the dt will be inheritted from the links model, assuming it has a dt. If passive=true
+			then this dt is ignored -->
 			<xs:attribute name="dt" type="xs:float"/>
 
 			<!-- saturation bounds for the actuator. Interpretation is actuator specific -->

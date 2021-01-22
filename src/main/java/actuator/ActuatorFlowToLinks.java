@@ -1,56 +1,47 @@
 package actuator;
 
 import commodity.Commodity;
+import control.command.CommandLongToDouble;
+import control.commodity.ControllerFlowToLinks;
 import core.*;
-import control.command.CommandDoubleArray;
 import control.command.InterfaceCommand;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
-import jaxb.Parameter;
-import core.packet.PacketLink;
-import utils.OTMUtils;
 
 import java.util.*;
 
 public class ActuatorFlowToLinks extends AbstractActuator {
 
-    public final Link linkMLup;
-    public final List<Long> outlink_ids;
-    public final Commodity comm;
-    public RoadConnection rc;
+//    private Link linkMLup;
+//    public List<Long> outlink_ids;
+    public long rcid;
 
-    public double [] outlink2flows;
+    public Map<Long,Double> outlink2flows;
     public double total_outlink2flows;
-    public Map<Long,Double> outlink2portion = null;
-    public double gamma = 1d;
 
     public ActuatorFlowToLinks(Scenario scenario,Actuator jact) throws OTMException {
         super(scenario, jact);
 
-        Link temp_linkMLup = null;
-        Commodity temp_comm = null;
+        Long temp_rcid = null;
         List<Long> temp_outlinkids = null;
-
         if(jact.getParameters()!=null){
-            for(Parameter p : jact.getParameters().getParameter()){
+            for(jaxb.Parameter p : jact.getParameters().getParameter()){
                 switch(p.getName()){
-                    case "linkin":
-                        temp_linkMLup = scenario.network.links.get(Long.parseLong(p.getValue()));
+                    case "rcid":
+                        temp_rcid = Long.parseLong(p.getValue());
                         break;
-                    case "linksout":
-                        temp_outlinkids = OTMUtils.csv2longlist(p.getValue());
-                        break;
-                    case "comm":
-                        temp_comm = scenario.commodities.get(Long.parseLong(p.getValue()));
-                        break;
+//                    case "linksout":
+//                        temp_outlinkids = OTMUtils.csv2longlist(p.getValue());
+//                        break;
                 }
             }
         }
 
-        this.linkMLup = temp_linkMLup;
-        this.comm = temp_comm;
-        this.outlink_ids = temp_outlinkids;
+        rcid = temp_rcid==null ? Long.MIN_VALUE : temp_rcid;
+
+        dt = null;
+
     }
 
     @Override
@@ -66,14 +57,16 @@ public class ActuatorFlowToLinks extends AbstractActuator {
     @Override
     public void validate_pre_init(OTMErrorLog errorLog) {
         super.validate_pre_init(errorLog);
-        if (linkMLup == null)
-            errorLog.addError("ActuatorFlowToLinks: linkin==null");
-        if (outlink_ids.isEmpty())
-            errorLog.addError("ActuatorFlowToLinks: linkFRs.isEmpty()");
-        if (outlink_ids.contains(null))
-            errorLog.addError("ActuatorFlowToLinks: linkFRs.contains(null)");
-        if (comm == null)
-            errorLog.addError("ActuatorFlowToLinks: comm==null");
+        if (target == null)
+            errorLog.addError("ActuatorFlowToLinks: target==null");
+//        if (outlink_ids.isEmpty())
+//            errorLog.addError("ActuatorFlowToLinks: outlink_ids.isEmpty()");
+//        if (outlink_ids.contains(null))
+//            errorLog.addError("ActuatorFlowToLinks: outlink_ids.contains(null)");
+        if (commids.size()!=1)
+            errorLog.addError("ActuatorFlowToLinks: commids.size()!=1");
+        if( !((Link)target).get_roadconnections_entering().stream().anyMatch(x->x.getId()==rcid) )
+            errorLog.addError("Road connection does not enter the target link");
     }
 
     @Override
@@ -84,66 +77,55 @@ public class ActuatorFlowToLinks extends AbstractActuator {
 
         super.initialize(scenario, timestamp,override_targets);
 
-        Optional<RoadConnection> orc = linkMLup.get_start_node().get_in_links().stream()
-                .filter(inlink->inlink.get_road_type()==Link.RoadType.freeway)
-                .flatMap(inlink->inlink.get_lgs().stream())
-                .map(lg->lg.get_rc_for_outlink(linkMLup.getId()))
-                .filter(rc->rc!=null)
-                .findFirst();
+        if(!commids.isEmpty()){
+            long commid = commids.iterator().next();
+            if(!scenario.commodities.containsKey(commid))
+                throw new OTMException("Bad commodity id in ActuatorFlowToLinks");
+            Commodity comm = scenario.commodities.get(commid);
+            if(comm.pathfull)
+                throw new OTMException("Pathfull commodity in ActuatorFlowToLinks.");
+        }
 
-        this.rc = orc.isPresent() ? orc.get() : null;
 
-        outlink2flows = new double[outlink_ids.size()];
-        outlink2portion= new HashMap<>();
-        for(Long linkid : outlink_ids)
-            outlink2portion.put(linkid, Double.NaN);
+        outlink2flows= new HashMap<>();
+        for(Long linkid : ((ControllerFlowToLinks)myController).outlink2profile.keySet())
+            outlink2flows.put(linkid, Double.NaN);
 
         // register the actuator
-        target = linkMLup;
         target.register_actuator(commids,this,override_targets);
     }
 
-    @Override
-    public void validate_post_init(OTMErrorLog errorLog) {
-        super.validate_post_init(errorLog);
-        if (rc == null)
-            errorLog.addError("ActuatorFlowToLinks: rc==null");
-    }
+//    @Override
+//    public void validate_post_init(OTMErrorLog errorLog) {
+//        super.validate_post_init(errorLog);
+//        if (rc == null)
+//            errorLog.addError("ActuatorFlowToLinks: rc==null");
+//    }
 
     @Override
     public void process_command(InterfaceCommand command, float timestamp) throws OTMException {
-
         if(command==null)
             return;
-        if(!(command instanceof CommandDoubleArray))
+        if(!(command instanceof CommandLongToDouble))
             throw new OTMException("Bad command type.");
-
-        CommandDoubleArray c = (CommandDoubleArray)command;
-        double alpha = ((AbstractFluidModel)linkMLup.get_model()).dt_sec / 3600f;
-        this.total_outlink2flows = 0d;
-        for(int i=0;i<c.ids.length;i++) {
-            double x = c.values[i] * alpha;
-            outlink2flows[i] = x;
-            total_outlink2flows += x;
+        CommandLongToDouble cmnd = (CommandLongToDouble)command;
+        Link link = (Link) target;
+        double modeldt = ((AbstractFluidModel) link.get_model()).dt_sec / 3600d;
+        for(Map.Entry<Long,Double> e : cmnd.X.entrySet()) {
+            outlink2flows.put(e.getKey(), e.getValue() * modeldt);
+            System.out.println(String.format("%.0f\tprocess_command\t%d\t%d\t%f",timestamp,id,e.getKey(),e.getValue()));
         }
+        this.total_outlink2flows = outlink2flows.values().stream().mapToDouble(x->x).sum();
     }
 
-    public void update_for_packet(PacketLink vp){
-        double alphaoverv = 1d / Math.max( vp.total_macro_vehicles() , total_outlink2flows );
-        for(int i=0;i<outlink_ids.size();i++)
-            outlink2portion.put(outlink_ids.get(i), outlink2flows[i] * alphaoverv);
-        gamma = 1d - total_outlink2flows * alphaoverv;
-    }
+//    public void update_for_packet(PacketLink vp){
+//        long commid = commids.iterator().next();
+//        double alphaoverv = 1d / Math.max( vp.total_macro_vehicles_of_commodity(commid) , total_outlink2flows );
+//        for(int i=0;i<outlink_ids.size();i++)
+//            outlink2portion.put(outlink_ids.get(i), outlink2flows[i] * alphaoverv);
+//        gamma = 1d - total_outlink2flows * alphaoverv;
+//    }
 
-    public double calculate_sumbetac(Map<Long, Double> current_splits){
-        double sumbetac = 0d;
-        for(Map.Entry<Long,Double> e : current_splits.entrySet()){
-            if(outlink_ids.contains(e.getKey()))
-                continue;
-            sumbetac += e.getValue();
-        }
-        return sumbetac;
-    }
 
     @Override
     protected InterfaceCommand command_off() {

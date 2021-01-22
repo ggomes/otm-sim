@@ -75,7 +75,9 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
     protected Map<Long, SplitMatrixProfile> split_profile; // commodity -> split matrix profile
 
     // control flows to downstream links
-    protected ActuatorFlowToLinks act_flowToLinks;
+    protected Map<Long,Map<Long,ActuatorFlowToLinks>> acts_flowToLinks; // road connection->commodity->actuator
+
+    protected Map<Long,Set<Long>> outlinks_without_splits_or_actuators;
 
     // demands ............................................
     protected Set<AbstractDemandGenerator> demandGenerators;
@@ -166,9 +168,40 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
     public void register_actuator(Set<Long> commids, AbstractActuator act,boolean override) throws OTMException {
 
         if(act instanceof ActuatorFlowToLinks) {
-//            if(!override && act_flowToLinks!=null)
-//                throw new OTMException("Link already has a flow actuator.");
-            this.act_flowToLinks = (ActuatorFlowToLinks) act;
+
+            if(acts_flowToLinks==null)
+                acts_flowToLinks = new HashMap<>();
+
+            if(commids.size()!=1)
+                throw new OTMException("-28904jgq-ie");
+
+
+            ActuatorFlowToLinks actf2l = (ActuatorFlowToLinks) act;
+            long commid = commids.iterator().next();
+
+
+            // check that I do not already have splits for this commodity and outlinks
+            if(split_profile.containsKey(commid)){
+                SplitMatrixProfile smp = split_profile.get(commid);
+                if(actf2l.outlink2flows.keySet().stream().anyMatch(x->smp.outlink2split.keySet().contains(x)))
+                    throw new OTMException("Trying to add a flow2links actuator for a commodity with defined splits.");
+            }
+
+            outlinks_without_splits_or_actuators.get(commid).removeAll(actf2l.outlink2flows.keySet());
+
+
+            Map<Long,ActuatorFlowToLinks> comm2act;
+            if(!acts_flowToLinks.containsKey(actf2l.rcid)) {
+                comm2act = new HashMap<>();
+                acts_flowToLinks.put(actf2l.rcid,comm2act);
+            }
+            else
+                comm2act = acts_flowToLinks.get(actf2l.rcid);
+
+            if(comm2act.containsKey(commid))
+                throw new OTMException("This link already has a flowtolinks actuator for this commodity");
+
+            comm2act.put(commid,actf2l);
         }
 
     }
@@ -251,6 +284,19 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
         for(AbstractLaneGroup lg : lgs)
             lg.initialize(scenario,start_time);
 
+        // links_without_splits_or_actuators
+        outlinks_without_splits_or_actuators = new HashMap<>();
+        Set<Long> pathless_comms = states.stream().filter(s->!s.isPath).map(s->s.commodity_id).collect(toSet());
+        for(Long commid : pathless_comms){
+            Set<Long> outlinks = new HashSet<>();
+            outlinks.addAll(this.outlink2lanegroups.keySet());
+            if(split_profile!=null && split_profile.containsKey(commid)) {
+                SplitMatrixProfile smp = split_profile.get(commid);
+                outlinks.removeAll(smp.get_splits().values.keySet());
+            }
+            outlinks_without_splits_or_actuators.put(commid,outlinks);
+        }
+
         if(split_profile!=null)
             for(SplitMatrixProfile x : split_profile.values())
                 x.initialize(scenario.dispatcher);
@@ -311,7 +357,7 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
     // inter-link dynamics
     ///////////////////////////////////////////
 
-    // split a core.packet according to next links.
+    // split a packet according to next links.
     // for pathfull commodities, the next link is the next in the path.
     // For pathless, it is sampled from the split ratios
     // this assigns the state for the split core.packet but does not yet assign
@@ -329,10 +375,13 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
         // process the macro state
         if(has_macro) {
 
-            // do scaling calcultions that depend on the core.packet
-            if(act_flowToLinks!=null && vp.road_connection==act_flowToLinks.rc)
-                act_flowToLinks.update_for_packet(vp);
+            // get comm->Actuator map for this road connection.
+            Map<Long,ActuatorFlowToLinks> act_flowToLinks = null;
+            if(acts_flowToLinks!=null && acts_flowToLinks.containsKey(vp.road_connection.id))
+                act_flowToLinks = acts_flowToLinks.get(vp.road_connection.id);
 
+            // iterate through states in the packet.
+            // there should be only one state per pathless commodity, since all have same next_link==this.
             for (Map.Entry<State, Double> e : vp.state2vehicles.entrySet()) {
 
                 State state = e.getKey();
@@ -365,33 +414,57 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
 
                     else {
 
-                        Map<Long, Double> current_splits = split_profile.get(state.commodity_id).outlink2split;
+                        SplitMatrixProfile smp = split_profile.get(state.commodity_id);
+                        Map<Long, Double> current_splits = smp.outlink2split;
+                        double total_split = smp.total_split;
 
-                        // calculate sumbetac
-                        double sumbetac = act_flowToLinks!=null && vp.road_connection==act_flowToLinks.rc ? act_flowToLinks.calculate_sumbetac(current_splits) :  0d;
+                        double remainder = vehicles*(1d-total_split);
 
-                        for ( Map.Entry<Long, Double> e2 : current_splits.entrySet() ) {
-                            Long next_link_id = e2.getKey();
-                            double split = e2.getValue();
-
-                            // get split for offramp
-                            if(act_flowToLinks!=null && vp.road_connection==act_flowToLinks.rc ){
-
-                                if( act_flowToLinks.outlink_ids.contains(next_link_id) )
-                                    split =  act_flowToLinks.outlink2portion.get(next_link_id);
-                                else {
-                                    if (sumbetac > 0)
-                                        split *= act_flowToLinks.gamma / sumbetac;
-                                    else
-                                        split = 1d / (end_node.out_links.size() - act_flowToLinks.outlink_ids.size());
-                                }
+                        // actuator flow to links
+                        double red_factor = 1d;
+                        ActuatorFlowToLinks actflowtolinks = null;
+                        if(act_flowToLinks!=null && act_flowToLinks.containsKey(state.commodity_id)) {
+                            actflowtolinks = act_flowToLinks.get(state.commodity_id);
+                            if(remainder<actflowtolinks.total_outlink2flows){
+                                red_factor = remainder/actflowtolinks.total_outlink2flows;
+                                remainder = 0d;
                             }
+                            else
+                                remainder -= actflowtolinks.total_outlink2flows;
+                        }
 
-                            if(split>0d){
+                        // flow to links with no splits and no actuators
+                        double remainder_per_link = 0d;
+                        if(remainder>0 && outlinks_without_splits_or_actuators.get(state.commodity_id).size()>0)
+                            remainder_per_link = remainder / outlinks_without_splits_or_actuators.get(state.commodity_id).size();
+
+                        ///////////////////////////////
+                        if(vehicles>0 && id==2l){
+                            double modeldt = ((AbstractFluidModel)model).dt_sec/3600d;
+                            System.out.println(String.format("c=%d\tv=%.1f\tsplit=%.1f\tact=%.1f\trem=%.1f",state.commodity_id,vehicles/modeldt,vehicles*total_split/modeldt,actflowtolinks.total_outlink2flows/modeldt,remainder/modeldt));
+                        }
+                        ///////////////////////////////
+
+
+                        // iterate over outlinks
+                        for(Long next_link_id : outlink2lanegroups.keySet()){
+                            double vehicles_to_link;
+
+                            // case this link has a split ratio
+                            // TODO IS THE ORDER CORRECT?
+                            if( current_splits.containsKey(next_link_id) )
+                                vehicles_to_link = current_splits.get(next_link_id) * vehicles;
+                            else if(actflowtolinks!=null && actflowtolinks.outlink2flows.containsKey(next_link_id))
+                                vehicles_to_link = red_factor * actflowtolinks.outlink2flows.get(next_link_id);
+                            else
+                                vehicles_to_link = remainder_per_link;
+
+                            // get vehicles going to next link
+                            if(vehicles_to_link>0d)
                                 add_to_lanegroup_packets(split_packets, next_link_id,
                                         new State(state.commodity_id, next_link_id, false),
-                                        vehicles * split);
-                            }
+                                        vehicles_to_link);
+
                         }
                     }
                 }

@@ -1,9 +1,11 @@
 package control.commodity;
 
 import actuator.ActuatorFlowToLinks;
+import control.command.CommandLongToDouble;
+import core.AbstractFluidModel;
+import core.Link;
 import core.Scenario;
 import control.AbstractController;
-import control.command.CommandDoubleArray;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import error.OTMErrorLog;
@@ -12,37 +14,69 @@ import jaxb.Controller;
 import profiles.Profile1D;
 import utils.OTMUtils;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
+
+/**
+ * This controller is used to specify the flow that goes to a branch in a splitting node as absolute values instead of
+ * split ratios.
+ * Example:
+ *  <controller id="1" type="linkflow" start_time="0.0" dt="300">
+ *      <target_actuators ids="1"/>
+ *      <profiles>
+ *          <profile id="4">100,200</profile>
+ *          <profile id="5">100,300</profile>
+ *      </profiles>
+ *  </controller>
+ *
+ * Coupled with this actuator:
+ * <actuator id="1" type="flowtolink">
+ *     <actuator_target type="link" id="2" commids="0"/>
+ *     <parameters>
+ *         <parameter name="rcid" value="1" />
+ *     </parameters>
+ * </actuator>
+ *
+ * The actuator enables the control of flow of commodity 0 from link 2 to links 4 and 5. The controller defines profiles
+ * of flow to be sent, in units veh/hr. The start times and dt's of the profiles all equal the start time and dt of the
+ * controller. Each link (linkin) can have at most one actuator of this type per commodity.
+ */
+
+
 public class ControllerFlowToLinks extends AbstractController  {
 
-    private long[] fr_ids;
-    private Profile1D[] fr_prof;
-    private CommandDoubleArray fr_command;
+    public Map<Long,Profile1D> outlink2profile;  // map of outlinks to profiles.
     private ActuatorFlowToLinks act;
+//    public List<Long> outlink_ids;               // list of outlink ids
+//    private List<Profile1D> outlink_profiles;     // list of profiles per linkout
 
     public ControllerFlowToLinks(Scenario scenario, Controller jcon) throws OTMException {
         super(scenario, jcon);
 
+        // TODO: Do we need this 86400, or can we do something better in OPT?
+        if(start_time>86400)
+            return;
+
         if(jcon.getProfiles()!=null){
-            int n = jcon.getProfiles().getProfile().size();
-            fr_ids = new long[n];
-            fr_prof = new Profile1D[n];
+            outlink2profile = new HashMap<>();
             for(int i=0;i<jcon.getProfiles().getProfile().size();i++){
                 jaxb.Profile prof = jcon.getProfiles().getProfile().get(i);
-                float prof_start_time = prof.getStartTime();
-                fr_ids[i] = prof.getId();
-                fr_prof[i] = prof_start_time>86400 ? null :
-                        new Profile1D(prof_start_time,prof.getDt(), OTMUtils.csv2list(prof.getContent()));
+                outlink2profile.put(prof.getId(),new Profile1D(start_time,dt, OTMUtils.csv2list(prof.getContent())) );
             }
         }
 
         act = (ActuatorFlowToLinks) actuators.values().iterator().next();
-
-        this.dt = -1f;
-    }
+   }
 
     @Override
     public Class get_actuator_class() {
         return ActuatorFlowToLinks.class;
+    }
+
+    @Override
+    protected void configure() throws OTMException {
+
     }
 
     @Override
@@ -52,26 +86,36 @@ public class ControllerFlowToLinks extends AbstractController  {
         if(actuators.size()!=1)
             errorLog.addError("Offramp flow controller must have exactly one actuator.");
 
-        for(int i=0;i<fr_prof.length;i++)
-            if(fr_prof[i]!=null)
-                fr_prof[i].validate_pre_init(errorLog);
-    }
+        if( outlink2profile.values().stream().map(p->p.get_length()).collect(Collectors.toSet()).size()!=1)
+            errorLog.addError("In ControllerFlowToLinks, profiles are not equal length");
 
-    @Override
-    public void configure() throws OTMException {
-        fr_command = new CommandDoubleArray(fr_ids);
-        command.put(act.id,fr_command);
+        for(Profile1D prof : outlink2profile.values())
+            prof.validate_pre_init(errorLog);
+
+        command.put(act.id,new CommandLongToDouble() );
     }
 
     @Override
     public void update_command(Dispatcher dispatcher) throws OTMException {
-        
+
+        if(outlink2profile.size()==0)
+            return;
+
         float next_time = Float.POSITIVE_INFINITY;
-        for(int i=0;i<fr_ids.length;i++){
-            if(fr_prof[i]==null)
-                continue;
-            fr_command.values[i] = fr_prof[i].get_value_for_time(dispatcher.current_time) ;
-            next_time = Math.min( next_time , fr_prof[i].get_next_update_time(dispatcher.current_time) );
+        CommandLongToDouble cmnd = (CommandLongToDouble) command.get(act.id);
+        float now = dispatcher.current_time;
+
+        Profile1D aprof = outlink2profile.values().iterator().next();
+        int index = aprof.get_index_for_time(now);
+        next_time = Math.min( next_time , aprof.get_next_update_time(now) );
+
+        Link link = (Link)act.target;
+        for(Map.Entry<Long,Profile1D> e : outlink2profile.entrySet()){
+            Long outlinkid = e.getKey();
+            Profile1D prof = e.getValue();
+
+
+            cmnd.X.put(outlinkid, prof.get_ith_value(index)) ;
         }
 
         if(Float.isFinite(next_time))

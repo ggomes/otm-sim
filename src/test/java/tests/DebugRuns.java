@@ -36,19 +36,19 @@ public class DebugRuns extends AbstractTest {
             boolean do_controllers  = false;
 
             boolean sysout2file = false;
-            String configfile = "/home/gomes/Desktop/x/253_0.xml";
+            String configfile = "/home/gomes/Desktop/x/aaa_0.xml";
             float start_time = 0f;
-            float duration = 500f;
+            float duration = 100f;
             float outdt = 5f;
             String prefix = makeplots?null:"x";
             String outfolder = makeplots?null:"/home/gomes/Desktop/x/output";
             String png_folder = "/home/gomes/Desktop/x/output";
-            Set<Long> link_ids = Set.of(2l);
+            Set<Long> link_ids = Set.of(2l,3l,4l,5l,6l);
 
             Long subnetid = null;
             Long cntrl_id = null;
 
-            Long comm_id=null;
+            Long comm_id=1l;
 
             // ..........................................
 

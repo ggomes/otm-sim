@@ -22,6 +22,7 @@ public class SplitMatrixProfile {
 
     // current splits
     public Map<Long,Double> outlink2split;         // output link id -> split
+    public double total_split;
     private List<LinkCumSplit> link_cumsplit;      // output link id -> cummulative split
 
     ////////////////////////////////////////////
@@ -108,6 +109,7 @@ public class SplitMatrixProfile {
     public void set_current_splits(Map<Long,Double> outlink2split) {
 
         this.outlink2split = outlink2split;
+        total_split = outlink2split.values().stream().mapToDouble(x->x).sum();
 
         if(outlink2split.size()<=1)
             return;
@@ -147,6 +149,8 @@ public class SplitMatrixProfile {
             for(long linkid : newsplit.keySet())
                 outlink2split.put(linkid,outlink2split.get(linkid)*alpha);
         }
+
+        total_split = outlink2split.values().stream().mapToDouble(x->x).sum();
 
         float s = 0f;
         link_cumsplit = new ArrayList<>();

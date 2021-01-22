@@ -171,7 +171,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             this.actuator_capacity = (ActuatorLaneGroupCapacity) act;
         }
 
-        if(act.getType()== AbstractActuator.Type.lg_allowcomm){
+        if(act instanceof ActuatorLaneGroupAllowComm){
             if(actuator_lgrestrict==null)
                 actuator_lgrestrict = new HashMap<>();
             for(Long commid : commids){
@@ -179,6 +179,10 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
                     throw new OTMException(String.format("Lane group closure clash for commodity %d", commid));
                 this.actuator_lgrestrict.put(commid, (ActuatorLaneGroupAllowComm) act);
             }
+        }
+
+        if(act instanceof ActuatorLaneGroupSpeedLimit){
+            // to do
         }
 
     }

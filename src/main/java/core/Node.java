@@ -1,6 +1,7 @@
 package core;
 
 import actuator.AbstractActuator;
+import actuator.ActuatorSignal;
 import error.OTMException;
 import actuator.InterfaceTarget;
 
@@ -23,7 +24,7 @@ public class Node implements InterfaceScenarioElement, InterfaceTarget {
     protected Float xcoord;
     protected Float ycoord;
 
-    private AbstractActuator actuator;
+    private ActuatorSignal signal;
 
     ///////////////////////////////////////////
     // construction
@@ -109,9 +110,14 @@ public class Node implements InterfaceScenarioElement, InterfaceTarget {
 
     @Override
     public void register_actuator(Set<Long> commids, AbstractActuator act,boolean override) throws OTMException {
-        if(!override && actuator!=null)
-            throw new OTMException("Node already has an actuator");
-        this.actuator=act;
+
+
+        if(act instanceof ActuatorSignal){
+            if(!override && signal !=null)
+                throw new OTMException("Node already has an actuator");
+            this.signal = (ActuatorSignal) act;
+        }
+
     }
 
     ////////////////////////////////////////////

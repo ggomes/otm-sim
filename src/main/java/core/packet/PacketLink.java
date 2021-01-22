@@ -15,13 +15,6 @@ public class PacketLink {
     public Set<AbstractVehicle> vehicles;
     public Map<State,Double> state2vehicles;
 
-    // empty constructor
-    public PacketLink(RoadConnection road_connection){
-        this.road_connection = road_connection;
-        this.state2vehicles = new HashMap<>();
-        this.vehicles = new HashSet<>();
-    }
-
     // macro constructor
     public PacketLink(Map<State,Double> state2vehicles, RoadConnection road_connection){
         this.road_connection = road_connection;
@@ -35,8 +28,11 @@ public class PacketLink {
         this.vehicles.add(vehicle);
     }
 
-    public double total_macro_vehicles(){
-        return state2vehicles.values().stream().mapToDouble(x->x).sum();
+    public double total_macro_vehicles_of_commodity(long cid){
+        return state2vehicles.entrySet().stream()
+                .filter(e->e.getKey().commodity_id==cid)
+                .mapToDouble(x->x.getValue())
+                .sum();
     }
 
     public boolean isEmpty(){

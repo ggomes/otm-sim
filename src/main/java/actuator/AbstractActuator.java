@@ -29,6 +29,7 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     public Float dt;            // dt<=0 means event based (vehicle model) or dt=sim dt (fluid model)
     public boolean initialized;
     private boolean ison;
+    private boolean passive; // if true then the actuator updates with controller update (dt is ignored)
 
     public AbstractController myController;
     public InterfaceTarget target;
@@ -47,6 +48,8 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
         this.dt = jaxb_actuator.getDt();
         this.initialized = false;
         this.ison = false;
+        this.passive = Boolean.parseBoolean(jaxb_actuator.getPassive());
+
         if(jaxb_actuator.getActuatorTarget()!=null){
             jaxb.ActuatorTarget e = jaxb_actuator.getActuatorTarget();
             Long id = e.getId()==null ? null : Long.parseLong(e.getId());
@@ -108,6 +111,12 @@ public abstract class AbstractActuator implements Pokable, InterfaceScenarioElem
     }
 
     protected void set_dt_for_target(){
+
+        if(passive){
+            dt = null;
+            return;
+        }
+
         if(target!=null && (dt==null || dt<=0)){
             AbstractModel model = this.target.get_model();
             if(model==null)
