@@ -124,6 +124,10 @@ public class Profile1D {
     // get
     ////////////////////////////////
 
+    public Float get_dt(){
+        return dt;
+    }
+
     public List<Float> get_times(){
         List<Float> times = new ArrayList<>();
         float currtime = start_time;
@@ -144,7 +148,7 @@ public class Profile1D {
     }
 
     public int get_index_for_time(float time){
-        return (int)((time-start_time)/dt);
+        return dt==null || dt==0 ? 0 : Math.min(values.size()-1,(int)((time-start_time)/dt));
     }
 
     public double get_value_for_time(float time){

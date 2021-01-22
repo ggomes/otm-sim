@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  *  </controller>
  *
  * Coupled with this actuator:
- * <actuator id="1" type="flowtolink">
+ * <actuator id="1" type="flowtolink" passive="true">
  *     <actuator_target type="link" id="2" commids="0"/>
  *     <parameters>
  *         <parameter name="rcid" value="1" />
@@ -48,25 +48,21 @@ public class ControllerFlowToLinks extends AbstractController  {
 
     public Map<Long,Profile1D> outlink2profile;  // map of outlinks to profiles.
     private ActuatorFlowToLinks act;
-//    public List<Long> outlink_ids;               // list of outlink ids
-//    private List<Profile1D> outlink_profiles;     // list of profiles per linkout
 
     public ControllerFlowToLinks(Scenario scenario, Controller jcon) throws OTMException {
         super(scenario, jcon);
 
-        // TODO: Do we need this 86400, or can we do something better in OPT?
-        if(start_time>86400)
-            return;
-
+        Float prof_dt = dt;
         if(jcon.getProfiles()!=null){
             outlink2profile = new HashMap<>();
             for(int i=0;i<jcon.getProfiles().getProfile().size();i++){
                 jaxb.Profile prof = jcon.getProfiles().getProfile().get(i);
-                outlink2profile.put(prof.getId(),new Profile1D(start_time,dt, OTMUtils.csv2list(prof.getContent())) );
+                outlink2profile.put(prof.getId(),new Profile1D(start_time,prof_dt, OTMUtils.csv2list(prof.getContent())) );
             }
         }
 
         act = (ActuatorFlowToLinks) actuators.values().iterator().next();
+        dt = null;
    }
 
     @Override
@@ -76,7 +72,7 @@ public class ControllerFlowToLinks extends AbstractController  {
 
     @Override
     protected void configure() throws OTMException {
-
+        command.put(act.id,new CommandLongToDouble() );
     }
 
     @Override
@@ -86,13 +82,11 @@ public class ControllerFlowToLinks extends AbstractController  {
         if(actuators.size()!=1)
             errorLog.addError("Offramp flow controller must have exactly one actuator.");
 
-        if( outlink2profile.values().stream().map(p->p.get_length()).collect(Collectors.toSet()).size()!=1)
-            errorLog.addError("In ControllerFlowToLinks, profiles are not equal length");
+//        if( outlink2profile.values().stream().map(p->p.get_length()).collect(Collectors.toSet()).size()!=1)
+//            errorLog.addError("In ControllerFlowToLinks, profiles are not equal length");
 
         for(Profile1D prof : outlink2profile.values())
             prof.validate_pre_init(errorLog);
-
-        command.put(act.id,new CommandLongToDouble() );
     }
 
     @Override
@@ -109,12 +103,9 @@ public class ControllerFlowToLinks extends AbstractController  {
         int index = aprof.get_index_for_time(now);
         next_time = Math.min( next_time , aprof.get_next_update_time(now) );
 
-        Link link = (Link)act.target;
         for(Map.Entry<Long,Profile1D> e : outlink2profile.entrySet()){
             Long outlinkid = e.getKey();
             Profile1D prof = e.getValue();
-
-
             cmnd.X.put(outlinkid, prof.get_ith_value(index)) ;
         }
 

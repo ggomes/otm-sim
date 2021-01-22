@@ -36,19 +36,19 @@ public class DebugRuns extends AbstractTest {
             boolean do_controllers  = false;
 
             boolean sysout2file = false;
-            String configfile = "/home/gomes/Desktop/x/aaa_0.xml";
+            String configfile = "/home/gomes/Desktop/x/265_0.xml";
             float start_time = 0f;
-            float duration = 100f;
-            float outdt = 5f;
+            float duration = 1000f;
+            float outdt = 3f;
             String prefix = makeplots?null:"x";
             String outfolder = makeplots?null:"/home/gomes/Desktop/x/output";
             String png_folder = "/home/gomes/Desktop/x/output";
-            Set<Long> link_ids = Set.of(2l,3l,4l,5l,6l);
+            Set<Long> link_ids = Set.of(4l,7l);
 
             Long subnetid = null;
             Long cntrl_id = null;
 
-            Long comm_id=1l;
+            Long comm_id=null; //1l;
 
             // ..........................................
 
@@ -69,7 +69,7 @@ public class DebugRuns extends AbstractTest {
             long startTime = System.nanoTime();
 
             // Load ..............................
-            OTM otm = new OTM(configfile,true);
+            OTM otm = new OTM(configfile,false);
 
             long endTime = System.nanoTime();
             double seconds = (endTime - startTime)/1e9;

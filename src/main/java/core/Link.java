@@ -181,11 +181,11 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
 
 
             // check that I do not already have splits for this commodity and outlinks
-            if(split_profile.containsKey(commid)){
-                SplitMatrixProfile smp = split_profile.get(commid);
-                if(actf2l.outlink2flows.keySet().stream().anyMatch(x->smp.outlink2split.keySet().contains(x)))
-                    throw new OTMException("Trying to add a flow2links actuator for a commodity with defined splits.");
-            }
+//            if(split_profile!=null && split_profile.containsKey(commid)){
+//                SplitMatrixProfile smp = split_profile.get(commid);
+//                if(actf2l.outlink2flows.keySet().stream().anyMatch(x->smp.outlink2split.keySet().contains(x)))
+//                    throw new OTMException("Trying to add a flow2links actuator for a commodity with defined splits.");
+//            }
 
             outlinks_without_splits_or_actuators.get(commid).removeAll(actf2l.outlink2flows.keySet());
 
@@ -292,7 +292,8 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
             outlinks.addAll(this.outlink2lanegroups.keySet());
             if(split_profile!=null && split_profile.containsKey(commid)) {
                 SplitMatrixProfile smp = split_profile.get(commid);
-                outlinks.removeAll(smp.get_splits().values.keySet());
+                if(smp.get_splits()!=null)
+                    outlinks.removeAll(smp.get_splits().values.keySet());
             }
             outlinks_without_splits_or_actuators.put(commid,outlinks);
         }
@@ -414,11 +415,15 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
 
                     else {
 
-                        SplitMatrixProfile smp = split_profile.get(state.commodity_id);
-                        Map<Long, Double> current_splits = smp.outlink2split;
-                        double total_split = smp.total_split;
+                        double remainder = vehicles;
+                        Map<Long, Double> current_splits = null;
+                        if(split_profile!=null) {
+                            SplitMatrixProfile smp = split_profile.get(state.commodity_id);
+                            current_splits = smp.outlink2split;
+                            double total_split = smp.total_split;
+                            remainder -= vehicles*total_split;
+                        }
 
-                        double remainder = vehicles*(1d-total_split);
 
                         // actuator flow to links
                         double red_factor = 1d;
@@ -438,21 +443,11 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
                         if(remainder>0 && outlinks_without_splits_or_actuators.get(state.commodity_id).size()>0)
                             remainder_per_link = remainder / outlinks_without_splits_or_actuators.get(state.commodity_id).size();
 
-                        ///////////////////////////////
-                        if(vehicles>0 && id==2l){
-                            double modeldt = ((AbstractFluidModel)model).dt_sec/3600d;
-                            System.out.println(String.format("c=%d\tv=%.1f\tsplit=%.1f\tact=%.1f\trem=%.1f",state.commodity_id,vehicles/modeldt,vehicles*total_split/modeldt,actflowtolinks.total_outlink2flows/modeldt,remainder/modeldt));
-                        }
-                        ///////////////////////////////
-
-
                         // iterate over outlinks
                         for(Long next_link_id : outlink2lanegroups.keySet()){
                             double vehicles_to_link;
 
-                            // case this link has a split ratio
-                            // TODO IS THE ORDER CORRECT?
-                            if( current_splits.containsKey(next_link_id) )
+                            if( current_splits!=null && current_splits.containsKey(next_link_id) )
                                 vehicles_to_link = current_splits.get(next_link_id) * vehicles;
                             else if(actflowtolinks!=null && actflowtolinks.outlink2flows.containsKey(next_link_id))
                                 vehicles_to_link = red_factor * actflowtolinks.outlink2flows.get(next_link_id);

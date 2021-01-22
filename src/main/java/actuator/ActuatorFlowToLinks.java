@@ -86,7 +86,6 @@ public class ActuatorFlowToLinks extends AbstractActuator {
                 throw new OTMException("Pathfull commodity in ActuatorFlowToLinks.");
         }
 
-
         outlink2flows= new HashMap<>();
         for(Long linkid : ((ControllerFlowToLinks)myController).outlink2profile.keySet())
             outlink2flows.put(linkid, Double.NaN);
@@ -111,10 +110,8 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         CommandLongToDouble cmnd = (CommandLongToDouble)command;
         Link link = (Link) target;
         double modeldt = ((AbstractFluidModel) link.get_model()).dt_sec / 3600d;
-        for(Map.Entry<Long,Double> e : cmnd.X.entrySet()) {
+        for(Map.Entry<Long,Double> e : cmnd.X.entrySet())
             outlink2flows.put(e.getKey(), e.getValue() * modeldt);
-            System.out.println(String.format("%.0f\tprocess_command\t%d\t%d\t%f",timestamp,id,e.getKey(),e.getValue()));
-        }
         this.total_outlink2flows = outlink2flows.values().stream().mapToDouble(x->x).sum();
     }
 
