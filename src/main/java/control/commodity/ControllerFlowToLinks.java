@@ -42,8 +42,6 @@ import java.util.stream.Collectors;
  * of flow to be sent, in units veh/hr. The start times and dt's of the profiles all equal the start time and dt of the
  * controller. Each link (linkin) can have at most one actuator of this type per commodity.
  */
-
-
 public class ControllerFlowToLinks extends AbstractController  {
 
     public Map<Long,Profile1D> outlink2profile;  // map of outlinks to profiles.
@@ -81,10 +79,6 @@ public class ControllerFlowToLinks extends AbstractController  {
 
         if(actuators.size()!=1)
             errorLog.addError("Offramp flow controller must have exactly one actuator.");
-
-//        if( outlink2profile.values().stream().map(p->p.get_length()).collect(Collectors.toSet()).size()!=1)
-//            errorLog.addError("In ControllerFlowToLinks, profiles are not equal length");
-
         for(Profile1D prof : outlink2profile.values())
             prof.validate_pre_init(errorLog);
     }

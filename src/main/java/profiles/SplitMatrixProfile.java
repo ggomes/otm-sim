@@ -1,5 +1,6 @@
 package profiles;
 
+import actuator.ActuatorFlowToLinks;
 import commodity.Commodity;
 import commodity.Subnetwork;
 import core.Link;
@@ -110,6 +111,15 @@ public class SplitMatrixProfile {
 
         this.outlink2split = outlink2split;
         total_split = outlink2split.values().stream().mapToDouble(x->x).sum();
+
+        if(link_in!=null && link_in.acts_flowToLinks!=null){
+            for(Map.Entry e : link_in.acts_flowToLinks.entrySet()){
+                for(Map.Entry<Long, ActuatorFlowToLinks> e2 : ((Map<Long, ActuatorFlowToLinks>)e.getValue()).entrySet() ){
+                    ActuatorFlowToLinks act = e2.getValue();
+                    act.update_total_unactuated_splits(outlink2split);
+                }
+            }
+        }
 
         if(outlink2split.size()<=1)
             return;

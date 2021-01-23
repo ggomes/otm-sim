@@ -13,12 +13,11 @@ import java.util.*;
 
 public class ActuatorFlowToLinks extends AbstractActuator {
 
-//    private Link linkMLup;
-//    public List<Long> outlink_ids;
     public long rcid;
 
     public Map<Long,Double> outlink2flows;
     public double total_outlink2flows;
+    public double total_unactuated_split; // total split to links not controlled by this actuator.
 
     public ActuatorFlowToLinks(Scenario scenario,Actuator jact) throws OTMException {
         super(scenario, jact);
@@ -31,9 +30,6 @@ public class ActuatorFlowToLinks extends AbstractActuator {
                     case "rcid":
                         temp_rcid = Long.parseLong(p.getValue());
                         break;
-//                    case "linksout":
-//                        temp_outlinkids = OTMUtils.csv2longlist(p.getValue());
-//                        break;
                 }
             }
         }
@@ -41,6 +37,7 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         rcid = temp_rcid==null ? Long.MIN_VALUE : temp_rcid;
 
         dt = null;
+        total_unactuated_split = 0d;
 
     }
 
@@ -59,10 +56,6 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         super.validate_pre_init(errorLog);
         if (target == null)
             errorLog.addError("ActuatorFlowToLinks: target==null");
-//        if (outlink_ids.isEmpty())
-//            errorLog.addError("ActuatorFlowToLinks: outlink_ids.isEmpty()");
-//        if (outlink_ids.contains(null))
-//            errorLog.addError("ActuatorFlowToLinks: outlink_ids.contains(null)");
         if (commids.size()!=1)
             errorLog.addError("ActuatorFlowToLinks: commids.size()!=1");
         if( !((Link)target).get_roadconnections_entering().stream().anyMatch(x->x.getId()==rcid) )
@@ -94,13 +87,6 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         target.register_actuator(commids,this,override_targets);
     }
 
-//    @Override
-//    public void validate_post_init(OTMErrorLog errorLog) {
-//        super.validate_post_init(errorLog);
-//        if (rc == null)
-//            errorLog.addError("ActuatorFlowToLinks: rc==null");
-//    }
-
     @Override
     public void process_command(InterfaceCommand command, float timestamp) throws OTMException {
         if(command==null)
@@ -115,14 +101,11 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         this.total_outlink2flows = outlink2flows.values().stream().mapToDouble(x->x).sum();
     }
 
-//    public void update_for_packet(PacketLink vp){
-//        long commid = commids.iterator().next();
-//        double alphaoverv = 1d / Math.max( vp.total_macro_vehicles_of_commodity(commid) , total_outlink2flows );
-//        for(int i=0;i<outlink_ids.size();i++)
-//            outlink2portion.put(outlink_ids.get(i), outlink2flows[i] * alphaoverv);
-//        gamma = 1d - total_outlink2flows * alphaoverv;
-//    }
-
+    public void update_total_unactuated_splits(Map<Long,Double> outlink2split){
+        for(Map.Entry<Long,Double> e : outlink2split.entrySet())
+            if(!outlink2flows.containsKey(e.getKey()))
+                total_unactuated_split += e.getValue();
+    }
 
     @Override
     protected InterfaceCommand command_off() {

@@ -75,7 +75,7 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
     protected Map<Long, SplitMatrixProfile> split_profile; // commodity -> split matrix profile
 
     // control flows to downstream links
-    protected Map<Long,Map<Long,ActuatorFlowToLinks>> acts_flowToLinks; // road connection->commodity->actuator
+    public Map<Long,Map<Long,ActuatorFlowToLinks>> acts_flowToLinks; // road connection->commodity->actuator
 
     protected Map<Long,Set<Long>> outlinks_without_splits_or_actuators;
 
@@ -179,16 +179,11 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
             ActuatorFlowToLinks actf2l = (ActuatorFlowToLinks) act;
             long commid = commids.iterator().next();
 
-
-            // check that I do not already have splits for this commodity and outlinks
-//            if(split_profile!=null && split_profile.containsKey(commid)){
-//                SplitMatrixProfile smp = split_profile.get(commid);
-//                if(actf2l.outlink2flows.keySet().stream().anyMatch(x->smp.outlink2split.keySet().contains(x)))
-//                    throw new OTMException("Trying to add a flow2links actuator for a commodity with defined splits.");
-//            }
-
             outlinks_without_splits_or_actuators.get(commid).removeAll(actf2l.outlink2flows.keySet());
 
+            if(split_profile!=null && split_profile.containsKey(commid)){
+                actf2l.update_total_unactuated_splits(split_profile.get(commid).outlink2split);
+            }
 
             Map<Long,ActuatorFlowToLinks> comm2act;
             if(!acts_flowToLinks.containsKey(actf2l.rcid)) {
@@ -415,42 +410,61 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
 
                     else {
 
-                        double remainder = vehicles;
+                        // get splits
+                        SplitMatrixProfile smp = null;
                         Map<Long, Double> current_splits = null;
-                        if(split_profile!=null) {
-                            SplitMatrixProfile smp = split_profile.get(state.commodity_id);
+                        if(split_profile!=null && split_profile.containsKey(state.commodity_id)) {
+                            smp = split_profile.get(state.commodity_id);
                             current_splits = smp.outlink2split;
-                            double total_split = smp.total_split;
-                            remainder -= vehicles*total_split;
                         }
 
+                        float timestamp = network.scenario.dispatcher.current_time;
+                        if(id==4l && state.commodity_id==0l) {
+                            float dt = ((AbstractFluidModel) get_model()).dt_sec/3600f;
+                            System.out.println(String.format("%.0f\t%d\t%.0f", timestamp,state.commodity_id,vehicles/dt));
+                        }
 
                         // actuator flow to links
+                        double remainder = vehicles;
                         double red_factor = 1d;
                         ActuatorFlowToLinks actflowtolinks = null;
+                        int num_extra_outlinks = outlinks_without_splits_or_actuators.get(state.commodity_id).size();
+
+                        // case there is a flow actuator for this commodity and road connection
+                        // override split ratio conflicts
+                        // compute reduction factor
                         if(act_flowToLinks!=null && act_flowToLinks.containsKey(state.commodity_id)) {
                             actflowtolinks = act_flowToLinks.get(state.commodity_id);
+
+                            // remove split flows
+                            remainder -= actflowtolinks.total_unactuated_split*vehicles;
+
+                            // reduction factor; remove controlled flows
                             if(remainder<actflowtolinks.total_outlink2flows){
                                 red_factor = remainder/actflowtolinks.total_outlink2flows;
                                 remainder = 0d;
                             }
-                            else
+                            else if(num_extra_outlinks>0)
                                 remainder -= actflowtolinks.total_outlink2flows;
                         }
 
+                        // no flow actuator
+                        else if(current_splits!=null && num_extra_outlinks>0)
+                            remainder -= smp.total_split*vehicles;
+
                         // flow to links with no splits and no actuators
                         double remainder_per_link = 0d;
-                        if(remainder>0 && outlinks_without_splits_or_actuators.get(state.commodity_id).size()>0)
-                            remainder_per_link = remainder / outlinks_without_splits_or_actuators.get(state.commodity_id).size();
+                        if(num_extra_outlinks>0 && remainder>0)
+                            remainder_per_link = remainder / num_extra_outlinks;
 
                         // iterate over outlinks
                         for(Long next_link_id : outlink2lanegroups.keySet()){
                             double vehicles_to_link;
 
-                            if( current_splits!=null && current_splits.containsKey(next_link_id) )
-                                vehicles_to_link = current_splits.get(next_link_id) * vehicles;
-                            else if(actflowtolinks!=null && actflowtolinks.outlink2flows.containsKey(next_link_id))
+                            if(actflowtolinks!=null && actflowtolinks.outlink2flows.containsKey(next_link_id))
                                 vehicles_to_link = red_factor * actflowtolinks.outlink2flows.get(next_link_id);
+                            else if( current_splits!=null && current_splits.containsKey(next_link_id) )
+                                vehicles_to_link = current_splits.get(next_link_id) * vehicles;
                             else
                                 vehicles_to_link = remainder_per_link;
 
