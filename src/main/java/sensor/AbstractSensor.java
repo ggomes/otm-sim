@@ -7,6 +7,9 @@ import dispatch.EventPoke;
 import dispatch.Pokable;
 import error.OTMErrorLog;
 import error.OTMException;
+import utils.OTMUtils;
+
+import java.util.HashSet;
 
 public abstract class AbstractSensor implements Pokable, InterfaceScenarioElement {
 

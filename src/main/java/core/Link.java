@@ -418,12 +418,6 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
                             current_splits = smp.outlink2split;
                         }
 
-                        float timestamp = network.scenario.dispatcher.current_time;
-                        if(id==4l && state.commodity_id==0l) {
-                            float dt = ((AbstractFluidModel) get_model()).dt_sec/3600f;
-                            System.out.println(String.format("%.0f\t%d\t%.0f", timestamp,state.commodity_id,vehicles/dt));
-                        }
-
                         // actuator flow to links
                         double remainder = vehicles;
                         double red_factor = 1d;

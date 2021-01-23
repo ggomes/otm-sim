@@ -45,6 +45,7 @@ public class FixedSensor extends AbstractSensor {
         this.position = jaxb_sensor.getPosition();
         this.link = scenario.network.links.containsKey((jaxb_sensor.getLinkId())) ?
                 scenario.network.links.get(jaxb_sensor.getLinkId()) : null;
+        this.target = link;
 
         // read lanes
         int [] x = OTMUtils.read_lanes(jaxb_sensor.getLanes(),link.get_full_lanes());
