@@ -8,7 +8,7 @@ import core.Scenario;
 import dispatch.Dispatcher;
 import error.OTMErrorLog;
 import error.OTMException;
-import models.fluid.EventUpdateTotalLanegroupVehicles;
+import models.fluid.EventUpdateTotalLanegroupVehiclesDwn;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,7 +53,7 @@ public class OutputLaneGroupSumVehiclesDwn  extends AbstractOutputTimedLanegroup
         super.register(props, dispatcher); // registers write to files
 
         // regsister read vehicles event
-        dispatcher.register_event(new EventUpdateTotalLanegroupVehicles(dispatcher,props.start_time,this));
+        dispatcher.register_event(new EventUpdateTotalLanegroupVehiclesDwn(dispatcher,props.start_time,this));
     }
 
     @Override
