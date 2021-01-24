@@ -102,6 +102,8 @@ public class ActuatorFlowToLinks extends AbstractActuator {
     }
 
     public void update_total_unactuated_splits(Map<Long,Double> outlink2split){
+        if(outlink2split==null)
+            return;
         for(Map.Entry<Long,Double> e : outlink2split.entrySet())
             if(!outlink2flows.containsKey(e.getKey()))
                 total_unactuated_split += e.getValue();
