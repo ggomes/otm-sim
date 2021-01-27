@@ -2,7 +2,6 @@ package profiles;
 
 import actuator.ActuatorFlowToLinks;
 import commodity.Commodity;
-import commodity.Subnetwork;
 import core.Link;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -23,6 +22,7 @@ public class SplitMatrixProfile {
 
     // current splits
     public Map<Long,Double> outlink2split;         // output link id -> split
+    public Set<Long> outlinks_without_splits;
     public double total_split;
     private List<LinkCumSplit> link_cumsplit;      // output link id -> cummulative split
 
@@ -112,11 +112,15 @@ public class SplitMatrixProfile {
         this.outlink2split = outlink2split;
         total_split = outlink2split.values().stream().mapToDouble(x->x).sum();
 
+        outlinks_without_splits = new HashSet<>();
+        outlinks_without_splits.addAll(link_in.get_outlink_ids());
+        outlinks_without_splits.removeAll(outlink2split.keySet());
+
         if(link_in!=null && link_in.acts_flowToLinks!=null){
             for(Map.Entry e : link_in.acts_flowToLinks.entrySet()){
                 for(Map.Entry<Long, ActuatorFlowToLinks> e2 : ((Map<Long, ActuatorFlowToLinks>)e.getValue()).entrySet() ){
                     ActuatorFlowToLinks act = e2.getValue();
-                    act.update_total_unactuated_splits(outlink2split);
+                    act.update_splits(outlink2split);
                 }
             }
         }
@@ -130,6 +134,8 @@ public class SplitMatrixProfile {
             link_cumsplit.add(new LinkCumSplit(e.getKey(),s));
             s += e.getValue();
         }
+
+
     }
 
     public void set_and_rectify_splits(Map<Long,Double> newsplit,Long linkrectify) {

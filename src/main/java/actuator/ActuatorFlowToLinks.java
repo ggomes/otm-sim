@@ -10,14 +10,16 @@ import error.OTMException;
 import jaxb.Actuator;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ActuatorFlowToLinks extends AbstractActuator {
 
     public long rcid;
-
     public Map<Long,Double> outlink2flows;
     public double total_outlink2flows;
     public double total_unactuated_split; // total split to links not controlled by this actuator.
+    public Map<Long, Double> unactuated_splits = null;
+    public Set<Long> unactuated_links_without_splits;
 
     public ActuatorFlowToLinks(Scenario scenario,Actuator jact) throws OTMException {
         super(scenario, jact);
@@ -35,10 +37,8 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         }
 
         rcid = temp_rcid==null ? Long.MIN_VALUE : temp_rcid;
-
         dt = null;
         total_unactuated_split = 0d;
-
     }
 
     @Override
@@ -83,6 +83,11 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         for(Long linkid : ((ControllerFlowToLinks)myController).outlink2profile.keySet())
             outlink2flows.put(linkid, Double.NaN);
 
+
+        this.unactuated_links_without_splits = new HashSet<>();
+        unactuated_links_without_splits.addAll(((Link)target).get_outlink_ids());
+        unactuated_links_without_splits.removeAll(this.outlink2flows.keySet());
+
         // register the actuator
         target.register_actuator(commids,this,override_targets);
     }
@@ -101,12 +106,21 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         this.total_outlink2flows = outlink2flows.values().stream().mapToDouble(x->x).sum();
     }
 
-    public void update_total_unactuated_splits(Map<Long,Double> outlink2split){
+    public void update_splits(Map<Long,Double> outlink2split){
         if(outlink2split==null)
             return;
+
+        this.unactuated_links_without_splits = new HashSet<>();
+        unactuated_links_without_splits.addAll(((Link)target).get_outlink_ids());
+        unactuated_links_without_splits.removeAll(this.outlink2flows.keySet());
+        unactuated_links_without_splits.removeAll(outlink2split.keySet());
+
+        this.unactuated_splits = new HashMap<>();
         for(Map.Entry<Long,Double> e : outlink2split.entrySet())
-            if(!outlink2flows.containsKey(e.getKey()))
+            if(!outlink2flows.containsKey(e.getKey())) {
+                unactuated_splits.put(e.getKey(),e.getValue());
                 total_unactuated_split += e.getValue();
+            }
     }
 
     @Override

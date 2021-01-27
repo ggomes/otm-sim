@@ -149,13 +149,25 @@ public class CTMCell extends AbstractCell {
                 // lane changing and proceed to the next link
                 double alpha = total_demand / total_vehicles;
                 double val;
+                double vdwn,vcl;
                 for (State state : laneGroup.get_link().states) {
-                    val = veh_dwn.get(state);
-                    if(veh_out!=null)
-                        val += veh_out.get(state);
-                    if(veh_in !=null)
-                        val += veh_in.get(state);
-                    demand_dwn.put(state, val * alpha);
+                    vdwn = veh_dwn.get(state);
+                    vcl = 0d;
+                    if(veh_out!=null) {
+                        vcl += veh_out.get(state);
+                        veh_out.put(state, 0d);
+                    }
+                    if(veh_in !=null) {
+                        vcl += veh_in.get(state);
+                        veh_in.put(state, 0d);
+                    }
+
+                    if(vcl!=0d) {
+                        vdwn += vcl;
+                        veh_dwn.put(state,vdwn);
+                    }
+
+                    demand_dwn.put(state, vdwn * alpha);
                 }
             }
 

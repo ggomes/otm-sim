@@ -166,7 +166,7 @@ public abstract class AbstractOutputTimedLanegroup extends AbstractOutputTimed {
         for(AbstractLaneGroup lg : lgs)
             dataset.addSeries(get_series_for_lg(lg));
 
-        String title = "comm : " + (commodity==null ? "all" : commodity.name);
+        String title = String.format("%s, comm: %s", type.name(), commodity==null ? "all" : commodity.name);
         make_time_chart(dataset,title,get_yaxis_label(),filename);
     }
 

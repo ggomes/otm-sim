@@ -192,7 +192,7 @@ public abstract class AbstractOutputTimedLink extends AbstractOutputTimed {
             dataset.addSeries(get_series_for_linkid(link_id));
         }
 
-        String title = "comm : " + (commodity==null ? "all" : commodity.name);
+        String title = String.format("%s, comm: %s", type.name(), commodity==null ? "all" : commodity.name);
         make_time_chart(dataset,title,get_yaxis_label(),filename);
     }
 
