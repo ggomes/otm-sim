@@ -3,7 +3,6 @@ package core;
 import actuator.AbstractActuator;
 import actuator.ActuatorFlowToLinks;
 import actuator.InterfaceTarget;
-import commodity.Commodity;
 import error.OTMErrorLog;
 import error.OTMException;
 import core.geometry.RoadGeometry;
@@ -32,6 +31,7 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
     protected final core.Node end_node;
     protected boolean is_source;
     protected boolean is_sink;
+    public Long alt_next_link;
 
     // parameters .........................................
     protected final RoadType road_type;
@@ -87,7 +87,7 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
     // construction
     ///////////////////////////////////////////
 
-    public Link(Network network, jaxb.Roadparam rp, long id, float length, int full_lanes, Node start_node, Node end_node, RoadGeometry rg, Link.RoadType rt,Points jpoints) throws OTMException {
+    public Link(Network network, jaxb.Roadparam rp, long id, float length, int full_lanes, Node start_node, Node end_node, RoadGeometry rg, Link.RoadType rt,Points jpoints, Long alt_next_link) throws OTMException {
 
         if (start_node == null)
             throw new OTMException("Unknown start node id in link " + id);
@@ -107,6 +107,7 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
         this.is_source = true;
         this.is_sink = true;
         this.states = new HashSet<>();
+        this.alt_next_link = alt_next_link;
 
         lgs = new ArrayList<>();
         dnlane2lanegroup = new HashMap<>();
@@ -449,15 +450,10 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
                                     vehicles_to_link = remainder_per_link;
 
                                 // get vehicles going to next link
-                                if(vehicles_to_link>0d) {
-
-                                    if( (vp.road_connection.id==2l || vp.road_connection.id==1l) && now>=100)
-                                        System.out.println(String.format("%.0f\trc=%d\t%d\t%.0f",now,vp.road_connection.id,next_link_id,vehicles_to_link*720f));
-
+                                if(vehicles_to_link>0d)
                                     add_to_lanegroup_packets(split_packets, next_link_id,
                                             new State(commid, next_link_id, false),
                                             vehicles_to_link);
-                                }
 
                             }
 
@@ -478,10 +474,6 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
                                     for (Map.Entry<Long,Double> e1 : smp.outlink2split.entrySet()) {
                                         long next_link_id = e1.getKey();
                                         double split = e1.getValue();
-
-                                        if ((vp.road_connection.id == 2l || vp.road_connection.id == 1l) && now >= 100)
-                                            System.out.println(String.format("%.0f\trc=%d\t%d\t%.0f", now, vp.road_connection.id, next_link_id, split * vehicles * 720f));
-
                                         add_to_lanegroup_packets(split_packets, next_link_id,
                                                 new State(commid, next_link_id, false),
                                                 split * vehicles);

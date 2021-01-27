@@ -222,7 +222,9 @@
 				</xs:simpleType>
 			</xs:attribute>
 
-
+			<!-- path-less vehicles will change their routes to this link if they cannot
+			complete the necessary lane change maneuvers within a link -->
+			<xs:attribute name="alt_next_link" type="xs:long" />
 		</xs:complexType>
 	</xs:element>
 

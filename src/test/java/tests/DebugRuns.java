@@ -38,12 +38,12 @@ public class DebugRuns extends AbstractTest {
             boolean sysout2file = false;
             String configfile = "/home/gomes/Desktop/x/278a_0.xml";
             float start_time = 0f;
-            float duration = 200f;
+            float duration = 100f;
             float outdt = 5f;
             String prefix = makeplots?null:"x";
             String outfolder = makeplots?null:"/home/gomes/Desktop/x/output";
             String png_folder = "/home/gomes/Desktop/x/output";
-            Set<Long> link_ids = Set.of(1L,2l,5l,4l);
+            Set<Long> link_ids = null; //Set.of(2l);
 
             Long subnetid = null;
             Long cntrl_id = null;
@@ -83,7 +83,7 @@ public class DebugRuns extends AbstractTest {
             if(do_links){
                 otm.output.request_links_flow(prefix,outfolder,comm_id,link_ids,outdt);
                 otm.output.request_links_veh(prefix,outfolder,comm_id,link_ids,outdt);
-//                otm.output.request_links_sum_veh(prefix,outfolder,comm_id,link_ids,outdt);
+                otm.output.request_links_sum_veh(prefix,outfolder,comm_id,link_ids,outdt);
 //                otm.output.request_link_queues(prefix,outfolder,comm_id,link_ids,outdt);
             }
 

@@ -132,7 +132,8 @@ public class Network {
                     nodes.get(jl.getEndNodeId()) ,
                     jl.getRoadgeom()==null ? null : network.road_geoms.get(jl.getRoadgeom()),
                     jl.getRoadType()==null ? Link.RoadType.none : Link.RoadType.valueOf(jl.getRoadType()) ,
-                    jl.getPoints()==null ? null : jl.getPoints() );
+                    jl.getPoints(),
+                    jl.getAltNextLink() );
 
             links.put(id,link);
         }

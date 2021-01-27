@@ -124,67 +124,76 @@ public class CTMCell extends AbstractCell {
 
         // compute total demand
         double total_demand;
+        boolean block = ((ModelCTM) laneGroup.get_link().get_model()).block;
         if (laneGroup.get_link().is_source())
             // sources discharge at capacity
             total_demand = Math.min(total_vehicles, laneGroup.capacity_veh_per_dt);
         else {
             if(am_dnstrm)
-                total_demand = Math.min(laneGroup.ffspeed_cell_per_dt * total_vehicles, laneGroup.capacity_veh_per_dt);
+                if ( block && total_vehs_out + total_vehs_in > OTMUtils.epsilon)
+                    total_demand = 0d;
+                else
+                    total_demand = Math.min(laneGroup.ffspeed_cell_per_dt * total_vehicles, laneGroup.capacity_veh_per_dt);
             else
                 total_demand = laneGroup.ffspeed_cell_per_dt * total_vehicles;
         }
 
-        // downstream cell: lane change blocking
-        if (am_dnstrm) {
+        // no blocking strategy: lane change demand is converted to dwn demand to an alternative link
+        // For simplicity, we only provide a single alternative for all states and lane change directions.
+        // The general solution would be to provide a map from (state,out or in) -> new state.
+        // Here we have ( *, * ) -> new linkid (this does not work for path-full commodities).
+        // This is specified as default_next_link in the link schema.
+        if (am_dnstrm && !block) {
 
-            // Use this if desired behavior is for lane changing vehicles to block the lane
-            if( ((ModelCTM)laneGroup.get_link().get_model()).block ){
-                if(total_vehs_out+total_vehs_in>OTMUtils.epsilon)
-                    total_demand = 0d;
-            }
+            Long alt_next_link = laneGroup.get_link().alt_next_link;
 
-            else{
-
-                // Use this if the desired behavior is for lane changing vehicles to give up
-                // lane changing and proceed to the next link
-                double alpha = total_demand / total_vehicles;
-                double val;
-                double vdwn,vcl;
+            if(alt_next_link!=null) {
+                double vcl, vclout, vclin;
                 for (State state : laneGroup.get_link().states) {
-                    vdwn = veh_dwn.get(state);
+                    // this cannot be done for pathfull commodities
+                    if (state.isPath)
+                        continue;
+                    if (state.pathOrlink_id == alt_next_link)
+                        continue;
+
                     vcl = 0d;
-                    if(veh_out!=null) {
-                        vcl += veh_out.get(state);
+                    if (veh_out != null) {
+                        vclout = veh_out.get(state);
+                        vcl += vclout;
                         veh_out.put(state, 0d);
+                        total_vehs_out -= vclout;
                     }
-                    if(veh_in !=null) {
-                        vcl += veh_in.get(state);
+                    if (veh_in != null) {
+                        vclin = veh_in.get(state);
+                        vcl += vclin;
                         veh_in.put(state, 0d);
+                        total_vehs_in -= vclin;
                     }
 
-                    if(vcl!=0d) {
-                        vdwn += vcl;
-                        veh_dwn.put(state,vdwn);
+                    if (vcl > OTMUtils.epsilon) {
+                        State newstate = new State(state.commodity_id, alt_next_link, false);
+                        veh_dwn.put(newstate, veh_dwn.get(newstate) + veh_dwn.get(state) + vcl);
+                        total_vehs_dwn += vcl;
                     }
 
-                    demand_dwn.put(state, vdwn * alpha);
                 }
             }
 
+            double alpha = total_demand / total_vehicles;
+            for (State state : laneGroup.get_link().states)
+                demand_dwn.put(state, veh_dwn.get(state) * alpha);
+
+            return;
         }
 
-        else {
-
-            // split among states
-            double alpha = total_demand / total_vehicles;
-            for (State state : laneGroup.get_link().states) {
-                demand_dwn.put(state, veh_dwn.get(state) * alpha);
-                if(veh_out !=null)
-                    demand_out.put(state, veh_out.get(state) * alpha);
-                if(veh_in !=null)
-                    demand_in.put(state, veh_in.get(state) * alpha);
-            }
-
+        // standard strategy
+        double alpha = total_demand / total_vehicles;
+        for (State state : laneGroup.get_link().states) {
+            demand_dwn.put(state, veh_dwn.get(state) * alpha);
+            if(veh_out !=null)
+                demand_out.put(state, veh_out.get(state) * alpha);
+            if(veh_in !=null)
+                demand_in.put(state, veh_in.get(state) * alpha);
         }
 
     }
@@ -193,21 +202,31 @@ public class CTMCell extends AbstractCell {
     public void add_vehicles(State state, Double vehs,Map<Maneuver,Double> maneuver2prob ){
         double cur_val;
 
+        if(vehs<=0)
+            return;
+
         for(Map.Entry<Maneuver,Double> e : maneuver2prob.entrySet()){
             Maneuver side = e.getKey();
+
+            if(e.getValue()<=0)
+                continue;
+
             double val = e.getValue()*vehs;
 
             switch(side){
+
                 case stay:
                     cur_val = veh_dwn.containsKey(state) ? veh_dwn.get(state) : 0d;
                     veh_dwn.put(state,cur_val + val);
                     total_vehs_dwn += val;
                     break;
-                case lcin:in:
+
+                case lcin:
                     cur_val = veh_in.containsKey(state) ? veh_in.get(state) : 0d;
                     veh_in.put(state,cur_val + val);
                     total_vehs_in += val;
                     break;
+
                 case lcout:
                     cur_val = veh_out.containsKey(state) ? veh_out.get(state) : 0d;
                     veh_out.put(state,cur_val + val);
