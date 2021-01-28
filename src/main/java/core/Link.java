@@ -75,6 +75,7 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
     protected Map<Long, SplitMatrixProfile> split_profile; // commodity -> split matrix profile
 
     // control flows to downstream links
+    public Set<ActuatorFlowToLinks> unique_acts_flowToLinks;
     public Map<Long,Map<Long,ActuatorFlowToLinks>> acts_flowToLinks; // road connection->commodity->actuator
 
     // demands ............................................
@@ -168,32 +169,42 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
 
         if(act instanceof ActuatorFlowToLinks) {
 
-            if(acts_flowToLinks==null)
+            if(acts_flowToLinks==null) {
+                unique_acts_flowToLinks = new HashSet<>();
                 acts_flowToLinks = new HashMap<>();
+            }
 
             if(commids.size()!=1)
                 throw new OTMException("-28904jgq-ie");
 
-
             ActuatorFlowToLinks actf2l = (ActuatorFlowToLinks) act;
+
+            unique_acts_flowToLinks.add(actf2l);
+
             long commid = commids.iterator().next();
 
-            if(split_profile!=null && split_profile.containsKey(commid)){
+            if(split_profile!=null && split_profile.containsKey(commid))
                 actf2l.update_splits(split_profile.get(commid).outlink2split);
+
+            for(Long rcid : actf2l.rcids){
+
+                Map<Long,ActuatorFlowToLinks> comm2act;
+
+                if(!acts_flowToLinks.containsKey(rcid)) {
+                    comm2act = new HashMap<>();
+                    acts_flowToLinks.put(rcid,comm2act);
+                }
+                else
+                    comm2act = acts_flowToLinks.get(rcid);
+
+                if(comm2act.containsKey(commid))
+                    throw new OTMException("This link already has a flowtolinks actuator for this commodity");
+
+                comm2act.put(commid,actf2l);
             }
 
-            Map<Long,ActuatorFlowToLinks> comm2act;
-            if(!acts_flowToLinks.containsKey(actf2l.rcid)) {
-                comm2act = new HashMap<>();
-                acts_flowToLinks.put(actf2l.rcid,comm2act);
-            }
-            else
-                comm2act = acts_flowToLinks.get(actf2l.rcid);
 
-            if(comm2act.containsKey(commid))
-                throw new OTMException("This link already has a flowtolinks actuator for this commodity");
 
-            comm2act.put(commid,actf2l);
         }
 
     }
@@ -407,8 +418,6 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
 
                         long commid = state.commodity_id;
 
-                        float now = network.scenario.dispatcher.current_time;
-
                         // I have an actuator for this rc and commodity
                         // use the split matrix stored in the actuator.
                         // this split matrix may leave some outlinks undefined. send the remainder to those
@@ -417,19 +426,19 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
                         if( actflowtolinks!=null && actflowtolinks.initialized) {
 
                             // remove split flows
-                            double remainder = vehicles - actflowtolinks.total_unactuated_split*vehicles;
+                            double remainder = vehicles*(1d - actflowtolinks.total_unactuated_split);
                             double remainder_per_link = 0d;
 
                             // case I don't have enough vehicles to satisfy controlled flows
-                            double red_factor = 1d;
-                            if(remainder<actflowtolinks.total_outlink2flows){
-                                red_factor = remainder/actflowtolinks.total_outlink2flows;
+                            double prop_factor = 1d;
+                            if(remainder<actflowtolinks.remain_total_outlink2flows){
+                                prop_factor = remainder/actflowtolinks.remain_total_outlink2flows;
                                 remainder_per_link = 0d;
                             }
 
                             // case I do, I leave a remainder to be distributed amongst unactuated_links_without_splits
                             else if(!actflowtolinks.unactuated_links_without_splits.isEmpty()) {
-                                remainder -= actflowtolinks.total_outlink2flows;
+                                remainder -= actflowtolinks.remain_total_outlink2flows;
                                 remainder_per_link = remainder>0 ? remainder / actflowtolinks.unactuated_links_without_splits.size() : 0d;
                             }
 
@@ -438,8 +447,12 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
                                 double vehicles_to_link;
 
                                 // this link has controlled flow
-                                if(actflowtolinks.outlink2flows.containsKey(next_link_id))
-                                    vehicles_to_link = red_factor * actflowtolinks.outlink2flows.get(next_link_id);
+                                if(actflowtolinks.remain_outlink2flows.containsKey(next_link_id)) {
+                                    double actflow = actflowtolinks.remain_outlink2flows.get(next_link_id);
+                                    vehicles_to_link = prop_factor * actflow;
+                                    actflowtolinks.remain_outlink2flows.put(next_link_id,actflow-vehicles_to_link);
+                                    actflowtolinks.remain_total_outlink2flows -= vehicles_to_link;
+                                }
 
                                 // this link has splits
                                 else if( actflowtolinks.unactuated_splits!=null && actflowtolinks.unactuated_splits.containsKey(next_link_id) )

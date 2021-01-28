@@ -1,5 +1,6 @@
 package models.fluid.ctm;
 
+import actuator.ActuatorFlowToLinks;
 import core.*;
 
 import error.OTMErrorLog;
@@ -13,6 +14,7 @@ import utils.OTMUtils;
 import utils.StochasticProcess;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ModelCTM extends AbstractFluidModel {
 
@@ -152,6 +154,11 @@ public class ModelCTM extends AbstractFluidModel {
             }
 
         }
+
+        // reset ActuatorFlowToLink values
+        if(link.unique_acts_flowToLinks!=null)
+            for(ActuatorFlowToLinks act : link.unique_acts_flowToLinks)
+                act.reset_totals(timestamp);
     }
 
     @Override

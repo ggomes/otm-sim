@@ -8,15 +8,24 @@ import control.command.InterfaceCommand;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
+import utils.OTMUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ActuatorFlowToLinks extends AbstractActuator {
 
-    public long rcid;
+    public final List<Long> rcids;
+
+    // updated by process_command
     public Map<Long,Double> outlink2flows;
     public double total_outlink2flows;
+
+    // remainders
+    public Map<Long,Double> remain_outlink2flows;
+    public double remain_total_outlink2flows;
+
+    // updated by update_splits
     public double total_unactuated_split; // total split to links not controlled by this actuator.
     public Map<Long, Double> unactuated_splits = null;
     public Set<Long> unactuated_links_without_splits;
@@ -24,19 +33,19 @@ public class ActuatorFlowToLinks extends AbstractActuator {
     public ActuatorFlowToLinks(Scenario scenario,Actuator jact) throws OTMException {
         super(scenario, jact);
 
-        Long temp_rcid = null;
-        List<Long> temp_outlinkids = null;
+        List<Long> temp_rcids = null;
         if(jact.getParameters()!=null){
             for(jaxb.Parameter p : jact.getParameters().getParameter()){
                 switch(p.getName()){
+                    case "rcids":
                     case "rcid":
-                        temp_rcid = Long.parseLong(p.getValue());
+                        temp_rcids = OTMUtils.csv2longlist(p.getValue());
                         break;
                 }
             }
         }
 
-        rcid = temp_rcid==null ? Long.MIN_VALUE : temp_rcid;
+        rcids = temp_rcids;
         dt = null;
         total_unactuated_split = 0d;
     }
@@ -58,7 +67,8 @@ public class ActuatorFlowToLinks extends AbstractActuator {
             errorLog.addError("ActuatorFlowToLinks: target==null");
         if (commids.size()!=1)
             errorLog.addError("ActuatorFlowToLinks: commids.size()!=1");
-        if( !((Link)target).get_roadconnections_entering().stream().anyMatch(x->x.getId()==rcid) )
+        Set<Long> rcs = ((Link)target).get_roadconnections_entering().stream().map(x->x.getId()).collect(Collectors.toSet());
+        if( rcids!=null && rcids.stream().anyMatch(rcid->!rcs.contains(rcid)) )
             errorLog.addError("Road connection does not enter the target link");
     }
 
@@ -93,6 +103,15 @@ public class ActuatorFlowToLinks extends AbstractActuator {
     }
 
     @Override
+    public void validate_post_init(OTMErrorLog errorLog) {
+        super.validate_post_init(errorLog);
+
+        Link link = (Link) target;
+        if( !(link.get_model() instanceof AbstractFluidModel) )
+            errorLog.addError("ActuatorFlowToLink only works on fluid models.");
+    }
+
+    @Override
     public void process_command(InterfaceCommand command, float timestamp) throws OTMException {
         if(command==null)
             return;
@@ -106,7 +125,15 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         this.total_outlink2flows = outlink2flows.values().stream().mapToDouble(x->x).sum();
     }
 
+    public void reset_totals(float timestamp){
+        remain_outlink2flows = new HashMap<>();
+        for(Map.Entry<Long,Double> e : outlink2flows.entrySet())
+            remain_outlink2flows.put(e.getKey(),e.getValue());
+        remain_total_outlink2flows = total_outlink2flows;
+    }
+
     public void update_splits(Map<Long,Double> outlink2split){
+
         if(outlink2split==null)
             return;
 
