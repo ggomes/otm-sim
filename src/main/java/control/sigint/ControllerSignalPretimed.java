@@ -1,9 +1,5 @@
 package control.sigint;
 
-import actuator.ActuatorSignal;
-import actuator.SignalPhase;
-import control.AbstractController;
-import control.command.CommandSignal;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import error.OTMErrorLog;
@@ -12,18 +8,11 @@ import jaxb.Controller;
 import core.Scenario;
 import utils.OTMUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public class ControllerSignalPretimed extends AbstractController {
+public class ControllerSignalPretimed extends ControllerSignal {
 
     public float cycle = Float.NaN;
     public float offset = Float.NaN;
     public float start_time = 0f;
-    public List<Stage> stages = new ArrayList<>();
-    public int curr_stage_index;
 
     ///////////////////////////////////////////////////
     // construction
@@ -49,27 +38,12 @@ public class ControllerSignalPretimed extends AbstractController {
             }
         }
 
-        // stages
-        if(jaxb_controller.getStages()!=null)
-            for (jaxb.Stage stage : jaxb_controller.getStages().getStage())
-                stages.add(new Stage(stage));
-
         // set start_time
         float relstarttime = 0f;
         for(Stage stage : stages){
             stage.cycle_starttime = relstarttime%cycle;
             relstarttime += stage.duration;
         }
-
-    }
-
-    @Override
-    public Class get_actuator_class() {
-        return ActuatorSignal.class;
-    }
-
-    @Override
-    protected void configure() throws OTMException {
 
     }
 
@@ -95,18 +69,10 @@ public class ControllerSignalPretimed extends AbstractController {
         if(offset>=cycle)
             errorLog.addError("offset>=cycle");
 
-        if(stages.isEmpty()){
-            errorLog.addError("stages.queue.isEmpty()");
-        } else {
-
-            // cycle = sum durations
-            double total_duration = stages.stream().mapToDouble(x->x.duration).sum();
-            if(!OTMUtils.approximately_equals(cycle,total_duration))
-                errorLog.addError("cycle does not equal total stage durations: cycle=" + cycle + " , total_duration=" + total_duration);
-
-            for (Stage stage : stages)
-                stage.validate(errorLog);
-        }
+        // cycle = sum durations
+        double total_duration = stages.stream().mapToDouble(x->x.duration).sum();
+        if(!OTMUtils.approximately_equals(cycle,total_duration))
+            errorLog.addError("cycle does not equal total stage durations: cycle=" + cycle + " , total_duration=" + total_duration);
     }
 
     ///////////////////////////////////////////////////
@@ -119,7 +85,7 @@ public class ControllerSignalPretimed extends AbstractController {
         float now = dispatcher.current_time;
         StageindexReltime x = get_stage_for_time(now);
 
-        set_stage_index(x.index,now);
+        set_stage_index(x.index);
 
         // register next poke
         float next_stage_start = now - x.reltime + stages.get(x.index).duration;
@@ -131,44 +97,8 @@ public class ControllerSignalPretimed extends AbstractController {
     // get
     ///////////////////////////////////////////////////
 
-    public ActuatorSignal get_signal(){
-        return (ActuatorSignal) actuators.values().iterator().next();
-    }
-
-    public Integer get_stage_index(){
-        return curr_stage_index;
-    }
-
     public float get_cycle_time(float time){
         return (time-offset)%cycle;
-    }
-
-    public CommandSignal get_command_for_stage_index(int index) {
-        Map<Long, SignalPhase.BulbColor> command = new HashMap<>();
-        for(Long phase_id : stages.get(index).phase_ids)
-            command.put(phase_id, SignalPhase.BulbColor.GREEN);
-        return new CommandSignal(command);
-    }
-
-    ///////////////////////////////////////////////////
-    // set
-    ///////////////////////////////////////////////////
-
-    public void set_stage_index(int index, float timestamp) throws OTMException {
-
-        curr_stage_index = index;
-
-        ActuatorSignal signal = get_signal();
-        CommandSignal c = get_command_for_stage_index(index);
-        command.put(signal.id , c);
-
-        // send command to actuator
-        get_signal().process_command(c,timestamp);
-
-    }
-
-    public void set_stage_index(int index) throws OTMException {
-        set_stage_index(index,this.scenario.get_current_time());
     }
 
     ///////////////////////////////////////////////////

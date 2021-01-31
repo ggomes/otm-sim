@@ -1,10 +1,12 @@
 package core;
 
+import control.AbstractController;
 import dispatch.Dispatcher;
 import dispatch.EventStopSimulation;
 import error.OTMException;
 import events.AbstractScenarioEvent;
 import jaxb.OutputRequests;
+import models.vehicle.spatialq.OutputLinkQueues;
 import output.*;
 import cmd.RunParameters;
 import utils.OTMUtils;
@@ -176,6 +178,92 @@ public class OTM {
 
     public void terminate() {
         scenario.terminate();
+    }
+
+    ////////////////////////////////////////////////////////
+    // plot
+    ////////////////////////////////////////////////////////
+
+    public void plot_outputs(String out_folder) throws OTMException {
+        plot_outputs(this.output.get_data(),out_folder);
+    }
+
+    public static void plot_outputs(Set<AbstractOutput> outputs,String out_folder) throws OTMException {
+        for(AbstractOutput output :  outputs){
+
+            String commid;
+
+            if(output instanceof AbstractOutputTimed){
+                AbstractOutputTimed x = (AbstractOutputTimed) output;
+                commid = x.commodity==null ? "all" : String.format("%d",x.commodity.getId());
+            } else
+                commid = "";
+
+            // links
+            if (output instanceof OutputLinkFlow)
+                ((OutputLinkFlow) output).plot_for_links(null, String.format("%s/%s_link_flow.png", out_folder, commid));
+
+            if (output instanceof OutputLinkVehicles)
+                ((OutputLinkVehicles) output).plot_for_links(null, String.format("%s/%s_link_veh.png", out_folder, commid));
+
+            if (output instanceof OutputLinkSumVehicles)
+                ((OutputLinkSumVehicles) output).plot_for_links(null, String.format("%s/%s_link_sumveh.png", out_folder, commid));
+
+            if (output instanceof OutputLinkQueues)
+                ((OutputLinkQueues) output).plot(String.format("%s/%s_link_sumqueues.png", out_folder,commid));
+
+            // lane groups
+            if (output instanceof OutputLaneGroupFlow)
+                ((OutputLaneGroupFlow) output).plot_for_links(null,  String.format("%s/%s_lg_flow.png", out_folder, commid));
+
+            if (output instanceof OutputLaneGroupVehicles)
+                ((OutputLaneGroupVehicles) output).plot_for_links(null,String.format("%s/%s_lg_veh.png", out_folder, commid));
+
+            if (output instanceof OutputLaneGroupSumVehicles)
+                ((OutputLaneGroupSumVehicles) output).plot_for_links(null,String.format("%s/%s_lg_sumveh.png", out_folder, commid));
+
+            // cells
+            if (output instanceof OutputCellFlow)
+                ((OutputCellFlow) output).plot_for_links(null, String.format("%s/%s_cell_flow.png", out_folder, commid));
+
+            if (output instanceof OutputCellVehicles)
+                ((OutputCellVehicles) output).plot_for_links(null, String.format("%s/%s_cell_veh.png", out_folder, commid));
+
+            if (output instanceof OutputCellSumVehicles)
+                ((OutputCellSumVehicles) output).plot_for_links(null, String.format("%s/%s_cell_sumveh.png", out_folder, commid));
+
+            if (output instanceof OutputCellSumVehiclesDwn)
+                ((OutputCellSumVehiclesDwn) output).plot_for_links(null, String.format("%s/%s_cell_sumvehdwn.png", out_folder, commid));
+
+            if (output instanceof OutputCellLanechangeOut)
+                ((OutputCellLanechangeOut) output).plot_for_links(null, String.format("%s/%s_cell_lc_out.png", out_folder, commid));
+
+            if (output instanceof OutputCellLanechangeIn)
+                ((OutputCellLanechangeIn) output).plot_for_links(null, String.format("%s/%s_cell_lc_in.png", out_folder, commid));
+
+            // subnetworks
+            if (output instanceof OutputPathTravelTime)
+                ((OutputPathTravelTime) output).plot(String.format("%s/%s_path_tt.png", out_folder, commid));
+
+            if (output instanceof OutputSubnetworkVHT)
+                ((OutputSubnetworkVHT) output).plot_for_links(null, String.format("%s/%s_vht.png", out_folder, commid));
+
+            // vehicle events
+            if (output instanceof OutputVehicleEvents)
+                ((OutputVehicleEvents) output).plot(String.format("%s/veh_events.png", out_folder));
+
+//                if (output instanceof OutputVehicleClass)
+//                    ((OutputVehicleClass) output).plot(String.format("%s/veh_class.png", png_folder));
+
+            if (output instanceof OutputTravelTime)
+                ((OutputTravelTime) output).plot(String.format("%s/veh_traveltime.png", out_folder));
+
+            // controllers
+
+            if (output instanceof OutputController)
+                ((OutputController) output).plot(String.format("%s/controller.png", out_folder));
+
+        }
     }
 
     ////////////////////////////////////////////////////////

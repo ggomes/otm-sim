@@ -30,7 +30,6 @@ public abstract class AbstractCell {
     public abstract void subtract_vehicles(Map<State, Double> dwn, Map<State, Double> in, Map<State, Double> out);
     public abstract double get_vehicles();
 
-
     public abstract double get_veh_dwn_for_commodity(Long comm_id);
     public abstract double get_veh_in_for_commodity(Long comm_id);
     public abstract double get_veh_out_for_commodity(Long comm_id);

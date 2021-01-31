@@ -23,6 +23,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     public enum Algorithm {
         schedule,
+        sig,
         sig_pretimed,
         rm_alinea,
         rm_fixed_rate,

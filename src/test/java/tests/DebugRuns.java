@@ -36,19 +36,19 @@ public class DebugRuns extends AbstractTest {
             boolean do_controllers  = false;
 
             boolean sysout2file = false;
-            String configfile = "/home/gomes/Desktop/x/281_0.xml";
+            String configfile = "/home/gomes/code/otm/otm-sim/src/test/resources/test_configs/intersection.xml";
             float start_time = 0f;
-            float duration = 1000f;
-            float outdt = 5f;
+            float duration = 300f;
+            float outdt = 2f;
             String prefix = makeplots?null:"x";
-            String outfolder = makeplots?null:"/home/gomes/Desktop/x/output";
-            String png_folder = "/home/gomes/Desktop/x/output";
-            Set<Long> link_ids = Set.of(6l,8l);
+            String outfolder = makeplots?null:"/home/gomes/code/otm/otm-sim/temp";
+            String png_folder = "/home/gomes/code/otm/otm-sim/temp";
+            Set<Long> link_ids = null; //Set.of(2l,4l,5l);
 
             Long subnetid = null;
             Long cntrl_id = null;
 
-            Long comm_id= 1l;
+            Long comm_id= null;
 
             // ..........................................
 
@@ -83,7 +83,7 @@ public class DebugRuns extends AbstractTest {
             if(do_links){
                 otm.output.request_links_flow(prefix,outfolder,comm_id,link_ids,outdt);
                 otm.output.request_links_veh(prefix,outfolder,comm_id,link_ids,outdt);
-                otm.output.request_links_sum_veh(prefix,outfolder,comm_id,link_ids,outdt);
+//                otm.output.request_links_sum_veh(prefix,outfolder,comm_id,link_ids,outdt);
 //                otm.output.request_link_queues(prefix,outfolder,comm_id,link_ids,outdt);
             }
 
@@ -92,17 +92,17 @@ public class DebugRuns extends AbstractTest {
                 otm.output.request_lanegroups(prefix,outfolder);
                 otm.output.request_lanegroup_flw(prefix,outfolder,comm_id,link_ids,outdt);
                 otm.output.request_lanegroup_veh(prefix,outfolder,comm_id,link_ids,outdt);
-                otm.output.request_lanegroup_sum_veh(prefix,outfolder,comm_id,link_ids,outdt);
+//                otm.output.request_lanegroup_sum_veh(prefix,outfolder,comm_id,link_ids,outdt);
             }
 
             // cells
             if(do_cells){
                 otm.output.request_cell_flw(prefix,outfolder,comm_id,link_ids,outdt);
                 otm.output.request_cell_veh(prefix,outfolder,comm_id,link_ids,outdt);
-                otm.output.request_cell_sum_veh(prefix,outfolder,comm_id,link_ids,outdt);
-                otm.output.request_cell_sum_veh_dwn(prefix,outfolder,comm_id,link_ids,outdt);
-                otm.output.request_cell_lanechange_out(prefix,outfolder,comm_id,link_ids,outdt);
-                otm.output.request_cell_lanechange_in(prefix,outfolder,comm_id,link_ids,outdt);
+//                otm.output.request_cell_sum_veh(prefix,outfolder,comm_id,link_ids,outdt);
+//                otm.output.request_cell_sum_veh_dwn(prefix,outfolder,comm_id,link_ids,outdt);
+//                otm.output.request_cell_lanechange_out(prefix,outfolder,comm_id,link_ids,outdt);
+//                otm.output.request_cell_lanechange_in(prefix,outfolder,comm_id,link_ids,outdt);
             }
 
             // subnetworks
@@ -132,97 +132,13 @@ public class DebugRuns extends AbstractTest {
             // Run .................................
             otm.run(start_time,duration);
 
-
             // Timer
             endTime = System.nanoTime();
             seconds = (endTime - startTime)/1e9;
             System.out.println("Run time: " + seconds);
             startTime = endTime;
 
-            // Print output .........................
-            for(AbstractOutput output :  otm.output.get_data()){
-
-                String commid;
-
-                if(output instanceof AbstractOutputTimed){
-                    AbstractOutputTimed x = (AbstractOutputTimed)output;
-                    commid = x.commodity==null ? "all" : String.format("%d",x.commodity.getId());
-                } else {
-                    commid = "";
-                }
-
-                // links
-                if (output instanceof OutputLinkFlow)
-                    ((OutputLinkFlow) output).plot_for_links(null, String.format("%s/%s_link_flow.png", png_folder, commid));
-
-                if (output instanceof OutputLinkVehicles)
-                    ((OutputLinkVehicles) output).plot_for_links(null, String.format("%s/%s_link_veh.png", png_folder, commid));
-
-                if (output instanceof OutputLinkSumVehicles)
-                    ((OutputLinkSumVehicles) output).plot_for_links(null, String.format("%s/%s_link_sumveh.png", png_folder, commid));
-
-                if (output instanceof OutputLinkQueues)
-                    ((OutputLinkQueues) output).plot(String.format("%s/%s_link_sumqueues.png", png_folder,comm_id));
-
-                // lane groups
-
-                if (output instanceof OutputLaneGroupFlow) {
-                    OutputLaneGroupFlow x = (OutputLaneGroupFlow) output;
-                    x.plot_for_links(null,  String.format("%s/%s_lg_flow.png", png_folder, commid));
-                }
-
-                if (output instanceof OutputLaneGroupVehicles) {
-                    ((OutputLaneGroupVehicles) output).plot_for_links(null,String.format("%s/%s_lg_veh.png", png_folder, commid));
-                }
-
-                if (output instanceof OutputLaneGroupSumVehicles) {
-                    ((OutputLaneGroupSumVehicles) output).plot_for_links(null,String.format("%s/%s_lg_sumveh.png", png_folder, commid));
-                }
-
-                // cells
-
-                if (output instanceof OutputCellFlow)
-                    ((OutputCellFlow) output).plot_for_links(null, String.format("%s/%s_cell_flow.png", png_folder, commid));
-
-                if (output instanceof OutputCellVehicles)
-                    ((OutputCellVehicles) output).plot_for_links(null, String.format("%s/%s_cell_veh.png", png_folder, commid));
-
-                if (output instanceof OutputCellSumVehicles)
-                    ((OutputCellSumVehicles) output).plot_for_links(null, String.format("%s/%s_cell_sumveh.png", png_folder, commid));
-
-                if (output instanceof OutputCellSumVehiclesDwn)
-                    ((OutputCellSumVehiclesDwn) output).plot_for_links(null, String.format("%s/%s_cell_sumvehdwn.png", png_folder, commid));
-
-                if (output instanceof OutputCellLanechangeOut)
-                    ((OutputCellLanechangeOut) output).plot_for_links(null, String.format("%s/%s_cell_lc_out.png", png_folder, commid));
-
-                if (output instanceof OutputCellLanechangeIn)
-                    ((OutputCellLanechangeIn) output).plot_for_links(null, String.format("%s/%s_cell_lc_in.png", png_folder, commid));
-
-                // subnetworks
-                if (output instanceof OutputPathTravelTime)
-                    ((OutputPathTravelTime) output).plot(String.format("%s/%s_path_tt.png", png_folder, commid));
-
-                if (output instanceof OutputSubnetworkVHT)
-                    ((OutputSubnetworkVHT) output).plot_for_links(null, String.format("%s/%s_vht.png", png_folder, commid));
-
-                // vehicle events
-
-                if (output instanceof OutputVehicleEvents)
-                    ((OutputVehicleEvents) output).plot(String.format("%s/veh_events.png", png_folder));
-
-//                if (output instanceof OutputVehicleClass)
-//                    ((OutputVehicleClass) output).plot(String.format("%s/veh_class.png", png_folder));
-
-                if (output instanceof OutputTravelTime)
-                    ((OutputTravelTime) output).plot(String.format("%s/veh_traveltime.png", png_folder));
-
-                // controllers
-
-                if (output instanceof OutputController)
-                    ((OutputController) output).plot(String.format("%s/controller.png", png_folder));
-
-            }
+            otm.plot_outputs(png_folder);
 
         } catch (OTMException e) {
             System.out.print(e);

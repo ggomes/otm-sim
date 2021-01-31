@@ -13,6 +13,7 @@ import static java.util.stream.Collectors.toSet;
 
 public class NodeModel {
 
+    private static boolean debug = false;
     private static int MAX_ITERATIONS = 10;
     public static double eps = 1e-3;
     public Node node;
@@ -151,6 +152,29 @@ public class NodeModel {
         rcs.values().forEach(x->x.reset());
         dlgs.values().forEach(x->x.reset());
 
+
+        // ----------------------------------------
+        if(debug && node.getId()==2l){
+            System.out.println(String.format("%.1f node model %d START",timestamp,node.getId()));
+            for(UpLaneGroup ulg : ulgs.values()){
+                for(Map.Entry<State, UpLaneGroup.StateInfo> e : ulg.state_infos.entrySet()){
+                    State state = e.getKey();
+                    UpLaneGroup.StateInfo stateinfo = e.getValue();
+                    System.out.println(String.format("\tlink=%d\tlane=%d\tstate=(%d,%d)\tdemand=%.1f",
+                            ulg.lg.get_link().getId(), ulg.lg.get_start_lane_dn(),
+                            state.commodity_id,state.pathOrlink_id,stateinfo.d_gs*720d));
+                }
+            }
+
+            for(DnLaneGroup dlg : dlgs.values())
+                System.out.println(String.format("\tlink=%d\tlane=%d\tsupply=%.1f",
+                        dlg.lg.get_link().getId(), dlg.lg.get_start_lane_dn(),
+                        dlg.s_h*720d));
+        }
+        // ---------------------------------------
+
+
+
         // iteration
         int it = 0;
         while (it++ <= MAX_ITERATIONS) {
@@ -168,6 +192,19 @@ public class NodeModel {
             step6();
         }
 
+
+        // ----------------------------------------
+        if(debug && node.getId()==2l){
+            for(RoadConnection rc : rcs.values()){
+                System.out.println(String.format("\trc %d",rc.rc.getId()));
+                for(Map.Entry<State,Double> e : rc.f_rs.entrySet()) {
+                    State state = e.getKey();
+                    System.out.println(String.format("\t\tstate=(%d,%d)\tflow=%.1f",
+                            state.commodity_id,state.pathOrlink_id,e.getValue()*720d));
+                }
+            }
+            System.out.println("...................");
+        }
     }
 
     private boolean eval_stop(int iteration){
