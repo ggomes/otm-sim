@@ -2,7 +2,6 @@ package tests;
 
 import core.OTM;
 import error.OTMException;
-import models.vehicle.spatialq.OutputLinkQueues;
 import org.junit.Ignore;
 import org.junit.Test;
 import output.*;

@@ -1,10 +1,8 @@
 package core;
 
-import control.AbstractController;
 import dispatch.Dispatcher;
 import dispatch.EventStopSimulation;
 import error.OTMException;
-import events.AbstractScenarioEvent;
 import jaxb.OutputRequests;
 import models.vehicle.spatialq.OutputLinkQueues;
 import output.*;
@@ -24,8 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-
-import static java.util.stream.Collectors.toSet;
 
 /**
  * Public API. The methods in the API are of three types. Basic scenario loading and running
@@ -63,6 +59,14 @@ public class OTM {
 
     public static OTM load_test(String testname) throws OTMException  {
         return new OTM(JaxbLoader.load_test_scenario(testname),true);
+    }
+
+    public Output output(){
+        return output;
+    }
+
+    public Scenario scenario(){
+        return scenario;
     }
 
     ////////////////////////////////////////////////////////

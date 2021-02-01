@@ -27,14 +27,15 @@ public class OTM {
 
         // load and validate
         if (cmd.equals("-load")){
+            core.OTM otm = null;
             try {
-                core.OTM otm = new core.OTM(arguments[0],true); // config
+                otm = new core.OTM(arguments[0],true); // config
             } catch (OTMException e) {
                 e.printStackTrace();
-                return;
             }
 
-            System.out.println("Load successful!");
+            if(otm!=null)
+                System.out.println("Load successful!");
         } else
 
         // run
@@ -53,9 +54,9 @@ public class OTM {
                 }
 
                 String configfile = arguments[0];
-                String prefix = arguments[1];
-                String output_requests_file = arguments[2];
-                String output_folder = arguments[3];
+                String prefix = arguments[1].equalsIgnoreCase("null") ? null : arguments[1];
+                String output_requests_file = arguments[2].equalsIgnoreCase("null") ? null : arguments[2];
+                String output_folder = arguments[3].equalsIgnoreCase("null") ? null : arguments[3];
                 int start_time = Integer.parseInt(arguments[4]);
                 int duration = Integer.parseInt(arguments[5]);
 
