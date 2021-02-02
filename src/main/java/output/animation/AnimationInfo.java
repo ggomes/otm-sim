@@ -17,12 +17,12 @@ public class AnimationInfo {
     //////////////////////////////////////////////////
 
     public AnimationInfo(Scenario scenario) throws OTMException {
-        this.timestamp = scenario.get_current_time();
+        this.timestamp = scenario.dispatcher.current_time;
         this.link_info = populate_link_info(scenario.network.links.values());
     }
 
     public AnimationInfo(Scenario scenario,List<Long> link_ids) throws OTMException {
-        this.timestamp = scenario.get_current_time();
+        this.timestamp = scenario.dispatcher.current_time;
         this.link_info = populate_link_info(link_ids.stream().map(
                 x->scenario.network.links.get(x)).collect(Collectors.toList()));
     }

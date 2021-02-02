@@ -1,4 +1,8 @@
-api
-api.info
-api.info.events
+actuator
+commodity
+control
+control.sigint
+core
+events
 output
+sensor

@@ -18,6 +18,9 @@ import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 
+/** A segment of road in the network.
+ *
+ */
 public class Link implements InterfaceScenarioElement, InterfaceTarget {
 
     public enum RoadType {none,offramp,onramp,freeway,connector,bridge,ghost}

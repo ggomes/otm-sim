@@ -28,20 +28,44 @@ import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 
+
+/**
+ * Methods for extracting information and manipulating the scenario.
+ * This is the main class of the simulation. It contains references to all of the components of the simulation.
+ * Scenario elements can be retrieved from maps using their ids. Each scenario element has its own API.
+ * You should only interact with the scenario elements through the docuemented API. There are additional public
+ * methods, but these should not be used if they are not part of the documented API.
+ */
 public class Scenario {
 
     public Dispatcher dispatcher;
     public Set<AbstractOutput> outputs = new HashSet<>();
 
-    // Scenario elements
-    public Map<String,AbstractModel> models;
-    public Map<Long,Commodity> commodities = new HashMap<>();     // commodity id -> commodity
-    public Map<Long,Subnetwork> subnetworks = new HashMap<>();    // subnetwork id -> subnetwork
+    /** Container for the network **/
     public Network network;
+
+    /** Map of models **/
+    public Map<String,AbstractModel> models;
+
+    /** Map of commodities**/
+    public Map<Long,Commodity> commodities = new HashMap<>();     // commodity id -> commodity
+
+    /** Map of subnetworks **/
+    public Map<Long,Subnetwork> subnetworks = new HashMap<>();    // subnetwork id -> subnetwork
+
+    /** Map of controllers  **/
     public Map<Long, AbstractController> controllers = new HashMap<>();
+
+    /** Map of actuators **/
     public Map<Long, AbstractActuator> actuators = new HashMap<>();
+
+    /** Map of sensors **/
     public Map<Long, AbstractSensor> sensors = new HashMap<>();
+
+    /** Map of demands **/
     public Map<Long, Set<DemandInfo>> demands = new HashMap<>(); // link id -> DemandInfo
+
+    /** Map of events **/
     public Map<Long, AbstractScenarioEvent> events = new HashMap<>(); // event id -> AbstractEvent
 
     // travel time computation
@@ -98,7 +122,7 @@ public class Scenario {
         this.initialize(dispatcher,new RunParameters(0f),true);
     }
 
-    public void initialize(Dispatcher dispatcher,RunParameters runParams,boolean validate_post_init) throws OTMException {
+    protected void initialize(Dispatcher dispatcher,RunParameters runParams,boolean validate_post_init) throws OTMException {
 
         // attach dispatcher ...............
         this.dispatcher = dispatcher;
@@ -198,18 +222,19 @@ public class Scenario {
     // export
     ///////////////////////////////////////////////////
 
-    public void to_xml(String filename){
-        try {
-            File file = new File(filename);
-            JAXBContext jaxbContext = JAXBContext.newInstance(jaxb.Scenario.class);
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            jaxbMarshaller.marshal(to_jaxb(), file);
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
-    }
+//    public void to_xml(String filename){
+//        try {
+//            File file = new File(filename);
+//            JAXBContext jaxbContext = JAXBContext.newInstance(jaxb.Scenario.class);
+//            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+//            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+//            jaxbMarshaller.marshal(to_jaxb(), file);
+//        } catch (JAXBException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
+    /** Create a jaxb object for this scenario **/
     public jaxb.Scenario to_jaxb(){
 
         jaxb.Scenario jsc = new jaxb.Scenario();
@@ -349,7 +374,7 @@ public class Scenario {
     // teminate
     ///////////////////////////////////////////////////
 
-    public void terminate() {
+    protected void terminate() {
         try {
             for(AbstractOutput or : outputs)
                 or.close();
@@ -369,6 +394,7 @@ public class Scenario {
         path_tt_manager.add_path_travel_time_writer(path_tt_writer);
     }
 
+    /** Get a scenario element by type and id **/
     public InterfaceScenarioElement get_element(ScenarioElementType type, Long id){
 
         switch(type){
@@ -396,68 +422,66 @@ public class Scenario {
     // API
     ///////////////////////////////////////////////////
 
+    // get maps (needed for py4j to work)
 
-
-
-    public float get_current_time(){
-        return dispatcher.current_time;
+    /** Get network **/
+    public Network network(){
+        return network;
     }
 
-    // get number of elements .........................
-
-    public int num_nodes(){
-        return network.nodes.size();
+    /** Get map of models **/
+    public Map<String,AbstractModel> models(){
+        return models;
     }
 
-    public int num_links(){
-        return network.links.size();
+    /** Get map of commodities**/
+    public Map<Long,Commodity> commodities(){
+        return commodities;
     }
 
-    public int num_commodities() {
-        return commodities.size();
+    /** Get map of subnetworks **/
+    public Map<Long,Subnetwork> subnetworks(){
+        return subnetworks;
     }
 
-    public int num_subnetworks() {
-        return subnetworks.size();
+    /** Get map of controllers  **/
+    public Map<Long, AbstractController> controllers(){
+        return controllers;
     }
 
-    public int num_sensors() {
-        return sensors.size();
+    /** Get map of actuators **/
+    public Map<Long, AbstractActuator> actuators(){
+        return actuators;
     }
 
-    public int num_actuators() {
-        return actuators.size();
+    /** Get map of sensors **/
+    public Map<Long, AbstractSensor> sensors(){
+        return sensors;
     }
 
-    public int num_controllers() {
-        return controllers.size();
+    /** Get map of demands **/
+    public Map<Long, Set<DemandInfo>> demands(){
+        return demands;
+    }
+
+    /** Get map of events **/
+    public Map<Long, AbstractScenarioEvent> events(){
+        return events;
     }
 
     // id sets .......................................
 
-    public Set<Long> node_ids(){
-        return network.nodes.keySet();
-    }
-
-    public Set<Long> link_ids(){
-        return network.links.keySet();
-    }
-
-    public Set<Long> source_link_ids(){
-        return network.links.values().stream()
-                .filter(x->x.is_source())
-                .map(x->x.getId())
-                .collect(toSet());
-    }
-
+    /** Get commodity ids **/
     public Set<Long> commodity_ids(){
         return commodities.keySet();
     }
 
+    /** Get subnetwork ids **/
     public Set<Long> subnetwork_ids(){
         return subnetworks.keySet();
     }
 
+    /** Get ids of subnetworks that are paths **/
     public Set<Long> path_ids(){
         return subnetworks.values().stream()
                 .filter(x->x instanceof Path)
@@ -465,64 +489,72 @@ public class Scenario {
                 .collect(toSet());
     }
 
+    /** Get actuator ids **/
     public Collection<Long> actuator_ids(){
         return actuators.keySet();
     }
 
+    /** Get sensor ids **/
     public Collection<Long> sensor_ids(){
         return sensors.keySet();
     }
 
+    /** Get controller ids **/
     public Collection<Long> controller_ids(){
         return controllers.keySet();
     }
 
     // elements by id .................................
 
-    public Node get_node(long id)throws OTMException {
-        if(!network.nodes.containsKey(id))
-            throw new OTMException("Bad id in Scenario.get_link");
-        return network.nodes.get(id);
+    /** Get model by id **/
+    public AbstractModel get_model(long id) throws OTMException {
+        if(!models.containsKey(id))
+            throw new OTMException("Bad id in Scenario.get_model");
+        return models.get(id);
     }
 
-    public Link get_link(long id) throws OTMException {
-        if(!network.links.containsKey(id))
-            throw new OTMException("Bad id in Scenario.get_link");
-        return network.links.get(id);
-    }
-
+    /** Get commodity by id **/
     public Commodity get_commodity(long id) throws OTMException {
         if(!commodities.containsKey(id))
             throw new OTMException("Bad id in Scenario.get_commodity");
         return commodities.get(id);
     }
 
+    /** Get subnetwork by id **/
     public Subnetwork get_subnetwork(long id) throws OTMException {
         if(!subnetworks.containsKey(id))
             throw new OTMException("Bad id in Scenario.get_subnetwork");
         return subnetworks.get(id);
     }
 
+    /** Get actuator by id **/
     public AbstractActuator get_actuator(long id) throws OTMException {
         if(!actuators.containsKey(id))
             throw new OTMException("Bad id in Scenario.get_actuator");
         return actuators.get(id);
     }
 
+    /** Get sensor by id **/
     public AbstractSensor get_sensor(long id) throws OTMException {
         if(!sensors.containsKey(id))
             throw new OTMException("Bad id in Scenario.get_sensor");
         return sensors.get(id);
     }
 
+    /** Get controller by id **/
     public AbstractController get_controller(long id) throws OTMException {
         if(!controllers.containsKey(id))
             throw new OTMException("Bad id in Scenario.get_controller");
         return controllers.get(id);
     }
 
-    // model .................................
+    // set model .................................
 
+    /**
+     * Assign a model to a set of links.
+     * @param jmodel Model in jaxb format. Please refer to otm.xsd for the details.
+     * @throws OTMException
+     */
     public void set_model(jaxb.Model jmodel) throws OTMException {
 
         if( models.containsKey(jmodel.getName()) )
@@ -540,6 +572,10 @@ public class Scenario {
 
     // demands .................................
 
+    /** Extract all of the demands for a given commodity.
+     * @param commodity_id Commodity id.
+     * @return
+     */
     public Set<Profile1D> get_demands_for_commodity(Long commodity_id){
         return network.links.values().stream()
                 .filter(link->link.demandGenerators!=null)
@@ -549,6 +585,10 @@ public class Scenario {
                 .collect(toSet());
     }
 
+    /** Extract all of the demands for a given link.
+     * @param link_id Link id.
+     * @return
+     */
     public Set<Profile1D> get_demands_for_link(Long link_id){
         Link link = this.network.links.get(link_id);
         if(link==null)
@@ -557,18 +597,6 @@ public class Scenario {
     }
 
     // other .................................
-
-    public Set<List<Long>> get_link_connectivity(){
-        Set<List<Long>> X = new HashSet<>();
-        for(Link link : network.links.values()){
-            List<Long> A = new ArrayList<>();
-            A.add(link.getId());
-            A.add(link.get_start_node().getId());
-            A.add(link.get_end_node().getId());
-            X.add(A);
-        }
-        return X;
-    }
 
     public long add_subnetwork(String name, Set<Long> linkids,Set<Long> comm_ids) throws OTMException {
         Long subnetid = subnetworks.keySet().stream().max(Long::compare).get() + 1;

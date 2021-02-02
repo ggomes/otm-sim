@@ -12,6 +12,16 @@ import static java.util.stream.Collectors.toSet;
 
 /**
  * Methods for requesting outputs.
+ * This class provides methods for requesting certain outputs from the simulation. These methods should be called
+ * prior to the initialization of the simulation. Most of them share these parameters:
+ * <b>prefix</b> ... If you wish to write the output to files, this string will be used as a prefix for all output files in
+ * this run. Otherwise, set it to null. <br>
+ * <b>output_folder</b> ... Folder for storing output files. If output should be preserved in memory (for the plot methods),
+ * then set to null. <br>
+ * <b>commodity_id</b> ... Commodity id for the requested output. <br>
+ * <b>link_ids</b> ... Collection of link ids for the requested output. <br>
+ * <b>outDt</b> ... Output sampling time in seconds. If the underlying model has a time step (as opposed to an event based
+ * model) then outDt should be a multiple of that time step. <br>
  */
 public class Output {
 

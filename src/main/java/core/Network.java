@@ -1,5 +1,6 @@
 package core;
 
+import commodity.Commodity;
 import error.OTMException;
 import core.geometry.*;
 
@@ -7,6 +8,9 @@ import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 
+/** Container for the network.
+ * This class provides access to the links, nodes, and road connections in the network.
+ */
 public class Network {
 
     protected static Long max_rcid;
@@ -15,12 +19,17 @@ public class Network {
     protected boolean node_positions_in_meters;    // true->meters, false->gps
 
     protected Map<Long,jaxb.Roadparam> road_params;    // keep this for the sake of the scenario splitter
+    protected Map<Long, RoadGeometry> road_geoms;
 
     // scenario elements
+    /** Map of nodes **/
     public Map<Long,Node> nodes;
+
+    /** Map of links **/
     public Map<Long,Link> links;
+
+    /** Map of road connections **/
     public Map<Long,RoadConnection> road_connections;
-    protected Map<Long, RoadGeometry> road_geoms;
 
     ///////////////////////////////////////////
     // construction
@@ -69,12 +78,12 @@ public class Network {
     // InterfaceScenarioElement-like
     /////////////////////////////////////////////////
 
-    public void initialize(Scenario scenario,float start_time) throws OTMException {
+    protected void initialize(Scenario scenario,float start_time) throws OTMException {
         for(Link link : links.values())
             link.initialize(scenario,start_time);
     }
 
-    public jaxb.Network to_jaxb(){
+    protected jaxb.Network to_jaxb(){
         jaxb.Network jnet = new jaxb.Network();
 
         // network: nodes
@@ -110,6 +119,75 @@ public class Network {
         return jnet;
     }
 
+    /////////////////////////////////////////////////
+    // API
+    /////////////////////////////////////////////////
+
+
+    /** Get map of nodes **/
+    public Map<Long,Node> get_nodes(){
+        return nodes;
+    }
+
+    /** Get map of links **/
+    public Map<Long, Link> get_links(){
+        return links;
+    }
+
+    /** Get map of road connections **/
+    public Map<Long, RoadConnection> get_roadconnections(){
+        return road_connections;
+    }
+
+    // id sets .......................................
+
+    /** Get node ids **/
+    public Set<Long> node_ids(){
+        return nodes.keySet();
+    }
+
+    /** Get  ids **/
+    public Set<Long> link_ids(){
+        return links.keySet();
+    }
+
+    /** Get source link  ids **/
+    public Set<Long> source_link_ids(){
+        return links.values().stream()
+                .filter(x->x.is_source())
+                .map(x->x.getId())
+                .collect(toSet());
+    }
+
+
+    // get element by id ..............................
+
+    /** Get node by id **/
+    public Node get_node(long id)throws OTMException {
+        if(!nodes.containsKey(id))
+            throw new OTMException("Bad id in Scenario.get_link");
+        return nodes.get(id);
+    }
+
+    /** Get link by id **/
+    public Link get_link(long id) throws OTMException {
+        if(!links.containsKey(id))
+            throw new OTMException("Bad id in Scenario.get_link");
+        return links.get(id);
+    }
+
+
+    public Set<List<Long>> get_link_connectivity(){
+        Set<List<Long>> X = new HashSet<>();
+        for(Link link : links.values()){
+            List<Long> A = new ArrayList<>();
+            A.add(link.getId());
+            A.add(link.get_start_node().getId());
+            A.add(link.get_end_node().getId());
+            X.add(A);
+        }
+        return X;
+    }
     /////////////////////////////////////////////////
     // private static
     /////////////////////////////////////////////////

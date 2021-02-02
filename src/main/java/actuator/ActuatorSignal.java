@@ -10,6 +10,10 @@ import core.Scenario;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Actuator for signalized intersections.
+ * Defines a set of phases that can be individually actuated via a CommandSignal.
+ */
 public class ActuatorSignal extends AbstractActuator {
 
     public Map<Long, SignalPhase> signal_phases;

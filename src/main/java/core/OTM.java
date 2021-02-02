@@ -30,14 +30,21 @@ import java.util.*;
  */
 public class OTM {
 
+    /**
+     * Container for the scenario
+     */
     public core.Scenario scenario;
-    public Output output;
+
+    /**
+     * Container for the simulation output
+     */
+    public core.Output output;
 
     ////////////////////////////////////////////////////////
     // construction
     ////////////////////////////////////////////////////////
 
-    public OTM(core.Scenario scenario, core.Output output){
+    protected OTM(core.Scenario scenario, core.Output output){
         this.scenario = scenario;
         this.output = output;
         this.output.set_api(this);
@@ -53,18 +60,21 @@ public class OTM {
         this( ScenarioFactory.create_scenario(JaxbLoader.load_scenario(configfile),validate_pre_init) , new Output() );
     }
 
-    public OTM(jaxb.Scenario jscenario, boolean validate) throws OTMException {
+    protected OTM(jaxb.Scenario jscenario, boolean validate) throws OTMException {
         this(ScenarioFactory.create_scenario(jscenario,validate), new Output());
     }
 
+    /** Load a scenario from the standard tests. **/
     public static OTM load_test(String testname) throws OTMException  {
         return new OTM(JaxbLoader.load_test_scenario(testname),true);
     }
 
+    /** Get the output object **/
     public Output output(){
         return output;
     }
 
+    /** Get the scenario object **/
     public Scenario scenario(){
         return scenario;
     }
@@ -73,6 +83,8 @@ public class OTM {
     // save
     ////////////////////////////////////////////////////////
 
+
+    /** Save the scenario to a file. **/
     public void save(String file)  {
         try {
             JaxbWriter.save_scenario(scenario.to_jaxb(),file);
@@ -89,11 +101,12 @@ public class OTM {
 
     /**
      * Run the simulation.
-     * @param prefix Prefix for the output.
-     * @param output_requests_file Absolute location and name of file with output requests.
-     * @param output_folder Folder for the output.
+     * @param prefix Prefix for the output files (used if output_folder is not null).
+     * @param output_requests_file XML file with output requests.
+     * @param output_folder Folder for the output. If null, then keep output in memory (needed to run plotting functions).
      * @param start_time Initial time in seconds.
      * @param duration Duration of the simulation in seconds.
+     * @param validate_post_init If true, runs validations that can only happen once the model is specified.
      * @throws OTMException Undocumented
      */
     public void run(String prefix,String output_requests_file,String output_folder,float start_time,float duration,boolean validate_post_init) throws OTMException {
@@ -119,7 +132,7 @@ public class OTM {
     ////////////////////////////////////////////////////////
 
     /**
-     *  Validate and initialize all components of the scenario. This function must be called prior to calling "advance".
+     *  Validate and initialize all components of the scenario.
      * @param start_time Initial time in seconds.
      * @param output_requests_file Absolute location and name of file with output requests.
      * @param prefix Prefix for the output.
@@ -180,6 +193,10 @@ public class OTM {
         dispatcher.dispatch_events_to_stop();
     }
 
+    /**
+     *  Complete the simulation by closing output files. This should be called explicitly if the simulation is
+     *  executed with calls to "advance". The "run" method already calls it internally.
+     */
     public void terminate() {
         scenario.terminate();
     }
@@ -188,10 +205,20 @@ public class OTM {
     // plot
     ////////////////////////////////////////////////////////
 
+    /**
+     * Create standard plots for all outputs and write them (as png files) to the output folder.
+     * @param out_folder Output folder
+     * @throws OTMException Undocumented.
+     */
     public void plot_outputs(String out_folder) throws OTMException {
         plot_outputs(this.output.get_data(),out_folder);
     }
 
+    /**
+     * Create standard plots for given outputs and write them (as png files) to the output folder.
+     * @param out_folder Output folder
+     * @throws OTMException Undocumented.
+     */
     public static void plot_outputs(Set<AbstractOutput> outputs,String out_folder) throws OTMException {
         for(AbstractOutput output :  outputs){
 
@@ -279,7 +306,7 @@ public class OTM {
      * @return Current simulation time in seconds.
      */
     public float get_current_time(){
-        return scenario.get_current_time();
+        return scenario.dispatcher.current_time;
     }
 
     /**
