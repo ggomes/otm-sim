@@ -44,7 +44,7 @@ public class OTM {
     // construction
     ////////////////////////////////////////////////////////
 
-    protected OTM(core.Scenario scenario, core.Output output){
+    public OTM(core.Scenario scenario, core.Output output){
         this.scenario = scenario;
         this.output = output;
         this.output.set_api(this);
@@ -60,7 +60,7 @@ public class OTM {
         this( ScenarioFactory.create_scenario(JaxbLoader.load_scenario(configfile),validate_pre_init) , new Output() );
     }
 
-    protected OTM(jaxb.Scenario jscenario, boolean validate) throws OTMException {
+    public OTM(jaxb.Scenario jscenario, boolean validate) throws OTMException {
         this(ScenarioFactory.create_scenario(jscenario,validate), new Output());
     }
 
