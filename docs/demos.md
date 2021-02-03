@@ -47,8 +47,8 @@ try {
     // request 10-second sampling of all link flows and densities
     float outdt = 10f;  // sampling time in seconds
     Set<Long> link_ids = otm.scenario.network.link_ids();  // request all link ids
-    otm.output.request_links_flow(null, null,null,link_ids, outdt);
-    otm.output.request_links_veh(null,null,null, link_ids, outdt);
+    otm.output.request_links_flow(null,null,null,link_ids,outdt);
+    otm.output.request_links_veh(null,null,null,link_ids,outdt);
 
     // run the simulation for 200 seconds
     otm.run(0,200f);
@@ -232,7 +232,3 @@ Coming soon...
 ## Write a model plugin
 Coming soon...
 
-## Import a network from OSM
-[OSM](https://github.com/ggomes/otm-simcenter)
-
-## Import a network from SUMO
