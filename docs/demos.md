@@ -8,19 +8,15 @@ A few simple examples are provided below.
 
 ## Load a scenario
 
-### Java ([source](https://github.com/ggomes/otm-tools/blob/master/java/DemoLoad.java))
+### Java ([source](https://github.com/ggomes/otm-sim/blob/main/src/test/java/tests/Demo.java))
 
 ```java
-import api.OTM;
-public class DemoLoad {
-  public static void main(String[] args)  {
-    try {
-      api.OTM otm = new api.OTM("../configs/line.xml");
-      System.out.println(otm==null ? "Failure" : "Success");
-    } catch (Exception e) {
-      System.err.print(e.getMessage());
-    }
-  }
+try {
+    core.OTM otm = new core.OTM("line_ctm.xml", true);
+    System.out.println(otm==null ? "Failure" : "Success");
+} catch (Exception e) {
+    System.err.print(e.getMessage());
+    fail();
 }
 ```
 
@@ -41,41 +37,29 @@ otm = OTMWrapper("../configs/line.xml");
 
 ## Run a complete simulation
 
-### Java ([source](https://github.com/ggomes/otm-tools/blob/master/java/DemoRun.java))
+### Java ([source](https://github.com/ggomes/otm-sim/blob/main/src/test/java/tests/Demo.java))
 
 ```java
-import error.OTMException;
-import output.*;
-import java.util.Set;
+try {
+    // load the scenario
+    core.OTM otm = new core.OTM("line_ctm.xml", true);
 
-public class DemoRun {
-  public static void main(String[] args)  {
-    try {
-      // load the scenario
-      api.OTM otm = new api.OTM("../configs/line.xml");
+    // request 10-second sampling of all link flows and densities
+    float outdt = 10f;  // sampling time in seconds
+    Set<Long> link_ids = otm.scenario.network.link_ids();  // request all link ids
+    otm.output.request_links_flow(null, null,null,link_ids, outdt);
+    otm.output.request_links_veh(null,null,null, link_ids, outdt);
 
-      // request 10-second sampling of all link flows and densities
-      float outdt = 10f;  // sampling time in seconds
-      Set<Long> link_ids = otm.scenario.get_link_ids();  // request all link ids
-      otm.output.request_links_flow(null, link_ids, outdt);
-      otm.output.request_links_veh(null, link_ids, outdt);
+    // run the simulation for 200 seconds
+    otm.run(0,200f);
 
-      // run the simulation for 200 seconds
-      otm.run(0,200f);
+    // plot the output by iterating through the requested output data and
+    // calling the 'plot_for_links' method.
+    otm.plot_outputs("temp");
 
-      // plot the output by iterating through the requested output data and
-      // calling the 'plot_for_links' method.
-      for(AbstractOutput output :  otm.output.get_data()){
-        if (output instanceof LinkFlow)
-          ((LinkFlow) output).plot_for_links(null, String.format("%sflow.png", ""));
-        if (output instanceof LinkVehicles)
-          ((LinkVehicles) output).plot_for_links(null, String.format("%sveh.png", ""));
-      }
-
-    } catch (OTMException e) {
-      System.err.print(e);
-    }
-  }
+} catch (OTMException e) {
+    System.err.print(e.getMessage());
+    fail();
 }
 ```
 
@@ -149,41 +133,36 @@ plot(Y.time(2:end),Y.speed_kph)
 
 ## Run a scenario step-by-step
 
-### Java ([source](https://github.com/ggomes/otm-tools/blob/master/java/DemoRunStep.java))
+### Java ([source](https://github.com/ggomes/otm-sim/blob/main/src/test/java/tests/Demo.java))
 
 ```java
-import error.OTMException;
+try {
+    float start_time = 0f;
+    float duration = 3600f;
+    float advance_time = 300f;
 
-public class DemoRunStep {
-  public static void main(String[] args) {
-    try {
-      float start_time = 0f;
-      float duration = 3600f;
-      float advance_time = 300f;
+    // load the scenario
+    core.OTM otm = new core.OTM("line_ctm.xml", true);
 
-      // load the scenario
-      api.OTM otm = new api.OTM("../configs/line.xml");
+    // initialize (prepare/rewind the simulation)
+    otm.initialize(start_time);
 
-      // initialize (prepare/rewind the simulation)
-      otm.initialize(start_time);
+    // run step-by-step using the 'advance' method
+    float time = start_time;
+    float end_time = start_time + duration;
 
-      // run step-by-step using the 'advance' method
-      float time = start_time;
-      float end_time = start_time+duration;
-
-      while(time<end_time){
+    while (time < end_time) {
         System.out.println(time);
         otm.advance(advance_time);
 
         // Insert your code here -----
 
         time += advance_time;
-      }
-    } 
-    catch (OTMException e) {
-      System.err.print(e);
     }
-  }
+
+} catch (OTMException e) {
+    System.err.print(e.getMessage());
+    fail();
 }
 ```
 
