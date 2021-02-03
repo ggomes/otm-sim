@@ -1,6 +1,6 @@
 # Demos
 
-OTM is written in Java, and includes connections to Matlab and Python. This is done via [OTM's Java API](docs/apidocs/index.html). The Matlab and Python interfaces are included with [otm-tools](https://github.com/ggomes/otm-tools).
+OTM is written in Java, and includes connections to Matlab and Python. This is done via [OTM's Java API](apidocs/index.html). The Matlab and Python interfaces are included with [otm-tools](https://github.com/ggomes/otm-tools).
 All of the methods in the Java API are accessible from Matlab and Python, so the Java documentation is valid for all three
 languages. The Matlab and Python interfaces provide additional useful methods in the `OTMWrapper` class.
 
