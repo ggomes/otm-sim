@@ -61,7 +61,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     ///////////////////////////////////////////
 
     @Override
-    public void set_road_params(Roadparam r) {
+    public void set_road_params(Roadparam r) throws OTMException {
         super.set_road_params(r);
 
         float dt = ((ModelNewell)link.get_model()).dt;
@@ -74,6 +74,16 @@ public class NewellLaneGroup extends VehicleLaneGroup {
 
         jam_vehpermeter = r.getJamDensity() * num_lanes / 1000d; // [veh/m]
         dw = dc / (jam_vehpermeter - dc/dv); // [m]
+    }
+
+    @Override
+    public Roadparam get_road_params() {
+        jaxb.Roadparam rp = new jaxb.Roadparam();
+        float dt = ((ModelNewell)link.get_model()).dt;
+        rp.setCapacity((float) (3600f * nom_dc /  num_lanes / dt));
+        rp.setJamDensity((float) (1000f * jam_vehpermeter / num_lanes));
+        rp.setSpeed((float) (3.6d * nom_dv / dt));
+        return rp;
     }
 
     @Override
@@ -109,7 +119,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
 //        supply =  max_vehicles - vehicles.size();
 
         Double up_veh_pos = get_upstream_vehicle_position();
-        long_supply =  up_veh_pos.isNaN() ? max_vehicles : up_veh_pos * max_vehicles / length;
+        longitudinal_supply =  up_veh_pos.isNaN() ? max_vehicles : up_veh_pos * max_vehicles / length;
 
 //        if(link.is_model_source_link)
 //            supply = Math.max(0d,supply + 1d - buffer.get_total_veh());

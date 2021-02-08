@@ -11,11 +11,11 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
 
     protected final long id;
     protected final Link start_link;
-    protected final int start_link_from_lane;
-    protected final int start_link_to_lane;
+    private int start_link_from_lane;
+    private int start_link_to_lane;
     protected final Link end_link;
-    protected final int end_link_from_lane;
-    protected final int end_link_to_lane;
+    private int end_link_from_lane;
+    private int end_link_to_lane;
 
     protected Set<AbstractLaneGroup> in_lanegroups= new HashSet<>();
     protected Set<AbstractLaneGroup> out_lanegroups= new HashSet<>();
@@ -175,18 +175,6 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
     // API
     ///////////////////////////////////////////
 
-    public boolean has_start_link(){
-        return start_link!=null;
-    }
-
-    public boolean has_end_link(){
-        return end_link!=null;
-    }
-
-    public Long get_start_link_id(){
-        return start_link==null ? null : start_link.getId();
-    }
-
     public Link get_start_link(){
         return start_link;
     }
@@ -195,12 +183,12 @@ public class RoadConnection implements Comparable<RoadConnection>, InterfaceScen
         return end_link;
     }
 
-    public Long get_end_link_id(){
-        return end_link==null ? null : end_link.getId();
+    public int get_start_link_from_lane(){
+        return start_link_from_lane;
     }
 
-    public int get_in_lanes(){
-        return start_link_to_lane-start_link_from_lane+1;
+    public int get_start_link_to_lane(){
+        return start_link_to_lane;
     }
 
     public int get_end_link_from_lane(){

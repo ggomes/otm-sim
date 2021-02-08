@@ -3,9 +3,9 @@ package models.fluid;
 import core.*;
 import error.OTMErrorLog;
 import error.OTMException;
-import jaxb.Roadparam;
 import core.State;
 import core.packet.PacketLaneGroup;
+import jaxb.Roadparam;
 import models.Maneuver;
 import utils.OTMUtils;
 
@@ -90,41 +90,54 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     ///////////////////////////////////////////
 
     @Override
-    public void set_road_params(jaxb.Roadparam r) {
-        super.set_road_params(r);
-
-        // adjustment for MN model
-        // TODO REIMPLIMENT MN
-//        if(link.model_type==Link.ModelType.mn)
-//            r.setJamDensity(Float.POSITIVE_INFINITY);
+    public void set_road_params(jaxb.Roadparam r) throws OTMException {
 
         float dt_sec = ((AbstractFluidModel)link.get_model()).dt_sec;
         if(Float.isNaN(dt_sec))
             return;
 
-//        if (link.is_source()) {
-//            ffspeed_cell_per_dt = Double.NaN;
-//            jam_density_veh_per_cell = Double.NaN;
-//            critical_density_veh = Double.NaN;
-//            wspeed_cell_per_dt = Double.NaN;
-//            lc_w = Double.NaN;
-//            capacity_veh_per_dt = Double.NaN;
-//        } else {
+        // normalize
+        float dt_hr = dt_sec /3600f;
+        float capacity_vehperlane = r.getCapacity()*dt_hr;
+        float jam_density_vehperkmperlane = r.getJamDensity();
+        float ffspeed_veh = r.getSpeed() * dt_hr;   // [km/dt]
 
-            // normalize
-            float dt_hr = dt_sec /3600f;
-            float capacity_vehperlane = r.getCapacity()*dt_hr;
-            float jam_density_vehperkmperlane = r.getJamDensity();
-            float ffspeed_veh = r.getSpeed() * dt_hr;   // [km/dt]
+        float temp_jam_density_veh_per_cell = jam_density_vehperkmperlane * num_lanes;
 
-            ffspeed_cell_per_dt = ffspeed_veh;                                      // /cell_length in build
-            jam_density_veh_per_cell = jam_density_vehperkmperlane * num_lanes;     // *cell_length in build
-            double critical_vehperlane = capacity_vehperlane / ffspeed_veh;
-            critical_density_veh = critical_vehperlane * num_lanes;          // *lg_length in build
-            wspeed_cell_per_dt = capacity_vehperlane / (jam_density_vehperkmperlane - critical_vehperlane);// /cell_length in build
-            compute_lcw();
-            capacity_veh_per_dt = capacity_vehperlane * num_lanes;
-//        }
+        if( cells!=null && cells.stream().anyMatch( cell -> cell.get_vehicles()>temp_jam_density_veh_per_cell) )
+            throw new OTMException("Jam density exceeded");
+
+        ffspeed_cell_per_dt = ffspeed_veh;                                      // /cell_length in build
+        jam_density_veh_per_cell = temp_jam_density_veh_per_cell;     // *cell_length in build
+        double critical_vehperlane = capacity_vehperlane / ffspeed_veh;
+        critical_density_veh = critical_vehperlane * num_lanes;          // *lg_length in build
+        wspeed_cell_per_dt = capacity_vehperlane / (jam_density_vehperkmperlane - critical_vehperlane);// /cell_length in build
+        compute_lcw();
+        capacity_veh_per_dt = capacity_vehperlane * num_lanes;
+
+        ((AbstractFluidModel) link.get_model()).set_road_param_apply_cell_length(this);
+    }
+
+    @Override
+    public Roadparam get_road_params() {
+        jaxb.Roadparam rp = new jaxb.Roadparam();
+
+        float dt_sec = ((AbstractFluidModel)link.get_model()).dt_sec;
+        if(Float.isNaN(dt_sec))
+            return rp;
+
+        float dt_hr = dt_sec /3600f;
+        float cell_length = length / cells.size() / 1000f;    // [km]
+
+        double capacity_vehperlane = capacity_veh_per_dt / num_lanes /dt_hr;
+        double jam_density_vehperkmperlane = jam_density_veh_per_cell / cell_length / num_lanes;
+        double ffspeed_veh = ffspeed_cell_per_dt * cell_length /dt_hr ;
+
+        rp.setCapacity((float) capacity_vehperlane);
+        rp.setJamDensity((float) jam_density_vehperkmperlane);
+        rp.setSpeed((float) ffspeed_veh);
+
+        return rp;
     }
 
     @Override
@@ -220,11 +233,11 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
         // shut off if buffer is full
         if(link.is_model_source_link() && buffer.get_total_veh()>=1d)
-            long_supply = 0d;
+            longitudinal_supply = 0d;
         else {
             AbstractCell upcell = get_upstream_cell();
             upcell.update_supply();
-            long_supply = upcell.supply;
+            longitudinal_supply = upcell.supply;
         }
 
     }

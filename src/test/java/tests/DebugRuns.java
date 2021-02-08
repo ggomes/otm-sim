@@ -35,14 +35,14 @@ public class DebugRuns extends AbstractTest {
             boolean do_controllers  = false;
 
             boolean sysout2file = false;
-            String configfile = "/home/gomes/code/otm/otm-sim/src/test/resources/test_configs/intersection.xml";
+            String configfile = "/home/gomes/Desktop/x/test_events.xml";
             float start_time = 0f;
-            float duration = 300f;
+            float duration = 600f;
             float outdt = 2f;
             String prefix = makeplots?null:"x";
-            String outfolder = makeplots?null:"/home/gomes/code/otm/otm-sim/temp";
-            String png_folder = "/home/gomes/code/otm/otm-sim/temp";
-            Set<Long> link_ids = null; //Set.of(2l,4l,5l);
+            String outfolder = makeplots?null:"/home/gomes/Desktop/x/output";
+            String png_folder = "/home/gomes/Desktop/x/output";
+            Set<Long> link_ids = Set.of(2l,3l,4l);
 
             Long subnetid = null;
             Long cntrl_id = null;

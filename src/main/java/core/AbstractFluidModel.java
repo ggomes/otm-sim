@@ -69,16 +69,7 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
                 flg.create_cells(this, cell_length_meters);
 
                 // translate parameters to per-cell units
-                float cell_length = flg.length / flg.cells.size() / 1000f;    // [km]
-                if (!link.is_source()) {
-                    flg.nom_ffspeed_cell_per_dt /= cell_length;
-                    flg.ffspeed_cell_per_dt /= cell_length;
-                    flg.jam_density_veh_per_cell *= cell_length;
-                    flg.critical_density_veh *= flg.length/ 1000f;
-                    flg.wspeed_cell_per_dt /= cell_length;
-                    flg.compute_lcw();
-                }
-
+                set_road_param_apply_cell_length(flg);
             }
 
             // barriers .........................
@@ -95,6 +86,21 @@ public abstract class AbstractFluidModel extends AbstractModel implements Interf
         }
 
     }
+
+    public static void set_road_param_apply_cell_length(FluidLaneGroup flg){
+        if(flg.cells==null)
+            return;
+        float cell_length = flg.length / flg.cells.size() / 1000f;    // [km]
+        if (!flg.link.is_source()) {
+            flg.nom_ffspeed_cell_per_dt /= cell_length;
+            flg.ffspeed_cell_per_dt /= cell_length;
+            flg.jam_density_veh_per_cell *= cell_length;
+            flg.critical_density_veh *= flg.length/ 1000f;
+            flg.wspeed_cell_per_dt /= cell_length;
+            flg.compute_lcw();
+        }
+    }
+
 
     //////////////////////////////////////////////////////////////
     // InterfaceModel

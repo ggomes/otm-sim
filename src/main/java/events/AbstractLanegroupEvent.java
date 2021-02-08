@@ -13,8 +13,8 @@ public abstract class AbstractLanegroupEvent extends AbstractScenarioEvent {
     String lgstring;
     Set<AbstractLaneGroup> lanegroups;
 
-    public AbstractLanegroupEvent(long id, EventType type, float timestamp) {
-        super(id, type, timestamp);
+    public AbstractLanegroupEvent(long id, EventType type, float timestamp,String name) {
+        super(id, type, timestamp,name);
     }
 
     public AbstractLanegroupEvent(Scenario scenario, jaxb.Event jev) throws OTMException {

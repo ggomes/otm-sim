@@ -11,15 +11,17 @@ public abstract class AbstractScenarioEvent extends AbstractEvent {
 
     public final long id;
     public final EventType type;
+    public final String name;
 
-    public AbstractScenarioEvent(long id, EventType type,float timestamp) {
+    public AbstractScenarioEvent(long id, EventType type,float timestamp,String name) {
         super(null,0,timestamp,null);
         this.id = id;
         this.type = type;
+        this.name = name;
     }
 
     public AbstractScenarioEvent(jaxb.Event jev){
-        this(jev.getId(),EventType.valueOf(jev.getType()),jev.getTimestamp());
+        this(jev.getId(),EventType.valueOf(jev.getType()),jev.getTimestamp(),jev.getName());
     }
 
     public void validate_pre_init(OTMErrorLog errorLog){

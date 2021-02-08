@@ -6,38 +6,43 @@ import error.OTMException;
 
 public class EventLanegroupLanes extends AbstractLanegroupEvent {
 
-    public int dlanes; // number of lanes added or subtracted by this event
+    public Integer dlanes; // number of lanes added or subtracted by this event
 
-    public EventLanegroupLanes(long id, EventType type, float timestamp) {
-        super(id, type, timestamp);
+    public EventLanegroupLanes(long id, EventType type, float timestamp,String name) {
+        super(id, type, timestamp,name);
     }
 
     public EventLanegroupLanes(Scenario scenario, jaxb.Event jev) throws OTMException {
         super(scenario,jev);
 
-        this.dlanes = 0;
+        this.dlanes = null;
         if(jev.getParameters()!=null)
             for(jaxb.Parameter p : jev.getParameters().getParameter())
                 if(p.getName().equals("dlanes"))
                     this.dlanes = Integer.parseInt(p.getValue());
-
     }
 
     @Override
     public void action() throws OTMException {
-        System.out.println(String.format("%.2f\t%s",timestamp,getClass().getName()));
+        System.out.println(String.format("%4.0f\t%s\t%d",timestamp,name,dlanes));
 
-        for(AbstractLaneGroup lg : lanegroups){
+        if(dlanes==null) {
+            for (AbstractLaneGroup lg : lanegroups) {
+                if(dispatcher.lg2deltalanes.containsKey(lg.getId())) {
+                    // original lanes = current - delta
+                    lg.set_lanes(lg.get_num_lanes() - dispatcher.lg2deltalanes.get(lg.getId()));
+                    dispatcher.lg2deltalanes.put(lg.getId(), 0);
+                }
+            }
+        }
 
-            jaxb.Roadparam rp = lg.get_road_params();
-            int oldlanes = lg.get_num_lanes();
-            int newlanes =oldlanes+dlanes;
-
-            if(newlanes<0)
-                throw new OTMException("Event sets number of lanes to a negative number.");
-
-            rp.setCapacity( rp.getCapacity()*newlanes/oldlanes );
-            lg.set_road_params(rp);
+        else{
+            for(AbstractLaneGroup lg : lanegroups){
+                int current_delta = dispatcher.lg2deltalanes.containsKey(lg.getId()) ?
+                        dispatcher.lg2deltalanes.get(lg.getId()) : 0;
+                dispatcher.lg2deltalanes.put(lg.getId(),current_delta+dlanes);
+                lg.set_lanes(lg.get_num_lanes()+dlanes);
+            }
         }
 
     }

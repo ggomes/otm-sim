@@ -87,7 +87,7 @@ public class NodeModel {
         for (core.RoadConnection xrc : node.get_road_connections()) {
 
             // skip road connections starting in discrete event links
-            if( !xrc.has_start_link() )
+            if( xrc.get_start_link()==null )
                 continue;
 
             // skip if it is disconnected

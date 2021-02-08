@@ -260,7 +260,7 @@ public class Network {
                     throw new OTMException("Repeated road connection id");
                 RoadConnection rc =  new RoadConnection(links, jrc);
                 rcs.put(jrc.getId(),rc);
-                no_rc.remove(rc.get_start_link_id());
+                no_rc.remove(rc.get_start_link().id);
             }
         }
 

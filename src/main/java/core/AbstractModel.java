@@ -261,12 +261,12 @@ public abstract class AbstractModel implements InterfaceModel {
             // collect road connections for this addlane
             final int end_lane = link.road_geom.in.lanes;
             Set<RoadConnection> myrcs = out_rcs.stream()
-                    .filter(rc->rc.start_link_from_lane <= end_lane)
+                    .filter(rc->rc.get_start_link_from_lane() <= end_lane)
                     .collect(toSet());
 
             // add lanes have either no road connection or all
             // road connections span all lanes.
-            if(myrcs!=null && !myrcs.isEmpty() && !myrcs.stream().allMatch(rc-> rc.start_link_from_lane==1 && rc.start_link_to_lane>=end_lane))
+            if(myrcs!=null && !myrcs.isEmpty() && !myrcs.stream().allMatch(rc-> rc.get_start_link_from_lane()==1 && rc.get_start_link_to_lane()>=end_lane))
                 throw new OTMException("Road connections do not conform to rules.");
 
             // create the lane group
@@ -281,8 +281,8 @@ public abstract class AbstractModel implements InterfaceModel {
         // middle lanes .................................
         final int fstartlane = start_lane;
         Set<RoadConnection> prevrcs = out_rcs.stream()
-                .filter(rc->rc.start_link_from_lane <= fstartlane &&
-                        rc.start_link_to_lane >= fstartlane)
+                .filter(rc->rc.get_start_link_from_lane() <= fstartlane &&
+                        rc.get_start_link_to_lane() >= fstartlane)
                 .collect(toSet());
 
         int lg_start_lane = start_lane;
@@ -290,8 +290,8 @@ public abstract class AbstractModel implements InterfaceModel {
         for(lane=start_lane+1;lane<start_lane+link.full_lanes;lane++) {
             final int flane = lane;
             Set<RoadConnection> myrcs = out_rcs.stream()
-                    .filter(rc->rc.start_link_from_lane <= flane &&
-                            rc.start_link_to_lane >= flane)
+                    .filter(rc->rc.get_start_link_from_lane() <= flane &&
+                            rc.get_start_link_to_lane() >= flane)
                     .collect(toSet());
             if(!myrcs.equals(prevrcs)){
                 lanegroups.add(create_lanegroup(link,
@@ -317,12 +317,12 @@ public abstract class AbstractModel implements InterfaceModel {
             // collect road connections for this addlane
             final int end_lane = start_lane+link.road_geom.out.lanes-1;
             Set<RoadConnection> myrcs = out_rcs==null ? null : out_rcs.stream()
-                    .filter(rc->rc.start_link_to_lane >= fstart_lane )
+                    .filter(rc->rc.get_start_link_to_lane() >= fstart_lane )
                     .collect(toSet());
 
             // add lanes have either no road connection or all
             // road connections span all lanes.
-            if(myrcs!=null && !myrcs.isEmpty() && !myrcs.stream().allMatch(rc-> rc.start_link_from_lane<=fstart_lane && rc.start_link_to_lane==fend_lane))
+            if(myrcs!=null && !myrcs.isEmpty() && !myrcs.stream().allMatch(rc-> rc.get_start_link_from_lane()<=fstart_lane && rc.get_start_link_to_lane()==fend_lane))
                 throw new OTMException("Road connections do not conform to rules.");
 
             // create the lane group

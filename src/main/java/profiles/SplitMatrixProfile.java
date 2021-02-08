@@ -60,7 +60,7 @@ public class SplitMatrixProfile {
             errorLog.addError("link_in==null");
 
         Set<Long> reachable_outlinks = node.get_road_connections().stream()
-                .filter(rc->rc.has_start_link() && rc.has_end_link() && rc.get_start_link().getId().equals(link_in.getId()))
+                .filter(rc->rc.get_start_link()!=null && rc.get_end_link()!=null && rc.get_start_link().getId().equals(link_in.getId()))
                 .map(z->z.get_end_link().getId())
                 .collect(Collectors.toSet());
 

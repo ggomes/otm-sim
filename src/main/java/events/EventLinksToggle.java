@@ -16,8 +16,8 @@ public class EventLinksToggle extends AbstractScenarioEvent {
     Set<Link> links = new HashSet<>();
     boolean isopen;
 
-    public EventLinksToggle(long id, EventType type, float timestamp) {
-        super(id, type, timestamp);
+    public EventLinksToggle(long id, EventType type, float timestamp,String name) {
+        super(id, type, timestamp,name);
     }
 
     public EventLinksToggle(Scenario scenario, jaxb.Event jev){

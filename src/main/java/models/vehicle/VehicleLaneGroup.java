@@ -1,6 +1,7 @@
 package models.vehicle;
 
 import core.*;
+import error.OTMException;
 import jaxb.Roadparam;
 import core.packet.*;
 
@@ -24,9 +25,14 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
     ////////////////////////////////////////
 
     @Override
-    public void set_road_params(Roadparam r) {
-        super.set_road_params(r);
-        this.max_vehicles =  r.getJamDensity() * (length/1000.0) * num_lanes;
+    public void set_road_params(Roadparam r) throws OTMException {
+
+        double temp_max_vehicles = r.getJamDensity() * (length/1000.0) * num_lanes;
+
+        if(get_total_vehicles()>temp_max_vehicles)
+            throw new OTMException("In set_road_params, maximum vehicles was exceeded.");
+
+        this.max_vehicles =  temp_max_vehicles;
     }
 
     @Override

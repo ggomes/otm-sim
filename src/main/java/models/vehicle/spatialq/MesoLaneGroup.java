@@ -6,6 +6,7 @@ import error.OTMException;
 import dispatch.Dispatcher;
 import core.State;
 import core.AbstractLaneGroup;
+import jaxb.Roadparam;
 import models.vehicle.VehicleLaneGroup;
 import output.InterfaceVehicleListener;
 import core.packet.PacketLaneGroup;
@@ -66,7 +67,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     ///////////////////////////////////////////
 
     @Override
-    public void set_road_params(jaxb.Roadparam r){
+    public void set_road_params(jaxb.Roadparam r) throws OTMException {
         super.set_road_params(r);
 
         nom_transit_time_sec = (length/r.getSpeed())* 3.6f; // [m]/[kph] -> [sec]
@@ -74,6 +75,15 @@ public class MesoLaneGroup extends VehicleLaneGroup {
 
         transit_time_sec = nom_transit_time_sec;
         saturation_flow_rate_vps = nom_saturation_flow_rate_vps;
+    }
+
+    @Override
+    public Roadparam get_road_params() {
+        jaxb.Roadparam rp = new jaxb.Roadparam();
+        rp.setCapacity(3600f * nom_saturation_flow_rate_vps / num_lanes);
+        rp.setJamDensity((float) (max_vehicles * 1000f / length / num_lanes) );
+        rp.setSpeed(3.6f * length/nom_transit_time_sec);
+        return rp;
     }
 
     ////////////////////////////////////////////
@@ -111,12 +121,12 @@ public class MesoLaneGroup extends VehicleLaneGroup {
 
     @Override
     public void update_long_supply() {
-        long_supply =  max_vehicles - get_total_vehicles();
+        longitudinal_supply =  max_vehicles - get_total_vehicles();
     }
 
     @Override
     public Double get_upstream_vehicle_position(){
-        return long_supply * length / max_vehicles;
+        return longitudinal_supply * length / max_vehicles;
     }
 
     /**

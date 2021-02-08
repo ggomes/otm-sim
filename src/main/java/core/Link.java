@@ -39,7 +39,7 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
     // parameters .........................................
     protected final RoadType road_type;
     protected final RoadGeometry road_geom;
-    public final Roadparam road_param_full;        // for the sake of writing again to jaxb
+    public final Roadparam road_param_full;
     protected final List<Point> shape;           // not used by otm-sim
 
     // model .............................................

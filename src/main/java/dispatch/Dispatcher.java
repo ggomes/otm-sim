@@ -16,6 +16,8 @@ public  class Dispatcher {
     private boolean continue_simulation;
     public boolean verbose = false;
 
+    public Map<Long,Integer> lg2deltalanes;    // tracks the total change in lane count caused by EventLaneGroupLane events.
+
     ///////////////////////////////////////////////////
     // construction
     ///////////////////////////////////////////////////
@@ -23,6 +25,7 @@ public  class Dispatcher {
     public Dispatcher(){
         this.events = new PriorityQueue<>() ;
         this.continue_simulation = false;
+        this.lg2deltalanes = new HashMap<>();
     }
 
     public void set_stop_time(float stop_time){

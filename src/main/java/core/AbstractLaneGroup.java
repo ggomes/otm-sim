@@ -1,6 +1,7 @@
 package core;
 
 import actuator.*;
+import core.geometry.RoadGeometry;
 import core.geometry.Side;
 import error.OTMException;
 import core.packet.StateContainer;
@@ -30,17 +31,17 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     protected final core.geometry.Side side;               // inner, middle, or outer (add lane in, full, add lane out)
     protected int start_lane_up = -1;       // counted with respect to upstream boundary
     protected int start_lane_dn = -1;       // counted with respect to downstream boundary
-    protected final int num_lanes;
+    protected int num_lanes;
     protected float length;        // [m]
 
-    protected jaxb.Roadparam roadparam;
+    public final jaxb.Roadparam roadparam_orig;
 
     protected AbstractLaneGroup neighbor_in;       // lanegroup down and in
     protected AbstractLaneGroup neighbor_out;      // lanegroup down and out
 
     public StateContainer buffer;
 
-    protected double long_supply;       // [veh]
+    protected double longitudinal_supply;       // [veh]
 
     protected ActuatorLaneGroupCapacity actuator_capacity;
     protected Map<Long, ActuatorLaneGroupAllowComm> actuator_lgrestrict;   // commid->actuator
@@ -88,28 +89,14 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             }
         }
 
-        set_road_params(rp);
+        this.roadparam_orig = rp;
 
-
-//        nom_capacity_veh_per_dt = capacity_vehperlane * num_lanes;
-//        if (link.is_source()) {
-//            nom_ffspeed_cell_per_dt = Double.NaN;
-//            ffspeed_cell_per_dt = Double.NaN;
-//            jam_density_veh_per_cell = Double.NaN;
-//            critical_density_veh = Double.NaN;
-//            wspeed_cell_per_dt = Double.NaN;
-//            lc_w = Double.NaN;
-//            capacity_veh_per_dt = nom_capacity_veh_per_dt;
-//        } else {
-//            nom_ffspeed_cell_per_dt = ffspeed_veh;                                  // /cell_length in build
-//            ffspeed_cell_per_dt = ffspeed_veh;                                      // /cell_length in build
-//            jam_density_veh_per_cell = jam_density_vehperkmperlane * num_lanes;     // *cell_length in build
-//            double critical_vehperlane = capacity_vehperlane / nom_ffspeed_cell_per_dt;
-//            critical_density_veh = critical_vehperlane * num_lanes;          // *lg_length in build
-//            wspeed_cell_per_dt = capacity_vehperlane / (jam_density_vehperkmperlane - critical_vehperlane);// /cell_length in build
-//            compute_lcw();
-//            capacity_veh_per_dt = nom_capacity_veh_per_dt;
-//        }
+        try {
+            set_road_params(rp);
+        } catch (OTMException e) {
+            assert(false);  // This should never happen
+            e.printStackTrace();
+        }
 
     }
 
@@ -131,7 +118,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         neighbor_in = null;
         neighbor_out = null;
         buffer = null;
-        long_supply = Double.NaN;
+        longitudinal_supply = Double.NaN;
         actuator_capacity = null;
         actuator_lgrestrict = null;
         flw_acc = null;
@@ -216,8 +203,12 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // overridable
     ///////////////////////////////////////////////////
 
-    public void set_road_params(jaxb.Roadparam r){
-        this.roadparam = r;
+    public abstract void set_road_params(jaxb.Roadparam r) throws OTMException;
+
+    public abstract jaxb.Roadparam get_road_params();
+
+    public final void reset_road_params() throws OTMException {
+        set_road_params(roadparam_orig);
     }
 
     public void initialize(Scenario scenario, float start_time) throws OTMException {
@@ -304,10 +295,6 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return id;
     }
 
-    public jaxb.Roadparam get_road_params(){
-        return roadparam;
-    }
-
     public final Link get_link(){
         return link;
     }
@@ -342,11 +329,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     @Override
     public double get_long_supply(){
-        return long_supply;
+        return longitudinal_supply;
     }
 
     public final double get_supply_per_lane(){
-        return long_supply/num_lanes;
+        return longitudinal_supply /num_lanes;
     }
 
     public final List<Integer> get_dn_lanes(){
@@ -397,6 +384,53 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public Map<Maneuver,Double> get_maneuvprob_for_state(State state){
         return state2lanechangeprob.get(state);
+    }
+
+    public final void set_lanes(int new_numlanes) throws OTMException {
+        if(new_numlanes<=0)
+            throw new OTMException("Cannot set lanes to a non-positive number.");
+        if(new_numlanes==num_lanes)
+            return;
+
+        int old_numlanes = num_lanes;
+
+        this.num_lanes = new_numlanes;
+
+        // set road parameters
+        try {
+            set_road_params(roadparam_orig);
+        } catch (OTMException e) {
+            this.num_lanes = old_numlanes;
+            throw new OTMException(e);
+        }
+
+        // NOTE: We will not change the start and end lanes of the road connections
+        // because these seem to only affect lane group creation.
+
+        // set start/end lanes
+        int dlanes = new_numlanes-num_lanes;
+        RoadGeometry rg = get_link().road_geom;
+        switch(side){
+            case in:
+                if(neighbor_out!=null){
+                    neighbor_out.start_lane_dn += dlanes;
+                    if(rg.in_is_full_length())
+                        neighbor_out.start_lane_up += dlanes;
+                    if(neighbor_out.neighbor_out!=null){
+                        neighbor_out.neighbor_out.start_lane_dn += dlanes;
+                        if(rg.in_is_full_length())
+                            neighbor_out.neighbor_out.start_lane_up += dlanes;
+                    }
+                }
+                break;
+            case middle:
+                if(neighbor_out!=null){
+                    neighbor_out.start_lane_dn += dlanes;
+                    neighbor_out.start_lane_up += dlanes;
+                }
+                break;
+        }
+
     }
 
     ///////////////////////////////////////////////////

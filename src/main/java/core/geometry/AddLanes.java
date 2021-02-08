@@ -14,7 +14,7 @@ public class AddLanes {
     public boolean isfull;
     public float length;        // meters
     public int lanes;
-    public jaxb.Roadparam roadparam;
+    public final jaxb.Roadparam roadparam;
 
     public AddLanes(Side side, Roadparam rp){
         this.lanes = 0;
@@ -29,6 +29,7 @@ public class AddLanes {
         if(jaxb_al==null){
             this.lanes = 0;
             this.length = 0;
+            this.roadparam = null;
             return;
         }
 

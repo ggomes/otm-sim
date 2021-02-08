@@ -14,8 +14,8 @@ public class EventActuatorToggle extends AbstractScenarioEvent {
     Set<AbstractActuator> actuators;
     boolean ison;
 
-    public EventActuatorToggle(long id, EventType type, float timestamp) {
-        super(id, type, timestamp);
+    public EventActuatorToggle(long id, EventType type, float timestamp, String name) {
+        super(id, type, timestamp, name);
     }
 
     public EventActuatorToggle(Scenario scenario, jaxb.Event jev){
