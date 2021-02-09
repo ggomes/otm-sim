@@ -51,8 +51,6 @@ public class EventLinksToggle extends AbstractScenarioEvent {
 
     @Override
     public void action() throws OTMException {
-        System.out.println(String.format("%.2f\t%s",timestamp,getClass().getName()));
-
         if(isopen)
             for(Link link : links)
                 for(AbstractLaneGroup lg : link.get_lgs())
