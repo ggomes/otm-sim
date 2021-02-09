@@ -93,9 +93,8 @@ public class UpLaneGroup {
 
     public void update_is_empty_or_blocked(){
         if(!is_empty_or_blocked) {
-            is_empty_or_blocked =
-                    total_demand() < NodeModel.eps ||
-                            rc_infos.values().stream().anyMatch(x->x.rc.is_blocked);
+            is_empty_or_blocked = total_demand() < NodeModel.eps ||
+                    rc_infos.values().stream().filter(rc->rc.d_gr>0d).anyMatch(x->x.rc.is_blocked);
         }
     }
 
