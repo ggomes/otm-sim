@@ -36,7 +36,7 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     // construction
     ///////////////////////////////////////////
 
-    public NewellLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+    public NewellLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) throws OTMException {
         super(link, side, length, num_lanes, start_lane, out_rcs, rp);
         vehicles = new ArrayList<>();
     }
@@ -44,11 +44,6 @@ public class NewellLaneGroup extends VehicleLaneGroup {
     ////////////////////////////////////////////
     // InterfaceScenarioElement-like
     ///////////////////////////////////////////
-
-    @Override
-    public void validate_post_init(OTMErrorLog errorLog) {
-
-    }
 
     public void initialize(Scenario scenario, float start_time) throws OTMException {
         super.initialize(scenario, start_time);

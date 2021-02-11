@@ -67,9 +67,7 @@ public class ActuatorFlowToLinks extends AbstractActuator {
             errorLog.addError("ActuatorFlowToLinks: target==null");
         if (commids.size()!=1)
             errorLog.addError("ActuatorFlowToLinks: commids.size()!=1");
-        Set<Long> rcs = ((Link)target).get_roadconnections_entering().stream().map(x->x.getId()).collect(Collectors.toSet());
-        if( rcids!=null && rcids.stream().anyMatch(rcid->!rcs.contains(rcid)) )
-            errorLog.addError("Road connection does not enter the target link");
+
     }
 
     @Override
@@ -109,6 +107,10 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         Link link = (Link) target;
         if( !(link.get_model() instanceof AbstractFluidModel) )
             errorLog.addError("ActuatorFlowToLink only works on fluid models.");
+
+        Set<Long> rcs = ((Link)target).get_roadconnections_entering().stream().map(x->x.getId()).collect(Collectors.toSet());
+        if( rcids!=null && rcids.stream().anyMatch(rcid->!rcs.contains(rcid)) )
+            errorLog.addError("Road connection does not enter the target link");
     }
 
     @Override

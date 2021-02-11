@@ -1,12 +1,10 @@
 package core;
 
-import error.OTMErrorLog;
 import error.OTMException;
 import core.packet.PacketLaneGroup;
 
 public interface InterfaceLaneGroup {
 
-    void validate_post_init(OTMErrorLog errorLog);
     void allocate_state();
 
     Double get_upstream_vehicle_position();

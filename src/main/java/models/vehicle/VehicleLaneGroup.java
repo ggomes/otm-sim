@@ -16,7 +16,7 @@ public abstract class VehicleLaneGroup extends AbstractLaneGroup {
     // construction
     ////////////////////////////////////////
 
-    public VehicleLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+    public VehicleLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) throws OTMException {
         super(link, side, length, num_lanes, start_lane, out_rcs, rp);
     }
 

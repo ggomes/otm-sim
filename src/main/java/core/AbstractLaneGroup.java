@@ -3,6 +3,7 @@ package core;
 import actuator.*;
 import core.geometry.RoadGeometry;
 import core.geometry.Side;
+import error.OTMErrorLog;
 import error.OTMException;
 import core.packet.StateContainer;
 import models.Maneuver;
@@ -70,7 +71,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
     // construction / destruction
     ///////////////////////////////////////////////////
 
-    public AbstractLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp){
+    public AbstractLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) throws OTMException {
         this.link = link;
         this.side = side;
         this.length = length;
@@ -84,8 +85,11 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         if(out_rcs!=null) {
             for (RoadConnection rc : out_rcs) {
                 rc.in_lanegroups.add(this);
-                if (rc.end_link != null)
+                if (rc.end_link!=null) {
+                    if (outlink2roadconnection.containsKey(rc.end_link.getId()))
+                        throw new OTMException(String.format("Link %d has multiple road connections to link %d.",link.getId(),rc.end_link.getId()));
                     outlink2roadconnection.put(rc.end_link.getId(), rc);
+                }
             }
         }
 
@@ -209,6 +213,10 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public final void reset_road_params() throws OTMException {
         set_road_params(roadparam_orig);
+    }
+
+    public void validate_post_init(OTMErrorLog errorLog){
+
     }
 
     public void initialize(Scenario scenario, float start_time) throws OTMException {

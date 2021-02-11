@@ -336,7 +336,7 @@ public abstract class AbstractModel implements InterfaceModel {
         return lanegroups;
     }
 
-    private static AbstractLaneGroup create_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) {
+    private static AbstractLaneGroup create_lanegroup(Link link, int dn_start_lane, int num_lanes, Set<RoadConnection> out_rcs) throws OTMException {
 
         // Determine whether it is an addlane lanegroup or a full lane lane group.
         Set<Side> sides = new HashSet<>();

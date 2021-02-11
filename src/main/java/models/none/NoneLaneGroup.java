@@ -88,7 +88,7 @@ public class NoneLaneGroup extends AbstractLaneGroup {
 
     }
 
-    public NoneLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+    public NoneLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp)  throws OTMException {
         super(link, side, length, num_lanes, start_lane, out_rcs, rp);
     }
 

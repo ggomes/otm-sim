@@ -34,7 +34,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     // construction
     ///////////////////////////////////////////
 
-    public MesoLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp){
+    public MesoLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) throws OTMException {
         super(link, side,length, num_lanes, start_lane, out_rcs,rp);
         this.transit_queue = new Queue(this, Queue.Type.transit);
         this.waiting_queue = new Queue(this, Queue.Type.waiting);
@@ -46,6 +46,7 @@ public class MesoLaneGroup extends VehicleLaneGroup {
 
     @Override
     public void validate_post_init(OTMErrorLog errorLog) {
+        super.validate_post_init(errorLog);
         transit_queue.validate(errorLog);
         waiting_queue.validate(errorLog);
     }

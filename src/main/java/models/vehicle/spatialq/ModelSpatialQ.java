@@ -49,7 +49,7 @@ public class ModelSpatialQ extends AbstractVehicleModel {
     }
 
     @Override
-    public AbstractLaneGroup create_lane_group(Link link, core.geometry.Side side, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs,jaxb.Roadparam rp) {
+    public AbstractLaneGroup create_lane_group(Link link, core.geometry.Side side, Float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs,jaxb.Roadparam rp)  throws OTMException {
         return new MesoLaneGroup(link,side,length,num_lanes,start_lane,out_rcs,rp);
     }
 

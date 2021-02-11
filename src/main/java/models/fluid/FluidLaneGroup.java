@@ -35,7 +35,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
     // construction
     ///////////////////////////////////////////
 
-    public FluidLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) {
+    public FluidLaneGroup(Link link, core.geometry.Side side, float length, int num_lanes, int start_lane, Set<RoadConnection> out_rcs, jaxb.Roadparam rp) throws OTMException  {
         super(link, side,length, num_lanes, start_lane, out_rcs,rp);
 
         nom_capacity_veh_per_dt = capacity_veh_per_dt;
@@ -51,6 +51,7 @@ public class FluidLaneGroup extends AbstractLaneGroup {
 
     @Override
     public void validate_post_init(OTMErrorLog errorLog) {
+        super.validate_post_init(errorLog);
 
         if (jam_density_veh_per_cell < 0)
             errorLog.addError("non-negativity");
