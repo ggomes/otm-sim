@@ -4,9 +4,7 @@ import error.OTMException;
 import models.vehicle.spatialq.OutputLinkQueues;
 import output.*;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -77,9 +75,9 @@ public class Output {
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_links_flow(String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt){
+    public void request_links_flow(String prefix, String output_folder, Number commodity_id, Collection<? extends Number> link_ids, Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputLinkFlow(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputLinkFlow(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(link_ids),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -93,9 +91,9 @@ public class Output {
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_links_veh(String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt){
+    public void request_links_veh(String prefix,String output_folder,Number commodity_id,Collection<? extends Number> link_ids,Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputLinkVehicles(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputLinkVehicles(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(link_ids),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -109,9 +107,9 @@ public class Output {
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_links_sum_veh(String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt){
+    public void request_links_sum_veh(String prefix,String output_folder,Number commodity_id,Collection<? extends Number> link_ids,Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputLinkSumVehicles(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputLinkSumVehicles(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(link_ids),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -125,9 +123,9 @@ public class Output {
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_link_queues(String prefix,String output_folder,Long commodity_id, Collection<Long> link_ids, Float outDt){
+    public void request_link_queues(String prefix,String output_folder,Number commodity_id, Collection<? extends Number> link_ids, Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputLinkQueues(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputLinkQueues(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(link_ids),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -158,9 +156,9 @@ public class Output {
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_lanegroup_flw(String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt){
+    public void request_lanegroup_flw(String prefix,String output_folder,Number commodity_id,Collection<? extends Number> link_ids,Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputLaneGroupFlow(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputLaneGroupFlow(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(link_ids),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -174,9 +172,9 @@ public class Output {
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_lanegroup_veh(String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt){
+    public void request_lanegroup_veh(String prefix,String output_folder,Number commodity_id,Collection<? extends Number> link_ids,Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputLaneGroupVehicles(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputLaneGroupVehicles(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(link_ids),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -190,17 +188,17 @@ public class Output {
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_lanegroup_sum_veh(String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt){
+    public void request_lanegroup_sum_veh(String prefix, String output_folder, Number commodity_id, Collection<? extends Number> link_ids, Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputLaneGroupSumVehicles(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputLaneGroupSumVehicles(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(link_ids),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
     }
 
-    public void request_lanegroup_sum_veh_dwn(String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt){
+    public void request_lanegroup_sum_veh_dwn(String prefix, String output_folder, Number commodity_id, Collection<? extends Number> link_ids, Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputLaneGroupSumVehiclesDwn(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputLaneGroupSumVehiclesDwn(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(link_ids),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -218,9 +216,9 @@ public class Output {
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_cell_flw(String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt){
+    public void request_cell_flw(String prefix,String output_folder,Number commodity_id,Collection<? extends Number> link_ids,Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputCellFlow(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputCellFlow(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(link_ids),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -234,9 +232,9 @@ public class Output {
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_cell_veh(String prefix,String output_folder,Long commodity_id,Collection<Long> link_ids,Float outDt){
+    public void request_cell_veh(String prefix,String output_folder,Number commodity_id,Collection<? extends Number> link_ids,Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputCellVehicles(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputCellVehicles(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(link_ids),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -250,9 +248,9 @@ public class Output {
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_cell_sum_veh(String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt){
+    public void request_cell_sum_veh(String prefix, String output_folder, Number commodity_id, Collection<? extends Number> link_ids, Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputCellSumVehicles(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputCellSumVehicles(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(link_ids),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -266,9 +264,9 @@ public class Output {
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_cell_sum_veh_dwn(String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt){
+    public void request_cell_sum_veh_dwn(String prefix, String output_folder, Number commodity_id, Collection<? extends Number> link_ids, Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputCellSumVehiclesDwn(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputCellSumVehiclesDwn(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(link_ids),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -282,9 +280,9 @@ public class Output {
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_cell_lanechange_out(String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt){
+    public void request_cell_lanechange_out(String prefix, String output_folder, Number commodity_id, Collection<? extends Number> link_ids, Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputCellLanechangeOut(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputCellLanechangeOut(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(link_ids),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -298,9 +296,9 @@ public class Output {
      * @param link_ids Collection of requested link ids
      * @param outDt Output sampling time in seconds.
      */
-    public void request_cell_lanechange_in(String prefix, String output_folder, Long commodity_id, Collection<Long> link_ids, Float outDt){
+    public void request_cell_lanechange_in(String prefix, String output_folder, Number commodity_id, Collection<? extends Number> link_ids, Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputCellLanechangeIn(myapi.scenario,prefix,output_folder,commodity_id,link_ids,outDt));
+            this.myapi.scenario.outputs.add(new OutputCellLanechangeIn(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(link_ids),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -317,9 +315,9 @@ public class Output {
      * @param subnetwork_id Id of the requested subnetwork. null means the entire network.
      * @param outDt Output sampling time in seconds.
      */
-    public void request_path_travel_time(String prefix,String output_folder,Long subnetwork_id,Float outDt){
+    public void request_path_travel_time(String prefix,String output_folder,Number subnetwork_id,Float outDt){
         try {
-            OutputPathTravelTime path_tt = new OutputPathTravelTime(myapi.scenario,prefix,output_folder,subnetwork_id,outDt);
+            OutputPathTravelTime path_tt = new OutputPathTravelTime(myapi.scenario,prefix,output_folder,to_long(subnetwork_id),outDt);
             this.myapi.scenario.outputs.add(path_tt);
             this.myapi.scenario.add_path_travel_time(path_tt);
         } catch (OTMException e) {
@@ -335,9 +333,9 @@ public class Output {
      * @param subnetwork_id Id of the requested subnetwork. null means the entire network.
      * @param outDt Output sampling time.
      */
-    public void request_subnetwork_vht(String prefix,String output_folder,Long commodity_id,Long subnetwork_id,Float outDt){
+    public void request_subnetwork_vht(String prefix,String output_folder,Number commodity_id,Number subnetwork_id,Float outDt){
         try {
-            this.myapi.scenario.outputs.add(new OutputSubnetworkVHT(myapi.scenario,prefix,output_folder,commodity_id,subnetwork_id,outDt));
+            this.myapi.scenario.outputs.add(new OutputSubnetworkVHT(myapi.scenario,prefix,output_folder,to_long(commodity_id),to_long(subnetwork_id),outDt));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -353,9 +351,9 @@ public class Output {
      * @param output_folder Output folder. null means do not write to file.
      * @param commodity_id Id for the requested vehicle type. null means all commodities.
      */
-    public void request_vehicle_events(String prefix,String output_folder,Long commodity_id){
+    public void request_vehicle_events(String prefix,String output_folder,Number commodity_id){
         try {
-            this.myapi.scenario.outputs.add(new OutputVehicleEvents(myapi.scenario,prefix,output_folder,commodity_id));
+            this.myapi.scenario.outputs.add(new OutputVehicleEvents(myapi.scenario,prefix,output_folder,to_long(commodity_id)));
         } catch (OTMException e) {
             e.printStackTrace();
         }
@@ -389,12 +387,29 @@ public class Output {
      * @param output_folder Output folder. null means do not write to file.
      * @param controller_id Controller id. null is all controllers.
      */
-    public void request_controller(String prefix,String output_folder,Long controller_id){
+    public void request_controller(String prefix,String output_folder,Number controller_id){
         try {
-            this.myapi.scenario.outputs.add(new OutputController(myapi.scenario,prefix,output_folder,controller_id));
+            this.myapi.scenario.outputs.add(new OutputController(myapi.scenario,prefix,output_folder,to_long(controller_id)));
         } catch (OTMException e) {
             e.printStackTrace();
         }
+    }
+
+    // ==================================================
+    // Integer-based interface for Python connection
+    // ==================================================
+
+    private Long to_long(Number x){
+        return x==null ? null : Long.valueOf(x.longValue());
+    }
+
+    private Collection<Long> to_long(Collection<? extends Number> x){
+        if(x==null)
+            return null;
+        List<Long> X = new ArrayList<>();
+        for(Number xx : x)
+            X.add(to_long(xx));
+        return X;
     }
 
 }
