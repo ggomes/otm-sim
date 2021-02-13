@@ -82,7 +82,7 @@ public class SplitMatrixProfile {
         if(splits==null)
             return;
         float now = dispatcher.current_time;
-        this.set_current_splits(splits.get_value_for_time(now));
+        this.set_all_current_splits(splits.get_value_for_time(now));
         Map<Long,Double> time_splits = splits.get_value_for_time(now);
         dispatcher.register_event(new EventSplitChange(dispatcher,now, this, time_splits));
     }
@@ -107,9 +107,22 @@ public class SplitMatrixProfile {
     // used by EventSplitChange
     ///////////////////////////////////////////
 
-    public void set_current_splits(Map<Long,Double> outlink2split) {
+    public void set_all_current_splits(Map<Long,Double> newsplit) {
+        this.outlink2split = newsplit;
+        propagate_split_change();
+    }
 
-        this.outlink2split = outlink2split;
+    public void set_some_current_splits(Map<Long,Double> newsplit) {
+        for(Map.Entry<Long,Double> e : outlink2split.entrySet()){
+            Long linkid = e.getKey();
+            if(newsplit.containsKey(linkid))
+                outlink2split.put(linkid,newsplit.get(linkid));
+        }
+        propagate_split_change();
+    }
+
+    private void propagate_split_change(){
+
         total_split = outlink2split.values().stream().mapToDouble(x->x).sum();
 
         outlinks_without_splits = new HashSet<>();
@@ -135,46 +148,44 @@ public class SplitMatrixProfile {
             s += e.getValue();
         }
 
-
     }
 
-    public void set_and_rectify_splits(Map<Long,Double> newsplit,Long linkrectify) {
-
-        assert(outlink2split.containsKey(linkrectify));
-        assert(newsplit.keySet().stream().allMatch(x->outlink2split.containsKey(x)));
-
-        double sumnew = 0d;
-        double sumkeep = 0d;
-        for(Map.Entry<Long,Double> e : outlink2split.entrySet()){
-            Long linkid = e.getKey();
-            if(newsplit.containsKey(linkid)){
-                double x = newsplit.get(linkid);
-                outlink2split.put(linkid,x);
-                sumnew += x;
-            }
-            else if(linkid!=linkrectify)
-                sumkeep += e.getValue();
-        }
-
-        if(sumnew+sumkeep<=1d){
-            outlink2split.put(linkrectify,1d-sumnew-sumkeep);
-        }
-        else {
-            outlink2split.put(linkrectify,0d);
-            double alpha = sumnew / (1d-sumkeep); // <1
-            for(long linkid : newsplit.keySet())
-                outlink2split.put(linkid,outlink2split.get(linkid)*alpha);
-        }
-
-        total_split = outlink2split.values().stream().mapToDouble(x->x).sum();
-
-        float s = 0f;
-        link_cumsplit = new ArrayList<>();
-        for(Map.Entry<Long,Double> e : outlink2split.entrySet()){
-            link_cumsplit.add(new LinkCumSplit(e.getKey(),s));
-            s += e.getValue();
-        }
-    }
+    //    public void set_and_rectify_splits(Map<Long,Double> newsplit,Long linkrectify) {
+//
+//        assert(newsplit.keySet().stream().allMatch(x->outlink2split.containsKey(x)));
+//
+//        double sumnew = 0d;
+//        double sumkeep = 0d;
+//        for(Map.Entry<Long,Double> e : outlink2split.entrySet()){
+//            Long linkid = e.getKey();
+//            if(newsplit.containsKey(linkid)){
+//                double x = newsplit.get(linkid);
+//                outlink2split.put(linkid,x);
+//                sumnew += x;
+//            }
+//            else if(linkid!=linkrectify)
+//                sumkeep += e.getValue();
+//        }
+//
+//        if(sumnew+sumkeep<=1d){
+//            outlink2split.put(linkrectify,1d-sumnew-sumkeep);
+//        }
+//        else {
+//            outlink2split.put(linkrectify,0d);
+//            double alpha = sumnew / (1d-sumkeep); // <1
+//            for(long linkid : newsplit.keySet())
+//                outlink2split.put(linkid,outlink2split.get(linkid)*alpha);
+//        }
+//
+//        total_split = outlink2split.values().stream().mapToDouble(x->x).sum();
+//
+//        float s = 0f;
+//        link_cumsplit = new ArrayList<>();
+//        for(Map.Entry<Long,Double> e : outlink2split.entrySet()){
+//            link_cumsplit.add(new LinkCumSplit(e.getKey(),s));
+//            s += e.getValue();
+//        }
+//    }
 
     public void register_next_change(Dispatcher dispatcher,TimeMap time_map){
         if(time_map!=null)
@@ -189,7 +200,7 @@ public class SplitMatrixProfile {
         return splits;
     }
 
-    public void set_splits(Profile2D x){
+    public void set_some_current_splits(Profile2D x){
         splits = x;
     }
 

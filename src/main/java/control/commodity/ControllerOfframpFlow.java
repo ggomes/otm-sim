@@ -25,22 +25,22 @@ public class ControllerOfframpFlow extends AbstractController {
     public ControllerOfframpFlow(Scenario scenario, Controller jcon) throws OTMException {
         super(scenario, jcon);
 
-        fr_ref = new HashMap<>();
-
-        if(jcon.getProfiles()!=null){
-            for(jaxb.Profile prof : jcon.getProfiles().getProfile()){
-                float prof_start_time = prof.getStartTime();
-                long prof_id = prof.getId();
-                fr_ref.put(prof_id,prof_start_time>86400 ? null :
-                        new Profile1D(prof_start_time,prof.getDt(),OTMUtils.csv2list(prof.getContent())));
-            }
-        }
-
-        // sensor
-        act = (ActuatorSplit) actuators.values().iterator().next();
-        Set<Long> commids = new HashSet<>();
-        commids.add(act.comm.getId());
-        this.ml_sensor = new FixedSensor(dt, act.linkMLup,1,act.linkMLup.get_num_dn_lanes(),act.linkMLup.get_full_length(),commids);
+//        fr_ref = new HashMap<>();
+//
+//        if(jcon.getProfiles()!=null){
+//            for(jaxb.Profile prof : jcon.getProfiles().getProfile()){
+//                float prof_start_time = prof.getStartTime();
+//                long prof_id = prof.getId();
+//                fr_ref.put(prof_id,prof_start_time>86400 ? null :
+//                        new Profile1D(prof_start_time,prof.getDt(),OTMUtils.csv2list(prof.getContent())));
+//            }
+//        }
+//
+//        // sensor
+//        act = (ActuatorSplit) actuators.values().iterator().next();
+//        Set<Long> commids = new HashSet<>();
+//        commids.add(act.comm.getId());
+//        this.ml_sensor = new FixedSensor(dt, act.link_from,1,act.link_from.get_num_dn_lanes(),act.link_from.get_full_length(),commids);
     }
 
     @Override
@@ -57,10 +57,10 @@ public class ControllerOfframpFlow extends AbstractController {
 
         this.fr_ref.values().stream().filter(x->x!=null).forEach(p->p.validate_pre_init(errorLog));
 
-        ActuatorSplit act = (ActuatorSplit) actuators.values().iterator().next();
-        Set<Long> act_linkids = act.linkFRs.stream().map(l->l.getId()).collect(Collectors.toSet());
-        if(!act_linkids.equals(fr_ref.keySet()))
-            errorLog.addError("Controller and actuator link ids dont match.");
+//        ActuatorSplit act = (ActuatorSplit) actuators.values().iterator().next();
+//        Set<Long> act_linkids = act.linkFRs.stream().map(l->l.getId()).collect(Collectors.toSet());
+//        if(!act_linkids.equals(fr_ref.keySet()))
+//            errorLog.addError("Controller and actuator link ids dont match.");
     }
 
     @Override

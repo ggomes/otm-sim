@@ -145,6 +145,7 @@ public class ActuatorFlowToLinks extends AbstractActuator {
         unactuated_links_without_splits.removeAll(outlink2split.keySet());
 
         this.unactuated_splits = new HashMap<>();
+        total_unactuated_split = 0d;
         for(Map.Entry<Long,Double> e : outlink2split.entrySet())
             if(!outlink2flows.containsKey(e.getKey())) {
                 unactuated_splits.put(e.getKey(),e.getValue());

@@ -3,6 +3,7 @@ package control;
 import actuator.AbstractActuator;
 import core.InterfaceEventWriter;
 import control.command.InterfaceCommand;
+import dispatch.AbstractEvent;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import dispatch.Pokable;
@@ -43,6 +44,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
     public Float dt;
     public float start_time;
     public float end_time;
+    protected boolean is_on;
 
     public Map<Long,AbstractActuator> actuators;
     public Map<String,AbstractActuator> actuator_by_usage;
@@ -71,6 +73,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         this.dt = jaxb_controller.getDt();
         this.start_time = jaxb_controller.getStartTime();
         this.end_time = jaxb_controller.getEndTime()==null ? Float.POSITIVE_INFINITY : jaxb_controller.getEndTime();
+        this.is_on = false;
 
         // below this does not apply for scenario-less controllers  ..............................
         if(scenario==null)
@@ -160,8 +163,28 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
         // configure
         configure();
 
+        this.is_on = true;
+
         // poke
         poke(scenario.dispatcher,scenario.dispatcher.current_time);
+    }
+
+    public void turn_off(){
+        if(!is_on)
+            return;
+
+        this.is_on = false;
+
+        // remove all future events
+        this.scenario.dispatcher.remove_events_for_recipient(AbstractEvent.class,this);
+    }
+
+    public void turn_on(){
+        if(is_on)
+            return;
+
+        is_on = true;
+
     }
 
     ///////////////////////////////////////////
@@ -208,6 +231,9 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     @Override
     public final void poke(Dispatcher dispatcher, float timestamp) throws OTMException  {
+
+        if(!is_on)
+            return;
 
         update_command(dispatcher);
 

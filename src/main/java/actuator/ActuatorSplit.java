@@ -1,60 +1,56 @@
 package actuator;
 
-import commodity.Commodity;
+import control.AbstractController;
 import control.command.CommandDoubleArray;
+import control.command.CommandLongToDouble;
 import core.Link;
-import core.Node;
 import core.Scenario;
 import control.command.InterfaceCommand;
 import core.ScenarioElementType;
+import dispatch.Dispatcher;
 import dispatch.EventSplitChange;
 import error.OTMErrorLog;
 import error.OTMException;
 import jaxb.Actuator;
 import jaxb.Parameter;
 import profiles.SplitMatrixProfile;
-import utils.OTMUtils;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-
-import static java.util.stream.Collectors.toSet;
 
 public class ActuatorSplit extends AbstractActuator {
 
-    public Link linkMLup;
-    public Link linkMLdwn;
-    public Set<Link> linkFRs = new HashSet<>();
-    public Commodity comm;
-
-    private SplitMatrixProfile smp;
+    public Link link_from;
+    public Link link_to;
+    public Link links_dn;
 
     public ActuatorSplit(Scenario scenario, Actuator jact) throws OTMException {
         super(scenario, jact);
 
+        link_from = (Link) target;
+
         if(jact.getParameters()!=null){
             for(Parameter p : jact.getParameters().getParameter()){
                 switch(p.getName()){
-                    case "linkin":
-                        this.linkMLup = scenario.network.links.get(Long.parseLong(p.getValue()));
-                        break;
-                    case "linksout":
-                        this.linkFRs.addAll(OTMUtils.csv2longlist(p.getValue()).stream().map(l->scenario.network.links.get(l)).collect(toSet()));
-                        break;
-                    case "comm":
-                        this.comm = scenario.commodities.get(Long.parseLong(p.getValue()));
+                    case "linkto":
+                        this.link_to = scenario.network.links.get(Long.parseLong(p.getValue()));
                         break;
                 }
             }
         }
 
-        if(linkMLup==null || linkFRs.isEmpty())
+        if(link_from==null || link_to==null)
             return;
 
-        Node node = linkMLup.get_end_node();
-        linkMLdwn = node.get_out_links().stream()
-                .filter(link->link.get_road_type()== Link.RoadType.freeway)
-                .findFirst().get();
+        Set<Link> links_dns = new HashSet<>();
+        links_dns.addAll(link_from.get_end_node().get_out_links());
+        links_dns.remove(link_to);
+
+        if(links_dns.size()!=1)
+            throw new OTMException("Actuator split has more than one alternative link");
+
+        links_dn = links_dns.iterator().next();
     }
 
     @Override
@@ -65,32 +61,18 @@ public class ActuatorSplit extends AbstractActuator {
     @Override
     public void validate_pre_init(OTMErrorLog errorLog) {
         super.validate_pre_init(errorLog);
-        if(linkMLup ==null)
-            errorLog.addError("ActuatorSplit: linkin==null");
-        if(linkFRs.isEmpty())
-            errorLog.addError("ActuatorSplit: linkFRs.isEmpty()");
-        if(linkFRs.contains(null))
-            errorLog.addError("ActuatorSplit: linkFRs.contains(null)");
-        if(linkMLdwn ==null)
-            errorLog.addError("ActuatorSplit: linkML==null");
-        if(comm==null)
-            errorLog.addError("ActuatorSplit: comm==null");
-
-//        Set<Link> allout = new HashSet<>();
-//        allout.add(linkMLdwn);
-//        allout.addAll(linkFRs);
-//        if(allout.size()!=linkMLup.end_node.out_links.size()) {
-//            Set<Link> missing = new HashSet<Link>();
-//            missing.addAll(linkMLup.end_node.out_links);
-//            missing.removeAll(allout);
-//            errorLog.addError(String.format("In actuator id=%d, output link(s) %s is(are) not represented.",id,
-//                    OTMUtils.comma_format(missing.stream().map(x->x.getId()).collect(toSet()))));
-//        }
+        if(link_from ==null)
+            errorLog.addError("ActuatorSplit: link_from==null");
+        if(link_to==null)
+            errorLog.addError("ActuatorSplit: link_to.isEmpty()");
+        if(links_dn==null)
+            errorLog.addError("ActuatorSplit: links_dn==null");
+        if(commids==null || commids.isEmpty())
+            errorLog.addError("ActuatorSplit: commids==null || commids.isEmpty()");
 
         // confirm they are connected
-        if(linkFRs.stream().anyMatch(linkFR->linkMLup.get_end_node()!=linkFR.get_start_node()))
-            errorLog.addError("ActuatorSplit: linkin.end_node!=linkout.start_node");
-
+        if(!link_from.get_end_node().get_out_links().contains(link_to))
+            errorLog.addError("ActuatorSplit: link_from does not connect to link_to");
     }
 
     @Override
@@ -101,38 +83,97 @@ public class ActuatorSplit extends AbstractActuator {
 
         super.initialize(scenario,timestamp,override_targets);
 
-        long commid = comm.getId();
+//        // delete the existng splits.
+//        for(long commid : commids){
+//
+////            SplitMatrixProfile smp;
+////            if(link_from.have_split_for_commodity(commid))
+////                smp = link_from.get_split_profile(commid);
+////            else {
+////                smp = new SplitMatrixProfile(commid, link_from);
+////                link_from.set_split_profile(commid, smp);
+////            }
+////            this.smps.put(commid, smp);
+//        }
 
-        // delete the existng splits.
-        if(linkMLup.have_split_for_commodity(commid)){
-            scenario.dispatcher.remove_events_for_recipient(EventSplitChange.class, linkMLup.get_split_profile(commid));
-            this.smp = linkMLup.get_split_profile(commid);
-            linkMLup.remove_split_profile(commid);
-        }
-        else{
-            this.smp = new SplitMatrixProfile(commid, linkMLup);
-        }
-
-        // create the new split ratio matrix
-        linkMLup.set_split_profile(commid, smp);
 
         // register the actuator
-        target.register_actuator(commids,this,override_targets);
+//        target.register_actuator(commids,this,override_targets);
     }
 
     @Override
     public void process_command(InterfaceCommand command, float timestamp) throws OTMException {
-        if(command==null)
-            return;
-        if(!(command instanceof CommandDoubleArray))
-            throw new OTMException("Bad command type.");
 
-//        smp.set_and_rectify_splits(((CommandDoubleArray)command).values,linkMLdwn.getId());
+//        Dispatcher dispatcher = link_from.get_scenario().dispatcher;
+//
+//        // return to nominal splits
+//        if(command==null) {
+//            for (long commid : commids) {
+//
+//                // if I have splits, then reset these
+//                if (link_from.have_split_for_commodity(commid)) {
+//                    SplitMatrixProfile smp = link_from.get_split_profile(commid);
+//                    smp.initialize(dispatcher);
+//                }
+//
+//                // otherwise it might be a flow actuator
+//                else if(link_from.acts_flowToLinks!=null) {
+//                    for(Map<Long,ActuatorFlowToLinks> acts_flowToLink : link_from.acts_flowToLinks.values()){
+//                        if(acts_flowToLink.containsKey(commid)){
+//                            ActuatorFlowToLinks act = acts_flowToLink.get(commid);
+//                            AbstractController cntrl = act.myController;
+//                            cntrl.turn_on();
+//                            CommandLongToDouble cmd = new CommandLongToDouble();
+//                            cmd.X.put(link_to.getId(),0d);
+//                            act.process_command(cmd,timestamp);
+//                        }
+//
+//                    }
+//                }
+//
+//            }
+//        }
+//
+//        // set splits in the command
+//        else {
+//
+//            for(long commid : commids) {
+//
+//                // if I have a split for this commodity, then modify it
+//                if(link_from.have_split_for_commodity(commid)) {
+//                    SplitMatrixProfile smp = link_from.get_split_profile(commid);
+//
+//                    // remove future split change events
+//                    dispatcher.remove_events_for_recipient(EventSplitChange.class, smp);
+//
+//                    // set split
+//                    smp.set_and_rectify_splits(((CommandDoubleArray) command).as_map(), links_dn.getId());
+//                }
+//
+//                // otherwise there may be a flow actuator
+//                else if(link_from.acts_flowToLinks!=null) {
+//                    for(Map<Long,ActuatorFlowToLinks> acts_flowToLink : link_from.acts_flowToLinks.values()){
+//                        if(acts_flowToLink.containsKey(commid)){
+//                            ActuatorFlowToLinks act = acts_flowToLink.get(commid);
+//                            AbstractController cntrl = act.myController;
+//                            cntrl.turn_off();
+//                            CommandLongToDouble cmd = new CommandLongToDouble();
+//                            cmd.X.put(link_to.getId(),0d);
+//                            act.process_command(cmd,timestamp);
+//                        }
+//
+//                    }
+//                }
+//
+//            }
+//
+//        }
+
     }
 
     @Override
     protected ScenarioElementType get_target_class() {
-        return null;
+        return ScenarioElementType.link;
     }
 
     @Override

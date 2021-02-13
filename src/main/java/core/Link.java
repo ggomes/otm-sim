@@ -583,9 +583,14 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
         return split_profile.get(comm_id).outlink2split;
     }
 
+    public Collection<Link> get_next_links(){
+        return end_node.out_links;
+    }
+
     public Collection<Link> get_previous_links(){
         return start_node.in_links.values();
     }
+
 
     public Set<RoadConnection> get_roadconnections_leaving(){
         return lgs.stream()
@@ -611,10 +616,12 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
     }
 
     public boolean have_split_for_commodity(long commid){
-        return split_profile.containsKey(commid);
+        return split_profile!=null && split_profile.containsKey(commid);
     }
 
     public void set_split_profile(long commid, SplitMatrixProfile smp){
+        if(split_profile==null)
+            split_profile = new HashMap<>();
         split_profile.put(commid, smp);
     }
 

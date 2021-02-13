@@ -236,6 +236,7 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
         return flw_acc;
     }
 
+
     protected final void add_stateXX(State state,Long next_link_id) {
 
         Set<Maneuver> maneuvers;

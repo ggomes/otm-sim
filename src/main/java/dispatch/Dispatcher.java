@@ -62,7 +62,7 @@ public  class Dispatcher {
     public void remove_events_for_recipient(Class<? extends AbstractEvent> clazz, Object recipient){
 
         Set<AbstractEvent> remove = events.stream()
-                .filter(x->x.recipient==recipient && x.getClass()==clazz)
+                .filter(x->x.recipient==recipient && clazz.isAssignableFrom(x.getClass()) )
                 .collect(toSet());
 
         events.removeAll(remove);

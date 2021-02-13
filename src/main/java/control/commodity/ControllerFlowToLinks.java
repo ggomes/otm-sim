@@ -108,4 +108,7 @@ public class ControllerFlowToLinks extends AbstractController  {
 
     }
 
+    public Set<Long> get_link_ids(){
+        return this.outlink2profile.keySet();
+    }
 }
