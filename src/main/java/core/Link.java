@@ -357,6 +357,9 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
         return lgs.stream().mapToDouble(x->x.get_max_vehicles()).sum();
     }
 
+    public AbstractLaneSelector get_lane_selsector(){
+        return lane_selector;
+    }
 
     ////////////////////////////////////////////
     // inter-link dynamics
@@ -591,7 +594,6 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
         return start_node.in_links.values();
     }
 
-
     public Set<RoadConnection> get_roadconnections_leaving(){
         return lgs.stream()
                 .flatMap(lg->lg.outlink2roadconnection.values().stream())
@@ -821,10 +823,6 @@ public class Link implements InterfaceScenarioElement, InterfaceTarget {
     public RoadType get_road_type(){
         return road_type;
     }
-
-//    public Map<State, InterfaceLaneSelector> get_lane_selector_for_lane_group(long lgid){
-//        return lane_selector.get_laneselector_for_lanegroup(lgid);
-//    }
 
     public List<AbstractLaneGroup> get_lgs(){
         return lgs;

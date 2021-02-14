@@ -35,14 +35,14 @@ public class DebugRuns extends AbstractTest {
             boolean do_controllers  = false;
 
             boolean sysout2file = false;
-            String configfile = "/home/gomes/Desktop/x/bbb_0.xml";
+            String configfile = "/home/gomes/Desktop/optissues/tolling_0.xml";
             float start_time = 0f;
             float duration = 1000f;
             float outdt = 3f;
-            String prefix = makeplots?null:"x";
-            String outfolder = makeplots?null:"/home/gomes/Desktop/x/output";
-            String png_folder = "/home/gomes/Desktop/x/output";
-            Set<Long> link_ids = Set.of(1l,3l,6l);
+            String prefix = makeplots?null:"exp1";
+            String outfolder = makeplots?null:"/home/gomes/Desktop/optissues/output";
+            String png_folder = "/home/gomes/Desktop/optissues/output";
+            Set<Long> link_ids = null; //Set.of(4l,5l,2l,3l,6l,9l,8l);
 
             Long subnetid = null;
             Long cntrl_id = null;
@@ -68,7 +68,7 @@ public class DebugRuns extends AbstractTest {
             long startTime = System.nanoTime();
 
             // Load ..............................
-            OTM otm = new OTM(configfile,false);
+            OTM otm = new OTM(configfile,true);
 
             long endTime = System.nanoTime();
             double seconds = (endTime - startTime)/1e9;
@@ -100,8 +100,8 @@ public class DebugRuns extends AbstractTest {
                 otm.output.request_cell_veh(prefix,outfolder,comm_id,link_ids,outdt);
 //                otm.output.request_cell_sum_veh(prefix,outfolder,comm_id,link_ids,outdt);
 //                otm.output.request_cell_sum_veh_dwn(prefix,outfolder,comm_id,link_ids,outdt);
-//                otm.output.request_cell_lanechange_out(prefix,outfolder,comm_id,link_ids,outdt);
-//                otm.output.request_cell_lanechange_in(prefix,outfolder,comm_id,link_ids,outdt);
+                otm.output.request_cell_lanechange_out(prefix,outfolder,comm_id,link_ids,outdt);
+                otm.output.request_cell_lanechange_in(prefix,outfolder,comm_id,link_ids,outdt);
             }
 
             // subnetworks

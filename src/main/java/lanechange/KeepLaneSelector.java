@@ -19,7 +19,6 @@ public class KeepLaneSelector extends AbstractLaneSelector {
         for(AbstractLaneGroup lg : link.get_lgs()){
             for(State state : lg.get_link().states ){
                 Map<Maneuver,Double> x = lg.get_maneuvprob_for_state(state);
-                double d = 1d/x.size();
 
                 // non discretionary
                 if(x.size()==1){

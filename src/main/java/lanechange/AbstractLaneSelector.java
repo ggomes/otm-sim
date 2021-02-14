@@ -11,7 +11,7 @@ public abstract class AbstractLaneSelector implements Pokable {
 
     protected Float dt;
     protected Link  link;
-    protected abstract void update();
+    protected abstract void update();  // write state2lanechangeprob for all lanegroups in link
 
     public AbstractLaneSelector(Link link, Float dt){
         this.link = link;

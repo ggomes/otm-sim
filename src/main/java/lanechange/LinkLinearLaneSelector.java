@@ -11,13 +11,13 @@ import utils.OTMUtils;
 
 import java.util.*;
 
-public class LinkLogitLaneSelector extends AbstractLaneSelector {
+public class LinkLinearLaneSelector extends AbstractLaneSelector {
 
     Map<Long, CommData> commdatas; // commid->CommData
     double [] lgsupplies;
     double threshold = 0f;
 
-    public LinkLogitLaneSelector(Scenario scenario, Link link, Float dt, List<Lanechange> lcs) throws OTMException {
+    public LinkLinearLaneSelector(Scenario scenario, Link link, Float dt, List<Lanechange> lcs) throws OTMException {
         super(link,dt);
 
         lgsupplies = new double[link.get_lgs().size()];
@@ -29,9 +29,9 @@ public class LinkLogitLaneSelector extends AbstractLaneSelector {
                     scenario.commodities.keySet() :
                     OTMUtils.csv2longlist(jlc.getComms());
 
-            double epsilon = 0d;
+            double epsilon = 0.8d;
             double alpha = 1d;
-            double gamma = 300d;
+            double gamma = 30d;
             if (jlc.getParameters() != null) {
                 for (jaxb.Parameter p : jlc.getParameters().getParameter()) {
                     switch (p.getName()) {
@@ -54,17 +54,39 @@ public class LinkLogitLaneSelector extends AbstractLaneSelector {
             }
 
             for (long commid : commids)
-                commdatas.put(commid, new CommData(epsilon, alpha, gamma, link.get_lgs().size()));
+                commdatas.put(commid, new CommData(epsilon, alpha, gamma, link.get_lgs()));
 
         }
     }
+
+    public void set_toll(long commid,long lgid, double toll){
+        if(toll<0d)
+            return;
+        if(commdatas.containsKey(commid))
+            commdatas.get(commid).toll.put(lgid,toll);
+    }
+
+    public void set_toll_all_comm(long lgid, double toll){
+        if(toll<0d)
+            return;
+        for(CommData c : commdatas.values())
+            c.toll.put(lgid,toll);
+    }
+
+    public void set_toll_coeff_all_lgs_comm(double toll_coeff){
+        if(toll_coeff<0d)
+            return;
+        for(CommData c : commdatas.values())
+            c.alpha = toll_coeff;
+    }
+
 
     @Override
     protected void update() {
 
         double Sa, Sb;  // lane group supply in veh/lane/meter
         double pab, pba, sigma_ab, sigma_ba;
-        // double taua, taub, alpha_ab;
+         double taua, taub, alpha_ab;
 
         List<AbstractLaneGroup> lgs = link.get_lgs();
 
@@ -78,16 +100,16 @@ public class LinkLogitLaneSelector extends AbstractLaneSelector {
             Sa = lga.get_lat_supply() / lga.get_num_lanes() / lga.get_length();
             Sb = lgb.get_lat_supply() / lgb.get_num_lanes() / lgb.get_length();
 
-            // taua = toll[i];
-            // taub = toll[i+1];
-
             for( CommData c : commdatas.values() ){
+
+                taua = c.toll.get(lga.getId());
+                taub = c.toll.get(lgb.getId());
 
                 pab = 0d;
                 pba = 0d;
 
-                // alpha_ab = c.alpha * ( taua - taub );
-                sigma_ab =  c.epsilon*Sb - Sa - threshold; // + alpha_ab;
+                alpha_ab = c.alpha * ( taua - taub );
+                sigma_ab =  c.epsilon*Sb - Sa + alpha_ab - threshold;
 
                 // flow from a to b
                 if( sigma_ab > 0 )
@@ -95,7 +117,7 @@ public class LinkLogitLaneSelector extends AbstractLaneSelector {
 
                 // flow from b to a
                 else{
-                    sigma_ba = c.epsilon*Sa - Sb - threshold; //  - alpha_ab
+                    sigma_ba = c.epsilon*Sa - Sb - alpha_ab - threshold;
                     if( sigma_ba > 0 )
                         pba = Math.min(1d, Math.max(0d, c.gamma * sigma_ba ) );
                 }
@@ -154,23 +176,27 @@ public class LinkLogitLaneSelector extends AbstractLaneSelector {
     }
 
     public class CommData {
-        public final double epsilon;  // in [0,1] supply reduction factor for adjacent lane groups
-        public final double alpha;    // non-negative toll price multiplier
-        public final double gamma;
+        public double epsilon;  // in [0,1] supply reduction factor for adjacent lane groups
+        public double alpha;    // non-negative toll price multiplier
+        public double gamma;
+        public Map<Long, Double> toll;  // lg->toll in cents
         public List< Map<Maneuver,Double> > lg_mnv2prob;
 
-        public CommData(double epsilon, double alpha, double gamma, int numlgs) {
+        public CommData(double epsilon, double alpha, double gamma, List<AbstractLaneGroup> lgs) {
             this.epsilon = epsilon;
             this.alpha = alpha;
             this.gamma = gamma;
+            this.toll = new HashMap<>();
             lg_mnv2prob = new ArrayList<>();
-            for(int i=0;i<numlgs;i++){
+            int numlgs = lgs.size();
+            for(int i=0;i<lgs.size();i++){
                 Map<Maneuver,Double> x = new HashMap<>();
                 if(i>0)
                     x.put(Maneuver.lcin,0d);
                 if(i<numlgs-1)
                     x.put(Maneuver.lcout,0d);
                 lg_mnv2prob.add(x);
+                toll.put(lgs.get(i).getId(), 0d);
             }
         }
     }

@@ -234,7 +234,7 @@ public abstract class AbstractModel implements InterfaceModel {
             case "lglogit":
                 return new LanegroupLogitLaneSelector(scenario,link,dt,lcs.getLanechange());
             case "linklinear":
-                return new LinkLogitLaneSelector(scenario,link,dt,lcs.getLanechange());
+                return new LinkLinearLaneSelector(scenario,link,dt,lcs.getLanechange());
             case "uniform":
                 return new UniformLaneSelector(link);
             case "keep":
