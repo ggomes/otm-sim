@@ -1,6 +1,7 @@
 package cmd;
 
 import error.OTMException;
+import py4j.GatewayServer;
 
 public class OTM {
 
@@ -8,6 +9,7 @@ public class OTM {
     //     -version   Display version information.
     //     -load      Load and validate a config file. arguments: <configfile>
     //     -run       Run a config file with default paramters. arguments: <configfile> <prefix> <output request file> <output folder> <start_time> <duration>
+    //     -gateway
     // 1: configfile: absolute location and name of the configuration file.
     // 2: prefix: string to be pre-pended to all output files.
     // 3: output request file: absolute location and name of the output request file.
@@ -15,6 +17,8 @@ public class OTM {
     // 5: start_time: [integer] start time for the simrultion in seconds after midnight.
     // 6: duration: [integer] simulation duration in seconds.
     public static void main(String[] args) {
+
+        GatewayServer gatewayServer=null;
 
         if (0 == args.length) {
             System.err.print(get_usage());
@@ -36,16 +40,15 @@ public class OTM {
 
             if(otm!=null)
                 System.out.println("Load successful!");
-        } else
+        }
 
-        // run
-        //    0 configfile
-        //    1 prefix
-        //    2 output_request
-        //    3 output folder
-        //    4 start_time
-        //    5 duration
-        if (cmd.equals("-run")){
+        else if (cmd.equals("-run")){
+            //    0 configfile
+            //    1 prefix
+            //    2 output_request
+            //    3 output folder
+            //    4 start_time
+            //    5 duration
             try {
 
                 if(arguments.length<6) {
@@ -68,6 +71,18 @@ public class OTM {
             }
         }
 
+        // specified port
+        else if (cmd.equals("-gateway")) {
+            try{
+                gatewayServer = load_gateway(arguments);
+                System.out.println("OTM connected on port " + gatewayServer.getPort());
+            } catch(Exception e){
+                System.err.print(e);
+                if(gatewayServer!=null)
+                    gatewayServer.shutdown();
+            }
+        }
+
          // version
         else if (cmd.equals("-version")){
             System.out.println("otm-sim: " + core.OTM.get_version());
@@ -79,6 +94,23 @@ public class OTM {
 
         else
             System.err.print(get_usage());
+    }
+
+    private static GatewayServer load_gateway(String [] args) {
+        GatewayServer gatewayServer = args.length==0?
+                new GatewayServer(new OTM()) :
+                new GatewayServer(new OTM(), Integer.parseInt(args[0]));
+        gatewayServer.start();
+        return gatewayServer;
+    }
+
+    public core.OTM get(String configfile, boolean validate_pre_init){
+        try {
+            return new core.OTM(configfile,validate_pre_init);
+        } catch (OTMException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private static String get_usage(){
@@ -96,5 +128,9 @@ public class OTM {
                         "\t\tduration: [integer] simulation duration in seconds.\n";
         return str;
     }
+
+
+
+
 
 }
