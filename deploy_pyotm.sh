@@ -1,0 +1,1 @@
+python3 -m twine upload --repository pypi target-pyotm/pyotm-0.0.2.tar.gz target-pyotm/pyotm-0.0.2-py3-none-any.whl

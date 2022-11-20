@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyotm"
-version = "0.0.1"
+version = "0.0.2"
 readme = "README.md"
 description = "Python connector for OTM"
 classifiers = [
@@ -22,7 +22,7 @@ dependencies = ["py4j","numpy"]
 "homepage" = "https://github.com/ggomes/otm-sim"
 
 [tool.setuptools.packages.find]
-where = ["src/pyotm"]
+where = ["src"]
 
 [tool.setuptools.package-data]
-pyotm = ["target/otm-sim-1.0-SNAPSHOT-jar-with-dependencies.jar"]
+pyotm = ["otm-sim-1.0-SNAPSHOT-jar-with-dependencies.jar"]
