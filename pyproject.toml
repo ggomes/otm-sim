@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyotm"
+version = "0.0.1"
+readme = "README.md"
+description = "Python connector for OTM"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+authors = [
+  { name="Gabriel Gomes", email="gomes@berkeley.edu" },
+]
+requires-python = ">=3.7"
+dependencies = ["py4j","numpy"]
+
+[project.urls]
+"homepage" = "https://github.com/ggomes/otm-sim"
+
+[tool.setuptools.packages.find]
+where = ["src/pyotm"]
+
+[tool.setuptools.package-data]
+pyotm = ["target/otm-sim-1.0-SNAPSHOT-jar-with-dependencies.jar"]

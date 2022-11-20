@@ -1,4 +1,6 @@
 apidocs/
+venv/
+src/pyotm/pyotm.egg-info/
 target/
 .idea/
 *.png
