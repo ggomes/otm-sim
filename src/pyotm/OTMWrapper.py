@@ -41,6 +41,18 @@ class OTMWrapper:
         print("# actuators: {}".format(self.otm.scenario().num_actuators()))
         print("# controllers: {}".format(self.otm.scenario().num_controllers()))
 
+    def initialize(self,start_time):
+        if self.conn.pid is not None:
+            self.otm.initialize(start_time)
+
+    def advance(self,advance_time):
+        if self.conn.pid is not None:
+            self.otm.advance(advance_time)
+
+    def get_current_time(self):
+        if self.conn.pid is not None:
+            return self.otm.get_current_time()
+
     # def show_network(self, linewidth=1):
     #     """ Plot the network using node locations."""
 
@@ -93,7 +105,7 @@ class OTMWrapper:
     #     plt.draw()
 
     # run a simulation
-    def run_simple(self, start_time=0., duration=3600., output_dt=30.):
+    def run(self, start_time=0., duration=3600., output_dt=30.):
         """ Easy running method. Requests vehicle and flow outputs, and runs the simulation for a given duration. """
 
         self.start_time = float(start_time)
