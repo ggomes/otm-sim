@@ -19,15 +19,16 @@ if "otm" in locals():
 	del otm
 	
 # load the configuration file
-otm = OTMWrapper("my_scenario_file.xml")
+otm = OTMWrapper("intersection.xml")
 
 # initialize (prepare/rewind the simulation)
-otm.initialize(start_time)
+otm.initialize(start_time=0.0)
 
 # run step-by-step using the 'advance' method
 time = 0.0  # in seconds
+advance_time = 10.0
 while(time<3600.0 ):
-	otm.advance(2.0)   # seconds, should be a multiple of sim_dt
+	otm.advance(advance_time)   # seconds, should be a multiple of sim_dt
 	print(otm.get_current_time())
 	time += advance_time;
 
@@ -43,9 +44,10 @@ import numpy as np
 if "otm" in locals():
 	del otm
 
-otm = OTMWrapper("my_scenario_file.xml")
+otm = OTMWrapper("intersection.xml")
 otm.run(start_time=0,duration=2500,output_dt=10)
 Y = otm.get_state_trajectory()
+print(Y.keys())
 del otm
 ```
 
