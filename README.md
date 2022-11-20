@@ -22,13 +22,13 @@ if "otm" in locals():
 otm = OTMWrapper("my_scenario_file.xml")
 
 # initialize (prepare/rewind the simulation)
-otm.otm.initialize(start_time)
+otm.initialize(start_time)
 
 # run step-by-step using the 'advance' method
 time = 0.0  # in seconds
 while(time<3600.0 ):
 	otm.advance(2.0)   # seconds, should be a multiple of sim_dt
-	print(otm.otm.get_current_time())
+	print(otm.get_current_time())
 	time += advance_time;
 
 # deleting the wrapper to shut down the gateway
@@ -44,7 +44,7 @@ if "otm" in locals():
 	del otm
 
 otm = OTMWrapper("my_scenario_file.xml")
-otm.run_simple(start_time=0,duration=2500,output_dt=10)
+otm.run(start_time=0,duration=2500,output_dt=10)
 Y = otm.get_state_trajectory()
 del otm
 ```
