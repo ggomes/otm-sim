@@ -12,6 +12,7 @@ public abstract class AbstractVehicle {
     private long id;
     private Long comm_id;
     private State state;
+    private Long next_link_id;
     public AbstractLaneGroup lg;
     public Path path;
 
@@ -23,6 +24,7 @@ public abstract class AbstractVehicle {
     public AbstractVehicle(AbstractVehicle that){
         this.id = that.getId();
         this.state = that.state;
+        this.next_link_id = that.next_link_id;
         this.comm_id = that.comm_id;
         this.event_listeners = that.event_listeners;
     }
@@ -37,6 +39,7 @@ public abstract class AbstractVehicle {
     }
 
     public void set_next_link_id(Long nextlink_id){
+        this.next_link_id=nextlink_id;
         if(state !=null && state.isPath)
             return;
         state = new State(comm_id,nextlink_id,false);
@@ -90,7 +93,8 @@ public abstract class AbstractVehicle {
     public Long get_next_link_id(){
         if(lg.link.is_sink)
             return null;
-        return state.isPath ? path.get_link_following(lg.link).getId() : state.pathOrlink_id;
+        return next_link_id;
+//        return state.isPath ? path.get_link_following(lg.link).getId() : state.pathOrlink_id;
     }
 
     // NOTE: We do not update the next link id when it is null. This happens in

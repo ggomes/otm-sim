@@ -87,6 +87,10 @@ public class MesoLaneGroup extends VehicleLaneGroup {
         return rp;
     }
 
+    public double get_waiting_supply(){
+        return waiting_queue.lanegroup.get_long_supply();
+    }
+
     ////////////////////////////////////////////
     // InterfaceLaneGroup
     ///////////////////////////////////////////
@@ -96,13 +100,36 @@ public class MesoLaneGroup extends VehicleLaneGroup {
         if(rate_vps<-OTMUtils.epsilon)
             return;
         this.saturation_flow_rate_vps = Math.min(nom_saturation_flow_rate_vps,rate_vps);
+
+        // Recompute exit times for all vehicles in the waiting queue
+        reset_exit_time();
     }
 
     @Override
     public void set_to_nominal_capacity() {
         this.saturation_flow_rate_vps = nom_saturation_flow_rate_vps;
+        reset_exit_time();
     }
 
+    private void reset_exit_time(){
+
+        // remove future release vehicle events
+        Scenario scenario = link.get_scenario();
+
+        float now = scenario.dispatcher.current_time;
+
+        scenario.dispatcher.remove_events_for_recipient(EventReleaseVehicleFromLaneGroup.class,this);
+
+        if(this.saturation_flow_rate_vps<0.0001)
+            return;
+
+        // reschedule for all vehicles in waiting queue
+        float next_release = scenario.dispatcher.current_time +
+                OTMUtils.get_waiting_time(saturation_flow_rate_vps,link.get_model().stochastic_process);
+        scenario.dispatcher.register_event(
+                new EventReleaseVehicleFromLaneGroup(scenario.dispatcher,next_release,this));
+
+    }
 
     @Override
     public void set_actuator_speed_mps(double speed_mps) {
@@ -140,11 +167,16 @@ public class MesoLaneGroup extends VehicleLaneGroup {
     @Override
     public void add_vehicle_packet(float timestamp, PacketLaneGroup vp, Long next_link_id) throws OTMException {
 
+        RoadConnection next_rc = this.outlink2roadconnection.get(next_link_id);
+        boolean next_link_not_accessible = next_rc==null;
+
         // for each vehicle
         Dispatcher dispatcher = link.get_scenario().dispatcher;
         for(AbstractVehicle absveh : create_vehicles_from_packet(vp,next_link_id)){
 
             MesoVehicle veh = (MesoVehicle) absveh;
+
+            veh.waiting_for_lane_change = next_link_not_accessible;
 
             // tell the event listeners
             if(veh.get_event_listeners()!=null)
@@ -213,6 +245,8 @@ public class MesoLaneGroup extends VehicleLaneGroup {
         // otherwise get the first vehicle
         MesoVehicle vehicle = waiting_queue.peek_vehicle();
 
+        System.out.println(timestamp + "\t" + this.link.getId() + "\t" + this.getId() + "\t" + vehicle.getId());
+
         // is this vehicle waiting to change lanes out of its queue?
         // if so, the lane group is blocked
         if(vehicle.waiting_for_lane_change)
@@ -229,6 +263,8 @@ public class MesoLaneGroup extends VehicleLaneGroup {
             Long next_link_id = state.isPath ? link.get_next_link_in_path(state.pathOrlink_id).getId() : state.pathOrlink_id;
 
             rc = outlink2roadconnection.get(next_link_id);
+
+//            assert(rc!=null); // otherwise it should be waiting_for_lane_change
             next_link = rc.get_end_link();
 
             // at least one candidate lanegroup must have space for one vehicle.
@@ -277,6 +313,8 @@ public class MesoLaneGroup extends VehicleLaneGroup {
 
     @Override
     public float vehs_dwn_for_comm(Long c){
+        if(transit_queue==null || waiting_queue==null)
+            return 0f;
         return (float) (transit_queue.num_vehicles_for_commodity(c) + waiting_queue.num_vehicles_for_commodity(c));
     }
 

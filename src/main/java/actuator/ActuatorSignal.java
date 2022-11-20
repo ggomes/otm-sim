@@ -79,6 +79,7 @@ public class ActuatorSignal extends AbstractActuator {
 
     @Override
     public void process_command(InterfaceCommand command, float timestamp) throws OTMException {
+
         if(command==null)
             return;
         if(!(command instanceof CommandSignal))
@@ -93,6 +94,7 @@ public class ActuatorSignal extends AbstractActuator {
             SignalPhase.BulbColor bulbcolor = signalcommand.containsKey(phase_id) ? signalcommand.get(phase_id) : SignalPhase.BulbColor.RED;
             phase.set_bulb_color(bulbcolor);
         }
+
     }
 
     public SignalPhase get_phase(long phase_id){

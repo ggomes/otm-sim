@@ -14,7 +14,7 @@ public class Queue {
     public final String id;
     public final Queue.Type type;
     public final MesoLaneGroup lanegroup;
-    private List<MesoVehicle> vehicles;
+    protected List<MesoVehicle> vehicles;
 //    private PriorityQueue<LaneChangeRequest> lane_change_requests;
 
     ///////////////////////////////////////////////////

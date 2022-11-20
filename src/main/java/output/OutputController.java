@@ -1,6 +1,7 @@
 package output;
 
 import control.AbstractController;
+import control.sigint.ControllerSignalPretimed;
 import dispatch.Dispatcher;
 import error.OTMException;
 import org.jfree.data.xy.XYSeriesCollection;

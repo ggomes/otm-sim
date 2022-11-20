@@ -55,6 +55,7 @@ public class VehicleDemandGenerator extends AbstractDemandGenerator {
 
         // extract next link
         Long next_link = commodity.pathfull ? link.get_next_link_in_path(path.getId()).getId() : state.pathOrlink_id;
+        vehicle.set_next_link_id(next_link);
 
         // candidate lane groups
         Set<AbstractLaneGroup> candidate_lane_groups = link.get_lanegroups_for_outlink(next_link);

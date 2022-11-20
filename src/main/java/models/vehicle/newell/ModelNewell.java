@@ -52,7 +52,7 @@ public class ModelNewell extends AbstractVehicleModel implements Pokable {
 
     @Override
     public Map<AbstractLaneGroup, Double> lanegroup_proportions(Collection<? extends AbstractLaneGroup> candidate_lanegroups) {
-        return std_lanegroup_proportions(candidate_lanegroups);
+        return argmax_supply(candidate_lanegroups);
     }
 
     //////////////////////////////////////////////////////////////

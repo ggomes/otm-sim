@@ -92,16 +92,10 @@ public class ControllerSignal extends AbstractController  {
 
     /** Set the current stage **/
     public final void set_stage_index(int index) throws OTMException {
-
         curr_stage_index = index;
-
         ActuatorSignal signal = get_signal();
         CommandSignal c = get_command_for_stage_index(index);
         command.put(signal.id , c);
-
-        // send command to actuator
-        get_signal().process_command(c,scenario.dispatcher.current_time);
-
     }
 
 }

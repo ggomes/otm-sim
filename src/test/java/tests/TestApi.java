@@ -11,6 +11,8 @@ import output.animation.AbstractLinkInfo;
 import output.animation.AnimationInfo;
 import output.animation.macro.LaneGroupInfo;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
@@ -44,14 +46,21 @@ public class TestApi extends AbstractTest {
     public void test_intersection_api(){
 
         try {
-            String configfile = "/home/gomes/Desktop/x/intersection_signal.xml";
-            String png_folder = "/home/gomes/Desktop/x/output/";
+            String configfile = "/home/gomes/Desktop/sadlk/intersection.xml";
+            String png_folder = "/home/gomes/Desktop/sadlk/";
             float sim_dt = 2f;
 
             OTM otm = new OTM(configfile,false);
 
-            otm.output.request_links_flow(null,null,null,null,5*sim_dt);
-            otm.output.request_links_veh(null,null,null,null,5*sim_dt);
+            List<Long> output_links = new ArrayList<>();
+//            output_links.add(66l);
+            output_links.add(6l);
+
+            otm.output.request_lanegroup_flw(null,null,null,output_links,sim_dt);
+            otm.output.request_lanegroup_veh(null,null,null,output_links,sim_dt);
+//            otm.output.request_links_flow(null,null,null,output_links,sim_dt);
+//            otm.output.request_links_veh(null,null,null,output_links,sim_dt);
+            otm.output.request_controller("a",png_folder,0l);
 
             ControllerSignal cntr = (ControllerSignal) otm.scenario.controllers.get(0l);
 
@@ -61,10 +70,10 @@ public class TestApi extends AbstractTest {
             while(time<300){
                 otm.advance(sim_dt);
 
-                if(time==50f)
-                    cntr.set_stage_index(0);
-                if(time==150f)
-                    cntr.set_stage_index(1);
+//                if(time==50f)
+//                    cntr.set_stage_index(0);
+//                if(time==150f)
+//                    cntr.set_stage_index(1);
 
                 time += sim_dt;
             }

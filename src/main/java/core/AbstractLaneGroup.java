@@ -367,9 +367,9 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
             return Side.out;
     }
 
-    public final Set<Link> get_out_links(){
-        return link.end_node.out_links;
-    }
+//    public final Set<Link> get_out_links(){
+//        return link.end_node.out_links;
+//    }
 
     public final AbstractLaneGroup get_neighbor_in(){
         return neighbor_in;
@@ -377,6 +377,10 @@ public abstract class AbstractLaneGroup implements Comparable<AbstractLaneGroup>
 
     public final AbstractLaneGroup get_neighbor_out(){
         return neighbor_out;
+    }
+
+    public boolean connects_to_outlink(long linkid){
+        return outlink2roadconnection.containsKey(linkid);
     }
 
     public RoadConnection get_rc_for_outlink(long linkid){
