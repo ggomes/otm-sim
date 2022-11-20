@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyotm"
-version = "0.0.2"
+version = "0.0.3"
 readme = "README.md"
 description = "Python connector for OTM"
 classifiers = [
