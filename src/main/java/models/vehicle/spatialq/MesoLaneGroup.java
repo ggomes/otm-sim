@@ -245,8 +245,6 @@ public class MesoLaneGroup extends VehicleLaneGroup {
         // otherwise get the first vehicle
         MesoVehicle vehicle = waiting_queue.peek_vehicle();
 
-        System.out.println(timestamp + "\t" + this.link.getId() + "\t" + this.getId() + "\t" + vehicle.getId());
-
         // is this vehicle waiting to change lanes out of its queue?
         // if so, the lane group is blocked
         if(vehicle.waiting_for_lane_change)

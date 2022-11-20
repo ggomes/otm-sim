@@ -1,6 +1,8 @@
 package tests;
 
-import control.sigint.ControllerSignal;
+//import control.sigint.AbstractControllerSignal;
+import control.AbstractController;
+import control.sigint.ControllerSignalFollower;
 import core.OTM;
 import error.OTMException;
 import core.AbstractModel;
@@ -11,9 +13,7 @@ import output.animation.AbstractLinkInfo;
 import output.animation.AnimationInfo;
 import output.animation.macro.LaneGroupInfo;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.*;
@@ -62,7 +62,11 @@ public class TestApi extends AbstractTest {
 //            otm.output.request_links_veh(null,null,null,output_links,sim_dt);
             otm.output.request_controller("a",png_folder,0l);
 
-            ControllerSignal cntr = (ControllerSignal) otm.scenario.controllers.get(0l);
+            ControllerSignalFollower cntr = (ControllerSignalFollower) otm.scenario.controllers.get(0l);
+
+            Map<Integer,int []> stages = new HashMap<>();
+            stages.put(0,new int[] {1,5});
+            stages.put(1,new int[] {2,6});
 
             otm.initialize(0f);
 
@@ -70,10 +74,10 @@ public class TestApi extends AbstractTest {
             while(time<300){
                 otm.advance(sim_dt);
 
-//                if(time==50f)
-//                    cntr.set_stage_index(0);
-//                if(time==150f)
-//                    cntr.set_stage_index(1);
+                if(time==50f)
+                    cntr.set_active_phases(stages.get(0));
+                if(time==150f)
+                    cntr.set_active_phases(stages.get(1));
 
                 time += sim_dt;
             }

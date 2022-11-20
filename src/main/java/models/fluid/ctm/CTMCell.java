@@ -128,9 +128,6 @@ public class CTMCell extends AbstractCell {
         if (laneGroup.get_link().is_source()) {
             // sources discharge at capacity
             total_demand = Math.min(total_vehicles, laneGroup.capacity_veh_per_dt);
-            if(laneGroup.get_link().getId()==2l && laneGroup.get_start_lane_dn()==1){
-                System.out.println(total_vehicles*720f);
-            }
         }
         else {
             if(am_dnstrm)

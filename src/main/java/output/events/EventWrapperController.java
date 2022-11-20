@@ -18,7 +18,7 @@ public class EventWrapperController extends AbstractEventWrapper {
             return "{}";
         String str = "";
         for(Map.Entry<Long,InterfaceCommand> e : command.entrySet())
-            str += String.format("%d:%s,",e.getKey(),e.getValue().asString());
+            str += String.format("%d:%s,",e.getKey(),e.getValue()==null?"":e.getValue().asString());
         return "{" + str.substring(0,str.length()-1) + "}";
     }
 }

@@ -48,8 +48,6 @@ public class EventActuatorToggle extends AbstractScenarioEvent {
 
     @Override
     public void action() throws OTMException {
-        System.out.println(String.format("%.2f\t%s\t%b",timestamp,getClass().getName(),ison));
-
         if(ison)
             for(AbstractActuator act : actuators)
                 act.turn_on();

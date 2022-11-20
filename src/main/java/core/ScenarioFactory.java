@@ -11,7 +11,7 @@ import control.commodity.ControllerRestrictLaneGroup;
 import control.commodity.ControllerOfframpFlow;
 import control.commodity.ControllerTollLaneGroup;
 import control.rampmetering.*;
-import control.sigint.ControllerSignal;
+import control.sigint.ControllerSignalFollower;
 import control.sigint.ControllerSignalPretimed;
 import error.OTMErrorLog;
 import error.OTMException;
@@ -86,8 +86,8 @@ public class ScenarioFactory {
             case schedule:
                 controller = new ControllerSchedule(scenario,jaxb_controller);
                 break;
-            case sig:
-                controller = new ControllerSignal(scenario,jaxb_controller);
+            case sig_follower:
+                controller = new ControllerSignalFollower(scenario,jaxb_controller);
                 break;
             case sig_pretimed:
                 controller = new ControllerSignalPretimed(scenario,jaxb_controller);

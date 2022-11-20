@@ -1,5 +1,9 @@
 package control.sigint;
 
+import actuator.ActuatorSignal;
+import actuator.SignalPhase;
+import control.AbstractController;
+import control.command.CommandSignal;
 import dispatch.Dispatcher;
 import dispatch.EventPoke;
 import error.OTMErrorLog;
@@ -8,11 +12,19 @@ import jaxb.Controller;
 import core.Scenario;
 import utils.OTMUtils;
 
-public class ControllerSignalPretimed extends ControllerSignal {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class ControllerSignalPretimed extends AbstractController {
 
     public float cycle = Float.NaN;
     public float offset = Float.NaN;
     public float start_time = 0f;
+
+    public List<Stage> stages = new ArrayList<>();
+    public int curr_stage_index;
 
     ///////////////////////////////////////////////////
     // construction
@@ -20,6 +32,10 @@ public class ControllerSignalPretimed extends ControllerSignal {
 
     public ControllerSignalPretimed(Scenario scenario, Controller jaxb_controller) throws OTMException {
         super(scenario, jaxb_controller);
+
+        if(jaxb_controller.getStages()!=null)
+            for (jaxb.Stage stage : jaxb_controller.getStages().getStage())
+                stages.add(new Stage(stage));
 
         // parameters
         if(jaxb_controller.getParameters()!=null){
@@ -47,13 +63,27 @@ public class ControllerSignalPretimed extends ControllerSignal {
 
     }
 
+    @Override
+    public Class get_actuator_class() {
+        return ActuatorSignal.class;
+    }
+
     ///////////////////////////////////////////////////
     // InterfaceScenarioElement
     ///////////////////////////////////////////////////
 
+
     @Override
     public void validate_pre_init(OTMErrorLog errorLog) {
         super.validate_pre_init(errorLog);
+
+        if(stages.isEmpty()){
+            errorLog.addError("stages.queue.isEmpty()");
+            return;
+        }
+
+        for (Stage stage : stages)
+            stage.validate(errorLog);
 
         // positivity
         if(cycle<=0)
@@ -80,7 +110,7 @@ public class ControllerSignalPretimed extends ControllerSignal {
     ///////////////////////////////////////////////////
 
     @Override
-    public void update_command(Dispatcher dispatcher) throws OTMException {
+    protected void update_command(Dispatcher dispatcher) throws OTMException {
 
         float now = dispatcher.current_time;
         StageindexReltime x = get_stage_for_time(now);
@@ -93,12 +123,43 @@ public class ControllerSignalPretimed extends ControllerSignal {
 
     }
 
+    @Override
+    protected void configure() throws OTMException {
+
+    }
+
     ///////////////////////////////////////////////////
     // get
     ///////////////////////////////////////////////////
 
+    /** Get the for the current stage within the stage list **/
+    public final Integer get_stage_index(){
+        return curr_stage_index;
+    }
+
     public float get_cycle_time(float time){
         return (time-offset)%cycle;
+    }
+
+    /** Get the command that represents a given stage index **/
+    public final CommandSignal get_command_for_stage_index(int index) {
+        Map<Long, SignalPhase.BulbColor> command = new HashMap<>();
+        for(Long phase_id : stages.get(index).phase_ids)
+            command.put(phase_id, SignalPhase.BulbColor.GREEN);
+        return new CommandSignal(command);
+    }
+
+    /** Set the current stage **/
+    public final void set_stage_index(int index) throws OTMException {
+        curr_stage_index = index;
+        ActuatorSignal signal = get_signal();
+        CommandSignal c = get_command_for_stage_index(index);
+        command.put(signal.id , c);
+    }
+
+    /** Retrieve the signal actuator **/
+    public final ActuatorSignal get_signal(){
+        return (ActuatorSignal) actuators.values().iterator().next();
     }
 
     ///////////////////////////////////////////////////

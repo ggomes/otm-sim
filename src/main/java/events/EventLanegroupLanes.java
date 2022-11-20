@@ -24,8 +24,6 @@ public class EventLanegroupLanes extends AbstractLanegroupEvent {
 
     @Override
     public void action() throws OTMException {
-        System.out.println(String.format("%4.0f\t%s\t%d",timestamp,name,dlanes));
-
         if(dlanes==null) {
             for (AbstractLaneGroup lg : lanegroups) {
                 if(dispatcher.lg2deltalanes.containsKey(lg.getId())) {

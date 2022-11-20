@@ -24,7 +24,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     public enum Algorithm {
         schedule,
-        sig,
+        sig_follower,
         sig_pretimed,
         rm_alinea,
         rm_fixed_rate,
@@ -56,7 +56,7 @@ public abstract class AbstractController implements Pokable, InterfaceScenarioEl
 
     public Map<Long, InterfaceCommand> command;    // actuator id -> command
 
-    public abstract void update_command(Dispatcher dispatcher) throws OTMException;
+    protected abstract void update_command(Dispatcher dispatcher) throws OTMException;
     public abstract Class get_actuator_class();
     protected abstract void configure() throws OTMException;
 
