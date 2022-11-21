@@ -10,13 +10,10 @@ Download the most recent large file of the form:
 otm-sim-1.0-<date>.<time>-<number>-jar-with-dependencies.jar
 ```
 
-## Build from source
-
 Follow these steps if you wish to build OTM from the source code.
 
-1. Fork and/or clone the [repo](https://github.com/ggomes/otm-sim).
-2. Install [Apache Maven](https://maven.apache.org/install.html).
-3. Add OTM's Maven repository profile to your Maven settings file: `~/.m2/settings.xml`:
+1. Install [Apache Maven](https://maven.apache.org/install.html).
+2. Add OTM's Maven repository profile to your Maven settings file: `~/.m2/settings.xml`:
 ```xml
     <profile>
         <id>myMavenRepoOTM</id>
@@ -31,7 +28,7 @@ Follow these steps if you wish to build OTM from the source code.
     </profile>
 ```
 If you do not have `~/.m2/settings.xml` then you can use [this one](https://github.com/ggomes/otm-sim/blob/master/settings.xml).
-4. Install:
+3. Install:
 ```
 mvn clean install -DskipTests
 ```
