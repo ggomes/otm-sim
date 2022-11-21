@@ -1,3 +1,5 @@
 # API documentation
 
-[Javadoc](apidocs/index.html)
+[Javadoc](apidocs/core/OTM.html)
+
+
