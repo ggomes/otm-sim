@@ -9,8 +9,7 @@ Most users will interact with OTM through its Python API, which can be installed
 ```
 pip install pyotm
 ```
-The `pyotm` package contains a single class called `OTMWrapper`. Below we see how to use `OTMWrapper` to run a step-by-step simulation.
-
+This package provides a wrapper class called `OTMWrapper`, which  creates a gateway to the OTM jar file using `py4j`. `OTMWrapper` also includes some convenience methods for working with OTM. These are illustrated in the following example. 
 ```python 
 from pyotm.OTMWrapper import OTMWrapper
 
@@ -36,7 +35,7 @@ while(time<3600.0 ):
 del otm
 ```
 
-Use `run` to run an entire simulation. 
+Use `run` to execute a full simulation. 
 ``` python 
 from pyotm.OTMWrapper import OTMWrapper
 import numpy as np
@@ -51,6 +50,12 @@ print(Y.keys())
 del otm
 ```
 
-Here `get_state_trajectory` has been used to retrieve the state trajectory. This is a dictionary containing various state profiles. 
+Here `get_state_trajectory` has been used to retrieve the state trajectory. These are the flow and density profiles in each of the links in the network. You can extract more fine-grained data using ``output requests'' or through the Java API. An output requests prompts the simulator to dump specific outputs to text files. You can see which outputs are available [here](https://ggomes.github.io/otm-sim/apidocs/core/Output.html). 
 
-A comprehensive API is available via the `otm` attribute of `OTMWrapper`. This API provides access to most of the internal state of OTM and should be used with care. The javadoc can be found [here](https://ggomes.github.io/otm-sim/apidocs/core/OTM.html).
+The `OTMWrapper` exposes OTM's Java API through its `otm` attribute, which is an instance of [`core.OTM`](https://ggomes.github.io/otm-sim/apidocs/core/OTM.html). From here you can place requests to the [Output](https://ggomes.github.io/otm-sim/apidocs/core/Output.html) object, or gain access to all of the scenario elements (links, nodes, lane groups, controllers, sensors, actuators, etc.) via the [Scenario](https://ggomes.github.io/otm-sim/apidocs/core/Scenario.html) object. Both of these are otained with their getters. 
+
+The following example demonstrates the max pressure algorithm for controlling a signalized intersection.
+
+```python
+TBD
+```
