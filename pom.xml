@@ -23,7 +23,7 @@
         <url>git@github.com:ggomes/otm-sim.git</url>
     </scm>
     
-    <repositories>
+<!--     <repositories>
         <repository>
             <id>myMavenRepoOTM</id>
             <url>${myMavenRepoOTMReadUrl}</url>
@@ -39,7 +39,7 @@
             <id>myMavenRepoOTM</id>
             <url>${myMavenRepoOTMWriteUrl}</url>
         </snapshotRepository>
-    </distributionManagement>
+    </distributionManagement> -->
 
     <build>
 
