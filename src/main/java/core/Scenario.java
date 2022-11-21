@@ -14,6 +14,7 @@ import error.OTMErrorLog;
 import error.OTMException;
 import dispatch.Dispatcher;
 import jaxb.Split;
+import jaxb.Model;
 import output.AbstractOutput;
 import output.OutputPathTravelTime;
 import profiles.*;
@@ -234,7 +235,9 @@ public class Scenario {
 //        }
 //    }
 
-    /** Create a jaxb object for this scenario **/
+    /** Create a jaxb object for this scenario
+     * @return A jaxb scenario
+     * **/
     public jaxb.Scenario to_jaxb(){
 
         jaxb.Scenario jsc = new jaxb.Scenario();
@@ -394,7 +397,11 @@ public class Scenario {
         path_tt_manager.add_path_travel_time_writer(path_tt_writer);
     }
 
-    /** Get a scenario element by type and id **/
+    /** Get a scenario element by type and id
+     * @param type Scenario element type
+     * @param id Id of the scenario element
+     * @return A scenario element
+     * **/
     public InterfaceScenarioElement get_element(ScenarioElementType type, Long id){
 
         switch(type){
@@ -424,64 +431,88 @@ public class Scenario {
 
     // get maps (needed for py4j to work)
 
-    /** Get network **/
+    /** Get network
+     * @return The network
+     * **/
     public Network network(){
         return network;
     }
 
-    /** Get map of models **/
+    /** Get map of models
+     * @return A map of models
+     * **/
     public Map<String,AbstractModel> models(){
         return models;
     }
 
-    /** Get map of commodities**/
+    /** Get map of commodities
+     * @return A map of commodities
+     * **/
     public Map<Long,Commodity> commodities(){
         return commodities;
     }
 
-    /** Get map of subnetworks **/
+    /** Get map of subnetworks
+     * @return A map of subnetworks
+     *  **/
     public Map<Long,Subnetwork> subnetworks(){
         return subnetworks;
     }
 
-    /** Get map of controllers  **/
+    /** Get map of controllers
+     * @return A map of controllers
+     * **/
     public Map<Long, AbstractController> controllers(){
         return controllers;
     }
 
-    /** Get map of actuators **/
+    /** Get map of actuators
+     * @return A map of actuators
+     * **/
     public Map<Long, AbstractActuator> actuators(){
         return actuators;
     }
 
-    /** Get map of sensors **/
+    /** Get map of sensors
+     * @return A map of sensors
+     * **/
     public Map<Long, AbstractSensor> sensors(){
         return sensors;
     }
 
-    /** Get map of demands **/
+    /** Get map of demands
+     * @return A map of demands
+     * **/
     public Map<Long, Set<DemandInfo>> demands(){
         return demands;
     }
 
-    /** Get map of events **/
+    /** Get map of events
+     * @return A map of events
+     * **/
     public Map<Long, AbstractScenarioEvent> events(){
         return events;
     }
 
     // id sets .......................................
 
-    /** Get commodity ids **/
+    /** Get commodity ids
+     * @return A set of commodity ids
+     * **/
     public Set<Long> commodity_ids(){
         return commodities.keySet();
     }
 
-    /** Get subnetwork ids **/
+    /** Get subnetwork ids
+     * @return A set of subnetwork ids
+     * **/
     public Set<Long> subnetwork_ids(){
         return subnetworks.keySet();
     }
 
-    /** Get ids of subnetworks that are paths **/
+    /** Get ids of subnetworks that are paths
+     * @return A set of path ids
+     * **/
     public Set<Long> path_ids(){
         return subnetworks.values().stream()
                 .filter(x->x instanceof Path)
@@ -489,59 +520,89 @@ public class Scenario {
                 .collect(toSet());
     }
 
-    /** Get actuator ids **/
+    /** Get actuator ids
+     * @return A set of actuator ids
+     * **/
     public Collection<Long> actuator_ids(){
         return actuators.keySet();
     }
 
-    /** Get sensor ids **/
+    /** Get sensor ids
+     * @return A set of sensor ids
+     * **/
     public Collection<Long> sensor_ids(){
         return sensors.keySet();
     }
 
-    /** Get controller ids **/
+    /** Get controller ids
+     * @return A set of controller ids
+     * **/
     public Collection<Long> controller_ids(){
         return controllers.keySet();
     }
 
     // elements by id .................................
 
-    /** Get model by id **/
+    /** Get model by id
+     * @throws OTMException (undocumented)
+     * @param id A model id
+     * @return A model
+     * **/
     public AbstractModel get_model(long id) throws OTMException {
         if(!models.containsKey(id))
             throw new OTMException("Bad id in Scenario.get_model");
         return models.get(id);
     }
 
-    /** Get commodity by id **/
+    /** Get commodity by id
+     * @throws OTMException (undocumented)
+     * @param id A commodity id
+     * @return A commodity
+     * **/
     public Commodity get_commodity(long id) throws OTMException {
         if(!commodities.containsKey(id))
             throw new OTMException("Bad id in Scenario.get_commodity");
         return commodities.get(id);
     }
 
-    /** Get subnetwork by id **/
+    /** Get subnetwork by id
+     * @throws OTMException (undocumented)
+     * @param id A subnetwork id
+     * @return A subnetwork
+     * **/
     public Subnetwork get_subnetwork(long id) throws OTMException {
         if(!subnetworks.containsKey(id))
             throw new OTMException("Bad id in Scenario.get_subnetwork");
         return subnetworks.get(id);
     }
 
-    /** Get actuator by id **/
+    /** Get actuator by id
+     * @throws OTMException (undocumented)
+     * @param id A actuator id
+     * @return A actuator
+     * **/
     public AbstractActuator get_actuator(long id) throws OTMException {
         if(!actuators.containsKey(id))
             throw new OTMException("Bad id in Scenario.get_actuator");
         return actuators.get(id);
     }
 
-    /** Get sensor by id **/
+    /** Get sensor by id
+     * @throws OTMException (undocumented)
+     * @param id A sensor id
+     * @return A sensor
+     * **/
     public AbstractSensor get_sensor(long id) throws OTMException {
         if(!sensors.containsKey(id))
             throw new OTMException("Bad id in Scenario.get_sensor");
         return sensors.get(id);
     }
 
-    /** Get controller by id **/
+    /** Get controller by id
+     * @throws OTMException (undocumented)
+     * @param id A controller id
+     * @return A controller
+     * **/
     public AbstractController get_controller(long id) throws OTMException {
         if(!controllers.containsKey(id))
             throw new OTMException("Bad id in Scenario.get_controller");
@@ -552,8 +613,8 @@ public class Scenario {
 
     /**
      * Assign a model to a set of links.
+     * @throws OTMException (undocumented)
      * @param jmodel Model in jaxb format. Please refer to otm.xsd for the details.
-     * @throws OTMException
      */
     public void set_model(jaxb.Model jmodel) throws OTMException {
 
@@ -574,7 +635,7 @@ public class Scenario {
 
     /** Extract all of the demands for a given commodity.
      * @param commodity_id Commodity id.
-     * @return
+     * @return A set of demand profiles
      */
     public Set<Profile1D> get_demands_for_commodity(Long commodity_id){
         return network.links.values().stream()
@@ -587,7 +648,7 @@ public class Scenario {
 
     /** Extract all of the demands for a given link.
      * @param link_id Link id.
-     * @return
+     * @return A set of demand profiles
      */
     public Set<Profile1D> get_demands_for_link(Long link_id){
         Link link = this.network.links.get(link_id);

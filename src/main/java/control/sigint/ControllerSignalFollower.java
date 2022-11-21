@@ -10,6 +10,7 @@ import error.OTMException;
 import jaxb.Controller;
 import output.events.EventWrapperController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public class ControllerSignalFollower extends AbstractController {
         return ActuatorSignal.class;
     }
 
-    public void set_active_phases(int [] green_phases) throws OTMException {
+    public void set_active_phases(ArrayList<Integer> green_phases) throws OTMException {
 
         if(!is_on)
             return;

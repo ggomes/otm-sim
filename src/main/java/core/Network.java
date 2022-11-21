@@ -124,34 +124,46 @@ public class Network {
     /////////////////////////////////////////////////
 
 
-    /** Get map of nodes **/
+    /** Get map of nodes
+     * @return A hashmap of nodes
+     * **/
     public Map<Long,Node> get_nodes(){
         return nodes;
     }
 
-    /** Get map of links **/
+    /** Get map of links
+     * @return A hashmap of links
+     * **/
     public Map<Long, Link> get_links(){
         return links;
     }
 
-    /** Get map of road connections **/
+    /** Get map of road connections
+     * @return A hashmap of road connections
+     * **/
     public Map<Long, RoadConnection> get_roadconnections(){
         return road_connections;
     }
 
     // id sets .......................................
 
-    /** Get node ids **/
+    /** Get node ids
+     * @return A set of node ids
+     * **/
     public Set<Long> node_ids(){
         return nodes.keySet();
     }
 
-    /** Get  ids **/
+    /** Get ids
+     * @return A set of link ids
+     * **/
     public Set<Long> link_ids(){
         return links.keySet();
     }
 
-    /** Get source link  ids **/
+    /** Get source link  ids
+     * @return A set of source link ids
+     * **/
     public Set<Long> source_link_ids(){
         return links.values().stream()
                 .filter(x->x.is_source())
@@ -162,20 +174,27 @@ public class Network {
 
     // get element by id ..............................
 
-    /** Get node by id **/
+    /** Get node by id
+     * @throws OTMException (no description)
+     * @param id node id
+     * @return A node
+     * **/
     public Node get_node(long id)throws OTMException {
         if(!nodes.containsKey(id))
             throw new OTMException("Bad id in Scenario.get_link");
         return nodes.get(id);
     }
 
-    /** Get link by id **/
+    /** Get link by id
+     * @throws OTMException (no description)
+     * @param id link id
+     * @return A link
+     * **/
     public Link get_link(long id) throws OTMException {
         if(!links.containsKey(id))
             throw new OTMException("Bad id in Scenario.get_link");
         return links.get(id);
     }
-
 
     public Set<List<Long>> get_link_connectivity(){
         Set<List<Long>> X = new HashSet<>();

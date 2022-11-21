@@ -1,6 +1,5 @@
 package tests;
 
-//import control.sigint.AbstractControllerSignal;
 import control.AbstractController;
 import control.sigint.ControllerSignalFollower;
 import core.OTM;
@@ -64,9 +63,9 @@ public class TestApi extends AbstractTest {
 
             ControllerSignalFollower cntr = (ControllerSignalFollower) otm.scenario.controllers.get(0l);
 
-            Map<Integer,int []> stages = new HashMap<>();
-            stages.put(0,new int[] {1,5});
-            stages.put(1,new int[] {2,6});
+            Map<Integer,ArrayList<Integer> > stages = new HashMap<>();
+            stages.put(0,new ArrayList(Arrays.asList(1,5)));
+            stages.put(1,new ArrayList(Arrays.asList(2,6)));
 
             otm.initialize(0f);
 

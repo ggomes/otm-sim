@@ -52,9 +52,9 @@ public class OTM {
 
     /**
      * Constructor.
+     * @throws OTMException Undocumented
      * @param configfile Configuration file.
      * @param validate_pre_init Validate
-     * @throws OTMException Undocumented
      */
     public OTM(String configfile, boolean validate_pre_init) throws OTMException {
         this( ScenarioFactory.create_scenario(JaxbLoader.load_scenario(configfile),validate_pre_init) , new Output() );
@@ -64,17 +64,25 @@ public class OTM {
         this(ScenarioFactory.create_scenario(jscenario,validate), new Output());
     }
 
-    /** Load a scenario from the standard tests. **/
+    /** Load a scenario from the standard tests.
+     * @throws OTMException Undocumented
+     * @param testname Name of the test.
+     * @return An OTM instance
+     * **/
     public static OTM load_test(String testname) throws OTMException  {
         return new OTM(JaxbLoader.load_test_scenario(testname),true);
     }
 
-    /** Get the output object **/
+    /** Get the output object
+     * @return Output object
+     * **/
     public Output output(){
         return output;
     }
 
-    /** Get the scenario object **/
+    /** Get the scenario object
+     * @return scenario object
+     * **/
     public Scenario scenario(){
         return scenario;
     }
@@ -84,7 +92,9 @@ public class OTM {
     ////////////////////////////////////////////////////////
 
 
-    /** Save the scenario to a file. **/
+    /** Save the scenario to a file.
+     * @param file Output file name
+     * **/
     public void save(String file)  {
         try {
             JaxbWriter.save_scenario(scenario.to_jaxb(),file);
@@ -133,11 +143,12 @@ public class OTM {
 
     /**
      *  Validate and initialize all components of the scenario.
+     * @throws OTMException Undocumented
      * @param start_time Initial time in seconds.
      * @param output_requests_file Absolute location and name of file with output requests.
      * @param prefix Prefix for the output.
      * @param output_folder Folder for the output.
-     * @throws OTMException Undocumented
+     * @param validate_post_init Whether or not to run post-initialize validation
      */
     public void initialize(float start_time,String output_requests_file,String prefix,String output_folder,boolean validate_post_init) throws OTMException {
 
@@ -157,8 +168,8 @@ public class OTM {
 
     /**
      *  Validate and initialize all components of the scenario. This function must be called prior to calling "advance".
-     * @param start_time Initial time in seconds.
      * @throws OTMException Undocumented
+     * @param start_time Initial time in seconds.
      */
     public void initialize(float start_time) throws OTMException {
         initialize(start_time,null,null,null,true);
@@ -216,6 +227,7 @@ public class OTM {
 
     /**
      * Create standard plots for given outputs and write them (as png files) to the output folder.
+     * @param outputs Set of AbstractOutput
      * @param out_folder Output folder
      * @throws OTMException Undocumented.
      */

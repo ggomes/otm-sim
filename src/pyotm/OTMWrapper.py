@@ -27,6 +27,7 @@ class OTMWrapper:
         #     error("Error loading configuration file.")
 
     def __del__(self):
+        self.otm.terminate()
         if hasattr(self, 'conn') and self.conn is not None:
             self.conn.close()
 
