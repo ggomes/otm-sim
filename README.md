@@ -53,4 +53,4 @@ del otm
 
 Here `get_state_trajectory` has been used to retrieve the state trajectory. This is a dictionary containing various state profiles. 
 
-A comprehensive API is available via the `otm` attribute of `OTMWrapper`. This API provides access to most of the internal state of OTM and should be used with care. The javadoc can be found [here](https://ggomes.github.io/otm-sim/apidocs/index.html).
+A comprehensive API is available via the `otm` attribute of `OTMWrapper`. This API provides access to most of the internal state of OTM and should be used with care. The javadoc can be found [here](https://ggomes.github.io/otm-sim/apidocs/core/OTM.html).
