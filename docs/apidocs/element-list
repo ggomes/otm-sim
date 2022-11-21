@@ -1,7 +1,6 @@
 actuator
 commodity
 control
-control.sigint
 core
 events
 output

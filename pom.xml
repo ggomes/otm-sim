@@ -99,7 +99,7 @@
                     </sourceFileIncludes>
 
                     <reportOutputDirectory>docs</reportOutputDirectory>
-                    <destDir>apidocs</destDir>
+                    <destDir>docs/apidocs</destDir>
                     <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
                 </configuration>
                 <executions>

@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"actuator"},{"l":"All Packages","url":"allpackages-index.html"},{"l":"commodity"},{"l":"control"},{"l":"control.sigint"},{"l":"core"},{"l":"events"},{"l":"output"},{"l":"sensor"}]
+packageSearchIndex = [{"l":"actuator"},{"l":"All Packages","url":"allpackages-index.html"},{"l":"commodity"},{"l":"control"},{"l":"core"},{"l":"events"},{"l":"output"},{"l":"sensor"}]
