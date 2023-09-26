@@ -9,7 +9,7 @@ Most users will interact with OTM through its Python API, which can be installed
 ```
 pip install pyotm
 ```
-This package provides a wrapper class called `OTMWrapper`, which  creates a gateway to the OTM jar file using `py4j`. `OTMWrapper` also includes some convenience methods for working with OTM. These are illustrated in the following example. 
+This package provides a wrapper class called `OTMWrapper`, which  creates a gateway to the OTM jar file using `py4j`. `OTMWrapper` also includes some convenience methods for working with OTM. These are illustrated in the following example. ([`instersection.xml`](https://github.com/ggomes/otm-sim/blob/main/src/test/resources/test_configs/intersection.xml))
 ```python 
 from pyotm.OTMWrapper import OTMWrapper
 
