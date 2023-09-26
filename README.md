@@ -54,8 +54,42 @@ Here `get_state_trajectory` has been used to retrieve the state trajectory. Thes
 
 The `OTMWrapper` exposes OTM's Java API through its `otm` attribute, which is an instance of [`core.OTM`](https://ggomes.github.io/otm-sim/apidocs/core/OTM.html). From here you can place requests to the [Output](https://ggomes.github.io/otm-sim/apidocs/core/Output.html) object, or gain access to all of the scenario elements (links, nodes, lane groups, controllers, sensors, actuators, etc.) via the [Scenario](https://ggomes.github.io/otm-sim/apidocs/core/Scenario.html) object. Both of these are otained with their getters. 
 
-The following example demonstrates the max pressure algorithm for controlling a signalized intersection.
+The following example demonstrates some of the OTM API getter methods.
 
 ```python
-TBD
+from pyotm.OTMWrapper import OTMWrapper
+
+# in case there is a lingering open gateway
+if "otm" in locals():
+	del otm
+	
+# load the configuration file
+otm = OTMWrapper("intersection.xml")
+
+# initialize (prepare/rewind the simulation)
+otm.initialize(start_time=0.0)
+
+scenario = otm.otm.scenario()
+actuators = {id:scenario.get_actuator(id) for id in scenario.actuator_ids()}
+commodities = {id:scenario.get_commodity(id) for id in scenario.commodity_ids()}
+controllers = {id:scenario.get_controller(id) for id in scenario.controller_ids()}
+
+network = scenario.network()
+link_ids = list(network.link_ids())
+links = {id:network.get_link(id) for id in link_ids}
+nodes = {id:network.get_node(id) for id in network.node_ids()}
+source_link_ids = network.source_link_ids()
+link1 = links[1]
+
+# run step-by-step using the 'advance' method
+time = 0.0  # in seconds
+advance_time = 10.0
+while(time<3600.0 ):
+	otm.advance(advance_time)   # seconds, should be a multiple of sim_dt
+	print(otm.get_current_time(), link1.get_veh())
+	time += advance_time;
+
+# deleting the wrapper to shut down the gateway
+del otm
+
 ```
